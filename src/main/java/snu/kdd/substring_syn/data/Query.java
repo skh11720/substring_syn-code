@@ -14,8 +14,6 @@ public class Query {
 	public final boolean oneSideJoin; // TODO: remove this variable
 	public final boolean selfJoin;
 
-	public TokenIndex tokenIndex;
-
 	public static Query parseQuery( CommandLine cmd ) throws IOException {
 		final String rulePath = cmd.getOptionValue( "rulePath" );
 		final String dataOnePath = cmd.getOptionValue( "dataOnePath" );
@@ -29,7 +27,7 @@ public class Query {
 		this.dataInfo = new DataInfo(searchedPath, indexedPath, rulePath);
 		this.outputPath = outputPath;
 		this.oneSideJoin = oneSideJoin;
-		this.tokenIndex = new TokenIndex();
+		TokenIndex tokenIndex = new TokenIndex();
 
 		if ( searchedPath == null ) searchedPath = indexedPath;
 		if( indexedPath.equals( searchedPath ) ) selfJoin = true;
@@ -38,6 +36,7 @@ public class Query {
 		if( selfJoin ) searchedSet = indexedSet;
 		else searchedSet = new Dataset( searchedPath, tokenIndex );
 		ruleSet = new Ruleset( rulePath, searchedSet, tokenIndex );
+		Record.tokenIndex = tokenIndex;
 	}
 
 	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin, boolean selfJoin, String outputPath ) {
@@ -45,7 +44,7 @@ public class Query {
 		this.ruleSet = ruleSet;
 		this.indexedSet = indexedSet;
 		this.searchedSet = searchedSet;
-		this.tokenIndex = tokenIndex;
+		Record.tokenIndex = tokenIndex;
 		this.oneSideJoin = oneSideJoin;
 		this.outputPath = outputPath;
 		this.selfJoin = selfJoin;

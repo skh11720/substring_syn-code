@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.utils.Util;
 public class Record implements Comparable<Record> {
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
-	public static int expandAllCount = 0;
+	public static TokenIndex tokenIndex = null;
 
 	private int[] tokens;
 	private final int id;
@@ -24,22 +24,16 @@ public class Record implements Comparable<Record> {
 	private boolean validHashValue = false;
 	private int hashValue;
 
-	public static TokenIndex tokenIndex = null;
 	protected Rule[][] suffixApplicableRules = null;
 
 	public int getQGramCount = 0;
-	
-	public static void initStatic() {
-		expandAllCount = 0;
-		tokenIndex = null;
-	}
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
 		String[] pstr = str.split( "( |\t)+" );
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
+			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
 		}
 		
 		num_dist_tokens = new IntOpenHashSet( tokens ).size();
@@ -178,9 +172,7 @@ public class Record implements Comparable<Record> {
 		return rslt;
 	}
 
-	// applicableRules should be previously computed
 	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
-		expandAllCount++;
 
 		Rule[] rules = applicableRules[ idx ];
 
@@ -224,10 +216,6 @@ public class Record implements Comparable<Record> {
 			}
 		}
 	}
-
-	/**
-	 * Transformed lengths
-	 */
 
 	public void preprocessTransformLength() {
 		transformLengths = new int[ tokens.length ][ 2 ];
@@ -280,27 +268,22 @@ public class Record implements Comparable<Record> {
 	}
 
 	public String toString() {
-		if( Record.tokenIndex != null ) {
-			return toString( Record.tokenIndex );
-		}
-		else {
-			String rslt = "";
-			for( int id : tokens ) {
-				if( rslt.length() != 0 ) {
-					rslt += " ";
-				}
-				rslt += id;
+		StringBuilder rslt = new StringBuilder();
+		for( int id : tokens ) {
+			if( rslt.length() != 0 ) {
+				rslt.append(" ");
 			}
-			return rslt;
+			rslt.append(id);
 		}
+		return rslt.toString();
 	}
 
-	public String toString( TokenIndex tokenIndex ) {
-		String rslt = "";
+	public String toOriginalString() {
+		StringBuilder rslt = new StringBuilder();
 		for( int id : tokens ) {
-			rslt += tokenIndex.getToken( id ) + " ";
+			rslt.append(tokenIndex.getToken( id ) + " ");
 		}
-		return rslt;
+		return rslt.toString();
 	}
 
 	public int getID() {
