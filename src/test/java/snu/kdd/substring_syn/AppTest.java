@@ -1,4 +1,4 @@
-package snu.kdd.subsyn.substring_syn;
+package snu.kdd.substring_syn;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
