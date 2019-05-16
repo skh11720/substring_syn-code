@@ -138,4 +138,13 @@ public class Rule implements Comparable<Rule> {
 
 		return bld.toString();
 	}
+
+	public void reindex( TokenOrder order ) {
+		for ( int i=0; i<lhs.length; ++i ) {
+			lhs[i] = order.getOrder(lhs[i]);
+		}
+		for ( int i=0; i<rhs.length; ++i ) {
+			rhs[i] = order.getOrder(rhs[i]);
+		}
+	}
 }

@@ -1,51 +1,50 @@
 package snu.kdd.substring_syn.data;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import snu.kdd.substring_syn.utils.Util;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class TokenOrder implements Comparator<Integer> {
 	
 	Int2IntMap orderMap = null;
 	Int2IntOpenHashMap counter = null;
 	
-	public TokenOrder( Collection<Record> records ) {
-		counter = countTokens(records);
+	public TokenOrder( Query query ) {
+		initCounter();
+		countTokens(query.searchedSet);
+		if ( !query.selfJoin ) countTokens(query.indexedSet);
+		countTokens(query.ruleSet);
 		buildOrderMap(counter);
 	}
 	
-	private Int2IntOpenHashMap countTokens( Collection<Record> records ) {
-		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
-		counter.defaultReturnValue(0);
-		for ( Record rec : records ) {
-//			System.out.println( Arrays.toString(rec.getTokensArray()) );
-			for ( int token : rec.getTokens() ) {
-				counter.addTo(token, 1);
-//				System.out.println(token+"\t"+counter.get(token));
-			}
-		}
-		return counter;
+	public int getOrder( int id ) {
+		return orderMap.get(id);
 	}
-		
-	private void buildOrderMap( Int2IntMap counter ) {
-		orderMap = new Int2IntLinkedOpenHashMap(counter.size());
-		IntStream orderedKeyStream = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue)).mapToInt(e -> e.getIntKey());
-		orderedKeyStream.forEach(key -> orderMap.put(key, orderMap.size()));
+	
+	public ObjectSet<Int2IntMap.Entry> entrySet() {
+		return orderMap.int2IntEntrySet();
+	}
+	
+	public TokenIndex getTokenIndex() {
+		TokenIndex tokenIndex = new TokenIndex();
+		for ( int idx : orderMap.keySet() ) {
+			String token = Record.tokenIndex.getToken(idx);
+			tokenIndex.getIDOrAdd(token);
+		}
+		return tokenIndex;
 	}
 	
 	@Override
 	public int compare(Integer o1, Integer o2) {
 		return Integer.compare(orderMap.get(o1), orderMap.get(o2));
 	}
-
+	
 	public void writeToFile() throws FileNotFoundException {
 		PrintStream ps = new PrintStream("tmp/TokenOrder.txt");
 		for ( Int2IntMap.Entry entry : orderMap.int2IntEntrySet() ) {
@@ -55,10 +54,31 @@ public class TokenOrder implements Comparator<Integer> {
 		ps.close();
 	}
 	
+	private void initCounter() {
+		counter = new Int2IntOpenHashMap();
+		counter.defaultReturnValue(0);
+	}
 	
-	public static void main(String[] args) throws IOException {
-		Query query = Util.getQuery("SPROT", 10000);
-		TokenOrder tokenOrder = new TokenOrder(query.searchedSet.recordList);
-		tokenOrder.writeToFile();
+	private void countTokens( Dataset dataset ) {
+		for ( Record rec : dataset.recordList ) {
+			for ( int token : rec.getTokens() ) {
+				counter.addTo(token, 1);
+			}
+		}
+	}
+
+	private void countTokens( Ruleset ruleSet ) {
+		for ( Rule rule : ruleSet.ruleList ) {
+			for ( int token : rule.getRight() ) {
+				counter.addTo(token, 1);
+			}
+		}
+	}
+		
+	private void buildOrderMap( Int2IntMap counter ) {
+		orderMap = new Int2IntLinkedOpenHashMap(counter.size());
+		orderMap.defaultReturnValue(-1);
+		IntStream orderedKeyStream = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue)).mapToInt(e -> e.getIntKey());
+		orderedKeyStream.forEach(key -> orderMap.put(key, orderMap.size()));
 	}
 }

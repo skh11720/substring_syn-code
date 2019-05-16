@@ -405,4 +405,10 @@ public class Record implements Comparable<Record> {
 			return 1;
 		}
 	}
+	
+	public void reindex( TokenOrder order ) {
+		for ( int i=0; i<tokens.length; ++i ) {
+			tokens[i] = order.getOrder(tokens[i]);
+		}
+	}
 }

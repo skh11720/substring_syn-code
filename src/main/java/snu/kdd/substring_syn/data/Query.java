@@ -39,15 +39,38 @@ public class Query {
 		Record.tokenIndex = tokenIndex;
 	}
 
-	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin, boolean selfJoin, String outputPath ) {
-		this.dataInfo = null;
-		this.ruleSet = ruleSet;
-		this.indexedSet = indexedSet;
-		this.searchedSet = searchedSet;
+//	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin, boolean selfJoin, String outputPath ) {
+//		this.dataInfo = null;
+//		this.ruleSet = ruleSet;
+//		this.indexedSet = indexedSet;
+//		this.searchedSet = searchedSet;
+//		Record.tokenIndex = tokenIndex;
+//		this.oneSideJoin = oneSideJoin;
+//		this.outputPath = outputPath;
+//		this.selfJoin = selfJoin;
+//	}
+	
+	public void reindexByOrder( TokenOrder order ) {
+		reindexRecords(order);
+		reindexRules(order);
+		updateTokenIndex(order);
+	}
+	
+	private void reindexRecords( TokenOrder order ) {
+		for ( Record rec : indexedSet.recordList ) rec.reindex(order);
+		if ( !selfJoin ) {
+			for ( Record rec : searchedSet.recordList ) rec.reindex(order);
+		}
+	}
+	
+	private void reindexRules( TokenOrder order ) {
+		for ( Rule rule : ruleSet.ruleList ) rule.reindex(order);
+	}
+	
+	private void updateTokenIndex( TokenOrder order ) {
+		TokenIndex tokenIndex = order.getTokenIndex();
 		Record.tokenIndex = tokenIndex;
-		this.oneSideJoin = oneSideJoin;
-		this.outputPath = outputPath;
-		this.selfJoin = selfJoin;
+		tokenIndex.writeToFile();
 	}
 	
 	public String getRulePath() {
