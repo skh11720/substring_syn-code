@@ -18,13 +18,13 @@ public class IntHashBasedBinaryHeapTest {
 	public void insertCorrectnessTest() {
 		IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap();
 		int n = 10000;
-		IntArrayList keyList = new IntArrayList();
+		IntArrayList valueList = new IntArrayList();
 		
 		for ( int i=0; i<n; ++i ) {
 			int key = rn.nextInt();
-			while ( heap.containesKey(key) ) key = rn.nextInt();
-			keyList.add(key);
-			heap.insert(key);
+			int value = i;
+			valueList.add(value);
+			heap.insert(key, value);
 			assertTrue( heap.isValidHeap() );
 //			System.out.println(String.format("%d/%d", heap.size(), heap.capacity()));
 		}
@@ -34,18 +34,18 @@ public class IntHashBasedBinaryHeapTest {
 	public void deleteCorrectnessTest() {
 		IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap();
 		int n = 10000;
-		IntArrayList keyList = new IntArrayList();
+		IntArrayList valueList = new IntArrayList();
 		
 		for ( int i=0; i<n; ++i ) {
 			int key = rn.nextInt();
-			while ( heap.containesKey(key) ) key = rn.nextInt();
-			keyList.add(key);
-			heap.insert(key);
+			int value = i;
+			valueList.add(value);
+			heap.insert(key, value);
 		}
 		
-		Collections.shuffle(keyList);
-		for ( int key : keyList ) {
-			heap.delete(key);
+		Collections.shuffle(valueList);
+		for ( int value : valueList ) {
+			heap.deleteByValue(value);
 			assertTrue( heap.isValidHeap() );
 //			System.out.println(String.format("%d/%d", heap.size(), heap.capacity()));
 		}
@@ -55,12 +55,12 @@ public class IntHashBasedBinaryHeapTest {
 	public void timeEfficiencyTest() {
 		int n = 100000;
 		IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap();
-		IntArrayList keyList = new IntArrayList();
+		IntArrayList valueList = new IntArrayList();
 		for ( int i=0; i<n; ++i ) {
 			int key = rn.nextInt();
-			while ( heap.containesKey(key) ) key = rn.nextInt();
-			keyList.add(key);
-			heap.insert(key);
+			int value = i;
+			valueList.add(value);
+			heap.insert(key, value);
 		}
 		
 		int m = 1000000;
@@ -72,21 +72,21 @@ public class IntHashBasedBinaryHeapTest {
 			if ( rn.nextDouble() < 0.51 ) { // insert
 				++n_ins;
 				int key = rn.nextInt();
-				while ( heap.containesKey(key) ) key = rn.nextInt();
+				int value = n++;
 				long ts = System.nanoTime();
-				heap.insert(key);
+				heap.insert(key, value);
 				t_ins += System.nanoTime() - ts;
-				keyList.add(key);
+				valueList.add(value);
 			}
 			else { // delete
 				++n_del;
 				if ( heap.isEmpty() ) continue;
-				int idx = rn.nextInt( keyList.size() );
-				int key = keyList.getInt(idx);
+				int idx = rn.nextInt( valueList.size() );
+				int value = valueList.getInt(idx);
 				long ts = System.nanoTime();
-				heap.delete(key);
+				heap.deleteByValue(value);
 				t_del += System.nanoTime() - ts;
-				keyList.removeInt(idx);
+				valueList.removeInt(idx);
 			}
 			assertTrue( heap.isValidHeap() );
 		}
