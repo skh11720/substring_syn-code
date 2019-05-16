@@ -20,6 +20,14 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 		super();
 	}
 
+	public IntHashBasedBinaryHeap( int initCapacity ) {
+		super(initCapacity);
+	}
+
+	public IntHashBasedBinaryHeap( int initCapacity, Comparator<Integer> comp ) {
+		super(initCapacity, comp);
+	}
+
 	public IntHashBasedBinaryHeap(Comparator<Integer> comp) {
 		super(comp);
 	}
@@ -53,6 +61,14 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 	
 	public void deleteByValue( int value ) {
 		if ( !val2idxMap.containsKey(value) ) throw new RuntimeException("Value does not exist");
+		int i = val2idxMap.get(value);
+		val2idxMap.remove(value);
+		decreaseKey(i, getMinimumKey());
+		poll();
+	}
+
+	public void deleteByValueIfExists( int value ) {
+		if ( !val2idxMap.containsKey(value) ) return;
 		int i = val2idxMap.get(value);
 		val2idxMap.remove(value);
 		decreaseKey(i, getMinimumKey());

@@ -1,6 +1,9 @@
 package snu.kdd.substring_syn.utils;
 
+import java.util.Arrays;
 import java.util.Comparator;
+
+import javax.management.RuntimeErrorException;
 
 /**
  * 
@@ -46,6 +49,10 @@ public class IntBinaryHeap {
 		this.comp = comp;
 		size = keys.length;
 		build();
+	}
+	
+	public int[] getKeys() {
+		return Arrays.copyOfRange(keys, 0, size);
 	}
 	
 	public boolean isEmpty() {
@@ -100,6 +107,7 @@ public class IntBinaryHeap {
 	}
 	
 	public int peek() {
+		if ( isEmpty() ) throw new RuntimeException();
 		return keys[0];
 	}
 	
