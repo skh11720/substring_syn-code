@@ -36,7 +36,7 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 	public boolean isValidHeap() {
 		if ( size != map.size() ) return false;
 		for ( Int2IntMap.Entry entry : map.int2IntEntrySet() ) {
-			if ( arr[entry.getIntValue()] != entry.getIntKey() ) return false;
+			if ( keys[entry.getIntValue()] != entry.getIntKey() ) return false;
 		}
 		return super.isValidHeap();
 	}
@@ -56,13 +56,13 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 
 	@Override
 	protected void deleteMin() {
-		map.remove(arr[0]);
+		map.remove(keys[0]);
 		super.deleteMin();
 	}
 
 	@Override
 	protected void decreaseKeyKernel( int i, int v ) {
-		map.remove(arr[i]);
+		map.remove(keys[i]);
 		map.put(v, i);
 		super.decreaseKeyKernel(i, v);
 	}
@@ -71,25 +71,25 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 	public String toString() {
 		StringBuilder strbld = new StringBuilder("[");
 		for ( int i=0; i<(size+1)/2; ++i ) {
-			strbld.append("  "+arr[i]+"("+map.get(arr[i])+")");
-			if ( left(i) < size ) strbld.append(" -> "+arr[left(i)]+" ("+map.get(arr[left(i)])+")");
-			if ( right(i) < size ) strbld.append(", "+arr[right(i)]+" ("+map.get(arr[right(i)])+")"+"\n");
+			strbld.append("  "+keys[i]+"("+map.get(keys[i])+")");
+			if ( left(i) < size ) strbld.append(" -> "+keys[left(i)]+" ("+map.get(keys[left(i)])+")");
+			if ( right(i) < size ) strbld.append(", "+keys[right(i)]+" ("+map.get(keys[right(i)])+")"+"\n");
 		}
-		strbld.append("] "+String.format("(%d/%d)", size, arr.length));
+		strbld.append("] "+String.format("(%d/%d)", size, keys.length));
 		return strbld.toString();
 	}
 
 	@Override
 	protected void build() {
 		map = new Int2IntOpenHashMap();
-		for ( int i=0; i<size; ++i ) map.put(arr[i], i);
+		for ( int i=0; i<size; ++i ) map.put(keys[i], i);
 		super.build();
 	}
 	
 	@Override
 	protected void swap( int i, int j ) {
-		if ( map.containsKey(arr[j]) ) map.put(arr[j], i);
-		if ( map.containsKey(arr[i]) ) map.put(arr[i], j);
+		if ( map.containsKey(keys[j]) ) map.put(keys[j], i);
+		if ( map.containsKey(keys[i]) ) map.put(keys[i], j);
 		super.swap(i, j);
 	}
 

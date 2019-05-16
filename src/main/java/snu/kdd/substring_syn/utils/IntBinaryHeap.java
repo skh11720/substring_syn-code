@@ -5,13 +5,12 @@ import java.util.Comparator;
 /**
  * 
  * @author ghsong
- * @param <E>
  *
  */
 
 public class IntBinaryHeap {
 	
-	protected int[] arr;
+	protected int[] keys;
 	protected int size = 0;
 	protected Comparator<Integer> comp = null;
 	
@@ -24,7 +23,7 @@ public class IntBinaryHeap {
 	}
 
 	public IntBinaryHeap( int initialCapacity, Comparator<Integer> comp ) {
-		arr = new int[initialCapacity];
+		keys = new int[initialCapacity];
 		this.comp = comp;
 		size = 0;
 		build();
@@ -35,7 +34,7 @@ public class IntBinaryHeap {
 	}
 	
 	public IntBinaryHeap( int[] arr, Comparator<Integer> comp ) {
-		this.arr = arr;
+		this.keys = arr;
 		this.comp = comp;
 		size = arr.length;
 		build();
@@ -50,16 +49,16 @@ public class IntBinaryHeap {
 	}
 	
 	public int capacity() {
-		return arr.length;
+		return keys.length;
 	}
 	
 	protected void heapify( int i ) {
 		int l = left(i);
 		int r = right(i);
 		int smallest;
-		if ( l < size && comp.compare(arr[i],  arr[l]) > 0 ) smallest =  l;
+		if ( l < size && comp.compare(keys[i],  keys[l]) > 0 ) smallest =  l;
 		else smallest = i;
-		if ( r < size && comp.compare(arr[smallest],  arr[r]) > 0 ) smallest = r;
+		if ( r < size && comp.compare(keys[smallest],  keys[r]) > 0 ) smallest = r;
 		if ( smallest != i ) {
 			swap(i, smallest);
 			heapify(smallest);
@@ -67,13 +66,13 @@ public class IntBinaryHeap {
 	}
 	
 	public void decreaseKey( int i, int v ) {
-		if ( v >  arr[i] ) throw new RuntimeException();
+		if ( v >  keys[i] ) throw new RuntimeException();
 		decreaseKeyKernel(i, v);
 	}
 	
 	public void insert( int key ) {
 		increaseSize();
-		arr[size-1] = getMaximumKey();
+		keys[size-1] = getMaximumKey();
 		decreaseKey(size-1, key);
 	}
 	
@@ -84,12 +83,12 @@ public class IntBinaryHeap {
 	}
 	
 	public int peek() {
-		return arr[0];
+		return keys[0];
 	}
 	
 	public int poll() {
 		if ( isEmpty() ) throw new RuntimeException();
-		int minKey = arr[0];
+		int minKey = keys[0];
 		deleteMin();
 		return minKey;
 	}
@@ -98,8 +97,8 @@ public class IntBinaryHeap {
 		for ( int i=parent(size-1); i >=0; --i ) {
 			int l = left(i);
 			int r = right(i);
-			if ( l < size && comp.compare(arr[i], arr[l]) > 0 ) return false;
-			if ( r < size && comp.compare(arr[i], arr[r]) > 0 ) return false;
+			if ( l < size && comp.compare(keys[i], keys[l]) > 0 ) return false;
+			if ( r < size && comp.compare(keys[i], keys[r]) > 0 ) return false;
 		}
 		return true;
 	}
@@ -108,17 +107,17 @@ public class IntBinaryHeap {
 	public String toString() {
 		StringBuilder strbld = new StringBuilder("[");
 		for ( int i=0; i<(size+1)/2; ++i ) {
-			strbld.append("  "+arr[i]);
-			if ( left(i) < size ) strbld.append(" -> "+arr[left(i)]);
-			if ( right(i) < size ) strbld.append(", "+arr[right(i)]+"\n");
+			strbld.append("  "+keys[i]);
+			if ( left(i) < size ) strbld.append(" -> "+keys[left(i)]);
+			if ( right(i) < size ) strbld.append(", "+keys[right(i)]+"\n");
 		}
-		strbld.append("] "+String.format("(%d/%d)", size, arr.length));
+		strbld.append("] "+String.format("(%d/%d)", size, keys.length));
 		return strbld.toString();
 	}
 	
 	protected void decreaseKeyKernel( int i, int v ) {
-		arr[i] = v;
-		while ( i > 0 && comp.compare(arr[parent(i)], arr[i]) > 0 ) {
+		keys[i] = v;
+		while ( i > 0 && comp.compare(keys[parent(i)], keys[i]) > 0 ) {
 			swap(i, parent(i));
 			i = parent(i);
 		}
@@ -148,31 +147,31 @@ public class IntBinaryHeap {
 	
 	protected void swap( int i, int j ) {
 		if ( i >= size || j >= size ) throw new RuntimeException();
-		int tmp = arr[i];
-		arr[i] = arr[j];
-		arr[j] = tmp;
+		int tmp = keys[i];
+		keys[i] = keys[j];
+		keys[j] = tmp;
 	}
 	
 	protected void increaseSize() {
-		if ( size == arr.length ) increaseCapacity();
+		if ( size == keys.length ) increaseCapacity();
 		++size;
 	}
 	
 	protected void decreaseSize() {
-		if ( size < arr.length/3 ) decreaseCapacitiy();
+		if ( size < keys.length/3 ) decreaseCapacitiy();
 		--size;
 	}
 	
 	protected void increaseCapacity() {
-		int[] arr0 = new int[(arr.length+1)*3/2];
-		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
-		this.arr = arr0;
+		int[] arr0 = new int[(keys.length+1)*3/2];
+		for ( int i=0; i<size; ++i ) arr0[i] = keys[i];
+		this.keys = arr0;
 	}
 	
 	protected void decreaseCapacitiy() {
-		int[] arr0 = new int[arr.length*2/3];
-		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
-		this.arr = arr0;
+		int[] arr0 = new int[keys.length*2/3];
+		for ( int i=0; i<size; ++i ) arr0[i] = keys[i];
+		this.keys = arr0;
 	}
 	
 	protected int getMinimumKey() {
