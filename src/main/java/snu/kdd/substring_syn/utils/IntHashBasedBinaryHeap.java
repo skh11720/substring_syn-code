@@ -14,66 +14,67 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 	
-	protected Int2IntMap map;
+	protected Int2IntMap val2idxMap;
 	
 	public IntHashBasedBinaryHeap() {
 		super();
 	}
 
-	public IntHashBasedBinaryHeap( int[] arr ) {
-		super(arr);
+	public IntHashBasedBinaryHeap( int[] keys, int[] values ) {
+		super(keys, values);
 	}
 
-	public IntHashBasedBinaryHeap( int[] arr, Comparator<Integer> comp ) {
-		super(arr, comp);
+	public IntHashBasedBinaryHeap( int[] keys, int[] values, Comparator<Integer> comp ) {
+		super(keys, values, comp);
 	}
 	
-	public boolean containesKey( int key ) {
-		return map.containsKey(key);
+	public boolean containesValue( int value ) {
+		return val2idxMap.containsKey(value);
 	}
 	
 	@Override
 	public boolean isValidHeap() {
-		if ( size != map.size() ) return false;
-		for ( Int2IntMap.Entry entry : map.int2IntEntrySet() ) {
-			if ( keys[entry.getIntValue()] != entry.getIntKey() ) return false;
+		if ( size != val2idxMap.size() ) return false;
+		for ( Int2IntMap.Entry entry : val2idxMap.int2IntEntrySet() ) {
+			if ( values[entry.getIntValue()] != entry.getIntKey() ) return false;
 		}
 		return super.isValidHeap();
 	}
 
 	@Override
-	public void insert( int key ) {
-		map.put(key, size);
-		super.insert(key);
+	public void insert( int key, int value ) {
+		val2idxMap.put(value, size);
+		super.insert(key, value);
 	}
 	
-	public void delete( int key ) {
-		if ( !map.containsKey(key) ) throw new RuntimeException("Key does not exist");
-		int i = map.get(key);
+	public void deleteByValue( int value ) {
+		if ( !val2idxMap.containsKey(value) ) throw new RuntimeException("Value does not exist");
+		int i = val2idxMap.get(value);
+		val2idxMap.remove(value);
 		decreaseKey(i, getMinimumKey());
 		poll();
 	}
 
 	@Override
 	protected void deleteMin() {
-		map.remove(keys[0]);
+		val2idxMap.remove(values[0]);
 		super.deleteMin();
 	}
 
 	@Override
-	protected void decreaseKeyKernel( int i, int v ) {
-		map.remove(keys[i]);
-		map.put(v, i);
-		super.decreaseKeyKernel(i, v);
+	protected void decreaseKeyKernel( int i, int newKey ) {
+		super.decreaseKeyKernel(i, newKey);
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder strbld = new StringBuilder("[");
 		for ( int i=0; i<(size+1)/2; ++i ) {
-			strbld.append("  "+keys[i]+"("+map.get(keys[i])+")");
-			if ( left(i) < size ) strbld.append(" -> "+keys[left(i)]+" ("+map.get(keys[left(i)])+")");
-			if ( right(i) < size ) strbld.append(", "+keys[right(i)]+" ("+map.get(keys[right(i)])+")"+"\n");
+			strbld.append("  "+keys[i]+":"+values[i]+" ("+val2idxMap.get(keys[i])+")");
+			int l = left(i);
+			int r = right(i);
+			if ( l < size ) strbld.append(" -> "+keys[l]+":"+values[l]+" ("+val2idxMap.get(values[l])+")");
+			if ( r < size ) strbld.append(", "+keys[r]+":"+values[r]+" ("+val2idxMap.get(values[r])+")"+"\n");
 		}
 		strbld.append("] "+String.format("(%d/%d)", size, keys.length));
 		return strbld.toString();
@@ -81,29 +82,33 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 
 	@Override
 	protected void build() {
-		map = new Int2IntOpenHashMap();
-		for ( int i=0; i<size; ++i ) map.put(keys[i], i);
+		val2idxMap = new Int2IntOpenHashMap();
+		for ( int i=0; i<size; ++i ) val2idxMap.put(values[i], i);
 		super.build();
 	}
 	
 	@Override
 	protected void swap( int i, int j ) {
-		if ( map.containsKey(keys[j]) ) map.put(keys[j], i);
-		if ( map.containsKey(keys[i]) ) map.put(keys[i], j);
+		if ( val2idxMap.containsKey(values[j]) ) val2idxMap.put(values[j], i);
+		if ( val2idxMap.containsKey(values[i]) ) val2idxMap.put(values[i], j);
 		super.swap(i, j);
 	}
 
 
 	public static void main(String[] args) {
 		{
-			int[] arr = {16,1,7,8,14,3,9,4,2,10};
-			IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap(arr, (x,y) -> Integer.compare(x,y));
-			System.out.println(heap.map);
+			int[] keys = {16,1,7,8,14,3,9,4,2,10};
+			int[] values = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};
+			IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap(keys, values, (x,y) -> Integer.compare(x,y));
+			System.out.println(heap.val2idxMap);
 			System.out.println(heap);
 			
-			int[] brr = {24,34,11,23,5,13,6};
-			for ( int key : brr ) {
-				heap.insert(key);
+			int[] keys2 = {24,34,11, 11, 11, 11, 11};
+			int[] values2 = {200, 201, 202, 203, 204, 205, 206};
+			for ( int i=0; i<keys2.length; ++i ) {
+				int key = keys2[i];
+				int value = values2[i];
+				heap.insert(key, value);
 				System.out.println(heap);
 			}
 			
@@ -115,24 +120,29 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 		}
 
 		{
-			int[] arr = {16,1,7,8,14,3,9,4,2,10};
-			IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap(arr, (x,y) -> Integer.compare(x,y));
-			System.out.println(heap.map);
+			int[] keys = {16,1,7,8,14,3,9,4,2,10};
+			int[] values = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};
+			IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap(keys, values, (x,y) -> Integer.compare(x,y));
+			System.out.println(heap.val2idxMap);
 			System.out.println(heap);
 			
-			int[] brr = {24,34,11,23,5,13,6};
-			for ( int key : brr ) {
+			int[] keys2 = {24,34,11, 11, 11, 11, 11};
+			int[] values2 = {200, 201, 202, 203, 204, 205, 206};
+			for ( int i=0; i<keys2.length; ++i ) {
+				int key = keys2[i];
+				int value = values2[i];
 				System.out.println("INSERT "+key);
-				heap.insert(key);
+				heap.insert(key, value);
+				System.out.println(heap.val2idxMap);
 				System.out.println(heap);
 				if ( !heap.isValidHeap() ) throw new RuntimeException();
 			}
 			
-			IntStream stream = IntStream.concat( IntStream.of(arr), IntStream.of(brr) );
-			for ( int key : stream.toArray() ) {
-				System.out.println("DELETE "+key);
-				heap.delete(key);
-				System.out.println(key);
+			IntStream stream = IntStream.concat( IntStream.of(values), IntStream.of(values2) );
+			for ( int value : stream.toArray() ) {
+				System.out.println("DELETE "+value);
+				heap.deleteByValue(value);
+				System.out.println(heap.val2idxMap);
 				System.out.println(heap);
 				if ( !heap.isValidHeap() ) throw new RuntimeException();
 			}

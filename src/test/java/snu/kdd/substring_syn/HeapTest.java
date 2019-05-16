@@ -104,16 +104,17 @@ public class HeapTest {
 		for ( int n=1000; n<1e7; n*=2 ) {
 			double t_avg = 0;
 			for ( int repeat=0; repeat<nRepeat; ++repeat ) {
-				int[] elems = rn.ints(n).toArray();
-				IntArrayList elemList = IntArrayList.wrap(elems);
+				int[] keys = rn.ints(n).toArray();
+				int[] values = rn.ints(n).toArray();
+				IntArrayList valueList = IntArrayList.wrap(values);
 				
 				IntHashBasedBinaryHeap heap = new IntHashBasedBinaryHeap();
-				for ( int i=0; i<n; ++i ) heap.insert(elems[i]);
-				Collections.shuffle(elemList);
+				for ( int i=0; i<n; ++i ) heap.insert(keys[i], values[i]);
+				Collections.shuffle(valueList);
 
 				long ts = System.nanoTime();
 				for ( int j=0; j<m; ++j ) {
-					heap.delete(elemList.getInt(j));
+					heap.deleteByValue(valueList.getInt(j));
 				}
 				long t = System.nanoTime() - ts;
 				t_avg += t;

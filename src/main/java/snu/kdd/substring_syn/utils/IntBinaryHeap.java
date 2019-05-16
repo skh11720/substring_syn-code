@@ -11,6 +11,7 @@ import java.util.Comparator;
 public class IntBinaryHeap {
 	
 	protected int[] keys;
+	protected int[] values;
 	protected int size = 0;
 	protected Comparator<Integer> comp = null;
 	
@@ -24,19 +25,22 @@ public class IntBinaryHeap {
 
 	public IntBinaryHeap( int initialCapacity, Comparator<Integer> comp ) {
 		keys = new int[initialCapacity];
+		values = new int[initialCapacity];
 		this.comp = comp;
 		size = 0;
 		build();
 	}
 	
-	public IntBinaryHeap( int[] arr ) {
-		this(arr, Integer::compare);
+	public IntBinaryHeap( int[] keys, int[] values ) {
+		this(keys, values, Integer::compare);
 	}
 	
-	public IntBinaryHeap( int[] arr, Comparator<Integer> comp ) {
-		this.keys = arr;
+	public IntBinaryHeap( int[] keys, int[] values, Comparator<Integer> comp ) {
+		if ( keys.length != values.length ) throw new IllegalArgumentException();
+		this.keys = keys;
+		this.values = values;
 		this.comp = comp;
-		size = arr.length;
+		size = keys.length;
 		build();
 	}
 	
@@ -69,10 +73,19 @@ public class IntBinaryHeap {
 		if ( v >  keys[i] ) throw new RuntimeException();
 		decreaseKeyKernel(i, v);
 	}
+
+	protected void decreaseKeyKernel( int i, int v ) {
+		keys[i] = v;
+		while ( i > 0 && comp.compare(keys[parent(i)], keys[i]) > 0 ) {
+			swap(i, parent(i));
+			i = parent(i);
+		}
+	}
 	
-	public void insert( int key ) {
+	public void insert( int key, int value ) {
 		increaseSize();
 		keys[size-1] = getMaximumKey();
+		values[size-1] = value;
 		decreaseKey(size-1, key);
 	}
 	
@@ -107,20 +120,14 @@ public class IntBinaryHeap {
 	public String toString() {
 		StringBuilder strbld = new StringBuilder("[");
 		for ( int i=0; i<(size+1)/2; ++i ) {
-			strbld.append("  "+keys[i]);
-			if ( left(i) < size ) strbld.append(" -> "+keys[left(i)]);
-			if ( right(i) < size ) strbld.append(", "+keys[right(i)]+"\n");
+			strbld.append("  "+keys[i]+":"+values[i]);
+			int l = left(i);
+			int r = right(i);
+			if ( l < size ) strbld.append(" -> "+keys[l]+":"+values[l]);
+			if ( r < size ) strbld.append(", "+keys[r]+":"+values[r]+"\n");
 		}
 		strbld.append("] "+String.format("(%d/%d)", size, keys.length));
 		return strbld.toString();
-	}
-	
-	protected void decreaseKeyKernel( int i, int v ) {
-		keys[i] = v;
-		while ( i > 0 && comp.compare(keys[parent(i)], keys[i]) > 0 ) {
-			swap(i, parent(i));
-			i = parent(i);
-		}
 	}
 	
 	protected void checkUnderflow() {
@@ -147,9 +154,14 @@ public class IntBinaryHeap {
 	
 	protected void swap( int i, int j ) {
 		if ( i >= size || j >= size ) throw new RuntimeException();
-		int tmp = keys[i];
-		keys[i] = keys[j];
-		keys[j] = tmp;
+		swapInArr(keys, i, j);
+		swapInArr(values, i, j);
+	}
+	
+	protected void swapInArr( int[] arr, int i, int j ) {
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
 	}
 	
 	protected void increaseSize() {
@@ -163,15 +175,25 @@ public class IntBinaryHeap {
 	}
 	
 	protected void increaseCapacity() {
-		int[] arr0 = new int[(keys.length+1)*3/2];
-		for ( int i=0; i<size; ++i ) arr0[i] = keys[i];
-		this.keys = arr0;
+		keys = getIncreasedArray(keys);
+		values = getIncreasedArray(values);
+	}
+	
+	protected int[] getIncreasedArray( int[] arr ) {
+		int[] arr0 = new int[(arr.length+1)*3/2];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
 	}
 	
 	protected void decreaseCapacitiy() {
-		int[] arr0 = new int[keys.length*2/3];
-		for ( int i=0; i<size; ++i ) arr0[i] = keys[i];
-		this.keys = arr0;
+		keys = getDecreasedArray(keys);
+		values = getDecreasedArray(values);
+	}
+	
+	protected int[] getDecreasedArray( int[] arr ) {
+		int[] arr0 = new int[arr.length*2/3];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
 	}
 	
 	protected int getMinimumKey() {
@@ -186,14 +208,18 @@ public class IntBinaryHeap {
 
 	
 	public static void main(String[] args) {
-		int[] arr = {16,1,7,8,14,3,9,4,2,10};
-		IntBinaryHeap heap = new IntBinaryHeap(arr, (x,y) -> Integer.compare(x,y));
+		int[] keys = {16,1,7,8,14,3,9,4,2,10};
+		int[] values = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};
+		IntBinaryHeap heap = new IntBinaryHeap(keys, values, (x,y) -> Integer.compare(x,y));
 		System.out.println(heap);
 		if ( !heap.isValidHeap() ) throw new RuntimeException();
 		
-		int[] brr = {24,34,11,23,5,13,6};
-		for ( int key : brr ) {
-			heap.insert(key);
+		int[] keys2 = {24,34,11, 11, 11, 11, 11};
+		int[] values2 = {200, 201, 202, 203, 204, 205, 206};
+		for ( int i=0; i<keys2.length; ++i ) {
+			int key = keys2[i];
+			int value = values2[i];
+			heap.insert(key, value);
 			System.out.println(heap);
 			if ( !heap.isValidHeap() ) throw new RuntimeException();
 		}
