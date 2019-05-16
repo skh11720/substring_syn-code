@@ -18,6 +18,10 @@ public class IntBinaryHeap {
 	public IntBinaryHeap() {
 		this(10, Integer::compare);
 	}
+
+	public IntBinaryHeap(Comparator<Integer> comp ) {
+		this(10, comp);
+	}
 	
 	public IntBinaryHeap( int initialCapacity ) {
 		this(initialCapacity, Integer::compare);
@@ -70,7 +74,7 @@ public class IntBinaryHeap {
 	}
 	
 	public void decreaseKey( int i, int v ) {
-		if ( v >  keys[i] ) throw new RuntimeException();
+		if ( comp.compare(v, keys[i]) > 0 ) throw new RuntimeException();
 		decreaseKeyKernel(i, v);
 	}
 

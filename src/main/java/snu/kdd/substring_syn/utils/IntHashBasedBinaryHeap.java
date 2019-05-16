@@ -20,6 +20,10 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 		super();
 	}
 
+	public IntHashBasedBinaryHeap(Comparator<Integer> comp) {
+		super(comp);
+	}
+
 	public IntHashBasedBinaryHeap( int[] keys, int[] values ) {
 		super(keys, values);
 	}
