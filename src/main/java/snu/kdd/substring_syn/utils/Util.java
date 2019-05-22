@@ -509,52 +509,51 @@ public class Util {
 			sep = "/";
 		}
 		
-		String dataOnePath, dataTwoPath, rulePath;
+		String searchedPath, indexedPath, rulePath;
 		if ( name.equals( "AOL" )) {
-			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-			dataTwoPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
 			rulePath = prefix + "wordnet"+sep+"rules.noun";
 		}
 		else if ( name.equals( "AOL_1K" )) {
-			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-			dataTwoPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
 			rulePath = prefix + "wordnet"+sep+"rules.noun";
 		}
 		else if ( name.equals( "SPROT" ) ) {
-			dataOnePath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-			dataTwoPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			searchedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			indexedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
 			rulePath = prefix + "sprot"+sep+"rule.txt";
 		}
 		else if ( name.equals( "USPS" ) ) {
-			dataOnePath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			searchedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			indexedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.startsWith("NAMES") ) {
-			dataOnePath = prefix + String.format( name+sep+name+"_freebase.txt" );
-			dataTwoPath = prefix + String.format( name+sep+name+"_sport.txt" );
+			searchedPath = prefix + String.format( name+sep+name+"_freebase.txt" );
+			indexedPath = prefix + String.format( name+sep+name+"_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.startsWith( "UNIV" ) ) {
-			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
-			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
 			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
 		}
 		else if ( name.startsWith( "CONF" ) ) {
-			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
-			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
 			rulePath = prefix + name+sep+name+"_rule.txt";
 		}
 		else if ( name.startsWith("POLY") ) {
-			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
-			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
 			rulePath = prefix + name+sep+name+"_rule.txt";
 		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
-		boolean oneSideJoin = true;
-		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+		Query query = new Query(rulePath, searchedPath, indexedPath, outputPath);
 
 		return query;
 	}
