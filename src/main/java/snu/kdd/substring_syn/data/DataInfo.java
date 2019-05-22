@@ -4,22 +4,22 @@ import java.io.File;
 
 public class DataInfo {
 
-	boolean isSynthetic = false;
+	final boolean isSynthetic = false;
 
-	public final String dataOnePath;
-	public final String dataTwoPath;
+	public final String searchedPath;
+	public final String indexedPath;
 	public final String rulePath;
-	public final String dataOneFileName;
-	public final String dataTwoFileName;
+	public final String searchedFileName;
+	public final String indexedFileName;
 	public final String ruleFileName;
 	public final String datasetName;
 
-	public DataInfo( String dataOnePath, String dataTwoPath, String rulePath ) {
-		this.dataOnePath = dataOnePath;
-		this.dataTwoPath = dataTwoPath;
+	public DataInfo( String searchedPath, String indexedPath, String rulePath ) {
+		this.searchedPath = searchedPath;
+		this.indexedPath = indexedPath;
 		this.rulePath = rulePath;
-		this.dataOneFileName = dataOnePath.substring( dataOnePath.lastIndexOf(File.separator) + 1 );
-		this.dataTwoFileName = dataTwoPath.substring( dataTwoPath.lastIndexOf(File.separator) + 1 );
+		this.searchedFileName = searchedPath.substring( searchedPath.lastIndexOf(File.separator) + 1 );
+		this.indexedFileName = indexedPath.substring( indexedPath.lastIndexOf(File.separator) + 1 );
 		this.ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
 		this.datasetName = setName();
 	}
@@ -27,22 +27,22 @@ public class DataInfo {
 	private String setName() {
 
 		if( isSelfJoin() ) {
-			return dataOneFileName + "_SelfJoin" + "_wrt_" + ruleFileName;
+			return searchedFileName + "_SelfJoin" + "_wrt_" + ruleFileName;
 		}
 		else {
-			return dataOneFileName + "_JoinWith_" + dataTwoFileName + "_wrt_" + ruleFileName;
+			return searchedFileName + "_JoinWith_" + indexedFileName + "_wrt_" + ruleFileName;
 		}
 	}
 	
 	private boolean isSelfJoin() {
-		return dataOnePath.equals( dataTwoPath );
+		return searchedPath.equals( indexedPath );
 	}
 
 	public String toJson() {
 		StringBuilder bld = new StringBuilder();
 		bld.append( "\"Name\": \"" + datasetName + "\"" );
-		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
-		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
+		bld.append( ", \"Data One Path\": \"" + searchedPath + "\"" );
+		bld.append( ", \"Data Two Path\": \"" + indexedPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
 		return bld.toString();
 	}
