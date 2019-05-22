@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -85,6 +86,15 @@ public class Record implements Comparable<Record> {
 
 	public Rule[][] getApplicableRules() {
 		return applicableRules;
+	}
+	
+	public Iterable<Rule> getApplicableRuleIterable() {
+		return new Iterable<Rule>() {
+			@Override
+			public Iterator<Rule> iterator() {
+				return new RuleIterator();
+			}
+		};
 	}
 
 	public Rule[] getApplicableRules( int k ) {
@@ -409,6 +419,26 @@ public class Record implements Comparable<Record> {
 	public void reindex( TokenOrder order ) {
 		for ( int i=0; i<tokens.length; ++i ) {
 			tokens[i] = order.getOrder(tokens[i]);
+		}
+	}
+	
+	class RuleIterator implements Iterator<Rule> {
+		int k = 0;
+		int i = 0;
+
+		@Override
+		public boolean hasNext() {
+			return (k < applicableRules.length);
+		}
+
+		@Override
+		public Rule next() {
+			Rule rule = applicableRules[k][i++];
+			if ( i >= applicableRules[k].length ) {
+				++k;
+				i = 0;
+			}
+			return rule;
 		}
 	}
 }
