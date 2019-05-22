@@ -25,7 +25,7 @@ public class Ruleset {
 			for ( int token : recS.getTokens() ) {
 				if ( !processedTokenSet.contains(token) ) {
 					processedTokenSet.add(token);
-					ruleList.add( new Rule(token, token) );
+					ruleList.add( Rule.createRule(token, token) );
 				}
 			}
 		}
@@ -35,7 +35,7 @@ public class Ruleset {
 		BufferedReader br = new BufferedReader( new FileReader( path ) );
 		String line;
 		while( ( line = br.readLine() ) != null ) {
-			this.ruleList.add( new Rule( line, tokenIndex ) );
+			this.ruleList.add( Rule.createRule( line, tokenIndex ) );
 		}
 		br.close();
 	}

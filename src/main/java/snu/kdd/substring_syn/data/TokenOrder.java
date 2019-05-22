@@ -69,7 +69,7 @@ public class TokenOrder implements Comparator<Integer> {
 
 	private void countTokens( Ruleset ruleSet ) {
 		for ( Rule rule : ruleSet.ruleList ) {
-			for ( int token : rule.getRight() ) {
+			for ( int token : rule.getRhs() ) {
 				counter.addTo(token, 1);
 			}
 		}
@@ -77,7 +77,6 @@ public class TokenOrder implements Comparator<Integer> {
 		
 	private void buildOrderMap( Int2IntMap counter ) {
 		orderMap = new Int2IntLinkedOpenHashMap(counter.size());
-		orderMap.defaultReturnValue(-1);
 		IntStream orderedKeyStream = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue)).mapToInt(e -> e.getIntKey());
 		orderedKeyStream.forEach(key -> orderMap.put(key, orderMap.size()));
 	}

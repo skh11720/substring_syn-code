@@ -36,7 +36,7 @@ public class TokenIndex {
 		}
 	}
 
-	public int getID( String token ) {
+	private int getID( String token ) {
 		return token2IntMap.getInt( token );
 	}
 

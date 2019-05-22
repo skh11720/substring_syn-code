@@ -3,82 +3,68 @@ package snu.kdd.substring_syn.data;
 import java.util.Arrays;
 
 public class Rule implements Comparable<Rule> {
-	int[] lhs;
-	int[] rhs;
+	final int[] lhs;
+	final int[] rhs;
 	public final int id;
+	public final boolean isSelfRule;
 
 	private final int hash;
-	boolean isSelfRule = false;
 
 	private static int count = 0;
 
 	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
-
-	public Rule( String str, TokenIndex tokenIndex ) {
-		int hash = 0;
-		String[] pstr = str.split( ", " );
-		String[] fpstr = pstr[ 0 ].trim().split( " " );
-
-		lhs = new int[ fpstr.length ];
-		for( int i = 0; i < fpstr.length; ++i ) {
-			lhs[ i ] = tokenIndex.getIDOrAdd( fpstr[ i ] );
-			hash = 0x1f1f1f1f ^ hash + lhs[ i ];
+	
+	public static Rule createRule( String str, TokenIndex tokenIndex ) {
+		String[] rstr = str.split(", ");
+		String[] lhsStr = rstr[0].trim().split(" ");
+		String[] rhsStr = rstr[1].trim().split(" ");
+		int[] lhs = getTokenIndexArray(lhsStr, tokenIndex);
+		int[] rhs = getTokenIndexArray(rhsStr, tokenIndex);
+		return new Rule(lhs, rhs);
+	}
+	
+	public static Rule createRule( int from, int to ) {
+		int[] lhs = new int[] {from};
+		int[] rhs = new int[] {to};
+		return new Rule(lhs, rhs);
+	}
+	
+	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
+		int[] indexArr = new int[tokenArr.length];
+		for ( int i=0; i<tokenArr.length; ++i ) {
+			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
 		}
+		return indexArr;
+	}
 
-		String[] tpstr = pstr[ 1 ].trim().split( " " );
-
-		rhs = new int[ tpstr.length ];
-		for( int i = 0; i < tpstr.length; ++i ) {
-			rhs[ i ] = tokenIndex.getIDOrAdd( tpstr[ i ] );
-			hash = 0x1f1f1f1f ^ hash + rhs[ i ];
-		}
-		this.hash = hash;
+	public Rule( int[] lhs, int[] rhs ) {
+		this.lhs = lhs;
+		this.rhs = rhs;
+		this.hash = computeHash();
+		this.isSelfRule = Arrays.equals(lhs, rhs);
 		id = count++;
 	}
 
-	// needed?
-	public Rule( int[] from, int[] to ) {
+	private int computeHash() {
 		int hash = 0;
-		this.lhs = from;
-		this.rhs = to;
-		for( int i = 0; i < from.length; ++i )
-			hash = 0x1f1f1f1f ^ hash + from[ i ];
-		for( int i = 0; i < to.length; ++i )
-			hash = 0x1f1f1f1f ^ hash + to[ i ];
-		this.hash = hash;
-		id = count++;
+		for( int i = 0; i < lhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + lhs[ i ];
+		for( int i = 0; i < rhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + rhs[ i ];
+		return hash;
 	}
 
-	// mostly used for self rule
-	public Rule( int from, int to ) {
-		int hash = 0;
-		this.lhs = new int[ 1 ];
-		this.lhs[ 0 ] = from;
-		hash = 0x1f1f1f1f ^ hash + this.lhs[ 0 ];
-		this.rhs = new int[ 1 ];
-		this.rhs[ 0 ] = to;
-		hash = 0x1f1f1f1f ^ hash + this.rhs[ 0 ];
-		this.hash = hash;
-		id = count++;
-	}
-
-	public boolean isSelfRule() {
-		return Arrays.equals(lhs,  rhs);
-	}
-
-	public int[] getLeft() {
+	public int[] getLhs() {
 		return lhs;
 	}
 
-	public int[] getRight() {
+	public int[] getRhs() {
 		return rhs;
 	}
 
-	public int leftSize() {
+	public int lhsSize() {
 		return lhs.length;
 	}
 
-	public int rightSize() {
+	public int rhsSize() {
 		return rhs.length;
 	}
 
@@ -99,12 +85,12 @@ public class Rule implements Comparable<Rule> {
 		}
 		Rule ro = (Rule) o;
 		if( lhs.length == ro.lhs.length && rhs.length == ro.rhs.length ) {
-			for( int i = 0; i < leftSize(); ++i ) {
+			for( int i = 0; i < lhsSize(); ++i ) {
 				if( lhs[ i ] != ro.lhs[ i ] ) {
 					return false;
 				}
 			}
-			for( int i = 0; i < rightSize(); ++i ) {
+			for( int i = 0; i < rhsSize(); ++i ) {
 				if( rhs[ i ] != ro.rhs[ i ] ) {
 					return false;
 				}
@@ -124,16 +110,16 @@ public class Rule implements Comparable<Rule> {
 		return Arrays.toString( lhs ) + " -> " + Arrays.toString( rhs );
 	}
 
-	public String toOriginalString( TokenIndex tokenIndex ) {
+	public String toOriginalString() {
 		StringBuilder bld = new StringBuilder();
 		for( int i = 0; i < lhs.length; i++ ) {
-			bld.append( tokenIndex.getToken( lhs[ i ] ) + " " );
+			bld.append( Record.tokenIndex.getToken( lhs[ i ] ) + " " );
 		}
 
 		bld.append( "-> " );
 
 		for( int i = 0; i < rhs.length; i++ ) {
-			bld.append( tokenIndex.getToken( rhs[ i ] ) + " " );
+			bld.append( Record.tokenIndex.getToken( rhs[ i ] ) + " " );
 		}
 
 		return bld.toString();

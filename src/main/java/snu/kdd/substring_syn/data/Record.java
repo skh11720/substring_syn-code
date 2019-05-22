@@ -103,7 +103,7 @@ public class Record implements Comparable<Record> {
 		int count = 0;
 		for( int i = 0; i < applicableRules.length; ++i ) {
 			for( Rule rule : applicableRules[ i ] ) {
-				if( rule.isSelfRule() ) {
+				if( rule.isSelfRule ) {
 					continue;
 				}
 				++count;
@@ -124,7 +124,7 @@ public class Record implements Comparable<Record> {
 
 		for( int i = 0; i < tokens.length; ++i ) {
 			for( Rule rule : applicableRules[ i ] ) {
-				int eidx = i + rule.leftSize() - 1;
+				int eidx = i + rule.lhsSize() - 1;
 				tmpAppRules[ eidx ].add( rule );
 			}
 		}
@@ -138,7 +138,7 @@ public class Record implements Comparable<Record> {
 		for( int i = 0; i < tokens.length; ++i ) {
 			long size = 0;
 			for( Rule rule : tmpAppRules[ i ] ) {
-				int sidx = i - rule.leftSize() + 1;
+				int sidx = i - rule.lhsSize() + 1;
 				if( sidx == 0 ) {
 					size += 1;
 				}
@@ -177,7 +177,7 @@ public class Record implements Comparable<Record> {
 		Rule[] rules = applicableRules[ idx ];
 
 		for( Rule rule : rules ) {
-			if( rule.isSelfRule() ) {
+			if( rule.isSelfRule ) {
 				if( idx + 1 != tokens.length ) {
 					expandAll( rslt, idx + 1, t );
 				}
@@ -186,14 +186,14 @@ public class Record implements Comparable<Record> {
 				}
 			}
 			else {
-				int newSize = t.length - rule.leftSize() + rule.rightSize();
+				int newSize = t.length - rule.lhsSize() + rule.rhsSize();
 
 				int[] new_rec = new int[ newSize ];
 
 				int rightSize = tokens.length - idx;
-				int rightMostSize = rightSize - rule.leftSize();
+				int rightMostSize = rightSize - rule.lhsSize();
 
-				int[] rhs = rule.getRight();
+				int[] rhs = rule.getRhs();
 
 				int k = 0;
 				for( int i = 0; i < t.length - rightSize; i++ ) {
@@ -206,7 +206,7 @@ public class Record implements Comparable<Record> {
 					new_rec[ k++ ] = t[ i ];
 				}
 
-				int new_idx = idx + rule.leftSize();
+				int new_idx = idx + rule.lhsSize();
 				if( new_idx == tokens.length ) {
 					rslt.add( new Record( new_rec ) );
 				}
@@ -223,8 +223,8 @@ public class Record implements Comparable<Record> {
 			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
 
 		for( Rule rule : applicableRules[ 0 ] ) {
-			int fromSize = rule.leftSize();
-			int toSize = rule.rightSize();
+			int fromSize = rule.lhsSize();
+			int toSize = rule.rhsSize();
 			if( fromSize > toSize ) {
 				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
 			}
@@ -236,8 +236,8 @@ public class Record implements Comparable<Record> {
 			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
 			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
 			for( Rule rule : applicableRules[ i ] ) {
-				int fromSize = rule.leftSize();
-				int toSize = rule.rightSize();
+				int fromSize = rule.lhsSize();
+				int toSize = rule.rhsSize();
 				if( fromSize > toSize ) {
 					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
 							transformLengths[ i - 1 ][ 0 ] + toSize );
@@ -338,7 +338,7 @@ public class Record implements Comparable<Record> {
 
 		for( int i = tokens.length - 1; i >= 0; --i ) {
 			for( Rule rule : applicableRules[ i ] ) {
-				int suffixidx = i + rule.getLeft().length - 1;
+				int suffixidx = i + rule.getLhs().length - 1;
 				tmplist.get( suffixidx ).add( rule );
 			}
 		}
