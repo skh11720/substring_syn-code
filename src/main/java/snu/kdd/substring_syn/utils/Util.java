@@ -586,4 +586,13 @@ public class Util {
 		}
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
+	
+	public static IntOpenHashSet getPrefix( Record rec, double theta ) {
+		IntOpenHashSet prefix = new IntOpenHashSet();
+		for ( Record exp : rec.expandAll() ) {
+			int prefixLen = exp.size() - (int)(Math.ceil(theta*exp.size())) + 1;
+			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
+		}
+		return prefix;
+	}
 }
