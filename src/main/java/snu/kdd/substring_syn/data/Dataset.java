@@ -3,12 +3,14 @@ package snu.kdd.substring_syn.data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public class Dataset {
+public class Dataset implements Iterable<Record> {
 	public final String path;
-	public ObjectArrayList<Record> recordList;
+	private final ObjectArrayList<Record> recordList;
 
 	public Dataset( String dataPath, TokenIndex tokenIndex ) throws IOException {
 		this.path = dataPath;
@@ -27,15 +29,20 @@ public class Dataset {
 		this.recordList = record;
 	}
 
-	public Iterable<Record> get() {
-		return this.recordList;
-	}
-
 	public Record getRecord( int id ) {
 		return this.recordList.get( id );
 	}
 
 	public int size() {
 		return this.recordList.size();
+	}
+
+	@Override
+	public Iterator<Record> iterator() {
+		return recordList.iterator();
+	}
+	
+	public List<Record> recordList() {
+		return recordList;
 	}
 }

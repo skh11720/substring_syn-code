@@ -562,7 +562,7 @@ public class Util {
 		Query query = getQuery(name, size);
 		
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-		for( final Record record : query.searchedSet.get() ) {
+		for( final Record record : query.searchedSet ) {
 			record.preprocessApplicableRules( automata );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();

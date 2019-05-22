@@ -60,7 +60,7 @@ public class TokenOrder implements Comparator<Integer> {
 	}
 	
 	private void countTokens( Dataset dataset ) {
-		for ( Record rec : dataset.recordList ) {
+		for ( Record rec : dataset ) {
 			for ( int token : rec.getTokens() ) {
 				counter.addTo(token, 1);
 			}

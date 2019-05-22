@@ -43,9 +43,9 @@ public class Query {
 	}
 	
 	private void reindexRecords( TokenOrder order ) {
-		for ( Record rec : indexedSet.recordList ) rec.reindex(order);
+		for ( Record rec : indexedSet ) rec.reindex(order);
 		if ( !selfJoin ) {
-			for ( Record rec : searchedSet.recordList ) rec.reindex(order);
+			for ( Record rec : searchedSet ) rec.reindex(order);
 		}
 	}
 	

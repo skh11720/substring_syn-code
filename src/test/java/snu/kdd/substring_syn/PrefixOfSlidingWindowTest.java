@@ -51,13 +51,13 @@ public class PrefixOfSlidingWindowTest {
 
 	@Test
 	public void testCorrectness() throws IOException {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList, 5);
+		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
 		getPrefixOfSlidingWindow(concatList, w, theta);
 	}
 	
 	@Test
 	public void testSimpleSlidingWindowTime() {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList, 5);
+		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
 		long ts = System.nanoTime();
 		for ( int[] arr : concatList ) {
 			SimpleSlidingWindow window1 = new SimpleSlidingWindow(arr, w, theta);
@@ -72,7 +72,7 @@ public class PrefixOfSlidingWindowTest {
 
 	@Test
 	public void testSortedSlidingWindowTime() {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList, 5);
+		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
 		long ts = System.nanoTime();
 		for ( int[] arr : concatList ) {
 			SortedSlidingWindow window1 = new SortedSlidingWindow(arr, w, theta);

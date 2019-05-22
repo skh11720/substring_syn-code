@@ -21,7 +21,7 @@ public class Ruleset {
 	
 	private void createSelfRules( Dataset searchedSet ) {
 		IntOpenHashSet processedTokenSet = new IntOpenHashSet();
-		for ( Record recS : searchedSet.recordList ) {
+		for ( Record recS : searchedSet ) {
 			for ( int token : recS.getTokens() ) {
 				if ( !processedTokenSet.contains(token) ) {
 					processedTokenSet.add(token);
