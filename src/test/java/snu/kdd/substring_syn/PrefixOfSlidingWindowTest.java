@@ -86,20 +86,25 @@ public class PrefixOfSlidingWindowTest {
 			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 //			HeapBasedSlidingWindow window2 = new HeapBasedSlidingWindow(arr, w, theta);
 			SortedSlidingWindow window3 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
+			RecordSortedSlidingWindow window4 = new RecordSortedSlidingWindow(rec, w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 //				window2.next();
 				window3.next();
+				window4.next();
 				IntList subList = new IntArrayList( window1.getWindow() );
 				IntSet prefix0 = getPrefix(subList, theta);
 				IntSet prefix1 = window1.getPrefix();
 //				IntSet prefix2 = window2.getPrefix();
 				IntSet prefix3 = window3.getPrefix();
+				IntSet prefix4 = window4.getPrefix();
 //				System.out.println(prefix0.equals(window1.getPrefix()));
 //				System.out.println(prefix0.equals(window2.getPrefix()));
 //				System.out.println(subList);
 //				System.out.println(prefix0+"\t"+prefix2);
+				assertTrue(prefix0.equals(prefix1));
 				assertTrue(prefix0.equals(prefix3));
+				assertTrue(prefix0.equals(prefix4));
 			}
 //			break;
 		}
