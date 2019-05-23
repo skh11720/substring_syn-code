@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.AbstractSlidingWindow;
+import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
 import snu.kdd.substring_syn.utils.window.SortedSlidingWindow;
 
@@ -35,24 +36,21 @@ public class PrefixOfSlidingWindowTest {
 	
 	@BeforeClass
 	public static void init() throws IOException {
-		query = Util.getQuery("SPROT", 100000);
+		query = Util.getQuery("SPROT_long", 10000);
 		TokenOrder order = new TokenOrder(query);
 		query.reindexByOrder(order);
 	}
-	
 
 	@Test
 	public void testCorrectness() throws IOException {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
-		getPrefixOfSlidingWindow(concatList, w, theta);
+		getPrefixOfSlidingWindow(query.indexedSet, w, theta);
 	}
 	
 	@Test
 	public void testSimpleSlidingWindowTime() {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
 		long ts = System.nanoTime();
-		for ( int[] arr : concatList ) {
-			SimpleSlidingWindow window1 = new SimpleSlidingWindow(arr, w, theta);
+		for ( Record rec : query.indexedSet ) {
+			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 				IntList subList = new IntArrayList( window1.getWindow() );
@@ -64,10 +62,9 @@ public class PrefixOfSlidingWindowTest {
 
 	@Test
 	public void testSortedSlidingWindowTime() {
-		List<int[]> concatList = getListOfConcatRecords(query.searchedSet.recordList(), 5);
 		long ts = System.nanoTime();
-		for ( int[] arr : concatList ) {
-			SortedSlidingWindow window1 = new SortedSlidingWindow(arr, w, theta);
+		for ( Record rec : query.indexedSet ) {
+			SortedSlidingWindow window1 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 				IntList subList = new IntArrayList( window1.getWindow() );
@@ -77,34 +74,18 @@ public class PrefixOfSlidingWindowTest {
 		System.out.println("testSortedSlidingWindowTime: "+(System.nanoTime()-ts)/1e6+" ms");
 	}
 
-	
-
 	public static IntOpenHashSet getPrefix( IntList tokenSet, double theta ) {
 		int lenPrefix = tokenSet.size() - (int)(Math.ceil(tokenSet.size()*theta)) + 1;
 		IntOpenHashSet prefix = new IntOpenHashSet( tokenSet.stream().sorted().limit(lenPrefix).iterator() );
 		return prefix;
 	}
 	
-	public static List<int[]> getListOfConcatRecords( List<Record> recordList, int numConcat ) {
-		ObjectArrayList<int[]> concatList = new ObjectArrayList<>();
-		IntArrayList concated = new IntArrayList();
-		for ( int i=0; i<recordList.size(); ++i ) {
-			Record rec = recordList.get(i);
-			concated.addElements(concated.size(), rec.getTokensArray());
-			if ( (i+1) % numConcat == 0 || i == recordList.size()-1 ) {
-				concatList.add(concated.toIntArray());
-				concated.clear();
-			}
-		}
-		return concatList;
-	}
-	
-	public static void getPrefixOfSlidingWindow( List<int[]> concatList, int w, double theta ) {
-		for ( int[] arr : concatList ) {
+	public static void getPrefixOfSlidingWindow( Iterable<Record> concatList, int w, double theta ) {
+		for ( Record rec : concatList ) {
 //			System.out.println(Arrays.toString(arr));
-			SimpleSlidingWindow window1 = new SimpleSlidingWindow(arr, w, theta);
+			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 //			HeapBasedSlidingWindow window2 = new HeapBasedSlidingWindow(arr, w, theta);
-			SortedSlidingWindow window3 = new SortedSlidingWindow(arr, w, theta);
+			SortedSlidingWindow window3 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 //				window2.next();

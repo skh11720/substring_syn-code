@@ -550,6 +550,11 @@ public class Util {
 			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
 			rulePath = prefix + name+sep+name+"_rule.txt";
 		}
+		else if ( name.equals( "SPROT_long" ) ) {
+			searchedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_short_%d.txt", size );
+			indexedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_long_%d.txt", size );
+			rulePath = prefix + "sprot_long"+sep+"rule.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
