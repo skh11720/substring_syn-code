@@ -6,10 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Record implements Comparable<Record> {
+public class Record implements RecordInterface, Comparable<Record> {
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
@@ -61,8 +62,12 @@ public class Record implements Comparable<Record> {
 		return 0;
 	}
 
-	public int[] getTokensArray() {
+	public int[] getTokenArray() {
 		return tokens;
+	}
+
+	public IntList getTokenList() {
+		return IntArrayList.wrap(tokens);
 	}
 
 	public int getTokenCount() {
@@ -71,6 +76,10 @@ public class Record implements Comparable<Record> {
 
 	public int getDistinctTokenCount() {
 		return num_dist_tokens;
+	}
+	
+	public int getToken( int i ) {
+		return tokens[i];
 	}
 
 	/**
