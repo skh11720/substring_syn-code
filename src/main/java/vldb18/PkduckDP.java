@@ -2,21 +2,22 @@ package vldb18;
 
 import java.util.Arrays;
 
-import snu.kdd.substring_syn.data.Record;
+import it.unimi.dsi.fastutil.ints.IntList;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Rule;
 
 public class PkduckDP {
 	
 	protected final int maxTransLen;
-	protected final Record rec;
+	protected final RecordInterface rec;
 	protected final double theta;
-	protected final int[] tokens;
+	protected final IntList tokenList;
 	
 	
-	public PkduckDP( Record rec, double theta ) {
+	public PkduckDP( RecordInterface rec, double theta ) {
 		this.rec = rec;
 		this.theta = theta;
-		this.tokens = rec.getTokensArray();
+		this.tokenList = rec.getTokenList();
 		this.maxTransLen = rec.getMaxTransLength();
 	}
 
@@ -31,7 +32,7 @@ public class PkduckDP {
 
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
-			int token = tokens[i-1];
+			int token = tokenList.get(i-1);
 			for (int l=1; l<=maxTransLen; l++) {
 				int comp = Integer.compare( token, target );
 //				System.out.println( "comp: "+comp );
@@ -60,7 +61,7 @@ public class PkduckDP {
 		
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
-			int token = tokens[i-1];
+			int token = tokenList.get(i-1);
 			for (int l=1; l<=maxTransLen; l++) {
 				int comp = Integer.compare( token, target );
 //				System.out.println( "comp: "+comp );
