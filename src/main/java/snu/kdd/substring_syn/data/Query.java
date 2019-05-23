@@ -51,6 +51,7 @@ public class Query {
 	
 	private void reindexRules( TokenOrder order ) {
 		for ( Rule rule : ruleSet.ruleList ) rule.reindex(order);
+		ruleSet.automata = new ACAutomataR(ruleSet.get());
 	}
 	
 	private void updateTokenIndex( TokenOrder order ) {

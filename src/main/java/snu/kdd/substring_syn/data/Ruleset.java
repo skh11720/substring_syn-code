@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 public class Ruleset {
 	final String path;
 	final ObjectArrayList<Rule> ruleList;
+	public ACAutomataR automata;
 
 	public Ruleset( String rulePath, Dataset searchedSet, TokenIndex tokenIndex ) throws IOException {
 		this.path = rulePath;
@@ -17,6 +18,8 @@ public class Ruleset {
 		
 		createSelfRules(searchedSet);
 		loadRulesFromFile(tokenIndex);
+		
+		automata = new ACAutomataR(ruleList);
 	}
 	
 	private void createSelfRules( Dataset searchedSet ) {

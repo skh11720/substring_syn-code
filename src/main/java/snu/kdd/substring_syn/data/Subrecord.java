@@ -32,7 +32,7 @@ public class Subrecord implements RecordInterface {
 
 	@Override
 	public Rule[] getSuffixApplicableRules(int i) {
-		return getSuffixApplicableRules(sidx+i);
+		return rec.getSuffixApplicableRules(sidx+i);
 	}
 	
 	@Override
@@ -54,5 +54,15 @@ public class Subrecord implements RecordInterface {
 			rslt.append(Record.tokenIndex.getToken( rec.getToken(i) ) + " ");
 		}
 		return rslt.toString();
+	}
+	
+	public Record toRecord() {
+		return new Record(getTokenList().toIntArray());
+	}
+
+	public Record toRecord( ACAutomataR automata ) {
+		Record newrec = toRecord();
+		newrec.preprocessApplicableRules(automata);
+		return newrec;
 	}
 }
