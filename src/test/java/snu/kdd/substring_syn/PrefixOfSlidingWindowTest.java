@@ -1,27 +1,16 @@
 package snu.kdd.substring_syn;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -31,6 +20,9 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.Util;
+import snu.kdd.substring_syn.utils.window.AbstractSlidingWindow;
+import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
+import snu.kdd.substring_syn.utils.window.SortedSlidingWindow;
 
 @FixMethodOrder
 public class PrefixOfSlidingWindowTest {
@@ -133,57 +125,6 @@ public class PrefixOfSlidingWindowTest {
 	}
 }
 
-abstract class AbstractSlidingWindow implements Iterator<IntList> {
-	final int[] seq;
-	final IntArrayList list;
-	final int w;
-	final int lenPrefix;
-	int widx = -1;
-	
-	public AbstractSlidingWindow( int[] seq, int w, double theta ) {
-		this.seq = seq;
-		this.list = IntArrayList.wrap(seq);
-		this.w  = w;
-		this.lenPrefix = w - (int)(Math.ceil(w*theta)) + 1;
-	}
-	
-	public abstract IntSet getPrefix();
-
-	protected void slide() {
-		++widx;
-	}
-
-	public IntList getWindow() {
-		return list.subList(widx, widx+w);
-	}
-	
-	@Override
-	public boolean hasNext() {
-		return widx < seq.length-w;
-	}
-	
-	@Override
-	public IntList next() {
-		if ( hasNext() ) {
-			slide();
-			return getWindow();
-		}
-		else throw new NoSuchElementException();
-	}
-}
-
-class SimpleSlidingWindow extends AbstractSlidingWindow {
-
-	public SimpleSlidingWindow( int[] seq, int w, double theta ) {
-		super(seq, w, theta);
-	}
-	
-	@Override
-	public IntSet getPrefix() {
-		return new IntOpenHashSet( getWindow().stream().sorted().limit(lenPrefix).iterator() );
-	}
-}
-
 class HeapBasedSlidingWindow extends AbstractSlidingWindow {
 	final IntHashBasedBinaryHeap heap;
 	
@@ -217,90 +158,5 @@ class HeapBasedSlidingWindow extends AbstractSlidingWindow {
 	@Override
 	public IntSet getPrefix() {
 		return new IntOpenHashSet( heap.getKeys() );
-	}
-}
-
-class SortedSlidingWindow extends AbstractSlidingWindow {
-	
-	//TODO: build a list of (key, pos)
-	final ObjectArrayList<Element> list;
-	final Int2ObjectMap<Element> pos2elemMap;
-	final IntSet prefix;
-	
-	public SortedSlidingWindow( int[] seq, int w, double theta ) {
-		super(seq, w, theta);
-		list = new ObjectArrayList<>();
-		pos2elemMap = new Int2ObjectOpenHashMap<>();
-		prefix = new IntOpenHashSet(lenPrefix);
-		for ( int i=0; i<w-1; ++i ) {
-			updateList(i);
-		}
-	}
-	
-	private void updateList( int i ) {
-		if ( list.size() >= w ) removeLastPos(i-w); 
-		insert(i);
-	}
-	
-	private void insert( int pos ) {
-		int key = seq[pos];
-		Element elem = new Element(key, pos);
-		int idx = binarySearch(key);
-		if ( idx < 0 ) idx = -idx-1;
-		list.add(idx, elem);
-		pos2elemMap.put(pos, elem);
-		if (idx < lenPrefix) updatePrefix();
-	}
-	
-	private void removeLastPos( int pos ) {
-		Element elem = pos2elemMap.get(pos);
-		int idx = binarySearch(elem.key);
-		list.remove(idx);
-		pos2elemMap.remove(pos);
-		if (idx < lenPrefix) updatePrefix();
-	}
-	
-	private int binarySearch( int key ) {
-		int l = 0; 
-		int r = list.size();
-		while ( l < r ) {
-			int m = (l+r)/2;
-			int mKey = list.get(m).key;
-			if ( key < mKey ) r = m;
-			else if ( key > mKey ) l = m+1;
-			else return m;
-		}
-		return -l-1;
-	}
-	
-	private void updatePrefix() {
-		prefix.clear();
-		for ( int i=0; i<lenPrefix && i<list.size(); ++i ) prefix.add(list.get(i).key);
-	}
-
-	@Override
-	protected void slide() {
-		super.slide();
-		updateList(widx+w-1);
-	}
-
-	@Override
-	public IntSet getPrefix() {
-		return prefix;
-	}
-	
-	class Element {
-		final int key;
-		final int pos;
-		
-		public Element( int key, int pos ) {
-			this.key = key;
-			this.pos = pos;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("(%d,%d)", key, pos);
-		}
 	}
 }
