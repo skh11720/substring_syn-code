@@ -364,6 +364,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
 		}
 	}
+	
+	public Rule[][] getSuffixApplicableRules() {
+		return suffixApplicableRules;
+	}
 
 	public Rule[] getSuffixApplicableRules( int k ) {
 		if( suffixApplicableRules == null ) {
