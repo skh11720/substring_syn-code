@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -13,21 +14,15 @@ public class Record implements Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	private int[] tokens;
+	private final int[] tokens;
 	private final int id;
 	private final int num_dist_tokens;
+	private final int hash;
 
-	public Rule[][] applicableRules = null;
-	protected int[][] transformLengths = null;
-
+	private Rule[][] applicableRules = null;
+	private Rule[][] suffixApplicableRules = null;
+	private int[][] transformLengths = null;
 	private long[] estTrans;
-
-	private boolean validHashValue = false;
-	private int hashValue;
-
-	protected Rule[][] suffixApplicableRules = null;
-
-	public int getQGramCount = 0;
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
@@ -38,6 +33,7 @@ public class Record implements Comparable<Record> {
 		}
 		
 		num_dist_tokens = new IntOpenHashSet( tokens ).size();
+		hash = getHash();
 	}
 
 	public Record( int[] tokens ) {
@@ -45,6 +41,7 @@ public class Record implements Comparable<Record> {
 		this.tokens = tokens;
 		if (tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		else num_dist_tokens = 0;
+		hash = getHash();
 	}
 
 	@Override
@@ -182,7 +179,7 @@ public class Record implements Comparable<Record> {
 		return rslt;
 	}
 
-	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
+	protected void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
 
 		Rule[] rules = applicableRules[ idx ];
 
@@ -299,20 +296,20 @@ public class Record implements Comparable<Record> {
 	public int getID() {
 		return id;
 	}
+	
+	private int getHash() {
+		int hash = 0;
+		for( int token : tokens ) {
+			hash = ( hash << 32 ) + token;
+//                tmp = 0x1f1f1f1f ^ tmp + token;
+			hash = hash % Util.bigprime;
+		}
+		return (int) ( hash % Integer.MAX_VALUE );
+	}
 
 	@Override
 	public int hashCode() {
-		if( !validHashValue ) {
-			long tmp = 0;
-			for( int token : tokens ) {
-                tmp = ( tmp << 32 ) + token;
-//                tmp = 0x1f1f1f1f ^ tmp + token;
-				tmp = tmp % Util.bigprime;
-			}
-			hashValue = (int) ( tmp % Integer.MAX_VALUE );
-			validHashValue = true;
-		}
-		return hashValue;
+		return hash;
 	}
 
 	@Override
@@ -384,10 +381,7 @@ public class Record implements Comparable<Record> {
 	}
 
 	public Collection<Integer> getTokens() {
-		List<Integer> list = new ArrayList<Integer>();
-		for( int i : tokens )
-			list.add( i );
-		return list;
+		return IntArrayList.wrap(tokens);
 	}
 
 	public static int compare( int[] str1, int[] str2 ) {
