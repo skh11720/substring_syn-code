@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.data.Query;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -17,8 +18,77 @@ import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
+import vldb18.PkduckDPExOld;
 
 public class PkduckDPExTest {
+	
+	interface PkduckDPInterface {
+		void init( Record rec, double theta );
+		void compute( int target );
+		boolean isInSigU( RecordInterface rec, int target, int widx, int w );
+	}
+	
+	class PkduckDPWrapper implements PkduckDPInterface {
+		
+		PkduckDP obj;
+		double theta;
+		
+		@Override
+		public void init(Record rec, double theta) {
+			this.theta = theta;
+		}
+
+		@Override
+		public void compute(int target) {
+		}
+
+		@Override
+		public boolean isInSigU( RecordInterface rec, int target, int widx, int w) {
+			obj = new PkduckDP(rec, theta);
+			return obj.isInSigU(target);
+		}
+		
+	}
+	
+	class PkduckDPExOldWrapper implements PkduckDPInterface {
+		
+		PkduckDPExOld obj;
+
+		@Override
+		public void init(Record rec, double theta) {
+			obj = new PkduckDPExOld(rec, theta);
+		}
+		
+		@Override
+		public void compute(int target) {
+			obj.compute(target);
+		}
+
+		@Override
+		public boolean isInSigU( RecordInterface rec, int target, int widx, int w) {
+			return obj.isInSigU(widx, w);
+		}
+	}
+	
+	class PkduckDPExWrapper implements PkduckDPInterface {
+
+		PkduckDPEx obj;
+
+		@Override
+		public void init(Record rec, double theta) {
+			obj = new PkduckDPEx(rec, theta);
+		}
+		
+		@Override
+		public void compute(int target) {
+			obj.compute(target);
+		}
+
+		@Override
+		public boolean isInSigU( RecordInterface rec, int target, int widx, int w) {
+			return obj.isInSigU(widx, w);
+		}
+	}
 	
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 
@@ -28,18 +98,28 @@ public class PkduckDPExTest {
 		TokenOrder order = new TokenOrder(query);
 		long ts;
 		query.reindexByOrder(order);
-		long[] tArr = new long[2];
+		PkduckDPInterface[] pkduckdpArr = new PkduckDPInterface[3];
+		pkduckdpArr[0] = new PkduckDPWrapper();
+		pkduckdpArr[1] = new PkduckDPExOldWrapper();
+		pkduckdpArr[2] = new PkduckDPExWrapper();
+		long[] tArr = new long[pkduckdpArr.length];
+
 		for ( double theta : thetaList ) {
 			for ( Record rec :  query.indexedSet ) {
 				System.out.println("rec: "+rec.getID());
 				IntOpenHashSet tokenSet = getCandTokenSet(rec);
-				ts = System.nanoTime();
-				PkduckDPEx pkduckDP1 = new PkduckDPEx(rec, theta);
-				tArr[1] += System.nanoTime() - ts;
-				for ( int target : tokenSet ) {
+				for ( int j=0; j<pkduckdpArr.length; ++j ) {
 					ts = System.nanoTime();
-					pkduckDP1.compute(target);
-					tArr[1] += System.nanoTime() - ts;
+					pkduckdpArr[j].init(rec, theta);
+					tArr[j] += System.nanoTime() - ts;
+				}
+
+				for ( int target : tokenSet ) {
+					for ( int j=0; j<pkduckdpArr.length; ++j ) {
+						ts = System.nanoTime();
+						pkduckdpArr[j].compute(target);
+						tArr[j] += System.nanoTime() - ts;
+					}
 
 					for ( int w=1; w<=rec.size(); ++w ) {
 						RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
@@ -47,22 +127,21 @@ public class PkduckDPExTest {
 							Subrecord wrec = window.next();
 							IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(query.ruleSet.automata), theta);
 
-							ts = System.nanoTime();
-							PkduckDP pkduckDP0 = new PkduckDP(wrec, theta);
-							boolean inSig0 = pkduckDP0.isInSigU(target);
-							tArr[0] += System.nanoTime() - ts;
-							ts = System.nanoTime();
-							boolean inSig1 = pkduckDP1.isInSigU(widx, w);
-							tArr[1] += System.nanoTime() - ts;
-							try {
-								assertEquals(prefix.contains(target), inSig0);
-								assertEquals(prefix.contains(target), inSig1);
-							}
-							catch ( AssertionError e ) {
-								System.err.println(wrec);
-								System.err.println(prefix);
-								System.err.println(target);
-								throw e;
+							for ( int j=0; j<pkduckdpArr.length; ++j ) {
+								ts = System.nanoTime();
+								boolean inSig = pkduckdpArr[j].isInSigU(wrec, target, widx, w);
+								tArr[j] += System.nanoTime() - ts;
+
+								try {
+									assertEquals(prefix.contains(target), inSig);
+								}
+								catch ( AssertionError e ) {
+									System.err.println(j);
+									System.err.println(wrec);
+									System.err.println(prefix);
+									System.err.println(target);
+									throw e;
+								}
 							}
 						}
 					}
