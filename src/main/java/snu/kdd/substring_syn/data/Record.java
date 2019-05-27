@@ -89,6 +89,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public void preprocessApplicableRules( ACAutomataR automata ) {
 		applicableRules = automata.applicableRules( tokens );
 	}
+	
+	public void setApplicableRules( Rule[][] applicableRules ) {
+		this.applicableRules = applicableRules;
+	}
 
 	public Rule[][] getApplicableRules() {
 		return applicableRules;
@@ -301,6 +305,14 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		return rslt.toString();
 	}
+	
+	public String toStringDetails() {
+		StringBuilder rslt = new StringBuilder();
+		rslt.append(id+"\t:\t"+toOriginalString() + "\n");
+		for ( Rule rule : getApplicableRuleIterable() )
+			rslt.append("\t"+rule.toOriginalString()+"\n");
+		return rslt.toString();
+	}
 
 	public int getID() {
 		return id;
@@ -428,6 +440,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 			tokens[i] = order.getOrder(tokens[i]);
 		}
 	}
+	
+	public IntOpenHashSet getCandTokenSet() {
+		IntOpenHashSet tokenSet = new IntOpenHashSet();
+		for ( Rule r : getApplicableRuleIterable() ) {
+			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
+		}
+		return tokenSet;
+	}
+	
+	
 	
 	class RuleIterator implements Iterator<Rule> {
 		int k = 0;
