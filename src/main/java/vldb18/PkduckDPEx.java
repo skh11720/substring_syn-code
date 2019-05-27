@@ -14,9 +14,10 @@ public class PkduckDPEx {
 	protected final int[][][] g;
 	protected final boolean[][] b;
 	protected final int[] lmin;
+	protected final int qlen;
 	
 	
-	public PkduckDPEx( Record rec, double theta ) {
+	public PkduckDPEx( Record rec, double theta, int qlen ) {
 		this.rec = rec;
 		this.theta = theta;
 		this.tokens = rec.getTokenArray();
@@ -25,10 +26,10 @@ public class PkduckDPEx {
 		this.b = new boolean[rec.size()+1][rec.size()+1];
 		for (boolean[] bArr : b) Arrays.fill(bArr, false);
 		this.lmin = new int[rec.size()+1];
+		this.qlen = qlen;
 	}
 
 	public void compute( int target ) {
-
 		for (int i=1; i<=rec.size(); ++i) {
 			// compute g[0][i][v][l].
 			init();
@@ -51,6 +52,7 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				}
+				if ( theta*lmin[v] > qlen ) break;
 			}
 	//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
 		
@@ -59,6 +61,7 @@ public class PkduckDPEx {
 				for (int l=1; l<=maxTransLen; ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
+						if ( rule.lhsSize() <= v ) lmin[v] = Math.min(lmin[v], lmin[v-rule.lhsSize()]+rule.rhsSize());
 						int num_smaller = 0;
 						Boolean isValid = false;
 						for ( int tokenInRhs : rule.getRhs() ) {
@@ -75,6 +78,7 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 				}
+				if ( theta*lmin[v] > qlen ) break;
 			}
 	//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 			updateResult(i);

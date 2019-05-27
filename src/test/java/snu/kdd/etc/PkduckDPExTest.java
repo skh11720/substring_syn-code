@@ -76,7 +76,7 @@ public class PkduckDPExTest {
 
 		@Override
 		public void init(Record rec, double theta) {
-			obj = new PkduckDPEx(rec, theta);
+			obj = new PkduckDPEx(rec, theta, 1);
 		}
 		
 		@Override
@@ -125,7 +125,7 @@ public class PkduckDPExTest {
 						RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
 						for ( int widx=0; window.hasNext(); ++widx ) {
 							Subrecord wrec = window.next();
-							IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(query.ruleSet.automata), theta);
+							IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(), theta);
 
 							for ( int j=0; j<pkduckdpArr.length; ++j ) {
 								ts = System.nanoTime();

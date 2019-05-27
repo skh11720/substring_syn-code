@@ -13,7 +13,6 @@ public class PkduckDPExOld {
 	protected final int[] tokens;
 	protected final int[][][] g;
 	protected final boolean[][] b;
-	protected final int[] lmin;
 	
 	
 	public PkduckDPExOld( Record rec, double theta ) {
@@ -24,7 +23,6 @@ public class PkduckDPExOld {
 		this.g = new int[2][rec.size()+1][maxTransLen+1];
 		this.b = new boolean[rec.size()+1][rec.size()+1];
 		for (boolean[] bArr : b) Arrays.fill(bArr, false);
-		this.lmin = new int[rec.size()+1];
 	}
 
 	public void compute( int target ) {
@@ -36,7 +34,6 @@ public class PkduckDPExOld {
 				for (int l=1; l<=maxTransLen; ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
-						if ( rule.lhsSize() <= v ) lmin[v] = Math.min(lmin[v], lmin[v-rule.lhsSize()]+rule.rhsSize());
 						int num_smaller = 0;
 						Boolean isValid = true;
 						for ( int tokenInRhs : rule.getRhs() ) {
@@ -83,7 +80,6 @@ public class PkduckDPExOld {
 	
 	protected void init() {
 		init_g();
-		init_lmin();
 	}
 
 	protected void init_g() {
@@ -95,12 +91,6 @@ public class PkduckDPExOld {
 		g[0][0][0] = 0;
 	}
 	
-	protected void init_lmin() {
-		for ( int v=0; v<=rec.size(); ++v ) {
-			lmin[v] = v;
-		}
-	}
-
 	protected void updateResult( int i ) {
 		for ( int v=1; v<=rec.size(); ++v ) {
 			b[i][v] = computeIsInSigU(v);
