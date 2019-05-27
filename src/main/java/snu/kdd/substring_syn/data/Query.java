@@ -71,4 +71,8 @@ public class Query {
 	public String getSearchedPath() {
 		return searchedSet.path;
 	}
+	
+	public ACAutomataR getAutomataR() {
+		return ruleSet.automata;
+	}
 }

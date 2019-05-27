@@ -565,13 +565,19 @@ public class Util {
 
 	public static Query getQueryWithPreprocessing( String name, int size ) throws IOException {
 		Query query = getQuery(name, size);
-		
-		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 		for( final Record record : query.searchedSet ) {
-			record.preprocessApplicableRules( automata );
+			record.preprocessApplicableRules( query.getAutomataR() );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();
 			record.preprocessEstimatedRecords();
+		}
+		if ( !query.selfJoin ) {
+			for( final Record record : query.indexedSet ) {
+				record.preprocessApplicableRules( query.getAutomataR() );
+				record.preprocessSuffixApplicableRules();
+				record.preprocessTransformLength();
+				record.preprocessEstimatedRecords();
+			}
 		}
 		return query;
 	}
