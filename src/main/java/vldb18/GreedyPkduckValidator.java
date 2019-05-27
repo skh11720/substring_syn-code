@@ -11,9 +11,12 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
-public class GreedyValidator {
+public class GreedyPkduckValidator {
 	
 	public double sim( Record x, Record y ) {
+		/*
+		 * TODO:  call sim2y with y and x
+		 */
 		if ( areSameString(x, y) ) return 1;
 		else return simx2y(x, y);
 	}
@@ -31,7 +34,7 @@ public class GreedyValidator {
 	}
 	
 	public String getName() {
-		return "GreedyValidator";
+		return "GreedyPkduckValidator";
 	}
 	
 

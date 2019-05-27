@@ -7,7 +7,7 @@ import org.junit.Test;
 import snu.kdd.substring_syn.data.Query;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Util;
-import vldb18.GreedyValidator;
+import vldb18.GreedyPkduckValidator;
 
 public class GreedyValidatorTest {
 
@@ -16,7 +16,7 @@ public class GreedyValidatorTest {
 		Query query = Util.getQueryWithPreprocessing("SPROT", 1000);
 		long ts;
 		long[] tArr = new long[2];
-		GreedyValidator validator0 = new GreedyValidator();
+		GreedyPkduckValidator validator0 = new GreedyPkduckValidator();
 		
 		for ( Record recS : query.searchedSet ) {
 			for ( Record recT : query.indexedSet ) {
