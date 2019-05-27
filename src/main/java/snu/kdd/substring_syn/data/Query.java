@@ -1,8 +1,15 @@
 package snu.kdd.substring_syn.data;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
+
+import it.unimi.dsi.fastutil.ints.IntIterable;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 public class Query {
 	
@@ -32,8 +39,17 @@ public class Query {
 		indexedSet = new Dataset( indexedPath, tokenIndex );
 		if( selfJoin ) searchedSet = indexedSet;
 		else searchedSet = new Dataset( searchedPath, tokenIndex );
-		ruleSet = new Ruleset( rulePath, searchedSet, tokenIndex );
+		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
 		Record.tokenIndex = tokenIndex;
+	}
+	
+	private Iterable<Integer> getDistinctTokens() {
+		IntSet tokenSet = new IntOpenHashSet();
+		for ( Record rec : searchedSet ) tokenSet.addAll( rec.getTokens() );
+		if ( !selfJoin ) 
+			for ( Record rec : indexedSet ) tokenSet.addAll( rec.getTokens() );
+		List<Integer> sortedTokenList = tokenSet.stream().sorted().collect(Collectors.toList());
+		return sortedTokenList;
 	}
 
 	public void reindexByOrder( TokenOrder order ) {

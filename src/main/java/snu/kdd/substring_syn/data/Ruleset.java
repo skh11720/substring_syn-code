@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Ruleset {
@@ -12,26 +11,19 @@ public class Ruleset {
 	final ObjectArrayList<Rule> ruleList;
 	public ACAutomataR automata;
 
-	public Ruleset( String rulePath, Dataset searchedSet, TokenIndex tokenIndex ) throws IOException {
+	public Ruleset( String rulePath, Iterable<Integer> distinctTokens, TokenIndex tokenIndex ) throws IOException {
 		this.path = rulePath;
 		this.ruleList = new ObjectArrayList<>();
 		
-		createSelfRules(searchedSet);
+		createSelfRules(distinctTokens);
 		loadRulesFromFile(tokenIndex);
 		
 		automata = new ACAutomataR(ruleList);
 	}
 	
-	private void createSelfRules( Dataset searchedSet ) {
-		IntOpenHashSet processedTokenSet = new IntOpenHashSet();
-		for ( Record recS : searchedSet ) {
-			for ( int token : recS.getTokens() ) {
-				if ( !processedTokenSet.contains(token) ) {
-					processedTokenSet.add(token);
-					ruleList.add( Rule.createRule(token, token) );
-				}
-			}
-		}
+	private void createSelfRules( Iterable<Integer> distinctTokens ) {
+		for ( int token : distinctTokens )
+			ruleList.add( Rule.createRule(token, token) );
 	}
 
 	private void loadRulesFromFile( TokenIndex tokenIndex ) throws IOException {
