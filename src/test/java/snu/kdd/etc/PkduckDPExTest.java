@@ -3,6 +3,7 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -76,7 +77,7 @@ public class PkduckDPExTest {
 
 		@Override
 		public void init(Record rec, double theta) {
-			obj = new PkduckDPEx(rec, theta, 1);
+			obj = new PkduckDPEx(rec, theta, Integer.MAX_VALUE);
 		}
 		
 		@Override
@@ -133,10 +134,11 @@ public class PkduckDPExTest {
 								tArr[j] += System.nanoTime() - ts;
 
 								try {
-									assertEquals(prefix.contains(target), inSig);
+									assertEquals(inSig, prefix.contains(target));
 								}
 								catch ( AssertionError e ) {
 									System.err.println(j);
+									System.err.println(theta);
 									System.err.println(wrec);
 									System.err.println(prefix);
 									System.err.println(target);
