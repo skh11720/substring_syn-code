@@ -15,6 +15,7 @@ public class PkduckDPEx {
 	protected final boolean[][] b;
 	protected final int[] lmin;
 	protected final int qlen;
+	protected final int[] maxWindowSizeFrom;
 	
 	
 	public PkduckDPEx( Record rec, double theta, int qlen ) {
@@ -26,7 +27,10 @@ public class PkduckDPEx {
 		this.b = new boolean[rec.size()+1][rec.size()+1];
 		for (boolean[] bArr : b) Arrays.fill(bArr, false);
 		this.lmin = new int[rec.size()+1];
+		Arrays.fill(lmin, Integer.MAX_VALUE);
+		this.lmin[0] = 0;
 		this.qlen = qlen;
+		this.maxWindowSizeFrom = new int[rec.size()]; // 0-based
 	}
 
 	public void compute( int target ) {
@@ -52,7 +56,10 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				}
-				if ( theta*lmin[v] > qlen ) break;
+				if ( theta*lmin[v] > qlen ) {
+					maxWindowSizeFrom[i-1] = v-1;
+					break;
+				}
 			}
 	//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
 		
@@ -61,7 +68,6 @@ public class PkduckDPEx {
 				for (int l=1; l<=maxTransLen; ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
-						if ( rule.lhsSize() <= v ) lmin[v] = Math.min(lmin[v], lmin[v-rule.lhsSize()]+rule.rhsSize());
 						int num_smaller = 0;
 						Boolean isValid = false;
 						for ( int tokenInRhs : rule.getRhs() ) {
@@ -123,6 +129,18 @@ public class PkduckDPEx {
 	}
 	
 	public boolean isInSigU( int i, int v ) {
+		/*
+		 * i: 0-based
+		 * b[][]: 1-based
+		 */
 		return b[i+1][v];
+	}
+	
+	public int getMaxWindowSize( int i ) {
+		/*
+		 * i: 0-based
+		 * maxWindowSizeFrom: 0-based
+		 */
+		return maxWindowSizeFrom[i];
 	}
 }
