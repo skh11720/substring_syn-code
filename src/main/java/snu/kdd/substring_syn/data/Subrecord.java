@@ -88,4 +88,8 @@ public class Subrecord implements RecordInterface {
 		newrec.preprocessSuffixApplicableRules();
 		return newrec;
 	}
+	
+	public Record getSuperRecord() {
+		return rec;
+	}
 }
