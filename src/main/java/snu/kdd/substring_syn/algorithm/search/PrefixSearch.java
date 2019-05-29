@@ -21,10 +21,6 @@ public class PrefixSearch extends AbstractSearch {
 	}
 	
 	@Override
-	protected void prepareSearchGivenQueryRecord( Record qrec ) {
-	}
-
-	@Override
 	protected void searchRecordFromQuery( Record qrec, Record rec ) {
 	}
 	

@@ -6,15 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.IntPair;
@@ -40,7 +33,6 @@ public abstract class AbstractSearch {
 	
 	public void run( Query query ) {
 		for ( Record qrec : query.searchedSet ) {
-			prepareSearchGivenQueryRecord(qrec);
 			long ts = System.nanoTime();;
 			search(qrec, query.indexedSet);
 			log.debug("search(qrec=%d, ...)\t%.3f ms", ()->qrec.getID(), ()->(System.nanoTime()-ts)/1e6);
@@ -48,9 +40,6 @@ public abstract class AbstractSearch {
 		outputResult();
 	}
 	
-	protected void prepareSearchGivenQueryRecord( Record qrec ) {
-	}
-
 	public void search( Record qrec, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
 			searchRecordFromText(qrec, rec);
