@@ -8,8 +8,12 @@ import vldb18.NaivePkduckValidator;
 
 public class NaiveSearch extends AbstractSearch {
 
+	final NaivePkduckValidator validator;
+
+
 	public NaiveSearch(double theta) {
 		super(theta);
+		validator = new NaivePkduckValidator();
 	}
 
 	protected void searchRecordFromQuery( Record qrec, Record rec ) {
