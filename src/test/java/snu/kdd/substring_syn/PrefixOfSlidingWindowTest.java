@@ -15,7 +15,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
@@ -31,25 +31,25 @@ public class PrefixOfSlidingWindowTest {
 	double[] thetaList = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 	int w = 7;
 	
-	static Query query;
+	static Dataset dataset;
 	static double theta = 0.6;
 	
 	@BeforeClass
 	public static void init() throws IOException {
-		query = Util.getQuery("SPROT_long", 10000);
-		TokenOrder order = new TokenOrder(query);
-		query.reindexByOrder(order);
+		dataset = Util.getDataset("SPROT_long", 10000);
+		TokenOrder order = new TokenOrder(dataset);
+		dataset.reindexByOrder(order);
 	}
 
 	@Test
 	public void testCorrectness() throws IOException {
-		getPrefixOfSlidingWindow(query.indexedSet, w, theta);
+		getPrefixOfSlidingWindow(dataset.indexedList, w, theta);
 	}
 	
 	@Test
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : query.indexedSet ) {
+		for ( Record rec : dataset.indexedList ) {
 			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
@@ -63,7 +63,7 @@ public class PrefixOfSlidingWindowTest {
 	@Test
 	public void testSortedSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : query.indexedSet ) {
+		for ( Record rec : dataset.indexedList ) {
 			SortedSlidingWindow window1 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();

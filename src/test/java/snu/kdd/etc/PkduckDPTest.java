@@ -14,7 +14,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -27,13 +27,13 @@ public class PkduckDPTest {
 
 	@Test
 	public void test() throws IOException {
-		Query query = Util.getQueryWithPreprocessing("SPROT", 10000);
-		TokenOrder order = new TokenOrder(query);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", 10000);
+		TokenOrder order = new TokenOrder(dataset);
 		long ts;
-		query.reindexByOrder(order);
+		dataset.reindexByOrder(order);
 		long[] tArr = new long[1];
 		for ( double theta : thetaList ) {
-			for ( Record rec : query.searchedSet ) {
+			for ( Record rec : dataset.searchedList ) {
 				PkduckDP pkduckDP0 = new PkduckDP(rec, theta);
 				IntOpenHashSet tokenSet = getCandTokenSet(rec);
 				IntOpenHashSet prefix = Util.getPrefix(rec, theta);
@@ -49,10 +49,10 @@ public class PkduckDPTest {
 		for ( long t : tArr ) System.out.println(t/1e6);
 	}
 
-	public void outputAnswer( Query query, double theta ) throws FileNotFoundException {
-		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", query.dataInfo.datasetName, theta);
+	public void outputAnswer( Dataset dataset, double theta ) throws FileNotFoundException {
+		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.dataInfo.datasetName, theta);
 		PrintStream ps = new PrintStream(path);
-		for ( Record rec : query.searchedSet ) {
+		for ( Record rec : dataset.searchedList ) {
 			PkduckDP pkduckDP = new PkduckDP(rec, theta);
 			IntOpenHashSet tokenSet = getCandTokenSet(rec);
 			
@@ -73,8 +73,8 @@ public class PkduckDPTest {
 		return tokenSet;
 	}
 	
-	public ObjectArrayList<int[]> loadAnswer( Query query, double theta ) throws IOException {
-		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", query.dataInfo.datasetName, theta);
+	public ObjectArrayList<int[]> loadAnswer( Dataset dataset, double theta ) throws IOException {
+		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.dataInfo.datasetName, theta);
 		BufferedReader br = new BufferedReader( new FileReader(path) );
 		ObjectArrayList<int[]> answerList = new ObjectArrayList<>();
 		br.lines().forEach(s -> {

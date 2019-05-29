@@ -16,7 +16,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.ACAutomataR;
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 
 public class Util {
@@ -495,7 +495,7 @@ public class Util {
 		return sim;
 	}
 
-	public static Query getQuery( String name, long size ) throws IOException {
+	public static Dataset getDataset( String name, long size ) throws IOException {
 
 		String osName = System.getProperty( "os.name" );
 		String prefix = null;
@@ -558,28 +558,28 @@ public class Util {
 		else throw new RuntimeException();
 
 		String outputPath = "output";
-		Query query = new Query(rulePath, searchedPath, indexedPath, outputPath);
+		Dataset dataset = new Dataset(rulePath, searchedPath, indexedPath, outputPath);
 
-		return query;
+		return dataset;
 	}
 
-	public static Query getQueryWithPreprocessing( String name, int size ) throws IOException {
-		Query query = getQuery(name, size);
-		for( final Record record : query.searchedSet ) {
-			record.preprocessApplicableRules( query.getAutomataR() );
+	public static Dataset getDatasetWithPreprocessing( String name, int size ) throws IOException {
+		Dataset dataset = getDataset(name, size);
+		for( final Record record : dataset.searchedList ) {
+			record.preprocessApplicableRules( dataset.getAutomataR() );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();
 			record.preprocessEstimatedRecords();
 		}
-		if ( !query.selfJoin ) {
-			for( final Record record : query.indexedSet ) {
-				record.preprocessApplicableRules( query.getAutomataR() );
+		if ( !dataset.selfJoin ) {
+			for( final Record record : dataset.indexedList ) {
+				record.preprocessApplicableRules( dataset.getAutomataR() );
 				record.preprocessSuffixApplicableRules();
 				record.preprocessTransformLength();
 				record.preprocessEstimatedRecords();
 			}
 		}
-		return query;
+		return dataset;
 	}
 
 	public static String getGroundTruthPath( String name ) {

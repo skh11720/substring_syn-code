@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
@@ -15,9 +15,9 @@ public class MiscTest {
 	@Test
 	public void testSubrecord() throws IOException {
 		
-		Query query = Util.getQueryWithPreprocessing("SPROT_long", 1000);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 1000);
 		double theta = 1.0;
-		Record rec = query.indexedSet.getRecord(622);
+		Record rec = dataset.indexedList.get(622);
 		System.out.println(rec.toStringDetails());
 		
 		for ( int w=1; w<=rec.size(); ++w ) {

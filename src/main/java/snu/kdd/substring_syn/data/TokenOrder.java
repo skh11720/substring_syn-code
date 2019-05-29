@@ -15,11 +15,11 @@ public class TokenOrder implements Comparator<Integer> {
 	Int2IntMap orderMap = null;
 	Int2IntOpenHashMap counter = null;
 	
-	public TokenOrder( Query query ) {
+	public TokenOrder( Dataset dataset ) {
 		initCounter();
-		countTokens(query.searchedSet);
-		if ( !query.selfJoin ) countTokens(query.indexedSet);
-		countTokens(query.ruleSet);
+		countTokens(dataset.searchedList);
+		if ( !dataset.selfJoin ) countTokens(dataset.indexedList);
+		countTokens(dataset.ruleSet);
 		buildOrderMap(counter);
 	}
 	
@@ -59,8 +59,8 @@ public class TokenOrder implements Comparator<Integer> {
 		counter.defaultReturnValue(0);
 	}
 	
-	private void countTokens( Dataset dataset ) {
-		for ( Record rec : dataset ) {
+	private void countTokens( Iterable<Record> recordList ) {
+		for ( Record rec : recordList ) {
 			for ( int token : rec.getTokens() ) {
 				counter.addTo(token, 1);
 			}

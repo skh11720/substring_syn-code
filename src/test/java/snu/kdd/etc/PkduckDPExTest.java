@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Rule;
@@ -96,10 +96,10 @@ public class PkduckDPExTest {
 
 	@Ignore
 	public void test() throws IOException {
-		Query query = Util.getQueryWithPreprocessing("SPROT", 1000);
-		TokenOrder order = new TokenOrder(query);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", 1000);
+		TokenOrder order = new TokenOrder(dataset);
 		long ts;
-		query.reindexByOrder(order);
+		dataset.reindexByOrder(order);
 		PkduckDPInterface[] pkduckdpArr = new PkduckDPInterface[3];
 		pkduckdpArr[0] = new PkduckDPWrapper();
 		pkduckdpArr[1] = new PkduckDPExOldWrapper();
@@ -107,7 +107,7 @@ public class PkduckDPExTest {
 		long[] tArr = new long[pkduckdpArr.length];
 
 		for ( double theta : thetaList ) {
-			for ( Record rec :  query.indexedSet ) {
+			for ( Record rec :  dataset.indexedList ) {
 				System.out.println("rec: "+rec.getID());
 				IntOpenHashSet tokenSet = rec.getCandTokenSet();
 				for ( int j=0; j<pkduckdpArr.length; ++j ) {
@@ -156,12 +156,12 @@ public class PkduckDPExTest {
 	
 	@Test
 	public void testPair() throws IOException {
-		Query query = Util.getQueryWithPreprocessing("SPROT_long", 100);
-		TokenOrder order = new TokenOrder(query);
-		query.reindexByOrder(order);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 100);
+		TokenOrder order = new TokenOrder(dataset);
+		dataset.reindexByOrder(order);
 		double theta = 0.6;
-		Record qrec = query.searchedSet.getRecord(2);
-		Record rec = query.indexedSet.getRecord(31);
+		Record qrec = dataset.searchedList.get(2);
+		Record rec = dataset.indexedList.get(31);
 		System.out.println("qrec: "+qrec);
 		IntOpenHashSet tokenSet = rec.getCandTokenSet();
 		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, qrec.size());

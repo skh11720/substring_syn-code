@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 
 public abstract class AbstractSearch {
@@ -31,10 +31,10 @@ public abstract class AbstractSearch {
 		log = LogManager.getFormatterLogger();
 	}
 	
-	public void run( Query query ) {
-		for ( Record qrec : query.searchedSet ) {
+	public void run( Dataset dataset ) {
+		for ( Record qrec : dataset.searchedList ) {
 			long ts = System.nanoTime();;
-			search(qrec, query.indexedSet);
+			search(qrec, dataset.indexedList);
 			log.debug("search(qrec=%d, ...)\t%.3f ms", ()->qrec.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 		outputResult();

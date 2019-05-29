@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import snu.kdd.substring_syn.data.Query;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Util;
 import vldb18.GreedyPkduckValidator;
@@ -13,13 +13,13 @@ public class GreedyValidatorTest {
 
 	@Test
 	public void test() throws IOException {
-		Query query = Util.getQueryWithPreprocessing("SPROT", 1000);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", 1000);
 		long ts;
 		long[] tArr = new long[2];
 		GreedyPkduckValidator validator0 = new GreedyPkduckValidator();
 		
-		for ( Record recS : query.searchedSet ) {
-			for ( Record recT : query.indexedSet ) {
+		for ( Record recS : dataset.searchedList ) {
+			for ( Record recT : dataset.indexedList ) {
 				ts = System.nanoTime();
 				double sim0 = validator0.sim(recS, recT);
 				tArr[0] += System.nanoTime() - ts;
