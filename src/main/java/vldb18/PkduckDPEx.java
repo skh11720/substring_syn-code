@@ -60,6 +60,7 @@ public class PkduckDPEx {
 					maxWindowSizeFrom[i-1] = v-1;
 					break;
 				}
+				else maxWindowSizeFrom[i-1] = v;
 			}
 	//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
 		
