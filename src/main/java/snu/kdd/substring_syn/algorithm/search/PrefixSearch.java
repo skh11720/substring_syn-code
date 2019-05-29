@@ -38,8 +38,9 @@ public class PrefixSearch extends AbstractSearch {
 			pkduckdp.compute(target);
 			log.debug("PkduckDPEx.compute(%d) rec.id=%d  %.3f ms", target, rec.getID(), (System.nanoTime()-ts0)/1e6);
 			ts0 = System.nanoTime();
-			int nWindow = applyPrefixFiltering(qrec, rec, pkduckdp, target);
-			log.debug("PrefixSearch.applyPrefixFiltering(...)  %4d/%4d  %.3f ms", nWindow, rec.size()*(rec.size()+1)/2, (System.nanoTime()-ts0)/1e6 );
+			boolean isSimilar = applyPrefixFiltering(qrec, rec, pkduckdp, target);
+			if ( isSimilar ) break;
+			log.debug("PrefixSearch.applyPrefixFiltering(...)  %4d/%4d  %.3f ms", 0, rec.size()*(rec.size()+1)/2, (System.nanoTime()-ts0)/1e6 );
 		} // end for
 		
 	}
@@ -50,7 +51,7 @@ public class PrefixSearch extends AbstractSearch {
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected int applyPrefixFiltering( Record qrec, Record rec, PkduckDPEx pkduckdp, int target ) {
+	protected boolean applyPrefixFiltering( Record qrec, Record rec, PkduckDPEx pkduckdp, int target ) {
 		int nWindow = 0;
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			log.trace("widx: %d  maxWindowSize: %d", widx, pkduckdp.getMaxWindowSize(widx));
@@ -64,13 +65,13 @@ public class PrefixSearch extends AbstractSearch {
 					if ( sim >= theta ) {
 						rsltFromText.add(new IntPair(qrec.getID(), rec.getID()));
 						log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=true", qrec.getID(), rec.getID(), target);
-						return nWindow;
+						return true;
 					}
 				}
 			}
 		}
 		log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=false", qrec.getID(), rec.getID(), target);
-		return nWindow;
+		return false;
 	}
 
 	@Override
