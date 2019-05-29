@@ -35,8 +35,8 @@ public class PkduckDPTest {
 		for ( double theta : thetaList ) {
 			for ( Record rec : dataset.searchedList ) {
 				PkduckDP pkduckDP0 = new PkduckDP(rec, theta);
-				IntOpenHashSet tokenSet = getCandTokenSet(rec);
-				IntOpenHashSet prefix = Util.getPrefix(rec, theta);
+				IntOpenHashSet tokenSet = rec.getCandTokenSet();
+				IntOpenHashSet prefix = Util.getExpandedPrefix(rec, theta);
 				
 				for ( int token : tokenSet ) {
 					ts = System.nanoTime();
@@ -54,7 +54,7 @@ public class PkduckDPTest {
 		PrintStream ps = new PrintStream(path);
 		for ( Record rec : dataset.searchedList ) {
 			PkduckDP pkduckDP = new PkduckDP(rec, theta);
-			IntOpenHashSet tokenSet = getCandTokenSet(rec);
+			IntOpenHashSet tokenSet = rec.getCandTokenSet();
 			
 			for ( int token : tokenSet ) {
 				int rid = rec.getID();
@@ -63,14 +63,6 @@ public class PkduckDPTest {
 			}
 		}
 		ps.close();
-	}
-	
-	private IntOpenHashSet getCandTokenSet( Record rec ) {
-		IntOpenHashSet tokenSet = new IntOpenHashSet();
-		for ( Rule r : rec.getApplicableRuleIterable() ) {
-			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
-		}
-		return tokenSet;
 	}
 	
 	public ObjectArrayList<int[]> loadAnswer( Dataset dataset, double theta ) throws IOException {

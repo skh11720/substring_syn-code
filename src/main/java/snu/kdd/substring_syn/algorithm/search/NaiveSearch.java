@@ -33,7 +33,7 @@ public class NaiveSearch extends AbstractSearch {
 					log.debug("query: %s", ()->query);
 					log.debug("window: %s", ()->window.toString());
 					log.debug("query_prefix: %s", ()->Util.getPrefix(query, theta));
-					log.debug("window_prefix: %s", ()->Util.getPrefix(window.toRecord(), theta));
+					log.debug("window_prefix: %s", ()->Util.getExpandedPrefix(window.toRecord(), theta));
 					log.debug("rec: %s", ()->rec.toStringDetails());
 					rsltFromText.add(new IntPair(query.getID(), rec.getID()));
 					return;

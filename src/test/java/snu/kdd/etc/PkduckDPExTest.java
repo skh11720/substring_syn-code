@@ -127,7 +127,7 @@ public class PkduckDPExTest {
 						RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
 						for ( int widx=0; window.hasNext(); ++widx ) {
 							Subrecord wrec = window.next();
-							IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(), theta);
+							IntOpenHashSet prefix = Util.getExpandedPrefix(wrec.toRecord(), theta);
 
 							for ( int j=0; j<pkduckdpArr.length; ++j ) {
 								ts = System.nanoTime();
@@ -171,7 +171,7 @@ public class PkduckDPExTest {
 				RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
 				for ( int widx=0; window.hasNext(); ++widx ) {
 					Subrecord wrec = window.next();
-					IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(), theta);
+					IntOpenHashSet prefix = Util.getExpandedPrefix(wrec.toRecord(), theta);
 					System.out.println("target: "+target);
 					System.out.println("w: "+w+", widx: "+widx);
 					System.out.println("window: "+wrec.toString());
