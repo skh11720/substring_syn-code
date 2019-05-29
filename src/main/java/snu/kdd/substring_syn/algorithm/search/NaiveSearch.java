@@ -17,27 +17,25 @@ public class NaiveSearch extends AbstractSearch {
 		validator = new NaivePkduckValidator();
 	}
 
-	protected void searchRecordFromQuery( Record qrec, Record rec ) {
-		/*
-		 * TODO: implement
-		 */
+	protected void searchRecordFromQuery( Record query, Record rec ) {
+		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 	}
 	
-	protected void searchRecordFromText( Record qrec, Record rec ) {
-		log.debug("searchRecordFromText(%d, %d)", ()->qrec.getID(), ()->rec.getID());
+	protected void searchRecordFromText( Record query, Record rec ) {
+		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		for ( int w=1; w<=rec.size(); ++w ) {
 			RecordSortedSlidingWindow windowSlider = new RecordSortedSlidingWindow(rec, w, theta);
 			for ( int widx=0; windowSlider.hasNext(); ++widx ) {
 				Subrecord window = windowSlider.next();
-				double sim = validator.sim(qrec, window.toRecord());
-				log.debug("qrec=%d, rec=%d, w=%d, widx=%d, sim=%.3f", qrec.getID(), rec.getID(), w, widx, sim);
+				double sim = validator.sim(query, window.toRecord());
+				log.debug("query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
 				if ( sim >= theta ) {
-					log.debug("qrec: %s", ()->qrec);
+					log.debug("query: %s", ()->query);
 					log.debug("window: %s", ()->window.toString());
-					log.debug("qrec_prefix: %s", ()->Util.getPrefix(qrec, theta));
+					log.debug("query_prefix: %s", ()->Util.getPrefix(query, theta));
 					log.debug("window_prefix: %s", ()->Util.getPrefix(window.toRecord(), theta));
 					log.debug("rec: %s", ()->rec.toStringDetails());
-					rsltFromText.add(new IntPair(qrec.getID(), rec.getID()));
+					rsltFromText.add(new IntPair(query.getID(), rec.getID()));
 					return;
 				}
 			}

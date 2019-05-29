@@ -32,17 +32,17 @@ public abstract class AbstractSearch {
 	}
 	
 	public void run( Dataset dataset ) {
-		for ( Record qrec : dataset.searchedList ) {
+		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();;
-			search(qrec, dataset.indexedList);
-			log.debug("search(qrec=%d, ...)\t%.3f ms", ()->qrec.getID(), ()->(System.nanoTime()-ts)/1e6);
+			search(query, dataset.indexedList);
+			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 		outputResult();
 	}
 	
-	public void search( Record qrec, Iterable<Record> records ) {
+	public void search( Record query, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
-			searchRecordFromText(qrec, rec);
+			searchRecordFromText(query, rec);
 		}
 	}
 	
@@ -62,9 +62,9 @@ public abstract class AbstractSearch {
 		}
 	}
 	
-	protected abstract void searchRecordFromQuery( Record qrec, Record rec );
+	protected abstract void searchRecordFromQuery( Record query, Record rec );
 	
-	protected abstract void searchRecordFromText( Record qrec, Record rec ); 
+	protected abstract void searchRecordFromText( Record query, Record rec ); 
 	
 	public abstract String getName();
 
