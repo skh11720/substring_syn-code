@@ -308,9 +308,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public String toStringDetails() {
 		StringBuilder rslt = new StringBuilder();
-		rslt.append(id+"\t:\t"+toOriginalString() + "\n");
+		rslt.append(id+"\t:\t"+toString()+"\n");
+		rslt.append(toOriginalString() + "\n");
 		for ( Rule rule : getApplicableRuleIterable() )
-			rslt.append("\t"+rule.toOriginalString()+"\n");
+			rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
 		return rslt.toString();
 	}
 

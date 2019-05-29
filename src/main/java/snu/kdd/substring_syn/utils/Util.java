@@ -598,10 +598,19 @@ public class Util {
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 	
+	public static int getPrefixLength( Record rec, double theta ) {
+		return rec.size() - (int)(Math.ceil(theta*rec.size())) + 1;
+	}
+
 	public static IntOpenHashSet getPrefix( Record rec, double theta ) {
+		int prefixLen = getPrefixLength(rec, theta);
+		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
+	}
+	
+	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
 		for ( Record exp : rec.expandAll() ) {
-			int prefixLen = exp.size() - (int)(Math.ceil(theta*exp.size())) + 1;
+			int prefixLen = getPrefixLength(exp, theta);
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}
 		return prefix;

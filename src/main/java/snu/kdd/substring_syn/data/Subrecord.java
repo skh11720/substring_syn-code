@@ -59,7 +59,7 @@ public class Subrecord implements RecordInterface {
 			}
 			if (i == sidx) rslt.append("[");
 			rslt.append(rec.getToken(i));
-			if (i == eidx) rslt.append("]");
+			if (i+1 == eidx) rslt.append("]");
 		}
 		return rslt.toString();
 	}
