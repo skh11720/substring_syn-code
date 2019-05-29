@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.utils.Util;
 import vldb18.NaivePkduckValidator;
 import vldb18.PkduckDPEx;
 
@@ -45,7 +46,7 @@ public class PrefixSearch extends AbstractSearch {
 	
 	protected IntList getCandTokenList( Record qrec, Record rec ) {
 		IntSet tokenSet = rec.getCandTokenSet();
-		tokenSet.retainAll(qrec.getTokens());
+		tokenSet.retainAll(Util.getPrefix(qrec, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
@@ -62,13 +63,13 @@ public class PrefixSearch extends AbstractSearch {
 					log.trace("sim: %.3f", sim);
 					if ( sim >= theta ) {
 						rsltFromText.add(new IntPair(qrec.getID(), rec.getID()));
-//						log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=true", qrec.getID(), rec.getID(), target);
+						log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=true", qrec.getID(), rec.getID(), target);
 						return nWindow;
 					}
 				}
 			}
 		}
-//		log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=false", qrec.getID(), rec.getID(), target);
+		log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=false", qrec.getID(), rec.getID(), target);
 		return nWindow;
 	}
 
