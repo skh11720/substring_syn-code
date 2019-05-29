@@ -2,10 +2,10 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d %-5p %c{36} %m%n" />
+            <PatternLayout pattern="%d %-5p %m%n" />
         </Console>
-        <File name="MyFile" fileName="log/app.log" immediateFlush="false" append="false">
-            <PatternLayout pattern="%d %-5p %c{36} %m%n"/>
+        <File name="MyFile" fileName="log/${date:MMddHHmmss}.log"  immediateFlush="false" append="false">
+            <PatternLayout pattern="%d %-5p %m%n"/>
         </File>
     </Appenders>
     <Loggers>
