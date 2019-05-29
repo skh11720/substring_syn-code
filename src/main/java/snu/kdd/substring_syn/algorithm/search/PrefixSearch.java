@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
@@ -11,7 +12,6 @@ import vldb18.PkduckDPEx;
 public class PrefixSearch extends AbstractSearch {
 
 	final NaivePkduckValidator validator;
-	IntList candTokenList;
 
 	
 	public PrefixSearch( double theta ) {
@@ -21,8 +21,6 @@ public class PrefixSearch extends AbstractSearch {
 	
 	@Override
 	protected void prepareSearchGivenQueryRecord( Record qrec ) {
-		candTokenList = new IntArrayList( qrec.getTokens().stream().sorted().distinct().iterator() );
-		log.debug("PrefixSearch.prepareSearchGivenQueryRecord(%d)  candTokenSet.size=%d", qrec.getID(), candTokenList.size());
 	}
 
 	@Override
@@ -31,6 +29,8 @@ public class PrefixSearch extends AbstractSearch {
 	
 	@Override
 	protected void searchRecordFromText( Record qrec, Record rec ) {
+		IntList candTokenList = getCandTokenList(qrec, rec);
+		log.debug("PrefixSearch.getCandTokenList(%d, %d)  candTokenSet.size=%d", qrec.getID(), rec.getID(), candTokenList.size());
 		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, qrec.size());
 		for ( int target : candTokenList ) {
 			long ts0 = System.nanoTime();
@@ -41,6 +41,12 @@ public class PrefixSearch extends AbstractSearch {
 			log.debug("PrefixSearch.applyPrefixFiltering(...)  %4d/%4d  %.3f ms", nWindow, rec.size()*(rec.size()+1)/2, (System.nanoTime()-ts0)/1e6 );
 		} // end for
 		
+	}
+	
+	protected IntList getCandTokenList( Record qrec, Record rec ) {
+		IntSet tokenSet = rec.getCandTokenSet();
+		tokenSet.retainAll(qrec.getTokens());
+		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
 	protected int applyPrefixFiltering( Record qrec, Record rec, PkduckDPEx pkduckdp, int target ) {
