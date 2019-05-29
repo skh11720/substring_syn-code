@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -93,7 +94,7 @@ public class PkduckDPExTest {
 	
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 
-	@Test
+	@Ignore
 	public void test() throws IOException {
 		Query query = Util.getQueryWithPreprocessing("SPROT", 1000);
 		TokenOrder order = new TokenOrder(query);
@@ -108,7 +109,7 @@ public class PkduckDPExTest {
 		for ( double theta : thetaList ) {
 			for ( Record rec :  query.indexedSet ) {
 				System.out.println("rec: "+rec.getID());
-				IntOpenHashSet tokenSet = getCandTokenSet(rec);
+				IntOpenHashSet tokenSet = rec.getCandTokenSet();
 				for ( int j=0; j<pkduckdpArr.length; ++j ) {
 					ts = System.nanoTime();
 					pkduckdpArr[j].init(rec, theta);
@@ -152,12 +153,33 @@ public class PkduckDPExTest {
 		}
 		for ( long t : tArr ) System.out.println(t/1e6);
 	}
-
-	private IntOpenHashSet getCandTokenSet( Record rec ) {
-		IntOpenHashSet tokenSet = new IntOpenHashSet();
-		for ( Rule r : rec.getApplicableRuleIterable() ) {
-			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
+	
+	@Test
+	public void testPair() throws IOException {
+		Query query = Util.getQueryWithPreprocessing("SPROT_long", 100);
+		TokenOrder order = new TokenOrder(query);
+		query.reindexByOrder(order);
+		double theta = 0.6;
+		Record qrec = query.searchedSet.getRecord(2);
+		Record rec = query.indexedSet.getRecord(31);
+		System.out.println("qrec: "+qrec);
+		IntOpenHashSet tokenSet = rec.getCandTokenSet();
+		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, qrec.size());
+		for ( int target : tokenSet ) {
+			pkduckdp.compute(target);
+			for ( int w=15; w<=rec.size(); ++w ) {
+				RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
+				for ( int widx=0; window.hasNext(); ++widx ) {
+					Subrecord wrec = window.next();
+					IntOpenHashSet prefix = Util.getPrefix(wrec.toRecord(), theta);
+					System.out.println("target: "+target);
+					System.out.println("w: "+w+", widx: "+widx);
+					System.out.println("window: "+wrec.toString());
+					System.out.println("window_prefix: "+prefix);
+					System.out.println("pdduck: "+pkduckdp.isInSigU(widx, w));
+				}
+				break;
+			}
 		}
-		return tokenSet;
 	}
 }

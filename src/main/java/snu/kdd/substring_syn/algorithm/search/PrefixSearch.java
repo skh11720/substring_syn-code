@@ -52,20 +52,23 @@ public class PrefixSearch extends AbstractSearch {
 	protected int applyPrefixFiltering( Record qrec, Record rec, PkduckDPEx pkduckdp, int target ) {
 		int nWindow = 0;
 		for ( int widx=0; widx<rec.size(); ++widx ) {
+			log.trace("widx: %d  maxWindowSize: %d", widx, pkduckdp.getMaxWindowSize(widx));
 			for ( int w=1; w<=pkduckdp.getMaxWindowSize(widx); ++w ) {
 				++nWindow;
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
+				log.trace("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", qrec.getID(), rec.getID(), target, widx, rec.size()-1, w, pkduckdp.getMaxWindowSize(widx), isInSigU );
 				if ( isInSigU ) {
 					double sim = validator.sim(qrec, (new Subrecord(rec, widx, widx+w)).toRecord());
+					log.trace("sim: %.3f", sim);
 					if ( sim >= theta ) {
 						rsltFromText.add(new IntPair(qrec.getID(), rec.getID()));
-						log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=true", qrec.getID(), rec.getID(), target);
+//						log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=true", qrec.getID(), rec.getID(), target);
 						return nWindow;
 					}
 				}
 			}
 		}
-		log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=false", qrec.getID(), rec.getID(), target);
+//		log.debug("PrefixSearch.applyPrefixFiltering(qrec.id=%d, rec.id=%d, target=%d, ...)  isInSigU=false", qrec.getID(), rec.getID(), target);
 		return nWindow;
 	}
 
