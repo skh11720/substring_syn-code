@@ -32,9 +32,10 @@ public class NaiveSearch extends AbstractSearch {
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					double sim = validator.simx2y(query, window.toRecord());
-					log.debug("FromQuery query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
+					log.trace("FromQuery query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
 					if ( sim >= theta ) {
 						rsltFromQuery.add(new IntPair(query.getID(), rec.getID()));
+						log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 						return;
 					}
 				}
@@ -68,14 +69,15 @@ public class NaiveSearch extends AbstractSearch {
 			for ( int widx=0; witer.hasNext(); ++widx ) {
 				Subrecord window = witer.next();
 				double sim = validator.simx2y(window.toRecord(), query);
-				log.debug("FromText query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
+				log.trace("FromText query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
 				if ( sim >= theta ) {
-					log.debug("query: %s", ()->query);
-					log.debug("window: %s", ()->window.toString());
-					log.debug("query_prefix: %s", ()->Util.getPrefix(query, theta));
-					log.debug("window_prefix: %s", ()->Util.getExpandedPrefix(window.toRecord(), theta));
-					log.debug("rec: %s", ()->rec.toStringDetails());
+					log.trace("query: %s", ()->query);
+					log.trace("window: %s", ()->window.toString());
+					log.trace("query_prefix: %s", ()->Util.getPrefix(query, theta));
+					log.trace("window_prefix: %s", ()->Util.getExpandedPrefix(window.toRecord(), theta));
+					log.trace("rec: %s", ()->rec.toStringDetails());
 					rsltFromText.add(new IntPair(query.getID(), rec.getID()));
+					log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 					return;
 				}
 			}
