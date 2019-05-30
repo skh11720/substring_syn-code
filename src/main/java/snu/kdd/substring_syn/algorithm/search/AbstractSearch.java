@@ -42,18 +42,16 @@ public abstract class AbstractSearch {
 	
 	public void search( Record query, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
+			searchRecordFromQuery(query, rec);
 			searchRecordFromText(query, rec);
 		}
-	}
-	
-	public List<IntPair> getResultFromText() {
-		return rsltFromText.stream().sorted().collect(Collectors.toList());
 	}
 
 	public void outputResult() {
 		try {
 			PrintStream ps = new PrintStream(String.format("output/"+getOutputName()+".txt", theta));
-			getResultFromText().forEach(ip -> ps.println("FROM_TEXT\t"+ip));
+			getSortedResult(rsltFromQuery).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
+			getSortedResult(rsltFromText).forEach(ip -> ps.println("FROM_TEXT\t"+ip));
 			ps.close();
 		}
 		catch ( FileNotFoundException e ) {
@@ -61,6 +59,11 @@ public abstract class AbstractSearch {
 			System.exit(1);
 		}
 	}
+
+	protected List<IntPair> getSortedResult( Set<IntPair> rslt ) {
+		return rslt.stream().sorted().collect(Collectors.toList());
+	}
+
 	
 	protected abstract void searchRecordFromQuery( Record query, Record rec );
 	

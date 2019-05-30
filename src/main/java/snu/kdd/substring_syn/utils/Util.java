@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.ACAutomataR;
@@ -614,5 +615,14 @@ public class Util {
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}
 		return prefix;
+	}
+	
+	public static boolean hasIntersection( IntSet set0, IntSet set1 ) {
+		IntSet smallSet = set1.size() < set0.size()? set1: set0;
+		IntSet largeSet = set1.size() < set0.size()? set0: set1;
+		for ( int token : smallSet ) {
+			if ( largeSet.contains(token) ) return true;
+		}
+		return false;
 	}
 }
