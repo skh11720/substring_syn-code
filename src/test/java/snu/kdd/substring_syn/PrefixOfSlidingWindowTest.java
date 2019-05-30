@@ -20,10 +20,10 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.AbstractSlidingWindow;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
-import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
-import snu.kdd.substring_syn.utils.window.SortedSlidingWindow;
+import snu.kdd.substring_syn.utils.window.AbstractSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.SimpleSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.SortedSlidingWindowIterator;
 
 @FixMethodOrder
 public class PrefixOfSlidingWindowTest {
@@ -50,7 +50,7 @@ public class PrefixOfSlidingWindowTest {
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
 		for ( Record rec : dataset.indexedList ) {
-			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
+			SimpleSlidingWindowIterator window1 = new SimpleSlidingWindowIterator(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 				IntList subList = new IntArrayList( window1.getWindow() );
@@ -64,7 +64,7 @@ public class PrefixOfSlidingWindowTest {
 	public void testSortedSlidingWindowTime() {
 		long ts = System.nanoTime();
 		for ( Record rec : dataset.indexedList ) {
-			SortedSlidingWindow window1 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
+			SortedSlidingWindowIterator window1 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 				IntList subList = new IntArrayList( window1.getWindow() );
@@ -83,10 +83,10 @@ public class PrefixOfSlidingWindowTest {
 	public static void getPrefixOfSlidingWindow( Iterable<Record> concatList, int w, double theta ) {
 		for ( Record rec : concatList ) {
 //			System.out.println(Arrays.toString(arr));
-			SimpleSlidingWindow window1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
+			SimpleSlidingWindowIterator window1 = new SimpleSlidingWindowIterator(rec.getTokenArray(), w, theta);
 //			HeapBasedSlidingWindow window2 = new HeapBasedSlidingWindow(arr, w, theta);
-			SortedSlidingWindow window3 = new SortedSlidingWindow(rec.getTokenArray(), w, theta);
-			RecordSortedSlidingWindow window4 = new RecordSortedSlidingWindow(rec, w, theta);
+			SortedSlidingWindowIterator window3 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
+			RecordSortedSlidingWindowIterator window4 = new RecordSortedSlidingWindowIterator(rec, w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 //				window2.next();
@@ -111,7 +111,7 @@ public class PrefixOfSlidingWindowTest {
 	}
 }
 
-class HeapBasedSlidingWindow extends AbstractSlidingWindow {
+class HeapBasedSlidingWindow extends AbstractSlidingWindowIterator {
 	final IntHashBasedBinaryHeap heap;
 	
 	public HeapBasedSlidingWindow( int[] seq, int w, double theta ) {

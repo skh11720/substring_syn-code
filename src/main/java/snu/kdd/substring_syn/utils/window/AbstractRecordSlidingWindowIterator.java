@@ -7,13 +7,13 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 
-public abstract class AbstractRecordSlidingWindow implements Iterator<Subrecord> {
+public abstract class AbstractRecordSlidingWindowIterator implements Iterator<Subrecord> {
 	protected final Record rec;
 	protected final int w;
 	protected final int lenPrefix;
 	protected int widx = -1;
 	
-	public AbstractRecordSlidingWindow( Record rec, int w, double theta ) {
+	public AbstractRecordSlidingWindowIterator( Record rec, int w, double theta ) {
 		this.rec = rec;
 		this.w  = w;
 		this.lenPrefix = w - (int)(Math.ceil(w*theta)) + 1;

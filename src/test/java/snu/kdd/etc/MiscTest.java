@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
+import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
 
 public class MiscTest {
 	
@@ -22,7 +22,7 @@ public class MiscTest {
 		
 		for ( int w=1; w<=rec.size(); ++w ) {
 			System.out.println("window size: "+w);
-			RecordSortedSlidingWindow slider = new RecordSortedSlidingWindow(rec, w, theta);
+			RecordSortedSlidingWindowIterator slider = new RecordSortedSlidingWindowIterator(rec, w, theta);
 			while ( slider.hasNext() ) {
 				Subrecord window = slider.next();
 				Record wrec = window.toRecord();

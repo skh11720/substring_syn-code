@@ -17,7 +17,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
+import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
 import vldb18.PkduckDPExOld;
@@ -124,7 +124,7 @@ public class PkduckDPExTest {
 					}
 
 					for ( int w=1; w<=rec.size(); ++w ) {
-						RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
+						RecordSortedSlidingWindowIterator window = new RecordSortedSlidingWindowIterator(rec, w, theta);
 						for ( int widx=0; window.hasNext(); ++widx ) {
 							Subrecord wrec = window.next();
 							IntOpenHashSet prefix = Util.getExpandedPrefix(wrec.toRecord(), theta);
@@ -168,7 +168,7 @@ public class PkduckDPExTest {
 		for ( int target : tokenSet ) {
 			pkduckdp.compute(target);
 			for ( int w=15; w<=rec.size(); ++w ) {
-				RecordSortedSlidingWindow window = new RecordSortedSlidingWindow(rec, w, theta);
+				RecordSortedSlidingWindowIterator window = new RecordSortedSlidingWindowIterator(rec, w, theta);
 				for ( int widx=0; window.hasNext(); ++widx ) {
 					Subrecord wrec = window.next();
 					IntOpenHashSet prefix = Util.getExpandedPrefix(wrec.toRecord(), theta);

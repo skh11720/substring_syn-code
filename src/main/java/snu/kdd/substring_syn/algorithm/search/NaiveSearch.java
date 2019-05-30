@@ -4,7 +4,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindow;
+import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
 import vldb18.NaivePkduckValidator;
 
 public class NaiveSearch extends AbstractSearch {
@@ -24,9 +24,9 @@ public class NaiveSearch extends AbstractSearch {
 	protected void searchRecordFromText( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		for ( int w=1; w<=rec.size(); ++w ) {
-			RecordSortedSlidingWindow windowSlider = new RecordSortedSlidingWindow(rec, w, theta);
-			for ( int widx=0; windowSlider.hasNext(); ++widx ) {
-				Subrecord window = windowSlider.next();
+			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
+			for ( int widx=0; witer.hasNext(); ++widx ) {
+				Subrecord window = witer.next();
 				double sim = validator.sim(query, window.toRecord());
 				log.debug("query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
 				if ( sim >= theta ) {

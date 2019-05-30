@@ -3,9 +3,9 @@ package snu.kdd.substring_syn.utils.window;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
-public class SimpleSlidingWindow extends AbstractSlidingWindow {
+public class SimpleSlidingWindowIterator extends AbstractSlidingWindowIterator {
 
-	public SimpleSlidingWindow( int[] seq, int w, double theta ) {
+	public SimpleSlidingWindowIterator( int[] seq, int w, double theta ) {
 		super(seq, w, theta);
 	}
 	
