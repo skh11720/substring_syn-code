@@ -15,7 +15,7 @@ public class NaivePkduckValidator {
 		Configurator.setLevel("NaivePkduckValidator", Level.DEBUG);
 	}
 
-	public double sim( Record x, Record y ) {
+	private double sim( Record x, Record y ) {
 //		log.debug(x.getID()+"\t"+y.getID());
 		if ( areSameString(x, y) ) return 1;
 		else return simx2y(x, y);
@@ -25,7 +25,8 @@ public class NaivePkduckValidator {
 		return x.equals(y);
 	}
 	
-	private double simx2y( Record x, Record y ) {
+	public double simx2y( Record x, Record y ) {
+		if ( areSameString(x, y) ) return 1;
 		double sim = 0;
 		for ( Record exp : x.expandAll() ) {
 			sim = Math.max(sim, Util.jaccard(exp.getTokenArray(), y.getTokenArray()));

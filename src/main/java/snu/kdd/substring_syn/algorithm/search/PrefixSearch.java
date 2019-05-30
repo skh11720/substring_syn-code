@@ -56,7 +56,7 @@ public class PrefixSearch extends AbstractSearch {
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
 				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, pkduckdp.getMaxWindowSize(widx), isInSigU );
 				if ( isInSigU ) {
-					double sim = validator.sim(query, (new Subrecord(rec, widx, widx+w)).toRecord());
+					double sim = validator.simx2y((new Subrecord(rec, widx, widx+w)).toRecord(), query);
 					log.trace("sim: %.3f", sim);
 					if ( sim >= theta ) {
 						rsltFromText.add(new IntPair(query.getID(), rec.getID()));

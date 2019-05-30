@@ -27,8 +27,8 @@ public class NaiveSearch extends AbstractSearch {
 			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
 			for ( int widx=0; witer.hasNext(); ++widx ) {
 				Subrecord window = witer.next();
-				double sim = validator.sim(query, window.toRecord());
 				log.debug("query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
+				double sim = validator.simx2y(window.toRecord(), query);
 				if ( sim >= theta ) {
 					log.debug("query: %s", ()->query);
 					log.debug("window: %s", ()->window.toString());
