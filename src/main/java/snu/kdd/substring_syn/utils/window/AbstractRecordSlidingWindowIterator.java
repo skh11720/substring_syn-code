@@ -17,6 +17,9 @@ public abstract class AbstractRecordSlidingWindowIterator implements Iterator<Su
 		this.rec = rec;
 		this.w  = w;
 		this.lenPrefix = w - (int)(Math.ceil(w*theta)) + 1;
+		
+		if ( w > rec.size() ) 
+			throw new IllegalArgumentException( String.format("window size w=%d must be smaller than or equal to rec.size=%d.", w, rec.size()) );
 	}
 	
 	public abstract IntSet getPrefix();

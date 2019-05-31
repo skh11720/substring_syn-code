@@ -42,8 +42,8 @@ public abstract class AbstractSearch {
 	
 	public void search( Record query, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
-			searchRecordFromQuery(query, rec);
-			searchRecordFromText(query, rec);
+			searchQuerySide(query, rec);
+			searchTextSide(query, rec);
 		}
 	}
 
@@ -65,9 +65,9 @@ public abstract class AbstractSearch {
 	}
 
 	
-	protected abstract void searchRecordFromQuery( Record query, Record rec );
+	protected abstract void searchQuerySide( Record query, Record rec );
 	
-	protected abstract void searchRecordFromText( Record query, Record rec ); 
+	protected abstract void searchTextSide( Record query, Record rec ); 
 	
 	public abstract String getName();
 
