@@ -13,6 +13,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractSearch {
 
@@ -21,22 +23,27 @@ public abstract class AbstractSearch {
 	protected final Set<IntPair> rsltFromQuery;
 	protected final Set<IntPair> rsltFromText;
 	protected final Logger log; 
+	protected StatContainer statContainer;
 	
 	public AbstractSearch( double theta ) {
 		this.theta = theta;
 //		this.rslt = new ObjectOpenHashSet<>();
 		this.rsltFromQuery = new ObjectOpenHashSet<>();
 		this.rsltFromText = new ObjectOpenHashSet<>();
-
-		log = LogManager.getFormatterLogger();
+		this.log = LogManager.getFormatterLogger();
 	}
 	
 	public void run( Dataset dataset ) {
+		statContainer = new StatContainer(this, dataset);
+		statContainer.startWatch(Stat.Time_0_Total);
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();;
 			search(query, dataset.indexedList);
 			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
+		statContainer.stopWatch(Stat.Time_0_Total);
+		statContainer.finalize();
+		statContainer.print();
 		outputResult();
 	}
 	

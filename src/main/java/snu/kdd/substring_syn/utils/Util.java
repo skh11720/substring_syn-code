@@ -625,4 +625,9 @@ public class Util {
 		}
 		return false;
 	}
+
+	public static int sumWindowSize( Record rec ) {
+		int n = rec.size();
+		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
+	}
 }
