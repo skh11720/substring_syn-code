@@ -503,7 +503,7 @@ public class Util {
 		String sep = null;
 		if ( osName.startsWith( "Windows" ) ) {
 			prefix = "D:\\ghsong\\data\\synonyms\\";
-			sep = "\\\\";
+			sep = "\\";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
 			prefix = "data_store/";

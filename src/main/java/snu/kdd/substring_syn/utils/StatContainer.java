@@ -27,9 +27,7 @@ public class StatContainer {
 		this();
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
-		statMap.put(Stat.Dataset_searchedPath, dataset.dataInfo.searchedPath);
-		statMap.put(Stat.Dataset_indexedPath, dataset.dataInfo.indexedPath);
-		statMap.put(Stat.Dataset_rulePath, dataset.dataInfo.rulePath);
+		statMap.put(Stat.Dataset_Name, dataset.name);
 		statMap.put(Stat.Dataset_numSearched, Integer.toString(dataset.searchedList.size()));
 		statMap.put(Stat.Dataset_numIndexed, Integer.toString(dataset.indexedList.size()));
 		statMap.put(Stat.Dataset_numRule, Integer.toString(dataset.ruleSet.size()));

@@ -8,9 +8,10 @@ public class Stat {
 	
 	public static final String Alg_Name = "Alg_Name";
 	public static final String Alg_Version = "Alg_Version";
-	public static final String Dataset_searchedPath = "Dataset_searchedPath";
-	public static final String Dataset_indexedPath = "Dataset_indexedPath";
-	public static final String Dataset_rulePath = "Dataset_rulePath";
+//	public static final String Dataset_searchedPath = "Dataset_searchedPath";
+//	public static final String Dataset_indexedPath = "Dataset_indexedPath";
+//	public static final String Dataset_rulePath = "Dataset_rulePath";
+	public static final String Dataset_Name = "Dataset_Name";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
 	public static final String Dataset_numRule= "Dataset_numRule";

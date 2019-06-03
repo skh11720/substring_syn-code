@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +15,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Dataset {
 	
-	public final DataInfo dataInfo;
+	public final String name;
 	public final Ruleset ruleSet;
 	public final List<Record> indexedList;
 	public final List<Record> searchedList;
@@ -29,8 +30,11 @@ public class Dataset {
 		return new Dataset( rulePath, searchedPath, indexedPath, outputPath );
 	}
 	
+	public Dataset( String name ) {
+	}
+	
 	public Dataset( String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
-		this.dataInfo = new DataInfo(searchedPath, indexedPath, rulePath);
+		this.name = setName(searchedPath, indexedPath, rulePath);
 		this.outputPath = outputPath;
 		TokenIndex tokenIndex = new TokenIndex();
 
@@ -42,6 +46,13 @@ public class Dataset {
 		else searchedList = loadRecordList(searchedPath, tokenIndex);
 		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
 		Record.tokenIndex = tokenIndex;
+	}
+
+	private String setName( String searchedPath, String indexedPath, String rulePath ) {
+		String searchedFileName = searchedPath.substring( searchedPath.lastIndexOf(File.separator) + 1 );
+		String indexedFileName = indexedPath.substring( indexedPath.lastIndexOf(File.separator) + 1 );
+		String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
+		return searchedFileName + "_" + indexedFileName + "_" + ruleFileName;
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {

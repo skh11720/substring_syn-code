@@ -50,7 +50,7 @@ public class PkduckDPTest {
 	}
 
 	public void outputAnswer( Dataset dataset, double theta ) throws FileNotFoundException {
-		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.dataInfo.datasetName, theta);
+		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.name, theta);
 		PrintStream ps = new PrintStream(path);
 		for ( Record rec : dataset.searchedList ) {
 			PkduckDP pkduckDP = new PkduckDP(rec, theta);
@@ -66,7 +66,7 @@ public class PkduckDPTest {
 	}
 	
 	public ObjectArrayList<int[]> loadAnswer( Dataset dataset, double theta ) throws IOException {
-		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.dataInfo.datasetName, theta);
+		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.name, theta);
 		BufferedReader br = new BufferedReader( new FileReader(path) );
 		ObjectArrayList<int[]> answerList = new ObjectArrayList<>();
 		br.lines().forEach(s -> {
