@@ -17,8 +17,19 @@ import snu.kdd.substring_syn.utils.Util;
 public class PrefixSearchTest {
 
 	@Test
-	public void test() throws IOException {
-		double theta = 0.6;
+	public void testAllTheta() throws IOException {
+		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
+		for ( double theta : thetaList ) {
+			test(theta);
+		}
+	}
+	
+	@Test
+	public void testSingle() throws IOException {
+		test(0.7);
+	}
+	
+	public void test( double theta ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 100);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
@@ -31,12 +42,6 @@ public class PrefixSearchTest {
 		System.out.println(t/1e6);
 		assertTrue( isOutputCorrect(theta) );
 	}
-	
-//	public boolean isOutputCorrect( double theta ) throws IOException {
-//		File file0 = new File(String.format("output/NaiveSearch_1.00_%.2f.txt", theta));
-//		File file1 = new File(String.format("output/PrefixSearch_1.00_%.2f.txt", theta));
-//		return FileUtils.contentEquals(file0, file1);
-//	}
 
 	public boolean isOutputCorrect( double theta ) throws IOException {
 		BufferedReader br0 = new BufferedReader(new FileReader(String.format("output/NaiveSearch_1.00_%.2f.txt", theta)));

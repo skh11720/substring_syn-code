@@ -29,8 +29,8 @@ public class PrefixSearch extends AbstractSearch {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
-		int[] wrange = getRangeOfWindowSize(query, rec);
-		for ( int w=wrange[0]; w<=wrange[1]; ++w ) {
+		int wMax = getMaxWindowSize(query, rec);
+		for ( int w=1; w<=wMax; ++w ) {
 			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
 			for ( int widx=0; witer.hasNext(); ++widx ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
@@ -38,7 +38,7 @@ public class PrefixSearch extends AbstractSearch {
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					double sim = validator.simx2y(query, window.toRecord());
-					log.trace("FromQuery query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
+					log.debug("FromQuery query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
 					if ( sim >= theta ) {
 						rsltFromQuery.add(new IntPair(query.getID(), rec.getID()));
 						log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
@@ -59,12 +59,10 @@ public class PrefixSearch extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
-	protected int[] getRangeOfWindowSize( Record query, Record rec ) {
-		int[] range = new int[2];
-		range[0] = (int)Math.ceil(query.getMinTransLength()*theta);
-		range[1] = (int)Math.floor(query.getMaxTransLength()/theta);
-		range[1] = Math.min(range[1], rec.size());
-		return range;
+	protected int getMaxWindowSize( Record query, Record rec ) {
+		int maxSize = (int)Math.floor(query.getMaxTransLength()/theta);
+		maxSize = Math.min(maxSize, rec.size());
+		return maxSize;
 	}
 	
 	@Override

@@ -394,14 +394,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 	
-	public int getMinLength() {
-		return transformLengths[ transformLengths.length - 1 ][ 0 ];
-	}
-
-	public int getMaxLength() {
-		return transformLengths[ transformLengths.length - 1 ][ 1 ];
-	}
-
 	public int size() {
 		return tokens.length;
 	}
