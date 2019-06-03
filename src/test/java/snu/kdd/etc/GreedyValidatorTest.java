@@ -13,7 +13,7 @@ public class GreedyValidatorTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", 1000);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "1000");
 		long ts;
 		long[] tArr = new long[2];
 		GreedyPkduckValidator validator0 = new GreedyPkduckValidator();

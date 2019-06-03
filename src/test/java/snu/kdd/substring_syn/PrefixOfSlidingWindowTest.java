@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -14,12 +13,10 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
-import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.AbstractSlidingWindowIterator;
 import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindowIterator;
@@ -36,7 +33,7 @@ public class PrefixOfSlidingWindowTest {
 	
 	@BeforeClass
 	public static void init() throws IOException {
-		dataset = Util.getDataset("SPROT_long", 10000);
+		dataset = Dataset.createInstanceByName("SPROT_long", "10000");
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 	}

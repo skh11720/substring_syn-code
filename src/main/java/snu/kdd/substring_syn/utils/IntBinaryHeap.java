@@ -3,8 +3,6 @@ package snu.kdd.substring_syn.utils;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import javax.management.RuntimeErrorException;
-
 /**
  * 
  * @author ghsong

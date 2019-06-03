@@ -34,6 +34,10 @@ public class NaivePkduckValidator {
 		return sim;
 	}
 	
+	public boolean isSimx2yOverThreahold( Record x, Record y, double theta ) {
+		return simx2y(x, y) == theta;
+	}
+	
 	public String getName() {
 		return "NaivePkduckValidator";
 	}	

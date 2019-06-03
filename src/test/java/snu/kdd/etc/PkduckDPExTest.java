@@ -3,17 +3,14 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
-import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
@@ -96,7 +93,7 @@ public class PkduckDPExTest {
 
 	@Ignore
 	public void test() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", 1000);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "1000");
 		TokenOrder order = new TokenOrder(dataset);
 		long ts;
 		dataset.reindexByOrder(order);
@@ -156,7 +153,7 @@ public class PkduckDPExTest {
 	
 	@Test
 	public void testPair() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 100);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		double theta = 0.6;

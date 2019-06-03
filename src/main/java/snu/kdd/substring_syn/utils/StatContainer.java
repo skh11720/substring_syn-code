@@ -1,5 +1,8 @@
 package snu.kdd.substring_syn.utils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -46,6 +49,15 @@ public class StatContainer {
 			System.out.println(String.format("%25s  :  %s", field, statMap.get(field)));
 		}
 	}
+	
+	public void outputSummary() throws FileNotFoundException {
+		PrintStream ps = new PrintStream( new FileOutputStream("output/summary.txt", true) );
+		ps.println();
+	}
+	
+//	public String getSummary() {
+//		
+//	}
 
 
 	

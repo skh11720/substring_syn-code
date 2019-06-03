@@ -21,20 +21,42 @@ public class Dataset {
 	public final List<Record> searchedList;
 	public final String outputPath;
 	public final boolean selfJoin;
-
+	
 	public static Dataset createInstance( CommandLine cmd ) throws IOException {
+		if ( cmd.hasOption("dataName") ) {
+			String name = cmd.getOptionValue( "dataName" );
+			String size = cmd.getOptionValue( "size" );
+			return createInstanceByName(name, size);
+		}
+		else return createInstanceByPath(cmd);
+	}
+
+	public static Dataset createInstanceByPath( CommandLine cmd ) throws IOException {
 		final String rulePath = cmd.getOptionValue( "rulePath" );
 		final String searchedPath = cmd.getOptionValue( "searchedPath" );
 		final String indexedPath = cmd.getOptionValue( "indexedPath" );
 		final String outputPath = cmd.getOptionValue( "outputPath" );
-		return new Dataset( rulePath, searchedPath, indexedPath, outputPath );
+		final String name = setName(searchedPath, indexedPath, rulePath);
+		return new Dataset( name, rulePath, searchedPath, indexedPath, outputPath );
 	}
-	
-	public Dataset( String name ) {
+
+	public static Dataset createInstanceByName( String name, String size ) throws IOException {
+		final String rulePath = DatasetInfo.getRulePath(name);
+		final String searchedPath = DatasetInfo.getSearchedPath(name, size);
+		final String indexedPath = DatasetInfo.getIndexedPath(name, size);
+		final String outputPath = "output";
+		return new Dataset( name, rulePath, searchedPath, indexedPath, outputPath );
 	}
-	
-	public Dataset( String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
-		this.name = setName(searchedPath, indexedPath, rulePath);
+
+	private static String setName( String searchedPath, String indexedPath, String rulePath ) {
+		String searchedFileName = searchedPath.substring( searchedPath.lastIndexOf(File.separator) + 1 );
+		String indexedFileName = indexedPath.substring( indexedPath.lastIndexOf(File.separator) + 1 );
+		String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
+		return searchedFileName + "_" + indexedFileName + "_" + ruleFileName;
+	}
+
+	private Dataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
+		this.name = name;
 		this.outputPath = outputPath;
 		TokenIndex tokenIndex = new TokenIndex();
 
@@ -46,13 +68,6 @@ public class Dataset {
 		else searchedList = loadRecordList(searchedPath, tokenIndex);
 		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
 		Record.tokenIndex = tokenIndex;
-	}
-
-	private String setName( String searchedPath, String indexedPath, String rulePath ) {
-		String searchedFileName = searchedPath.substring( searchedPath.lastIndexOf(File.separator) + 1 );
-		String indexedFileName = indexedPath.substring( indexedPath.lastIndexOf(File.separator) + 1 );
-		String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
-		return searchedFileName + "_" + indexedFileName + "_" + ruleFileName;
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {

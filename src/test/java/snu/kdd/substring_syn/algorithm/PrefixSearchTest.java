@@ -30,7 +30,7 @@ public class PrefixSearchTest {
 	}
 	
 	public void test( double theta ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 100);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		

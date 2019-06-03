@@ -17,7 +17,7 @@ public class MiscTest {
 	@Test
 	public void testSubrecord() throws IOException {
 		
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 1000);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
 		double theta = 1.0;
 		Record rec = dataset.indexedList.get(622);
 		System.out.println(rec.toStringDetails());
@@ -35,7 +35,7 @@ public class MiscTest {
 	
 	@Test
 	public void testWindowCount() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", 100);
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
 		double theta = 0.6;
 		for ( Record rec : dataset.indexedList ) {
 			int nw0 = sumWindowSize(rec);

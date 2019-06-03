@@ -16,7 +16,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.data.ACAutomataR;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 
@@ -496,76 +495,76 @@ public class Util {
 		return sim;
 	}
 
-	public static Dataset getDataset( String name, long size ) throws IOException {
+//	public static Dataset getDataset( String name, long size ) throws IOException {
+//
+//		String osName = System.getProperty( "os.name" );
+//		String prefix = null;
+//		String sep = null;
+//		if ( osName.startsWith( "Windows" ) ) {
+//			prefix = "D:\\ghsong\\data\\synonyms\\";
+//			sep = "\\";
+//		}
+//		else if ( osName.startsWith( "Linux" ) ) {
+//			prefix = "data_store/";
+//			sep = "/";
+//		}
+//		
+//		String searchedPath, indexedPath, rulePath;
+//		if ( name.equals( "AOL" )) {
+//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+//			rulePath = prefix + "wordnet"+sep+"rules.noun";
+//		}
+//		else if ( name.equals( "AOL_1K" )) {
+//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+//			rulePath = prefix + "wordnet"+sep+"rules.noun";
+//		}
+//		else if ( name.equals( "SPROT" ) ) {
+//			searchedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+//			indexedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+//			rulePath = prefix + "sprot"+sep+"rule.txt";
+//		}
+//		else if ( name.equals( "USPS" ) ) {
+//			searchedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+//			indexedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+//		}
+//		else if ( name.startsWith("NAMES") ) {
+//			searchedPath = prefix + String.format( name+sep+name+"_freebase.txt" );
+//			indexedPath = prefix + String.format( name+sep+name+"_sport.txt" );
+//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+//		}
+//		else if ( name.startsWith( "UNIV" ) ) {
+//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
+//		}
+//		else if ( name.startsWith( "CONF" ) ) {
+//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			rulePath = prefix + name+sep+name+"_rule.txt";
+//		}
+//		else if ( name.startsWith("POLY") ) {
+//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
+//			rulePath = prefix + name+sep+name+"_rule.txt";
+//		}
+//		else if ( name.equals( "SPROT_long" ) ) {
+//			searchedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_short_%d.txt", size );
+//			indexedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_long_%d.txt", size );
+//			rulePath = prefix + "sprot_long"+sep+"rule.txt";
+//		}
+//		else throw new RuntimeException();
+//
+//		String outputPath = "output";
+//		Dataset dataset = new Dataset(rulePath, searchedPath, indexedPath, outputPath);
+//
+//		return dataset;
+//	}
 
-		String osName = System.getProperty( "os.name" );
-		String prefix = null;
-		String sep = null;
-		if ( osName.startsWith( "Windows" ) ) {
-			prefix = "D:\\ghsong\\data\\synonyms\\";
-			sep = "\\";
-		}
-		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "data_store/";
-			sep = "/";
-		}
-		
-		String searchedPath, indexedPath, rulePath;
-		if ( name.equals( "AOL" )) {
-			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-			rulePath = prefix + "wordnet"+sep+"rules.noun";
-		}
-		else if ( name.equals( "AOL_1K" )) {
-			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-			rulePath = prefix + "wordnet"+sep+"rules.noun";
-		}
-		else if ( name.equals( "SPROT" ) ) {
-			searchedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-			indexedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-			rulePath = prefix + "sprot"+sep+"rule.txt";
-		}
-		else if ( name.equals( "USPS" ) ) {
-			searchedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-			indexedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.startsWith("NAMES") ) {
-			searchedPath = prefix + String.format( name+sep+name+"_freebase.txt" );
-			indexedPath = prefix + String.format( name+sep+name+"_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.startsWith( "UNIV" ) ) {
-			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
-		}
-		else if ( name.startsWith( "CONF" ) ) {
-			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			rulePath = prefix + name+sep+name+"_rule.txt";
-		}
-		else if ( name.startsWith("POLY") ) {
-			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-			rulePath = prefix + name+sep+name+"_rule.txt";
-		}
-		else if ( name.equals( "SPROT_long" ) ) {
-			searchedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_short_%d.txt", size );
-			indexedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_long_%d.txt", size );
-			rulePath = prefix + "sprot_long"+sep+"rule.txt";
-		}
-		else throw new RuntimeException();
-
-		String outputPath = "output";
-		Dataset dataset = new Dataset(rulePath, searchedPath, indexedPath, outputPath);
-
-		return dataset;
-	}
-
-	public static Dataset getDatasetWithPreprocessing( String name, int size ) throws IOException {
-		Dataset dataset = getDataset(name, size);
+	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
+		Dataset dataset = Dataset.createInstanceByName(name, size);
 		for( final Record record : dataset.searchedList ) {
 			record.preprocessApplicableRules( dataset.getAutomataR() );
 			record.preprocessSuffixApplicableRules();

@@ -16,22 +16,28 @@ public class DatasetInfo {
 		else prefix = "";
 		
 		map.put("SPROT", new DataPathInfo( 
-				String.join(File.separator, "sprot", "splitted", "SPROT_two_%d.txt"), 
-				String.join(File.separator, "sprot", "splitted", "SPROT_two_%d.txt"), 
+				String.join(File.separator, "sprot", "splitted", "SPROT_two_%s.txt"), 
+				String.join(File.separator, "sprot", "splitted", "SPROT_two_%s.txt"), 
 				String.join(File.separator, "sprot", "rule.txt")
 				));
 		map.put("SPROT_long", new DataPathInfo( 
-				String.join(File.separator, "sprot_long", "splitted", "SPROT_short_%d.txt"), 
-				String.join(File.separator, "sprot_long", "splitted", "SPROT_long_%d.txt"), 
+				String.join(File.separator, "sprot_long", "splitted", "SPROT_short_%s.txt"), 
+				String.join(File.separator, "sprot_long", "splitted", "SPROT_long_%s.txt"), 
 				String.join(File.separator, "sprot_long", "rule.txt")
 				));
 	}
 	
-	public static DataPathInfo getDataPaths( String name ) {
-		return map.get(name);
+	public static String getSearchedPath( String name, String size ) {
+		return String.format(map.get(name).searchedPath, size);
 	}
 	
+	public static String getIndexedPath( String name, String size ) {
+		return String.format(map.get(name).indexedPath, size);
+	}
 	
+	public static String getRulePath( String name ) {
+		return map.get(name).rulePath;
+	}
 
 	private static class DataPathInfo {
 		final String searchedPath;
