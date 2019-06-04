@@ -3,10 +3,8 @@ package snu.kdd.substring_syn.utils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 
@@ -22,8 +20,8 @@ public class StatContainer {
 		statMap = new Object2ObjectOpenHashMap<>();
 		statMap.defaultReturnValue("null");
 //		optionalStatMap = new Object2ObjectArrayMap<>();
-		counterBuffer = new Object2ObjectOpenHashMap<>();;
-		stopwatchBuffer = new Object2ObjectOpenHashMap<>();;
+		counterBuffer = new Object2ObjectOpenHashMap<>();
+		stopwatchBuffer = new Object2ObjectOpenHashMap<>();
 	}
 	
 	public StatContainer( AbstractSearch alg, Dataset dataset ) {
@@ -43,10 +41,9 @@ public class StatContainer {
 	}
 
 	public void finalize() {
-		Set<String> counterFieldList = new ObjectOpenHashSet<>( counterBuffer.keySet() );
-		for ( String field : counterFieldList ) stopCount(field);
-		Set<String> stopwatchFieldList = new ObjectOpenHashSet<>( stopwatchBuffer.keySet() );
-		for ( String field : stopwatchFieldList ) stopWatch(field);
+		for ( String field : counterBuffer.keySet() ) statMap.put(field, Integer.toString(counterBuffer.get(field).get()));
+		for ( String field : stopwatchBuffer.keySet() ) statMap.put(field, String.format("%.3f", stopwatchBuffer.get(field).get()/1e6));
+
 	}
 	
 	public void print() {
@@ -95,15 +92,17 @@ public class StatContainer {
 	// interfaces for stopwatches
 	
 	public void startWatch( String field ) {
-		stopwatchBuffer.put(field, new StopWatch());
+		if ( !stopwatchBuffer.containsKey(field) ) stopwatchBuffer.put(field, new StopWatch());
+		stopwatchBuffer.get(field).start();
 	}
 	
 	public void stopWatch( String field ) {
-		StopWatch watch = stopwatchBuffer.get(field);
-		double t = 0;
-		if ( statMap.containsKey(field) ) t = Double.parseDouble(statMap.get(field));
-		statMap.put(field, Double.toString(t+watch.stop()));
-		stopwatchBuffer.remove(field);
+		stopwatchBuffer.get(field).stop();
+//		StopWatch watch = stopwatchBuffer.get(field);
+//		double t = 0;
+//		if ( statMap.containsKey(field) ) t = Double.parseDouble(statMap.get(field));
+//		statMap.put(field, Double.toString(t+watch.stop()));
+//		stopwatchBuffer.remove(field);
 	}
 	
 	
@@ -125,10 +124,23 @@ public class StatContainer {
 	}
 	
 	private class StopWatch {
-		final long t = System.nanoTime();;
+		long t = 0;
+		long dt;
+		boolean active = false;
 		
-		public double stop() {
-			return (System.nanoTime() - t)/1e6;
+		public void start() {
+			active = true;
+			dt = System.nanoTime();
+		}
+		
+		public void stop() {
+			t += System.nanoTime() - dt;
+			active = false;
+		}
+		
+		public double get() {
+			if (active) throw new RuntimeException();
+			return t;
 		}
 	}
 }
