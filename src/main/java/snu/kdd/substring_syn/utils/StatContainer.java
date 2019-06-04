@@ -35,6 +35,12 @@ public class StatContainer {
 		statMap.put(Stat.Dataset_numIndexed, Integer.toString(dataset.indexedList.size()));
 		statMap.put(Stat.Dataset_numRule, Integer.toString(dataset.ruleSet.size()));
 	}
+	
+	public void finalizeAndOutput() {
+		finalize();
+		print();
+		outputSummary();
+	}
 
 	public void finalize() {
 		Set<String> counterFieldList = new ObjectOpenHashSet<>( counterBuffer.keySet() );
@@ -50,14 +56,19 @@ public class StatContainer {
 		}
 	}
 	
-	public void outputSummary() throws FileNotFoundException {
-		PrintStream ps = new PrintStream( new FileOutputStream("output/summary.txt", true) );
+	public void outputSummary() {
+		PrintStream ps = null;
+		try {
+			ps = new PrintStream( new FileOutputStream("output/summary.txt", true) );
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		for ( String field : Stat.getList() ) {
+			ps.print(field+":"+statMap.get(field)+"\t");
+		}
 		ps.println();
+		ps.close();
 	}
-	
-//	public String getSummary() {
-//		
-//	}
 
 
 	

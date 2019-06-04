@@ -42,8 +42,7 @@ public abstract class AbstractSearch {
 			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 		statContainer.stopWatch(Stat.Time_0_Total);
-		statContainer.finalize();
-		statContainer.print();
+		statContainer.finalizeAndOutput();
 		outputResult(dataset);
 	}
 	
