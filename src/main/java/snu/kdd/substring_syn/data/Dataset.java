@@ -45,7 +45,7 @@ public class Dataset {
 		final String searchedPath = DatasetInfo.getSearchedPath(name, size);
 		final String indexedPath = DatasetInfo.getIndexedPath(name, size);
 		final String outputPath = "output";
-		return new Dataset( name, rulePath, searchedPath, indexedPath, outputPath );
+		return new Dataset( name+"_"+size, rulePath, searchedPath, indexedPath, outputPath );
 	}
 
 	private static String setName( String searchedPath, String indexedPath, String rulePath ) {

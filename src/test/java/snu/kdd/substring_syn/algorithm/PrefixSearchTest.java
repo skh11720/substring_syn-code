@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -34,18 +35,19 @@ public class PrefixSearchTest {
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		
+		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		PrefixSearch prefixSearch = new PrefixSearch(theta);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
 		long t = System.nanoTime() - ts;
 		System.out.println(t/1e6);
-		assertTrue( isOutputCorrect(theta) );
+		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );
 	}
 
-	public boolean isOutputCorrect( double theta ) throws IOException {
-		BufferedReader br0 = new BufferedReader(new FileReader(String.format("output/NaiveSearch_1.00_%.2f.txt", theta)));
-		BufferedReader br1 = new BufferedReader(new FileReader(String.format("output/PrefixSearch_1.00_%.2f.txt", theta)));
+	public boolean isOutputCorrect( NaiveSearch naiveSearch, PrefixSearch prefixSearch, Dataset dataset ) throws IOException {
+		BufferedReader br0 = new BufferedReader(new FileReader(naiveSearch.getOutputPath(dataset)));
+		BufferedReader br1 = new BufferedReader(new FileReader(prefixSearch.getOutputPath(dataset)));
 		Iterator<String> iter0 = br0.lines().iterator();
 		Iterator<String> iter1 = br1.lines().iterator();
 		boolean b = true;

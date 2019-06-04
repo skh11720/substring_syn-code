@@ -44,7 +44,7 @@ public abstract class AbstractSearch {
 		statContainer.stopWatch(Stat.Time_0_Total);
 		statContainer.finalize();
 		statContainer.print();
-		outputResult();
+		outputResult(dataset);
 	}
 	
 	public void search( Record query, Iterable<Record> records ) {
@@ -54,9 +54,9 @@ public abstract class AbstractSearch {
 		}
 	}
 
-	public void outputResult() {
+	public void outputResult( Dataset dataset ) {
 		try {
-			PrintStream ps = new PrintStream(String.format("output/"+getOutputName()+".txt", theta));
+			PrintStream ps = new PrintStream(String.format(getOutputPath(dataset), theta));
 			getSortedResult(rsltFromQuery).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
 			getSortedResult(rsltFromText).forEach(ip -> ps.println("FROM_TEXT\t"+ip));
 			ps.close();
@@ -80,7 +80,11 @@ public abstract class AbstractSearch {
 
 	public abstract String getVersion();
 	
-	public String getOutputName() {
-		return getName() +"_" + getVersion() + String.format("_%.2f", theta);
+	public String getOutputName( Dataset dataset ) {
+		return String.join( "_", getName(), getVersion(), String.format("%.2f", theta), dataset.name);
+	}
+
+	public String getOutputPath( Dataset dataset ) {
+		return "output/"+getOutputName(dataset)+".txt";
 	}
 }
