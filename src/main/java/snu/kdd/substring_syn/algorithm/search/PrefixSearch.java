@@ -32,14 +32,16 @@ public class PrefixSearch extends AbstractSearch {
 		int wMax = getMaxWindowSize(query, rec);
 		for ( int w=1; w<=wMax; ++w ) {
 			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
-			for ( int widx=0; witer.hasNext(); ++widx ) {
+			while ( witer.hasNext() ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
 				Subrecord window = witer.next();
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
-					double sim = validator.simx2y(query, window.toRecord());
-					log.debug("FromQuery query=%d, rec=%d, w=%d, widx=%d, sim=%.3f", query.getID(), rec.getID(), w, widx, sim);
-					if ( sim >= theta ) {
+					statContainer.startWatch(Stat.Time_1_Validation);
+					boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
+					statContainer.stopWatch(Stat.Time_1_Validation);
+					statContainer.increment(Stat.Num_VerifyQuerySide);
+					if (isSim) {
 						rsltFromQuery.add(new IntPair(query.getID(), rec.getID()));
 						log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 						return;
@@ -96,9 +98,12 @@ public class PrefixSearch extends AbstractSearch {
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
 				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, pkduckdp.getMaxWindowSize(widx), isInSigU );
 				if ( isInSigU ) {
-					double sim = validator.simx2y((new Subrecord(rec, widx, widx+w)).toRecord(), query);
-					log.trace("sim: %.3f", sim);
-					if ( sim >= theta ) {
+					Subrecord window = new Subrecord(rec, widx, widx+w);
+					statContainer.startWatch(Stat.Time_1_Validation);
+					boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
+					statContainer.stopWatch(Stat.Time_1_Validation);
+					statContainer.increment(Stat.Num_VerifyTextSide);
+					if (isSim) {
 						rsltFromText.add(new IntPair(query.getID(), rec.getID()));
 						log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 						return true;

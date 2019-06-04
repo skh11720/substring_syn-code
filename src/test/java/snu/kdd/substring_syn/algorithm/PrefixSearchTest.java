@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
@@ -25,7 +26,7 @@ public class PrefixSearchTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testSingle() throws IOException {
 		test(0.7);
 	}

@@ -15,16 +15,17 @@ public class NaivePkduckValidator {
 		Configurator.setLevel("NaivePkduckValidator", Level.DEBUG);
 	}
 
-	private double sim( Record x, Record y ) {
+//	private double sim( Record x, Record y ) {
 //		log.debug(x.getID()+"\t"+y.getID());
-		if ( areSameString(x, y) ) return 1;
-		else return simx2y(x, y);
-	}
+//		if ( areSameString(x, y) ) return 1;
+//		else return simx2y(x, y);
+//	}
 	
 	private boolean areSameString( Record x, Record y ) {
 		return x.equals(y);
 	}
 	
+	@Deprecated
 	public double simx2y( Record x, Record y ) {
 		if ( areSameString(x, y) ) return 1;
 		double sim = 0;
@@ -35,7 +36,12 @@ public class NaivePkduckValidator {
 	}
 	
 	public boolean isSimx2yOverThreahold( Record x, Record y, double theta ) {
-		return simx2y(x, y) == theta;
+		if ( areSameString(x, y) ) return true;
+		for ( Record exp : x.expandAll() ) {
+			double sim = Util.jaccard(exp.getTokenArray(), y.getTokenArray());
+			if ( sim >= theta ) return true;
+		}
+		return false;
 	}
 	
 	public String getName() {
