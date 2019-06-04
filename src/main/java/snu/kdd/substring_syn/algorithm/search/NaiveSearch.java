@@ -32,7 +32,7 @@ public class NaiveSearch extends AbstractSearch {
 				statContainer.increment(Stat.Num_VerifyQuerySide);
 				if (isSim) {
 					log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltFromQuery.add(new IntPair(query.getID(), rec.getID()));
+					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 					return;
 				}
 			}
@@ -53,7 +53,7 @@ public class NaiveSearch extends AbstractSearch {
 				statContainer.increment(Stat.Num_VerifyTextSide);
 				if (isSim) {
 					log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltFromText.add(new IntPair(query.getID(), rec.getID()));
+					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 					return;
 				}
 			}

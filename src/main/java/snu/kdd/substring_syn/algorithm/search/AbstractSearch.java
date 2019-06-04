@@ -13,23 +13,26 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractSearch {
 
+	protected final Param param;
 	protected final double theta;
-//	protected final Set<IntPair> rslt;
-	protected final Set<IntPair> rsltFromQuery;
-	protected final Set<IntPair> rsltFromText;
+	protected final Set<IntPair> rsltQuerySide;
+	protected final Set<IntPair> rsltTextSide;
 	protected final Logger log; 
 	protected StatContainer statContainer;
 	
 	public AbstractSearch( double theta ) {
+		param = new Param();
 		this.theta = theta;
-//		this.rslt = new ObjectOpenHashSet<>();
-		this.rsltFromQuery = new ObjectOpenHashSet<>();
-		this.rsltFromText = new ObjectOpenHashSet<>();
+		param.put("theta", Double.toString(theta));
+
+		this.rsltQuerySide = new ObjectOpenHashSet<>();
+		this.rsltTextSide = new ObjectOpenHashSet<>();
 		this.log = LogManager.getFormatterLogger();
 	}
 	
@@ -42,22 +45,35 @@ public abstract class AbstractSearch {
 			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 		statContainer.stopWatch(Stat.Time_0_Total);
+		putResultIntoStat();
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
 	}
 	
-	public void search( Record query, Iterable<Record> records ) {
+	protected void search( Record query, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
 			searchQuerySide(query, rec);
 			searchTextSide(query, rec);
 		}
 	}
+	
+	protected void putResultIntoStat() {
+		statContainer.addCount(Stat.Num_Result, countResult());
+		statContainer.addCount(Stat.Num_ResultQuerySide, rsltQuerySide.size());
+		statContainer.addCount(Stat.Num_ResultTextSide, rsltTextSide.size());
+	}
+	
+	protected int countResult() {
+		Set<IntPair> rslt = new ObjectOpenHashSet<>(rsltQuerySide);
+		rslt.addAll(rsltTextSide);
+		return rslt.size();
+	}
 
-	public void outputResult( Dataset dataset ) {
+	protected void outputResult( Dataset dataset ) {
 		try {
 			PrintStream ps = new PrintStream(String.format(getOutputPath(dataset), theta));
-			getSortedResult(rsltFromQuery).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
-			getSortedResult(rsltFromText).forEach(ip -> ps.println("FROM_TEXT\t"+ip));
+			getSortedResult(rsltQuerySide).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
+			getSortedResult(rsltTextSide).forEach(ip -> ps.println("FROM_TEXT\t"+ip));
 			ps.close();
 		}
 		catch ( FileNotFoundException e ) {
@@ -69,7 +85,6 @@ public abstract class AbstractSearch {
 	protected List<IntPair> getSortedResult( Set<IntPair> rslt ) {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
-
 	
 	protected abstract void searchQuerySide( Record query, Record rec );
 	
@@ -85,5 +100,9 @@ public abstract class AbstractSearch {
 
 	public String getOutputPath( Dataset dataset ) {
 		return "output/"+getOutputName(dataset)+".txt";
+	}
+	
+	public Param getParam() {
+		return param;
 	}
 }

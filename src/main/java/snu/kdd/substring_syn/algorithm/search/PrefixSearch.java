@@ -42,7 +42,7 @@ public class PrefixSearch extends AbstractSearch {
 					statContainer.stopWatch(Stat.Time_1_Validation);
 					statContainer.increment(Stat.Num_VerifyQuerySide);
 					if (isSim) {
-						rsltFromQuery.add(new IntPair(query.getID(), rec.getID()));
+						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 						log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 						return;
 					}
@@ -104,7 +104,7 @@ public class PrefixSearch extends AbstractSearch {
 					statContainer.stopWatch(Stat.Time_1_Validation);
 					statContainer.increment(Stat.Num_VerifyTextSide);
 					if (isSim) {
-						rsltFromText.add(new IntPair(query.getID(), rec.getID()));
+						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 						log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 						return true;
 					}
