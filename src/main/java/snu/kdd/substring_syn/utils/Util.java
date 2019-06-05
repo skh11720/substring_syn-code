@@ -495,6 +495,17 @@ public class Util {
 		return sim;
 	}
 
+	public static double subJaccard( int[] q, int[] t ) {
+		double simMax = 0;
+		for ( int i=0; i<t.length; ++i ) {
+			for ( int j=i; j<t.length; ++j ) {
+				double sim = Util.jaccard(q, Arrays.copyOfRange(t, i, j+1));
+				simMax = Math.max(simMax, sim);
+			}
+		}
+		return simMax;
+	}
+
 //	public static Dataset getDataset( String name, long size ) throws IOException {
 //
 //		String osName = System.getProperty( "os.name" );

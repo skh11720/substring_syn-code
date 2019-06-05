@@ -30,7 +30,7 @@ public class GreedyValidatorTest {
 				if ( recS.expandAll().size() > 5 && sim0 >= 0.5 && sim0 < 1) {
 					System.out.println(recS.getID()+"\t("+recS.size()+")\t:\t"+recS);
 					for ( Record exp : recS.expandAll() ) {
-						System.out.println( "\t("+exp.size()+")\t"+exp);
+						System.out.println("\t("+exp.size()+")\t"+exp);
 					}
 					System.out.println(recT.getID()+"\t("+recT.size()+")\t:\t"+recT);
 					System.out.println(sim0);
