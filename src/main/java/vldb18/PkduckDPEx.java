@@ -15,7 +15,6 @@ public class PkduckDPEx {
 	protected final boolean[][] b;
 	protected final int[] lmin;
 	protected final int qlen;
-	protected final int[] maxWindowSizeFrom;
 	
 	
 	public PkduckDPEx( Record rec, double theta, int qlen ) {
@@ -30,7 +29,6 @@ public class PkduckDPEx {
 		Arrays.fill(lmin, Integer.MAX_VALUE);
 		this.lmin[0] = 0;
 		this.qlen = qlen;
-		this.maxWindowSizeFrom = new int[rec.size()]; // 0-based
 	}
 
 	public void compute( int target ) {
@@ -56,11 +54,6 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				}
-				if ( theta*lmin[v] > qlen ) {
-					maxWindowSizeFrom[i-1] = v-1;
-					break;
-				}
-				else maxWindowSizeFrom[i-1] = v;
 			}
 	//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
 		
@@ -135,13 +128,5 @@ public class PkduckDPEx {
 		 * b[][]: 1-based
 		 */
 		return b[i+1][v];
-	}
-	
-	public int getMaxWindowSize( int i ) {
-		/*
-		 * i: 0-based
-		 * maxWindowSizeFrom: 0-based
-		 */
-		return maxWindowSizeFrom[i];
 	}
 }

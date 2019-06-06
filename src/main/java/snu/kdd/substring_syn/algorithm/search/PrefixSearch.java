@@ -29,8 +29,7 @@ public class PrefixSearch extends AbstractSearch {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
-		int wMax = getMaxWindowSize(query, rec);
-		for ( int w=1; w<=wMax; ++w ) {
+		for ( int w=1; w<=rec.size(); ++w ) {
 			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
@@ -61,12 +60,6 @@ public class PrefixSearch extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
-	protected int getMaxWindowSize( Record query, Record rec ) {
-		int maxSize = (int)Math.floor(query.getMaxTransLength()/theta);
-		maxSize = Math.min(maxSize, rec.size());
-		return maxSize;
-	}
-	
 	@Override
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
@@ -92,11 +85,10 @@ public class PrefixSearch extends AbstractSearch {
 
 	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, int target ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
-			log.trace("widx: %d  maxWindowSize: %d", widx, pkduckdp.getMaxWindowSize(widx));
-			for ( int w=1; w<=pkduckdp.getMaxWindowSize(widx); ++w ) {
+			for ( int w=1; w<=rec.size(); ++w ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
-				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, pkduckdp.getMaxWindowSize(widx), isInSigU );
+				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, rec.size(), isInSigU );
 				if ( isInSigU ) {
 					Subrecord window = new Subrecord(rec, widx, widx+w);
 					statContainer.startWatch(Stat.Time_1_Validation);
