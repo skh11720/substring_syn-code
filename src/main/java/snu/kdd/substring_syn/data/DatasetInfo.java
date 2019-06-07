@@ -25,6 +25,11 @@ public class DatasetInfo {
 				String.join(File.separator, "sprot_long", "splitted", "SPROT_long_%s.txt"), 
 				String.join(File.separator, "sprot_long", "rule.txt")
 				));
+		map.put("AOL", new DataPathInfo( 
+				String.join(File.separator, "aol", "splitted", "aol_%s_data.txt"), 
+				String.join(File.separator, "aol", "splitted", "aol_%s_data.txt"), 
+				String.join(File.separator, "wordnet", "rules.noun")
+				));
 	}
 	
 	public static String getSearchedPath( String name, String size ) {
