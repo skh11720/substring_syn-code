@@ -1,13 +1,16 @@
 package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record implements RecordInterface, Comparable<Record> {
@@ -392,6 +395,13 @@ public class Record implements RecordInterface, Comparable<Record> {
 		else {
 			return Rule.EMPTY_RULE;
 		}
+	}
+	
+	public Iterable<Rule> getIncompatibleRules( int k ) {
+		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
+		rules.addAll( Arrays.asList(applicableRules[k]) );
+		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
+		return rules;
 	}
 	
 	public int size() {
