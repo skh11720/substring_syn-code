@@ -30,6 +30,7 @@ public class StatContainer {
 	public StatContainer( AbstractSearch alg, Dataset dataset ) {
 		this();
 		putParam(alg.getParam());
+		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
 		statMap.put(Stat.Alg_Param, alg.getParam().toString());

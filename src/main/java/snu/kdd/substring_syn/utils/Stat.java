@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 public class Stat {
 	
+	public static final String Alg_ID = "Alg_ID";
 	public static final String Alg_Name = "Alg_Name";
 	public static final String Alg_Version = "Alg_Version";
 	public static final String Alg_Param = "Alg_Param";

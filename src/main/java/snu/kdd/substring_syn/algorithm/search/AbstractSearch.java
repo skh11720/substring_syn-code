@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.appender.FileAppender;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -19,6 +22,7 @@ import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractSearch {
 
+	protected final String id;
 	protected final Param param;
 	protected final double theta;
 	protected final Set<IntPair> rsltQuerySide;
@@ -26,14 +30,23 @@ public abstract class AbstractSearch {
 	protected final Logger log; 
 	protected StatContainer statContainer;
 	
+	protected enum Phase {
+		QuerySide,
+		TextSide,
+	}
+	
 	public AbstractSearch( double theta ) {
+		this.log = LogManager.getFormatterLogger(this);
+		Appender appender = ((org.apache.logging.log4j.core.Logger)log).getAppenders().get("File");
+		String logpath = ((FileAppender)appender).getFileName();
+		id = FilenameUtils.getBaseName(logpath);
+
 		param = new Param();
 		this.theta = theta;
 		param.put("theta", Double.toString(theta));
 
 		this.rsltQuerySide = new ObjectOpenHashSet<>();
 		this.rsltTextSide = new ObjectOpenHashSet<>();
-		this.log = LogManager.getFormatterLogger();
 	}
 	
 	public void run( Dataset dataset ) {
@@ -89,6 +102,8 @@ public abstract class AbstractSearch {
 	protected abstract void searchQuerySide( Record query, Record rec );
 	
 	protected abstract void searchTextSide( Record query, Record rec ); 
+
+	public String getID() { return id; }
 	
 	public abstract String getName();
 
