@@ -116,7 +116,7 @@ class HeapBasedSlidingWindow extends AbstractSlidingWindowIterator {
 		for ( int i=0; i<w-1; ++i ) {
 			updateHeap(i);
 		}
-		System.out.println("INIT: "+Arrays.toString(heap.getKeys()));
+		System.out.println("INIT: "+heap.getKeys());
 		System.out.println(heap.peek());
 	}
 	

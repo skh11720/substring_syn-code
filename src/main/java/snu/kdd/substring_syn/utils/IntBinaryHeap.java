@@ -1,7 +1,9 @@
 package snu.kdd.substring_syn.utils;
 
-import java.util.Arrays;
 import java.util.Comparator;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 
 /**
  * 
@@ -49,8 +51,8 @@ public class IntBinaryHeap {
 		build();
 	}
 	
-	public int[] getKeys() {
-		return Arrays.copyOfRange(keys, 0, size);
+	public IntList getKeys() {
+		return new IntArrayList(keys, 0, size);
 	}
 	
 	public boolean isEmpty() {
