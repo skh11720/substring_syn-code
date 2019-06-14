@@ -9,7 +9,7 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
 import vldb18.NaivePkduckValidator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
@@ -30,7 +30,7 @@ public class PrefixSearch extends AbstractSearch {
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		for ( int w=1; w<=rec.size(); ++w ) {
-			RecordSortedSlidingWindowIterator witer = new RecordSortedSlidingWindowIterator(rec, w, theta);
+			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
 				Subrecord window = witer.next();

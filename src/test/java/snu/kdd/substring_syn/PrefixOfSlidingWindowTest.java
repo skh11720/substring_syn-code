@@ -18,7 +18,7 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.window.AbstractSlidingWindowIterator;
-import snu.kdd.substring_syn.utils.window.RecordSortedSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindowIterator;
 import snu.kdd.substring_syn.utils.window.SortedSlidingWindowIterator;
 
@@ -83,7 +83,7 @@ public class PrefixOfSlidingWindowTest {
 			SimpleSlidingWindowIterator window1 = new SimpleSlidingWindowIterator(rec.getTokenArray(), w, theta);
 //			HeapBasedSlidingWindow window2 = new HeapBasedSlidingWindow(arr, w, theta);
 			SortedSlidingWindowIterator window3 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
-			RecordSortedSlidingWindowIterator window4 = new RecordSortedSlidingWindowIterator(rec, w, theta);
+			SortedRecordSlidingWindowIterator window4 = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
 //				window2.next();

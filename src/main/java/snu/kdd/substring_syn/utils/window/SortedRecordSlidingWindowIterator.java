@@ -7,13 +7,13 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Record;
 
-public class RecordSortedSlidingWindowIterator extends AbstractRecordSlidingWindowIterator {
+public class SortedRecordSlidingWindowIterator extends AbstractRecordSlidingWindowIterator {
 	
 	final ObjectArrayList<Element> list;
 	final Int2ObjectMap<Element> pos2elemMap;
 	final IntSet prefix;
 	
-	public RecordSortedSlidingWindowIterator( Record rec, int w, double theta ) {
+	public SortedRecordSlidingWindowIterator( Record rec, int w, double theta ) {
 		super(rec, w, theta);
 		list = new ObjectArrayList<>();
 		pos2elemMap = new Int2ObjectOpenHashMap<>();
