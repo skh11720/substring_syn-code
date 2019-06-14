@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -29,7 +30,8 @@ public class PrefixSearch extends AbstractSearch {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
-		for ( int w=1; w<=rec.size(); ++w ) {
+		IntRange wRange = getWindowSizeRange(rec);
+		for ( int w=wRange.min; w<=wRange.max; ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
@@ -60,6 +62,10 @@ public class PrefixSearch extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
+	protected IntRange getWindowSizeRange( Record rec ) {
+		return new IntRange(1, rec.size());
+	}
+	
 	@Override
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
@@ -85,7 +91,8 @@ public class PrefixSearch extends AbstractSearch {
 
 	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, int target ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
-			for ( int w=1; w<=rec.size(); ++w ) {
+			IntRange wRange = getWindowSizeRange(rec);
+			for ( int w=wRange.min; w<=wRange.max; ++w ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
 				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, rec.size(), isInSigU );
