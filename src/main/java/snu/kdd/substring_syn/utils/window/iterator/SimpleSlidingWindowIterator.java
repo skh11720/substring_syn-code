@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.utils.window;
+package snu.kdd.substring_syn.utils.window.iterator;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;

@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.utils.window;
+package snu.kdd.substring_syn.utils.window.iterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

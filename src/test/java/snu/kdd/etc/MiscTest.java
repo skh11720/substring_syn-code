@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 
 public class MiscTest {
 	

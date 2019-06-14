@@ -17,10 +17,11 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
-import snu.kdd.substring_syn.utils.window.AbstractSlidingWindowIterator;
-import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
-import snu.kdd.substring_syn.utils.window.SimpleSlidingWindowIterator;
-import snu.kdd.substring_syn.utils.window.SortedSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
+import snu.kdd.substring_syn.utils.window.iterator.AbstractSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SimpleSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SortedSlidingWindowIterator;
 
 @FixMethodOrder
 public class PrefixOfSlidingWindowTest {
@@ -47,11 +48,9 @@ public class PrefixOfSlidingWindowTest {
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
 		for ( Record rec : dataset.indexedList ) {
-			SimpleSlidingWindowIterator window1 = new SimpleSlidingWindowIterator(rec.getTokenArray(), w, theta);
-			while ( window1.hasNext() ) {
-				window1.next();
-				IntList subList = new IntArrayList( window1.getWindow() );
-				IntSet prefix0 = getPrefix(subList, theta);
+			SimpleSlidingWindow swindow1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
+			for ( IntList window : swindow1 ) {
+				IntSet prefix0 = getPrefix(window, theta);
 			}
 		}
 		System.out.println("testSimpleSlidingWindowTime: "+(System.nanoTime()-ts)/1e6+" ms");

@@ -14,7 +14,7 @@ import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
 import vldb18.PkduckDPExOld;

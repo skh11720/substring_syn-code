@@ -1,19 +1,20 @@
-package snu.kdd.substring_syn.utils.window;
+package snu.kdd.substring_syn.utils.window.iterator;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.data.Record;
 
-public class SortedSlidingWindowIterator extends AbstractSlidingWindowIterator {
+public class SortedRecordSlidingWindowIterator extends AbstractRecordSlidingWindowIterator {
 	
 	final ObjectArrayList<Element> list;
 	final Int2ObjectMap<Element> pos2elemMap;
 	final IntSet prefix;
 	
-	public SortedSlidingWindowIterator( int[] seq, int w, double theta ) {
-		super(seq, w, theta);
+	public SortedRecordSlidingWindowIterator( Record rec, int w, double theta ) {
+		super(rec, w, theta);
 		list = new ObjectArrayList<>();
 		pos2elemMap = new Int2ObjectOpenHashMap<>();
 		prefix = new IntOpenHashSet(lenPrefix);
@@ -28,7 +29,7 @@ public class SortedSlidingWindowIterator extends AbstractSlidingWindowIterator {
 	}
 	
 	private void insert( int pos ) {
-		int key = seq[pos];
+		int key = rec.getToken(pos);
 		Element elem = new Element(key, pos);
 		int idx = binarySearch(key);
 		if ( idx < 0 ) idx = -idx-1;

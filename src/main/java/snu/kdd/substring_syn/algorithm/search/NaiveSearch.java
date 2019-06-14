@@ -5,7 +5,7 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.SortedRecordSlidingWindowIterator;
+import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.NaivePkduckValidator;
 
 public class NaiveSearch extends AbstractSearch {
