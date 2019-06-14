@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 public class Subrecord implements RecordInterface {
 	
 	private final Record rec;
-	private final int sidx;
+	public final int sidx;
 	private final int eidx;
 	private final int hash;
 

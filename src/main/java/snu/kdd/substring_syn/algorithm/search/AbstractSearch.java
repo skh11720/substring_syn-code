@@ -64,10 +64,14 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void search( Record query, Iterable<Record> records ) {
+		prepareSearch(query);
 		for ( Record rec :  records ) {
 			searchQuerySide(query, rec);
 			searchTextSide(query, rec);
 		}
+	}
+	
+	protected void prepareSearch( Record query ) {
 	}
 	
 	protected void putResultIntoStat() {

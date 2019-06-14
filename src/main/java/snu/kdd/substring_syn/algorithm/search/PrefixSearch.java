@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.Records;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Stat;
@@ -17,12 +18,21 @@ import vldb18.PkduckDPEx;
 
 public class PrefixSearch extends AbstractSearch {
 
+	public static boolean USE_LF_QUERY_SIDE = true;
 	final NaivePkduckValidator validator;
+	private IntRange wRange;
 
 	
 	public PrefixSearch( double theta ) {
 		super(theta);
 		validator = new NaivePkduckValidator();
+	}
+	
+	@Override
+	protected void prepareSearch( Record query ) {
+		log.debug("prepareSearch(%d)",  ()->query.getID());
+		wRange = getWindowSizeRangeQuerySide(query);
+		log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 	}
 
 	@Override
@@ -30,7 +40,6 @@ public class PrefixSearch extends AbstractSearch {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
-		IntRange wRange = getWindowSizeRange(rec);
 		for ( int w=wRange.min; w<=wRange.max; ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
@@ -44,7 +53,7 @@ public class PrefixSearch extends AbstractSearch {
 					statContainer.increment(Stat.Num_VerifyQuerySide);
 					if (isSim) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-						log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 						return;
 					}
 				}
@@ -62,8 +71,14 @@ public class PrefixSearch extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRange( Record rec ) {
-		return new IntRange(1, rec.size());
+	protected IntRange getWindowSizeRangeQuerySide( Record rec ) {
+		if (USE_LF_QUERY_SIDE) {
+			int lb = Records.getTransSetSizeLowerBound(rec);
+			int min = (int)Math.max(1.0, theta*lb);
+			int max = Math.min(rec.getMaxTransLength(), rec.size());
+			return new IntRange(min, max);
+		}
+		else return new IntRange(1, rec.size());
 	}
 	
 	@Override
@@ -91,7 +106,7 @@ public class PrefixSearch extends AbstractSearch {
 
 	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, int target ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
-			IntRange wRange = getWindowSizeRange(rec);
+			IntRange wRange = new IntRange(1, rec.size());
 			for ( int w=wRange.min; w<=wRange.max; ++w ) {
 				statContainer.increment(Stat.Num_VerifiedWindowSize);
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
