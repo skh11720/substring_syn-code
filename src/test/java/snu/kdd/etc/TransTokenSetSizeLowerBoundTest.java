@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
@@ -191,5 +193,72 @@ public class TransTokenSetSizeLowerBoundTest {
 		}
 		Iterator<Int2DoubleMap.Entry> tokenCountIter = counter.int2DoubleEntrySet().stream().sorted(comp).iterator();
 		return tokenCountIter;
+	}
+
+	@Test
+	public void estIncrementalTransSetLowerBound() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
+		long ts = System.nanoTime();
+		for ( Record rec : dataset.searchedList ) {
+			if ( rec.getNumApplicableRules() < 5 ) continue;
+//			System.out.println(rec.toStringDetails());
+			TransSetLowerBoundCalculator lbcal = new TransSetLowerBoundCalculator(rec);
+			for ( int sidx=0; sidx<rec.size(); ++sidx ) {
+//				System.out.println("sidx: "+sidx);
+				lbcal.setStart(sidx);
+				for ( Int2DoubleMap counter : lbcal ) {
+//					System.out.println(counter);
+				}
+			}
+//			System.in.read();
+		}
+		System.out.println("testIncrementalTransSetLowerBound(): "+((System.nanoTime()-ts)/1e6)+" ms");
+	}
+	
+	class TransSetLowerBoundCalculator implements Iterable<Int2DoubleMap> {
+		private final Record rec;
+		private final Int2DoubleOpenHashMap[] counterArr;
+		private int sidx;
+		
+		public TransSetLowerBoundCalculator( Record rec ) {
+			this.rec = rec;
+			counterArr = new Int2DoubleOpenHashMap[rec.size()];
+			for ( int i=0; i<rec.size(); ++i ) {
+				counterArr[i] = new Int2DoubleOpenHashMap();
+				for ( Rule rule : rec.getIncompatibleRules(i) ) {
+					for ( int token : rule.getRhs() ) counterArr[i].addTo(token, 1.0/rule.rhsSize());
+				}
+			}
+		}
+		
+		public void setStart( int sidx ) {
+			this.sidx = sidx;
+		}
+		
+		private void addCounter( Int2DoubleOpenHashMap thisCounter, Int2DoubleOpenHashMap otherCounter ) {
+			for ( Int2DoubleOpenHashMap.Entry entry : otherCounter.int2DoubleEntrySet() ) {
+				thisCounter.addTo(entry.getIntKey(), entry.getDoubleValue());
+			}
+		}
+
+		@Override
+		public Iterator<Int2DoubleMap> iterator() {
+			return new Iterator<Int2DoubleMap>() {
+				
+				Int2DoubleOpenHashMap counter = new Int2DoubleOpenHashMap();
+				int idx = sidx;
+
+				@Override
+				public boolean hasNext() {
+					return idx < rec.size();
+				}
+
+				@Override
+				public Int2DoubleMap next() {
+					addCounter(counter, counterArr[idx++]);
+					return counter;
+				}
+			};
+		}
 	}
 }

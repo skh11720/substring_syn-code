@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Records;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Stat;
@@ -19,8 +20,10 @@ import vldb18.PkduckDPEx;
 public class PrefixSearch extends AbstractSearch {
 
 	public static boolean USE_LF_QUERY_SIDE = true;
+	public static boolean USE_LF_TEXT_SIDE = true;
 	final NaivePkduckValidator validator;
 	private IntRange wRange;
+	private int[] maxTransLen;
 
 	
 	public PrefixSearch( double theta ) {
@@ -84,6 +87,7 @@ public class PrefixSearch extends AbstractSearch {
 	@Override
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		maxTransLen = new int[rec.size()+1];
 		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
 		IntList candTokenList = getCandTokenList(query, rec);
 		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, query.size());
