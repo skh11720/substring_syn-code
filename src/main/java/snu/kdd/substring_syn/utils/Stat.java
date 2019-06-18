@@ -29,8 +29,10 @@ public class Stat {
 	public static final String Num_VerifyQuerySide = "Num_VerifyQuerySide";
 	public static final String Num_VerifyTextSide = "Num_VerifyTextSide";
 
-	public static final String Num_VerifiedWindowSize = "Num_VerifiedWindowSize";
-	public static final String Num_WindowSizeAll = "Num_WindowSizeAll";
+	public static final String Num_VerifiedWindowSizeQuerySide = "Num_VerifiedWindowSizeQuerySide";
+	public static final String Num_VerifiedWindowSizeTextSide = "Num_VerifiedWindowSizeTextSide";
+	public static final String Num_WindowSizeAllQuerySide = "Num_WindowSizeAllQuerySide";
+	public static final String Num_WindowSizeAllTextSide = "Num_WindowSizeAllTextSide";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

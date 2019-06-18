@@ -41,12 +41,12 @@ public class PrefixSearch extends AbstractSearch {
 	@Override
 	protected void searchQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_WindowSizeAllQuerySide, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		for ( int w=wRange.min; w<=wRange.max; ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSize);
+				statContainer.increment(Stat.Num_VerifiedWindowSizeQuerySide);
 				Subrecord window = witer.next();
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
@@ -87,8 +87,7 @@ public class PrefixSearch extends AbstractSearch {
 	@Override
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		maxTransLen = new int[rec.size()+1];
-		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_WindowSizeAllTextSide, Util.sumWindowSize(rec));
 		IntList candTokenList = getCandTokenList(query, rec);
 		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, query.size());
 		for ( int target : candTokenList ) {
@@ -112,7 +111,7 @@ public class PrefixSearch extends AbstractSearch {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			IntRange wRange = new IntRange(1, rec.size());
 			for ( int w=wRange.min; w<=wRange.max; ++w ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSize);
+				statContainer.increment(Stat.Num_VerifiedWindowSizeTextSide);
 				boolean isInSigU = pkduckdp.isInSigU(widx, w);
 				log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, target=%d, ...)  widx=%d/%d  w=%d/%d  isInSigU=%s", query.getID(), rec.getID(), target, widx, rec.size()-1, w, rec.size(), isInSigU );
 				if ( isInSigU ) {

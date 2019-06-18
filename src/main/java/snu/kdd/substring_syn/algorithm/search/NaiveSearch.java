@@ -20,11 +20,11 @@ public class NaiveSearch extends AbstractSearch {
 
 	protected void searchQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_WindowSizeAllQuerySide, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSize);
+				statContainer.increment(Stat.Num_VerifiedWindowSizeQuerySide);
 				Subrecord window = witer.next();
 				statContainer.startWatch(Stat.Time_1_Validation);
 				boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
@@ -41,11 +41,11 @@ public class NaiveSearch extends AbstractSearch {
 	
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_WindowSizeAllTextSide, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSize);
+				statContainer.increment(Stat.Num_VerifiedWindowSizeTextSide);
 				Subrecord window = witer.next();
 				statContainer.startWatch(Stat.Time_1_Validation);
 				boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
