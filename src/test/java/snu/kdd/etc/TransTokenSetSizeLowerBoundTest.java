@@ -10,10 +10,10 @@ import java.util.Random;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
@@ -196,31 +196,37 @@ public class TransTokenSetSizeLowerBoundTest {
 	}
 
 	@Test
-	public void estIncrementalTransSetLowerBound() throws IOException {
+	public void testIncrementalTransSetBound() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
 		long ts = System.nanoTime();
 		for ( Record rec : dataset.searchedList ) {
 			if ( rec.getNumApplicableRules() < 5 ) continue;
-//			System.out.println(rec.toStringDetails());
-			TransSetLowerBoundCalculator lbcal = new TransSetLowerBoundCalculator(rec);
+			System.out.println(rec.toStringDetails());
+			System.out.println("transLen: "+rec.getMinTransLength()+", "+rec.getMaxTransLength());
+			TransSetBoundCalculator boundCal = new TransSetBoundCalculator(rec);
 			for ( int sidx=0; sidx<rec.size(); ++sidx ) {
-//				System.out.println("sidx: "+sidx);
-				lbcal.setStart(sidx);
-				for ( Int2DoubleMap counter : lbcal ) {
-//					System.out.println(counter);
+				System.out.println("sidx: "+sidx);
+				boundCal.setStart(sidx);
+				for ( int i=sidx; i<rec.size(); ++i ) {
+					int lb = boundCal.getNextLB();
+					int ub = boundCal.getNextUB();
+					System.out.println("lb, ub: "+lb+", "+ub);
 				}
 			}
-//			System.in.read();
+			System.in.read();
 		}
-		System.out.println("testIncrementalTransSetLowerBound(): "+((System.nanoTime()-ts)/1e6)+" ms");
+		System.out.println("testIncrementalTransSetBound(): "+((System.nanoTime()-ts)/1e6)+" ms");
 	}
-	
-	class TransSetLowerBoundCalculator implements Iterable<Int2DoubleMap> {
+
+	class TransSetBoundCalculator {
 		private final Record rec;
 		private final Int2DoubleOpenHashMap[] counterArr;
-		private int sidx;
+		private final int[][] transLen;
 		
-		public TransSetLowerBoundCalculator( Record rec ) {
+		private Iterator<Integer> iterUB = null;
+		private Iterator<Integer> iterLB = null;
+		
+		public TransSetBoundCalculator( Record rec ) {
 			this.rec = rec;
 			counterArr = new Int2DoubleOpenHashMap[rec.size()];
 			for ( int i=0; i<rec.size(); ++i ) {
@@ -229,24 +235,23 @@ public class TransTokenSetSizeLowerBoundTest {
 					for ( int token : rule.getRhs() ) counterArr[i].addTo(token, 1.0/rule.rhsSize());
 				}
 			}
+			transLen = new int[rec.size()+1][2];
 		}
 		
 		public void setStart( int sidx ) {
-			this.sidx = sidx;
-		}
-		
-		private void addCounter( Int2DoubleOpenHashMap thisCounter, Int2DoubleOpenHashMap otherCounter ) {
-			for ( Int2DoubleOpenHashMap.Entry entry : otherCounter.int2DoubleEntrySet() ) {
-				thisCounter.addTo(entry.getIntKey(), entry.getDoubleValue());
-			}
-		}
-
-		@Override
-		public Iterator<Int2DoubleMap> iterator() {
-			return new Iterator<Int2DoubleMap>() {
-				
+			computeTransLenFrom(sidx);
+			iterLB = new Iterator<Integer>() {
 				Int2DoubleOpenHashMap counter = new Int2DoubleOpenHashMap();
 				int idx = sidx;
+
+				Comparator<Int2DoubleMap.Entry> comp = new Comparator<Int2DoubleMap.Entry>() {
+					@Override
+					public int compare(Int2DoubleMap.Entry o1, Int2DoubleMap.Entry o2) {
+						if ( o1.getDoubleValue() > o2.getDoubleValue() ) return -1;
+						else if ( o1.getDoubleValue() < o2.getDoubleValue() ) return 1;
+						else return 0;
+					}
+				};
 
 				@Override
 				public boolean hasNext() {
@@ -254,11 +259,70 @@ public class TransTokenSetSizeLowerBoundTest {
 				}
 
 				@Override
-				public Int2DoubleMap next() {
-					addCounter(counter, counterArr[idx++]);
-					return counter;
+				public Integer next() {
+					addCounter(counter, counterArr[idx]);
+					int lb = computeLowerBound();
+					++idx;
+					return lb;
+				}
+
+				private int computeLowerBound() {
+					int lb = 0;
+					double len = 0;
+					// TODO: sorting could be time-consuming (need check). more efficient way?
+					Iterator<Int2DoubleMap.Entry> tokenCountIter = counter.int2DoubleEntrySet().stream().sorted(comp).iterator();
+					while ( tokenCountIter.hasNext() && len < transLen[idx+1][0] ) {
+						++lb;
+						len += tokenCountIter.next().getDoubleValue();
+					}
+					return Math.max(1, lb);
 				}
 			};
+			
+			iterUB = new Iterator<Integer>() {
+				int idx = sidx;
+				
+				@Override
+				public boolean hasNext() {
+					return idx < rec.size();
+				}
+				
+				@Override
+				public Integer next() {
+					int ub = transLen[idx+1][1];
+					++idx;
+					return ub;
+				}
+			};
+		}
+		
+		private void addCounter( Int2DoubleOpenHashMap thisCounter, Int2DoubleOpenHashMap otherCounter ) {
+			for ( Int2DoubleOpenHashMap.Entry entry : otherCounter.int2DoubleEntrySet() ) {
+				thisCounter.addTo(entry.getIntKey(), entry.getDoubleValue());
+			}
+		}
+		
+		private void computeTransLenFrom( int sidx ) {
+			transLen[sidx][0] = transLen[sidx][1] = 0;
+			for ( int i=sidx+1; i<=rec.size(); ++i ) {
+				transLen[i][0] = Math.min( i-sidx, transLen[i-1][0]+1 );
+				transLen[i][1] = Math.max( i-sidx, transLen[i-1][1]+1 );
+				for ( Rule rule : rec.getSuffixApplicableRules(i-1) ) {
+					int l = rule.lhsSize();
+					int r = rule.rhsSize();
+					if ( i-sidx < l ) continue;
+					if ( l < r ) transLen[i][1] = Math.max( transLen[i][1], transLen[i-l][1]+r );
+					if (l > r )	transLen[i][0] = Math.min( transLen[i][0], transLen[i-l][0]+r );
+				}
+			}
+		}
+
+		public int getNextUB() {
+			return iterUB.next();
+		}
+		
+		public int getNextLB() {
+			return iterLB.next();
 		}
 	}
 }
