@@ -22,8 +22,6 @@ public class PrefixSearch extends AbstractSearch {
 	public static boolean USE_LF_QUERY_SIDE = true;
 	public static boolean USE_LF_TEXT_SIDE = true;
 	final NaivePkduckValidator validator;
-	private IntRange wRange;
-	private int[] maxTransLen;
 
 	
 	public PrefixSearch( double theta ) {
@@ -33,9 +31,6 @@ public class PrefixSearch extends AbstractSearch {
 	
 	@Override
 	protected void prepareSearch( Record query ) {
-		log.debug("prepareSearch(%d)",  ()->query.getID());
-		wRange = getWindowSizeRangeQuerySide(query);
-		log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 	}
 
 	@Override
@@ -43,6 +38,8 @@ public class PrefixSearch extends AbstractSearch {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_WindowSizeAllQuerySide, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
+		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
+		log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 		for ( int w=wRange.min; w<=wRange.max; ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
@@ -74,11 +71,11 @@ public class PrefixSearch extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRangeQuerySide( Record rec ) {
+	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
 		if (USE_LF_QUERY_SIDE) {
-			int lb = Records.getTransSetSizeLowerBound(rec);
-			int min = (int)Math.max(1.0, theta*lb);
-			int max = Math.min(rec.getMaxTransLength(), rec.size());
+			int lb = Records.getTransSetSizeLowerBound(query);
+			int min = Math.max(1, (int)Math.ceil(theta*lb));
+			int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
 			return new IntRange(min, max);
 		}
 		else return new IntRange(1, rec.size());
