@@ -27,6 +27,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 	private int[][] transformLengths = null;
 	private long[] estTrans;
 
+	private int maxRhsSize = 0;
+	
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
 		String[] pstr = str.split( "( |\t)+" );
@@ -390,6 +392,15 @@ public class Record implements RecordInterface, Comparable<Record> {
 		else {
 			return Rule.EMPTY_RULE;
 		}
+	}
+	
+	public int getMaxRhsSize() {
+		if ( maxRhsSize == 0 ) {
+			for ( Rule rule : getApplicableRuleIterable() ) {
+				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
+			}
+		}
+		return maxRhsSize;
 	}
 	
 	public Iterable<Rule> getIncompatibleRules( int k ) {

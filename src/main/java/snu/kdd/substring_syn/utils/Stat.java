@@ -20,19 +20,23 @@ public class Stat {
 	public static final String Dataset_numRule= "Dataset_numRule";
 	
 	public static final String Time_0_Total = "Time_0_Total";
-	public static final String Time_1_Validation = "Time_1_Validation";
+	public static final String Time_1_QSTotal = "Time_1_QSTotal";
+	public static final String Time_2_TSTotal = "Time_2_TSTotal";
+	public static final String Time_3_Validation = "Time_3_Validation";
 
 //	public static final String Mem_,
 	public static final String Num_Result = "Num_Result";
-	public static final String Num_ResultQuerySide = "Num_ResultQuerySide";
-	public static final String Num_ResultTextSide = "Num_ResultTextSide";
-	public static final String Num_VerifyQuerySide = "Num_VerifyQuerySide";
-	public static final String Num_VerifyTextSide = "Num_VerifyTextSide";
+	public static final String Num_QS_Result = "Num_QS_Result";
+	public static final String Num_TS_Result = "Num_TS_Result";
+	public static final String Num_QS_Verified = "Num_QS_Verified";
+	public static final String Num_TS_Verified = "Num_TS_Verified";
 
-	public static final String Num_VerifiedWindowSizeQuerySide = "Num_VerifiedWindowSizeQuerySide";
-	public static final String Num_VerifiedWindowSizeTextSide = "Num_VerifiedWindowSizeTextSide";
-	public static final String Num_WindowSizeAllQuerySide = "Num_WindowSizeAllQuerySide";
-	public static final String Num_WindowSizeAllTextSide = "Num_WindowSizeAllTextSide";
+	public static final String Num_QS_WindowSizeLF = "Num_QS_WindowSizeLF";
+	public static final String Num_TS_WindowSizeLF = "Num_TS_WindowSizeLF";
+	public static final String Num_QS_WindowSizeVerified = "Num_QS_WindowSizeVerified";
+	public static final String Num_TS_WindowSizeVerified = "Num_TS_WindowSizeVerified";
+	public static final String Num_QS_WindowSizeAll = "Num_QS_WindowSizeAll";
+	public static final String Num_TS_WindowSizeAll = "Num_TS_WindowSizeAll";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

@@ -20,16 +20,16 @@ public class NaiveSearch extends AbstractSearch {
 
 	protected void searchQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_WindowSizeAllQuerySide, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSizeQuerySide);
+				statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
 				Subrecord window = witer.next();
-				statContainer.startWatch(Stat.Time_1_Validation);
+				statContainer.startWatch(Stat.Time_3_Validation);
 				boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
-				statContainer.stopWatch(Stat.Time_1_Validation);
-				statContainer.increment(Stat.Num_VerifyQuerySide);
+				statContainer.stopWatch(Stat.Time_3_Validation);
+				statContainer.increment(Stat.Num_QS_Verified);
 				if (isSim) {
 					log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
@@ -41,16 +41,16 @@ public class NaiveSearch extends AbstractSearch {
 	
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_WindowSizeAllTextSide, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.increment(Stat.Num_VerifiedWindowSizeTextSide);
+				statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
 				Subrecord window = witer.next();
-				statContainer.startWatch(Stat.Time_1_Validation);
+				statContainer.startWatch(Stat.Time_3_Validation);
 				boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
-				statContainer.stopWatch(Stat.Time_1_Validation);
-				statContainer.increment(Stat.Num_VerifyTextSide);
+				statContainer.stopWatch(Stat.Time_3_Validation);
+				statContainer.increment(Stat.Num_TS_Verified);
 				if (isSim) {
 					log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
