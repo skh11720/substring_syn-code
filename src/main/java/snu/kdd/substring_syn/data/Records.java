@@ -62,7 +62,7 @@ public class Records {
 	
 	private static int computeLowerBound( Record rec, Iterator<Int2DoubleMap.Entry> tokenCountIter ) {
 		int lb = 0;
-		int len = 0;
+		double len = 0;
 		while ( tokenCountIter.hasNext() && len < rec.getMinTransLength() ) {
 			++lb;
 			len += tokenCountIter.next().getDoubleValue();

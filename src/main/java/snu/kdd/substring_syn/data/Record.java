@@ -3,7 +3,6 @@ package snu.kdd.substring_syn.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -71,10 +70,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	public IntList getTokenList() {
 		return IntArrayList.wrap(tokens);
-	}
-
-	public int getTokenCount() {
-		return tokens.length;
 	}
 
 	public int getDistinctTokenCount() {
