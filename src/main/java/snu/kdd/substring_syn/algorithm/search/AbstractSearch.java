@@ -64,7 +64,6 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void search( Record query, Iterable<Record> records ) {
-		prepareSearch(query);
 		for ( Record rec :  records ) {
 			statContainer.startWatch(Stat.Time_1_QSTotal);
 			searchQuerySide(query, rec);
@@ -74,9 +73,6 @@ public abstract class AbstractSearch {
 			searchTextSide(query, rec);
 			statContainer.stopWatch(Stat.Time_2_TSTotal);
 		}
-	}
-	
-	protected void prepareSearch( Record query ) {
 	}
 	
 	protected void putResultIntoStat() {

@@ -20,17 +20,13 @@ import vldb18.PkduckDPEx;
 public class PrefixSearch extends AbstractSearch {
 
 	public static boolean USE_LF_QUERY_SIDE = true;
-	public static boolean USE_LF_TEXT_SIDE = false;
+	public static boolean USE_LF_TEXT_SIDE = true;
 	final NaivePkduckValidator validator;
 
 	
 	public PrefixSearch( double theta ) {
 		super(theta);
 		validator = new NaivePkduckValidator();
-	}
-	
-	@Override
-	protected void prepareSearch( Record query ) {
 	}
 
 	@Override

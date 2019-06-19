@@ -52,7 +52,7 @@ public class MiscTest {
 		}
 	}
 	
-	public static int sumWindowSize( Record rec ) {
+	private static int sumWindowSize( Record rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
 	}
