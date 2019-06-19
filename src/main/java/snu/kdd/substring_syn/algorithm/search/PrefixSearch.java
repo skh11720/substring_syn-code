@@ -82,28 +82,28 @@ public class PrefixSearch extends AbstractSearch {
 	protected void searchTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
-		IntList candTokenList = getCandTokenList(query, rec);
-		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, query.size());
+		double modifiedTheta = getModifiedTheta(query, rec);
+		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
+		TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(rec, modifiedTheta);
+		PkduckDPEx pkduckdp = new PkduckDPEx(rec, modifiedTheta, query.size());
 		for ( int target : candTokenList ) {
 			long ts0 = System.nanoTime();
 			pkduckdp.compute(target);
 			log.trace("PkduckDPEx.compute(%d) rec.id=%d  %.3f ms", target, rec.getID(), (System.nanoTime()-ts0)/1e6);
 			ts0 = System.nanoTime();
-			boolean isSimilar = applyPrefixFiltering(query, rec, pkduckdp, target);
+			boolean isSimilar = applyPrefixFiltering(query, rec, pkduckdp, boundCalculator, target);
 			if ( isSimilar ) break;
 			log.trace("PrefixSearch.applyPrefixFiltering(...)  %4d/%4d  %.3f ms", 0, rec.size()*(rec.size()+1)/2, (System.nanoTime()-ts0)/1e6 );
 		}
 	}
 	
-	protected IntList getCandTokenList( Record query, Record rec ) {
+	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, int target ) {
-		double modifiedTheta = getModifiedTheta(query, rec);
-		TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(rec, modifiedTheta);
+	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, TransSetBoundCalculator boundCalculator, int target ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			boundCalculator.setStart(widx);
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
