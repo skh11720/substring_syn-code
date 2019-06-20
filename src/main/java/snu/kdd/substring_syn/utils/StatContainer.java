@@ -3,11 +3,13 @@ package snu.kdd.substring_syn.utils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 
@@ -18,6 +20,7 @@ public class StatContainer {
 	
 	private final Object2ObjectMap<String, Counter> counterBuffer;
 	private final Object2ObjectMap<String, StopWatch> stopwatchBuffer;
+	List<String> keyList;
 	
 	private StatContainer() {
 		statMap = new Object2ObjectArrayMap<>();
@@ -29,7 +32,7 @@ public class StatContainer {
 	
 	public StatContainer( AbstractSearch alg, Dataset dataset ) {
 		this();
-		putParam(alg.getParam());
+//		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
@@ -40,11 +43,11 @@ public class StatContainer {
 		statMap.put(Stat.Dataset_numRule, Integer.toString(dataset.ruleSet.size()));
 	}
 	
-	protected void putParam( Param param ) {
-		for ( Entry<String, String> entry : param.getEntries() ) {
-			statMap.put("Param_"+entry.getKey(), entry.getValue());
-		}
-	}
+//	protected void putParam( Param param ) {
+//		for ( Entry<String, String> entry : param.getEntries() ) {
+//			statMap.put("Param_"+entry.getKey(), entry.getValue());
+//		}
+//	}
 	
 	public void finalizeAndOutput() {
 		finalize();
@@ -55,12 +58,16 @@ public class StatContainer {
 	protected void finalize() {
 		for ( String key : counterBuffer.keySet() ) statMap.put(key, Integer.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
+		keyList = new ObjectArrayList<>( Stat.getList() );
+		for ( String key : statMap.keySet() ) {
+			if ( !Stat.getSet().contains(key) ) keyList.add(key);
+		}
 
 	}
 	
 	public void print() {
 		System.out.println("------------------------ Stat ------------------------");
-		for ( String key : Stat.getList() ) {
+		for ( String key : keyList ) {
 			System.out.println(String.format("%25s  :  %s", key, statMap.get(key)));
 		}
 	}
@@ -72,7 +79,7 @@ public class StatContainer {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		for ( String key : Stat.getList() ) {
+		for ( String key : keyList ) {
 			ps.print(key+":"+statMap.get(key)+"\t");
 		}
 		ps.println();

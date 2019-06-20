@@ -3,7 +3,10 @@ package snu.kdd.substring_syn.utils;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class Stat {
 	
@@ -41,5 +44,9 @@ public class Stat {
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();
 		return Arrays.stream(fieldList).map(f->f.getName()).collect(Collectors.toList());
+	}
+	
+	public static Set<String> getSet() {
+		return new ObjectOpenHashSet<String>( getList() );
 	}
 }

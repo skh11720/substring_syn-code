@@ -114,6 +114,10 @@ public abstract class AbstractSearch {
 
 	public abstract String getVersion();
 	
+	public StatContainer getStatContainer() {
+		return statContainer;
+	}
+	
 	public String getOutputName( Dataset dataset ) {
 		return String.join( "_", getName(), getVersion(), String.format("%.2f", theta), dataset.name);
 	}
