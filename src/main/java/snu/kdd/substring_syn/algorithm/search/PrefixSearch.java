@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator1;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Records;
@@ -19,8 +19,8 @@ import vldb18.PkduckDPEx;
 
 public class PrefixSearch extends AbstractSearch {
 
-	public static boolean USE_LF_QUERY_SIDE = true;
-	public static boolean USE_LF_TEXT_SIDE = true;
+	private static boolean USE_LF_QUERY_SIDE = true;
+	private static boolean USE_LF_TEXT_SIDE = false;
 	final NaivePkduckValidator validator;
 
 	
@@ -84,7 +84,7 @@ public class PrefixSearch extends AbstractSearch {
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		double modifiedTheta = getModifiedTheta(query, rec);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
-		TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(rec, modifiedTheta);
+		TransSetBoundCalculator1 boundCalculator = new TransSetBoundCalculator1(rec, modifiedTheta);
 		PkduckDPEx pkduckdp = new PkduckDPEx(rec, modifiedTheta, query.size());
 		for ( int target : candTokenList ) {
 			long ts0 = System.nanoTime();
@@ -103,7 +103,7 @@ public class PrefixSearch extends AbstractSearch {
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, TransSetBoundCalculator boundCalculator, int target ) {
+	protected boolean applyPrefixFiltering( Record query, Record rec, PkduckDPEx pkduckdp, TransSetBoundCalculator1 boundCalculator, int target ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			boundCalculator.setStart(widx);
 			for ( int w=1; w<=rec.size()-widx; ++w ) {

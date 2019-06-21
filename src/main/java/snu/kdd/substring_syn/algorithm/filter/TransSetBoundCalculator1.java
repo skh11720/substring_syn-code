@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 
-public class TransSetBoundCalculator {
+public class TransSetBoundCalculator1 {
 	private final Record rec;
 	private final double theta;
 	private final Int2DoubleOpenHashMap[] counterArr;
@@ -18,7 +18,7 @@ public class TransSetBoundCalculator {
 	private Iterator<Integer> iterUB = null;
 	private Iterator<Integer> iterLB = null;
 	
-	public TransSetBoundCalculator( Record rec, double theta ) {
+	public TransSetBoundCalculator1( Record rec, double theta ) {
 		this.rec = rec;
 		this.theta = theta;
 		counterArr = new Int2DoubleOpenHashMap[rec.size()];
