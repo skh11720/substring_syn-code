@@ -78,7 +78,6 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 				}
-				if ( theta*lmin[v] > qlen ) break;
 			}
 	//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 			updateResult(i);
