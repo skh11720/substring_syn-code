@@ -67,4 +67,19 @@ public class PkduckDPEx3 extends PkduckDPEx {
 			updateResult(i);
 		} // end for i
 	}
+
+	@Override
+	protected void updateResult( int i ) {
+		for ( int v=1; v<=rec.size()-i+1; ++v ) {
+			if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+			b[i][v] = computeIsInSigU(i, v);
+		}
+	}
+
+	protected boolean computeIsInSigU( int i, int v ) {
+		for (int l=boundCalculator.getLB(i-1, i+v-2); l<=boundCalculator.getUB(i-1, i+v-2); ++l) {
+			if ( g[1][v][l] <= getPrefixLen(l)-1 ) return true;
+		}
+		return false;
+	}
 }
