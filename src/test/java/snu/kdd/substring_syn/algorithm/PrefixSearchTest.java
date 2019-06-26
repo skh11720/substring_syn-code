@@ -26,12 +26,12 @@ public class PrefixSearchTest {
 	String[] versionList = {"1.00", "1.01", "1.02", "1.03"};
 	String currVersion = "1.00";
 
-	@Ignore
+	@Test
 	public void testSingle() throws IOException {
-		test(0.7, "100", currVersion);
+		test(0.7, "100", "1.03");
 	}
 	
-	@Test
+	@Ignore
 	public void testAll() throws IOException {
 		testIteration(thetaList, sizeList, versionList);
 	}
@@ -47,7 +47,7 @@ public class PrefixSearchTest {
 	public void testAllVersions() throws IOException {
 		double[] thetaList = {0.7};
 		String[] sizeList = {"100"};
-		testIteration(thetaList, sizeList, sizeList);
+		testIteration(thetaList, sizeList, versionList);
 	}
 	
 	public void testIteration( double[] thetaList, String[] sizeList, String[] versionList ) throws IOException {
