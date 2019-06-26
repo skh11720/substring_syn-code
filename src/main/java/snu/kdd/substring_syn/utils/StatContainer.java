@@ -22,7 +22,7 @@ public class StatContainer {
 	private final Object2ObjectMap<String, StopWatch> stopwatchBuffer;
 	List<String> keyList;
 	
-	private StatContainer() {
+	public StatContainer() {
 		statMap = new Object2ObjectArrayMap<>();
 		statMap.defaultReturnValue("null");
 //		optionalStatMap = new Object2ObjectArrayMap<>();

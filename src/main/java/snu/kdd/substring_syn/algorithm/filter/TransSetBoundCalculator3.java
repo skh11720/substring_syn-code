@@ -131,6 +131,7 @@ public class TransSetBoundCalculator3 {
 			if ( statContainer != null ) statContainer.stopWatch("Time_UpdateIntDoubleList");
 			if ( statContainer != null ) statContainer.startWatch("Time_ComputeLowerBound");
 			lb[i][j] = computeLowerBound(j, list);
+//			System.out.println(i+", "+j+", lb: "+lb[i][j]+", "+list.toString());
 			if ( statContainer != null ) statContainer.stopWatch("Time_ComputeLowerBound");
 			ub[i][j] = transLen[j+1][1];
 		}
@@ -141,7 +142,7 @@ public class TransSetBoundCalculator3 {
 		double len = 0;
 		for ( int i=0; i<list.size(); ++i ) {
 			++lb;
-			len += list.get(i).v;
+			len += list.get(i).v + 1e-10;
 			if ( len >= transLen[j+1][0] ) break;
 		}
 		return Math.max(1, lb);
