@@ -27,9 +27,18 @@ public class PrefixSearch1_04 extends PrefixSearch1_03 {
 		int lb = boundCalculator.getLFLB(widx, widx+w-1);
 		int lbMono = boundCalculator.getLFLBMono(widx, widx+w-1);
 		int qSetSize = query.getDistinctTokenCount();
-		if ( qSetSize < lbMono ) return LFOutput.filtered_stop;
-		if ( qSetSize > ub ) return LFOutput.filtered_ignore;
-		if ( qSetSize < lb ) return LFOutput.filtered_ignore;
+		if ( qSetSize < lbMono ) {
+			statContainer.increment("Num_TS_LFByLBMono");
+			return LFOutput.filtered_stop;
+		}
+		if ( qSetSize > ub ) {
+			statContainer.increment("Num_TS_LFByUB");
+			return LFOutput.filtered_ignore;
+		}
+		if ( qSetSize < lb ) {
+			statContainer.increment("Num_TS_LFByLB");
+			return LFOutput.filtered_ignore;
+		}
 		else return LFOutput.not_filtered;
 	}
 
