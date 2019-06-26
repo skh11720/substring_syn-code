@@ -41,8 +41,8 @@ public class PrefixSearch1_02 extends PrefixSearch {
 	}
 
 	protected LFOutput applyLengthFiltering( Record query, int widx, int w ) {
-		int ub = boundCalculator.getUB(widx, widx+w-1);
-		int lb = boundCalculator.getLB(widx, widx+w-1);
+		int ub = boundCalculator.getLFUB(widx, widx+w-1);
+		int lb = boundCalculator.getLFLB(widx, widx+w-1);
 		if ( query.getDistinctTokenCount() > ub ) return LFOutput.filtered_ignore;
 		if ( query.getDistinctTokenCount() < lb ) return LFOutput.filtered_ignore;
 		else return LFOutput.not_filtered;

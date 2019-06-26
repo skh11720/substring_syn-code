@@ -71,6 +71,18 @@ public class TransSetBoundCalculator3 {
 	public int getUB( int i, int j ) {
 		return ub[i][j];
 	}
+	
+	public int getLFLB( int i, int j ) {
+		return (int)Math.ceil(1.0*lb[i][j]*theta);
+	}
+	
+	public int getLFLBMono( int i, int j ) {
+		return (int)Math.ceil(1.0*lbMono[i][j]*theta);
+	}
+
+	public int getLFUB( int i, int j ) {
+		return (int)(1.0*ub[i][j]/theta);
+	}
 
 	protected void buildCounterArr() {
 		if ( statContainer != null ) statContainer.startWatch("Time_BuildCounterArr");
@@ -118,9 +130,9 @@ public class TransSetBoundCalculator3 {
 			}
 			if ( statContainer != null ) statContainer.stopWatch("Time_UpdateIntDoubleList");
 			if ( statContainer != null ) statContainer.startWatch("Time_ComputeLowerBound");
-			lb[i][j] = (int)Math.ceil(1.0*computeLowerBound(j, list)*theta);
+			lb[i][j] = computeLowerBound(j, list);
 			if ( statContainer != null ) statContainer.stopWatch("Time_ComputeLowerBound");
-			ub[i][j] = (int)(1.0*transLen[j+1][1]/theta);
+			ub[i][j] = transLen[j+1][1];
 		}
 	}
 	
