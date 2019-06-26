@@ -10,22 +10,26 @@ import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 
 public class NaiveSearchTest {
+	
+	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
+	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 
 	@Test
-	public void testAllTheta() throws IOException {
-		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-		for ( double theta : thetaList ) {
-			test(theta);
+	public void testAll() throws IOException {
+		for ( String size : sizeList ) {
+			for ( double theta : thetaList ) {
+				test(theta, size);
+			}
 		}
 	}
 	
 	@Test
 	public void testSingle() throws IOException {
-		test(0.6);
+		test(0.6, "100");
 	}
 	
-	public void test( double theta ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
+	public void test( double theta, String size ) throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		
