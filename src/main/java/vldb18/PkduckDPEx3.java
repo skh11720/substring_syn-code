@@ -8,8 +8,8 @@ public class PkduckDPEx3 extends PkduckDPEx {
 	
 	protected final TransSetBoundCalculator3 boundCalculator;
 	
-	public PkduckDPEx3( Record rec, TransSetBoundCalculator3 boundCalculator, double theta, int qlen ) {
-		super(rec, theta, qlen);
+	public PkduckDPEx3( Record query, Record rec, TransSetBoundCalculator3 boundCalculator, double theta ) {
+		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}
 
@@ -19,8 +19,8 @@ public class PkduckDPEx3 extends PkduckDPEx {
 			// compute g[0][i][v][l].
 			init();
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
-				for (int l=1; l<=maxTransLen; ++l) {
+                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+				for (int l=1; l<=boundCalculator.getUB(i-1, i+v-2); ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
 						int num_smaller = 0;
@@ -42,8 +42,8 @@ public class PkduckDPEx3 extends PkduckDPEx {
 		
 			// compute g[1][i][l].
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
-				for (int l=1; l<=maxTransLen; ++l) {
+                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+				for (int l=1; l<=boundCalculator.getUB(i-1, i+v-2); ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
 						int num_smaller = 0;
@@ -61,13 +61,10 @@ public class PkduckDPEx3 extends PkduckDPEx {
 						}
 					}
 	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
-					if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
-						b[i][v] = true;
-						break;
-					}
 				}
 			}
 	//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
+			updateResult(i);
 		} // end for i
 	}
 }

@@ -8,8 +8,8 @@ public class PkduckDPEx2 extends PkduckDPEx {
 	
 	protected final TransSetBoundCalculator3 boundCalculator;
 	
-	public PkduckDPEx2( Record rec, TransSetBoundCalculator3 boundCalculator, double theta, int qlen ) {
-		super(rec, theta, qlen);
+	public PkduckDPEx2( Record query, Record rec, TransSetBoundCalculator3 boundCalculator, double theta ) {
+		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}
 
@@ -19,7 +19,7 @@ public class PkduckDPEx2 extends PkduckDPEx {
 			// compute g[0][i][v][l].
 			init();
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
+                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
 				for (int l=1; l<=maxTransLen; ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
@@ -42,7 +42,7 @@ public class PkduckDPEx2 extends PkduckDPEx {
 		
 			// compute g[1][i][l].
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
+                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
 				for (int l=1; l<=maxTransLen; ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );

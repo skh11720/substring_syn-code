@@ -75,7 +75,7 @@ public class PkduckDPExTest {
 
 		@Override
 		public void init(Record rec, double theta) {
-			obj = new PkduckDPEx(rec, theta, Integer.MAX_VALUE);
+			obj = new PkduckDPEx(rec, rec, theta);
 		}
 		
 		@Override
@@ -161,7 +161,7 @@ public class PkduckDPExTest {
 		Record rec = dataset.indexedList.get(31);
 		System.out.println("qrec: "+qrec);
 		IntOpenHashSet tokenSet = rec.getCandTokenSet();
-		PkduckDPEx pkduckdp = new PkduckDPEx(rec, theta, qrec.size());
+		PkduckDPEx pkduckdp = new PkduckDPEx(qrec, rec, theta);
 		for ( int target : tokenSet ) {
 			pkduckdp.compute(target);
 			for ( int w=15; w<=rec.size(); ++w ) {

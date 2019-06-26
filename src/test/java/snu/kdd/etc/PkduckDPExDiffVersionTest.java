@@ -1,7 +1,5 @@
 package snu.kdd.etc;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -10,10 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDPEx;
 import vldb18.PkduckDPEx2;
 import vldb18.PkduckDPEx3;
@@ -32,7 +28,7 @@ public class PkduckDPExDiffVersionTest {
 
 		@Override
 		public void init(Record query, Record rec, double theta) {
-			pkduckdp = new PkduckDPEx(rec, theta, query.size());
+			pkduckdp = new PkduckDPEx(query, rec, theta);
 		}
 
 		@Override
@@ -57,7 +53,7 @@ public class PkduckDPExDiffVersionTest {
 		@Override
 		public void init(Record query, Record rec, double theta) {
 			boundCalculator = new TransSetBoundCalculator3(null, rec, theta);
-			pkduckdp = new PkduckDPEx2(rec, boundCalculator, theta, query.size());
+			pkduckdp = new PkduckDPEx2(query, rec, boundCalculator, theta);
 		}
 	}
 	
@@ -66,7 +62,7 @@ public class PkduckDPExDiffVersionTest {
 		@Override
 		public void init(Record query, Record rec, double theta) {
 			boundCalculator = new TransSetBoundCalculator3(null, rec, theta);
-			pkduckdp = new PkduckDPEx3(rec, boundCalculator, theta, query.size());
+			pkduckdp = new PkduckDPEx3(query, rec, boundCalculator, theta);
 		}
 	}
 

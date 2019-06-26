@@ -17,7 +17,7 @@ public class PrefixSearch1_03 extends PrefixSearch1_02 {
 
 	@Override
 	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
-		pkduckdp = new PkduckDPEx3(rec, boundCalculator, modifiedTheta, query.size());
+		pkduckdp = new PkduckDPEx3(query, rec, boundCalculator, modifiedTheta);
 	}
 
 	@Override

@@ -13,10 +13,10 @@ public class PkduckDPEx {
 	protected final int[] tokens;
 	protected final int[][][] g;
 	protected final boolean[][] b;
-	protected final int qlen;
+	protected final int qSetSize;
 	
 	
-	public PkduckDPEx( Record rec, double theta, int qlen ) {
+	public PkduckDPEx( Record query, Record rec, double theta ) {
 		this.rec = rec;
 		this.theta = theta;
 		this.tokens = rec.getTokenArray();
@@ -24,7 +24,7 @@ public class PkduckDPEx {
 		this.g = new int[2][rec.size()+1][maxTransLen+1];
 		this.b = new boolean[rec.size()+1][rec.size()+1];
 		for (boolean[] bArr : b) Arrays.fill(bArr, false);
-		this.qlen = qlen;
+		this.qSetSize = query.getDistinctTokenCount();
 	}
 
 	public void compute( int target ) {

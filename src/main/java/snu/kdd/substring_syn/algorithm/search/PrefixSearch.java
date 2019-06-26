@@ -102,7 +102,7 @@ public class PrefixSearch extends AbstractSearch {
 	}
 	
 	protected void setPkduckDP( Record query, Record rec, double modifiedTheta ) {
-		pkduckdp = new PkduckDPEx(rec, modifiedTheta, query.size());
+		pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
 	}
 	
 	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
