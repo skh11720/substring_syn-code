@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_02;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_03;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_04;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_01;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -28,7 +29,7 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		test(0.7, "100", "1.03");
+		test(0.7, "100", "1.04");
 	}
 	
 	@Ignore
@@ -71,6 +72,7 @@ public class PrefixSearchTest {
 		else if ( version.equals("1.01") ) prefixSearch = new PrefixSearch1_01(theta);
 		else if ( version.equals("1.02") ) prefixSearch = new PrefixSearch1_02(theta);
 		else if ( version.equals("1.03") ) prefixSearch = new PrefixSearch1_03(theta);
+		else if ( version.equals("1.04") ) prefixSearch = new PrefixSearch1_04(theta);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
