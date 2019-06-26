@@ -21,34 +21,47 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class PrefixSearchTest {
 
+	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
+	String[] sizeList = {"101", "102", "103", "104", "105"};
+	String[] versionList = {"1.00", "1.01", "1.02", "1.03"};
+	String currVersion = "1.00";
+
+	@Ignore
+	public void testSingle() throws IOException {
+		test(0.7, "100", currVersion);
+	}
+	
+	@Test
+	public void testAll() throws IOException {
+		testIteration(thetaList, sizeList, versionList);
+	}
+	
 	@Ignore
 	public void testAllTheta() throws IOException {
-		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 		for ( double theta : thetaList ) {
-			test(theta);
+			test(theta, "100", currVersion);
 		}
 	}
 	
 	@Ignore
-	public void testSingle() throws IOException {
-		test(0.7);
+	public void testAllVersions() throws IOException {
+		double[] thetaList = {0.7};
+		String[] sizeList = {"100"};
+		testIteration(thetaList, sizeList, sizeList);
 	}
 	
-	@Test
-	public void testMultiVersions() throws IOException {
-		double theta = 0.7;
-//		test(theta, "1.00");
-//		test(theta, "1.01");
-//		test(theta, "1.02");
-		test(theta, "1.03");
+	public void testIteration( double[] thetaList, String[] sizeList, String[] versionList ) throws IOException {
+		for ( double theta : thetaList ) {
+			for ( String size : sizeList ) {
+				for ( String version : versionList ) {
+					test(theta, size, version);
+				}
+			}
+		}
 	}
 
-	public void test( double theta ) throws IOException {
-		test(theta, "1.00");
-	}
-	
-	public void test( double theta, String version ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
+	public void test( double theta, String size, String version ) throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		

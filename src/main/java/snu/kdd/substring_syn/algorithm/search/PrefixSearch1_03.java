@@ -1,14 +1,14 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import snu.kdd.substring_syn.data.Record;
-import vldb18.PkduckDPEx2;
+import vldb18.PkduckDPEx3;
 
 public class PrefixSearch1_03 extends PrefixSearch1_02 {
 	
 	/*
 	 * Use length filtering in the text-side transformation.
 	 * Use TransSetBoundCalculator3. 
-	 * Use PkduckDPEx2.
+	 * Use PkduckDPEx3.
 	 */
 
 	public PrefixSearch1_03( double theta ) {
@@ -17,7 +17,7 @@ public class PrefixSearch1_03 extends PrefixSearch1_02 {
 
 	@Override
 	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
-		pkduckdp = new PkduckDPEx2(rec, boundCalculator, modifiedTheta, query.size());
+		pkduckdp = new PkduckDPEx3(rec, boundCalculator, modifiedTheta, query.size());
 	}
 
 	@Override
