@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
@@ -23,6 +22,7 @@ public class TransSetBoundCalculator3 {
 	 *      Sort tokens by their counts each time (using Stream.sorted).
 	 *      It is verified that the sorting is the main bottle-neck.
 	 * TransSetBoundCalculator3:
+	 * 		Use O(|s|^2) space to keep the computed bounds for all substrings.
 	 * 	    Keep a sorted list of pairs of token and its score.
 	 * 		When the window is extended and the scores are updated,
 	 * 		sort the updated entries only in insertion sort-style.
@@ -34,6 +34,7 @@ public class TransSetBoundCalculator3 {
 	private final int[][] transLen;
 	private final int[][] ub;
 	private final int[][] lb;
+	private final int[][] lbMono;
 
 	Comparator<Int2DoubleMap.Entry> comp = new Comparator<Int2DoubleMap.Entry>() {
 		@Override
@@ -48,8 +49,31 @@ public class TransSetBoundCalculator3 {
 		this.statContainer = statContainer;
 		this.rec = rec;
 		this.theta = theta;
-		if ( statContainer != null ) statContainer.startWatch("Time_BuildCounterArr");
 		counterArr = new Int2DoubleOpenHashMap[rec.size()];
+		transLen = new int[rec.size()+1][2];
+		ub = new int[rec.size()][rec.size()];
+		lb = new int[rec.size()][rec.size()];
+		lbMono = new int[rec.size()][rec.size()];
+
+		buildCounterArr();
+		computeTransLenAndBounds();
+		computeLBMono();
+	}
+
+	public int getLB( int i, int j ) {
+		return lb[i][j];
+	}
+
+	public int getLBMono( int i, int j ) {
+		return lbMono[i][j];
+	}
+
+	public int getUB( int i, int j ) {
+		return ub[i][j];
+	}
+
+	protected void buildCounterArr() {
+		if ( statContainer != null ) statContainer.startWatch("Time_BuildCounterArr");
 		for ( int i=0; i<rec.size(); ++i ) {
 			counterArr[i] = new Int2DoubleOpenHashMap();
 			for ( Rule rule : rec.getIncompatibleRules(i) ) {
@@ -57,11 +81,9 @@ public class TransSetBoundCalculator3 {
 			}
 		}
 		if ( statContainer != null ) statContainer.stopWatch("Time_BuildCounterArr");
-
-		transLen = new int[rec.size()+1][2];
-		ub = new int[rec.size()][rec.size()];
-		lb = new int[rec.size()][rec.size()];
-		
+	}
+	
+	protected void computeTransLenAndBounds() {
 		for ( int i=0; i<rec.size(); ++i ) {
 			if ( statContainer != null ) statContainer.startWatch("Time_ComputeTransLenFrom");
 			computeTransLenFrom(i);
@@ -71,36 +93,7 @@ public class TransSetBoundCalculator3 {
 			if ( statContainer != null ) statContainer.stopWatch("Time_ComputeBounds");
 		}
 	}
-	
-	public int getLB( int i, int j ) {
-		return lb[i][j];
-	}
 
-	public int getUB( int i, int j ) {
-		return ub[i][j];
-	}
-
-	private void computeBounds( int i ) {
-		IntDoubleList list = new IntDoubleList();
-		for ( int j=i; j<rec.size(); ++j ) {
-			if ( statContainer != null ) statContainer.startWatch("Time_UpdateIntDoubleList");
-			for ( Int2DoubleOpenHashMap.Entry entry : counterArr[j].int2DoubleEntrySet() ) {
-				list.update( entry.getIntKey(), entry.getDoubleValue() );
-			}
-			if ( statContainer != null ) statContainer.stopWatch("Time_UpdateIntDoubleList");
-			if ( statContainer != null ) statContainer.startWatch("Time_ComputeLowerBound");
-			lb[i][j] = (int)Math.ceil(1.0*computeLowerBound(j, list)*theta);
-			if ( statContainer != null ) statContainer.stopWatch("Time_ComputeLowerBound");
-			ub[i][j] = (int)(1.0*transLen[j+1][1]/theta);
-		}
-	}
-	
-//	private void addCounter( Int2DoubleOpenHashMap thisCounter, Int2DoubleOpenHashMap otherCounter ) {
-//		for ( Int2DoubleOpenHashMap.Entry entry : otherCounter.int2DoubleEntrySet() ) {
-//			thisCounter.addTo(entry.getIntKey(), entry.getDoubleValue());
-//		}
-//	}
-	
 	private void computeTransLenFrom( int sidx ) {
 		transLen[sidx][0] = transLen[sidx][1] = 0;
 		for ( int i=sidx+1; i<=rec.size(); ++i ) {
@@ -116,6 +109,21 @@ public class TransSetBoundCalculator3 {
 		}
 	}
 	
+	private void computeBounds( int i ) {
+		IntDoubleList list = new IntDoubleList();
+		for ( int j=i; j<rec.size(); ++j ) {
+			if ( statContainer != null ) statContainer.startWatch("Time_UpdateIntDoubleList");
+			for ( Int2DoubleOpenHashMap.Entry entry : counterArr[j].int2DoubleEntrySet() ) {
+				list.update( entry.getIntKey(), entry.getDoubleValue() );
+			}
+			if ( statContainer != null ) statContainer.stopWatch("Time_UpdateIntDoubleList");
+			if ( statContainer != null ) statContainer.startWatch("Time_ComputeLowerBound");
+			lb[i][j] = (int)Math.ceil(1.0*computeLowerBound(j, list)*theta);
+			if ( statContainer != null ) statContainer.stopWatch("Time_ComputeLowerBound");
+			ub[i][j] = (int)(1.0*transLen[j+1][1]/theta);
+		}
+	}
+	
 	private int computeLowerBound( int j, IntDoubleList list ) {
 		int lb = 0;
 		double len = 0;
@@ -125,6 +133,15 @@ public class TransSetBoundCalculator3 {
 			if ( len >= transLen[j+1][0] ) break;
 		}
 		return Math.max(1, lb);
+	}
+	
+	private void computeLBMono() {
+		for ( int i=0; i<rec.size(); ++i ) {
+			lbMono[i][rec.size()-1] = lb[i][rec.size()-1];
+			for ( int j=rec.size()-2; j>=i; --j ) {
+				lbMono[i][j] = Math.min(lbMono[i][j+1], lb[i][j]);
+			}
+		}
 	}
 
 	class IntDoubleList {

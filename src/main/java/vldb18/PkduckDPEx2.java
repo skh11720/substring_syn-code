@@ -1,32 +1,19 @@
 package vldb18;
 
-import java.util.Arrays;
-
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 
-public class PkduckDPEx {
+public class PkduckDPEx2 extends PkduckDPEx {
 	
-	protected final int maxTransLen;
-	protected final Record rec;
-	protected final double theta;
-	protected final int[] tokens;
-	protected final int[][][] g;
-	protected final boolean[][] b;
-	protected final int qlen;
+	protected final TransSetBoundCalculator3 boundCalculator;
 	
-	
-	public PkduckDPEx( Record rec, double theta, int qlen ) {
-		this.rec = rec;
-		this.theta = theta;
-		this.tokens = rec.getTokenArray();
-		this.maxTransLen = rec.getMaxTransLength();
-		this.g = new int[2][rec.size()+1][maxTransLen+1];
-		this.b = new boolean[rec.size()+1][rec.size()+1];
-		for (boolean[] bArr : b) Arrays.fill(bArr, false);
-		this.qlen = qlen;
+	public PkduckDPEx2( Record rec, TransSetBoundCalculator3 boundCalculator, double theta, int qlen ) {
+		super(rec, theta, qlen);
+		this.boundCalculator = boundCalculator;
 	}
 
+	@Override
 	public void compute( int target ) {
 		for (int i=1; i<=rec.size(); ++i) {
 			// compute g[0][i][v][l].
@@ -49,6 +36,7 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				}
+                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
 			}
 	//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
 		
@@ -73,43 +61,10 @@ public class PkduckDPEx {
 					}
 	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 				}
+                if ( theta*boundCalculator.getLBMono(i-1, v-1) > qlen ) break;
 			}
 	//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 			updateResult(i);
 		} // end for i
-	}
-	
-	protected void init() {
-		for ( int o=0; o<2; ++o ) {
-			for ( int v=0; v<=rec.size(); ++v ) {
-				Arrays.fill( g[o][v], maxTransLen+1 );
-			}
-		}
-		g[0][0][0] = 0;
-	}
-	
-	protected void updateResult( int i ) {
-		for ( int v=1; v<=rec.size(); ++v ) {
-			b[i][v] = computeIsInSigU(v);
-		}
-	}
-	
-	protected boolean computeIsInSigU( int v ) {
-		for (int l=1; l<=maxTransLen; ++l) {
-			if ( g[1][v][l] <= getPrefixLen(l)-1 ) return true;
-		}
-		return false;
-	}
-	
-	protected int getPrefixLen( int len ) {
-		return len - (int)(Math.ceil(theta*len)) + 1;
-	}
-	
-	public boolean isInSigU( int i, int v ) {
-		/*
-		 * i: 0-based
-		 * b[][]: 1-based
-		 */
-		return b[i+1][v];
 	}
 }
