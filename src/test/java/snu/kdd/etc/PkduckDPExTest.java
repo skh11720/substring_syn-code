@@ -21,13 +21,13 @@ import vldb18.PkduckDPExOld;
 
 public class PkduckDPExTest {
 	
-	interface PkduckDPInterface {
+	private interface PkduckDPInterface {
 		void init( Record rec, double theta );
 		void compute( int target );
 		boolean isInSigU( RecordInterface rec, int target, int widx, int w );
 	}
 	
-	class PkduckDPWrapper implements PkduckDPInterface {
+	private class PkduckDPWrapper implements PkduckDPInterface {
 		
 		PkduckDP obj;
 		double theta;
@@ -49,7 +49,7 @@ public class PkduckDPExTest {
 		
 	}
 	
-	class PkduckDPExOldWrapper implements PkduckDPInterface {
+	private class PkduckDPExOldWrapper implements PkduckDPInterface {
 		
 		PkduckDPExOld obj;
 
@@ -69,7 +69,7 @@ public class PkduckDPExTest {
 		}
 	}
 	
-	class PkduckDPExWrapper implements PkduckDPInterface {
+	private class PkduckDPExWrapper implements PkduckDPInterface {
 
 		PkduckDPEx obj;
 

@@ -4,11 +4,11 @@ import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 
-public class PkduckDPEx2 extends PkduckDPEx {
+public class PkduckDPEx3 extends PkduckDPEx {
 	
 	protected final TransSetBoundCalculator3 boundCalculator;
 	
-	public PkduckDPEx2( Record rec, TransSetBoundCalculator3 boundCalculator, double theta, int qlen ) {
+	public PkduckDPEx3( Record rec, TransSetBoundCalculator3 boundCalculator, double theta, int qlen ) {
 		super(rec, theta, qlen);
 		this.boundCalculator = boundCalculator;
 	}
@@ -61,10 +61,13 @@ public class PkduckDPEx2 extends PkduckDPEx {
 						}
 					}
 	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
+					if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
+						b[i][v] = true;
+						break;
+					}
 				}
 			}
 	//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
-			updateResult(i);
 		} // end for i
 	}
 }
