@@ -6,12 +6,13 @@ import java.io.IOException;
 import java.util.Comparator;
 
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator5;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.Record;
@@ -21,35 +22,49 @@ import snu.kdd.substring_syn.utils.Double2IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-@FixMethodOrder
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TransSetBoundCalculatorTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-	String[] sizeList = {"101", "102", "103", "104", "105"};
-	String[] versionList = {"1.00", "1.01", "1.02", "1.03"};
+	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
 	
 	@Test
-	public void testCorrectness() throws IOException {
-		double theta = 0.7;
-		String size = "100";
+	public void test001Correctness() throws IOException {
+		for ( String size : sizeList ) {
+			for ( double theta : thetaList ) {
+				checkCorrectness(theta, size);
+			}
+		}
+	}
+	
+	@Test
+	public void test002Efficiency() throws IOException {
+		for ( String size : sizeList ) {
+			for ( double theta : thetaList ) {
+				compareEfficiency(theta, size);
+			}
+		}
+	}
+
+	public void checkCorrectness( double theta, String size ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		
 		for ( Record rec : dataset.indexedList ) {
 			TransSetBoundCalculator3 bc3 = new TransSetBoundCalculator3(null, rec, theta);
-			TransSetBoundCalculator4 bc4 = new TransSetBoundCalculator4(null, rec, theta);
+			TransSetBoundCalculator5 bc5 = new TransSetBoundCalculator5(null, rec, theta);
 			for ( int i=0; i<rec.size(); ++i ) {
 				for ( int j=i; j<rec.size(); ++j ) {
 					try {
-						assertTrue(bc3.getLB(i, j) == bc4.getLB(i, j));
+						assertTrue(bc3.getLB(i, j) == bc5.getLB(i, j));
 					}
 					catch ( AssertionError e ) {
 						System.err.println(rec.getID());
 						System.err.println("i: "+i);
 						System.err.println("j: "+j);
 						System.err.println("bc3.LB: "+bc3.getLB(i, j));
-						System.err.println("bc4.LB: "+bc4.getLB(i, j));
+						System.err.println("bc5.LB: "+bc5.getLB(i, j));
 						throw e;
 					}
 				}
@@ -57,12 +72,9 @@ public class TransSetBoundCalculatorTest {
 		}
 	}
 	
-	@Test
-	public void testEfficiency() throws IOException {
-		double theta = 0.7;
-		String size = "100";
+	public void compareEfficiency( double theta, String size ) throws IOException {
 		StatContainer statContainer3 = new StatContainer();
-		StatContainer statContainer4 = new StatContainer();
+		StatContainer statContainer5 = new StatContainer();
 
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
 		TokenOrder order = new TokenOrder(dataset);
@@ -74,14 +86,17 @@ public class TransSetBoundCalculatorTest {
 				TransSetBoundCalculator3 bc3 = new TransSetBoundCalculator3(statContainer3, rec, theta);
 				statContainer3.stopWatch("Time_TransSetBoundCalculator3");
 
-				statContainer4.startWatch("Time_TransSetBoundCalculator4");
-				TransSetBoundCalculator4 bc4 = new TransSetBoundCalculator4(statContainer4, rec, theta);
-				statContainer4.stopWatch("Time_TransSetBoundCalculator4");
+				statContainer5.startWatch("Time_TransSetBoundCalculator5");
+				TransSetBoundCalculator5 bc5 = new TransSetBoundCalculator5(statContainer5, rec, theta);
+				statContainer5.stopWatch("Time_TransSetBoundCalculator5");
 			}
 		}
 		
-		statContainer3.finalizeAndOutput();
-		statContainer4.finalizeAndOutput();
+		statContainer3.finalize();
+		statContainer5.finalize();
+		String t3 = statContainer3.getStat("Time_TransSetBoundCalculator3");
+		String t5 = statContainer5.getStat("Time_TransSetBoundCalculator5");
+		System.out.println(String.format("%4.2f%9s\t%11s%11s", theta, size, t3, t5));
 	}
 	
 	class TransSetBoundCalculator4 {

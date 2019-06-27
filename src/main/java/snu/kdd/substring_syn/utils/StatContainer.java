@@ -49,13 +49,17 @@ public class StatContainer {
 //		}
 //	}
 	
+	public String getStat( String key ) {
+		return statMap.get(key);
+	}
+	
 	public void finalizeAndOutput() {
 		finalize();
 		print();
 		outputSummary();
 	}
 
-	protected void finalize() {
+	public void finalize() {
 		for ( String key : counterBuffer.keySet() ) statMap.put(key, Integer.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
 		keyList = new ObjectArrayList<>( Stat.getList() );
