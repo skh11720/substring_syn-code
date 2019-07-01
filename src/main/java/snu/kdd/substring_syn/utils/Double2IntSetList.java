@@ -12,6 +12,19 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Double2IntSetList {
+	
+	/*
+	 * This is an implementation of a sorted list of integer sets with
+	 * the details as follows:
+	 *   - each entry (integer set) is associated with a double as the score,
+	 *   - an entry containes all items (integer) whose score is the score of the entry,
+	 *   - the entries are sorted in decreasing order of the scores,
+	 *   - it provides item-to-entry map and score-to-entry map,
+	 *   - it supports increase-key operation for items called "update".
+	 * 
+	 * Compared with a normal list of (item, score) pairs,
+	 * this is more efficient when many items share the same score.
+	 */
 
 	class Entry {
 		double val;

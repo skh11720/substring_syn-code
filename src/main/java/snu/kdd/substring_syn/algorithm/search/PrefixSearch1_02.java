@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Stat;
 
@@ -11,7 +12,7 @@ public class PrefixSearch1_02 extends PrefixSearch {
 	 * Use TransSetBoundCalculator3. 
 	 */
 
-	protected TransSetBoundCalculator3 boundCalculator;
+	protected TransSetBoundCalculatorInterface boundCalculator;
 
 	public PrefixSearch1_02( double theta ) {
 		super(theta);
