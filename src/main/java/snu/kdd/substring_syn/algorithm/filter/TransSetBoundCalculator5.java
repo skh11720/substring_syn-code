@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Double2IntSetList;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class TransSetBoundCalculator5 {
+public class TransSetBoundCalculator5 implements TransSetBoundCalculatorInterface {
 	/*
 	 * TransSetBoundCalculator1: 
 	 * 		Compute the bounds incrementally. it does not keep the computation result.
@@ -23,6 +23,8 @@ public class TransSetBoundCalculator5 {
 	 * 	    Keep a sorted list of pairs of token and its score.
 	 * 		When the window is extended and the scores are updated,
 	 * 		sort the updated entries only in insertion sort-style.
+	 * TransSetboundCalculator5:
+	 * 		Use O(|s|^2) space to keep the computed bounds for all substrings.
 	 */
 	private static final double eps = 1e-10;
 	private final StatContainer statContainer;

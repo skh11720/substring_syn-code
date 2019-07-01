@@ -13,7 +13,7 @@ import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class TransSetBoundCalculator3 {
+public class TransSetBoundCalculator3 implements TransSetBoundCalculatorInterface {
 	/*
 	 * TransSetBoundCalculator1: 
 	 * 		Compute the bounds incrementally. it does not keep the computation result.

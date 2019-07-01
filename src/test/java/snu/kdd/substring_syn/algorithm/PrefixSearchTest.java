@@ -15,6 +15,7 @@ import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_02;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_03;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_04;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_05;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_01;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -24,12 +25,12 @@ public class PrefixSearchTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 	String[] sizeList = {"101", "102", "103", "104", "105"};
-	String[] versionList = {"1.00", "1.01", "1.02", "1.03"};
-	String currVersion = "1.00";
+	String[] versionList = {"1.00", "1.01", "1.02", "1.03", "1.04", "1.05"};
+	String currVersion = "1.05";
 
 	@Test
 	public void testSingle() throws IOException {
-		test(0.7, "100", "1.04");
+		test(0.7, "100", currVersion);
 	}
 	
 	@Ignore
@@ -73,6 +74,7 @@ public class PrefixSearchTest {
 		else if ( version.equals("1.02") ) prefixSearch = new PrefixSearch1_02(theta);
 		else if ( version.equals("1.03") ) prefixSearch = new PrefixSearch1_03(theta);
 		else if ( version.equals("1.04") ) prefixSearch = new PrefixSearch1_04(theta);
+		else if ( version.equals("1.05") ) prefixSearch = new PrefixSearch1_05(theta);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
