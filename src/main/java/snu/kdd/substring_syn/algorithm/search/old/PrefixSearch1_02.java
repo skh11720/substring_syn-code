@@ -1,11 +1,12 @@
-package snu.kdd.substring_syn.algorithm.search;
+package snu.kdd.substring_syn.algorithm.search.old;
 
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class PrefixSearch1_02 extends PrefixSearch {
+public class PrefixSearch1_02 extends PrefixSearch1_00 {
 	
 	/*
 	 * Use length filtering in the text-side transformation.
@@ -16,13 +17,13 @@ public class PrefixSearch1_02 extends PrefixSearch {
 
 	public PrefixSearch1_02( double theta ) {
 		super(theta);
-		USE_LF_TEXT_SIDE = true;
+		lf_text = true;
 	}
 
 	@Override
 	protected void setBoundCalculator(Record rec, double modifiedTheta) {
 		statContainer.startWatch("Time_TransSetBoundCalculatorMem");
-		if ( USE_LF_TEXT_SIDE ) boundCalculator = new TransSetBoundCalculator3(statContainer, rec, modifiedTheta);
+		if ( lf_text ) boundCalculator = new TransSetBoundCalculator3(statContainer, rec, modifiedTheta);
 		statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
 	}
 
@@ -30,7 +31,7 @@ public class PrefixSearch1_02 extends PrefixSearch {
 	protected boolean applyPrefixFilteringFrom( Record query, Record rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
 			log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
-			if ( USE_LF_TEXT_SIDE ) {
+			if ( lf_text ) {
 				LFOutput lfOutput = applyLengthFiltering(query, widx, w);
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;

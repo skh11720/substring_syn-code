@@ -1,9 +1,10 @@
-package snu.kdd.substring_syn.algorithm.search;
+package snu.kdd.substring_syn.algorithm.search.old;
 
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator1;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator1;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Record;
 
-public class PrefixSearch1_01 extends PrefixSearch {
+public class PrefixSearch1_01 extends PrefixSearch1_00 {
 	
 	/*
 	 * Use length filtering in the text-side transformation.
@@ -12,7 +13,7 @@ public class PrefixSearch1_01 extends PrefixSearch {
 
 	public PrefixSearch1_01(double theta) {
 		super(theta);
-		USE_LF_TEXT_SIDE = true;
+		lf_text = true;
 	}
 
 	@Override

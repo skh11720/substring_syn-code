@@ -1,11 +1,11 @@
-package snu.kdd.substring_syn.algorithm.search;
+package snu.kdd.substring_syn.algorithm.search.old;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator1;
+import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Records;
@@ -13,27 +13,22 @@ import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
+import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.NaivePkduckValidator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
-import vldb18.PkduckDPExWIthLF;
 
-public class PrefixSearch extends AbstractSearch {
+public class PrefixSearch1_00 extends AbstractSearch {
 
 	protected boolean lf_query = true;
-	protected boolean lf_text = true;
+	protected boolean lf_text = false;
 	protected final NaivePkduckValidator validator;
-	protected TransSetBoundCalculatorInterface boundCalculator;
+	protected TransSetBoundCalculator1 boundCalculator = null;
 	protected PkduckDPEx pkduckdp = null;
 
 	
-	public PrefixSearch( double theta, boolean lf_query, boolean lf_text ) {
+	public PrefixSearch1_00( double theta ) {
 		super(theta);
-		this.lf_query = lf_query;
-		this.lf_text = lf_text;
-		param.put("lf_query", Boolean.toString(lf_query));
-		param.put("lf_text", Boolean.toString(lf_text));
 		validator = new NaivePkduckValidator();
 	}
 
@@ -44,14 +39,11 @@ public class PrefixSearch extends AbstractSearch {
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
-		for ( int widx=0; widx<rec.size(); ++widx ) {
-			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
+		for ( int w=wRange.min; w<=wRange.max; ++w ) {
+			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				Subrecord window = witer.next();
-				if ( witer.getSetSize() > wRange.max ) break;
-				if ( witer.getSetSize() < wRange.min ) continue;
-				int w = window.size();
 				statContainer.addCount(Stat.Num_QS_WindowSizeLF, w);
+				Subrecord window = witer.next();
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
@@ -106,29 +98,20 @@ public class PrefixSearch extends AbstractSearch {
 		}
 	}
 	
-	protected double getModifiedTheta( Record query, Record rec ) {
-		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	protected void setBoundCalculator( Record rec, double modifiedTheta ) {
+		boundCalculator = null;
 	}
-
+	
+	protected void setPkduckDP( Record query, Record rec, double modifiedTheta ) {
+		pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
+	}
+	
 	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected void setBoundCalculator(Record rec, double modifiedTheta) {
-		if ( lf_text ) {
-			statContainer.startWatch("Time_TransSetBoundCalculatorMem");
-			boundCalculator = new TransSetBoundCalculator(statContainer, rec, modifiedTheta);
-			statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
-		}
-	}
-	
-	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
-		if ( lf_text ) pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
-		else pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
-	}
-	
 	protected boolean applyPrefixFiltering( Record query, Record rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			if ( applyPrefixFilteringFrom(query, rec, widx) ) return true;
@@ -139,9 +122,8 @@ public class PrefixSearch extends AbstractSearch {
 	
 	protected boolean applyPrefixFilteringFrom( Record query, Record rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
-			log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
 			if ( lf_text ) {
-				LFOutput lfOutput = applyLengthFiltering(query, widx, w);
+				LFOutput lfOutput = applyLengthFiltering(query);
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;
 			}
@@ -150,7 +132,7 @@ public class PrefixSearch extends AbstractSearch {
 		}
 		return false;
 	}
-
+	
 	protected boolean applyPrefixFilteringToWindow( Record query, Record rec, int widx, int w ) {
 		log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
 		boolean isInSigU = pkduckdp.isInSigU(widx, w);
@@ -169,33 +151,25 @@ public class PrefixSearch extends AbstractSearch {
 		}
 		return false;
 	}
-
+	
 	protected enum LFOutput {
 		filtered_ignore,
 		filtered_stop,
 		not_filtered
 	}
 	
-	protected LFOutput applyLengthFiltering( Record query, int widx, int w ) {
-		int ub = boundCalculator.getLFUB(widx, widx+w-1);
-		int lb = boundCalculator.getLFLB(widx, widx+w-1);
-		int lbMono = boundCalculator.getLFLBMono(widx, widx+w-1);
-		int qSetSize = query.getDistinctTokenCount();
-		if ( qSetSize < lbMono ) {
-			statContainer.increment("Num_TS_LFByLBMono");
-			return LFOutput.filtered_stop;
-		}
-		if ( qSetSize > ub ) {
-			statContainer.increment("Num_TS_LFByUB");
-			return LFOutput.filtered_ignore;
-		}
-		if ( qSetSize < lb ) {
-			statContainer.increment("Num_TS_LFByLB");
-			return LFOutput.filtered_ignore;
-		}
-		else return LFOutput.not_filtered;
+	protected LFOutput applyLengthFiltering( Record query ) {
+		int ub = boundCalculator.getNextUB();
+		int lb = boundCalculator.getNextLB();
+		if ( query.getDistinctTokenCount() > ub ) return LFOutput.filtered_ignore;
+		if ( query.getDistinctTokenCount() < lb ) return LFOutput.filtered_ignore;
+		return LFOutput.not_filtered;
 	}
 	
+	protected double getModifiedTheta( Record query, Record rec ) {
+		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
+
 	@Override
 	public String getName() {
 		return "PrefixSearch";
@@ -203,6 +177,6 @@ public class PrefixSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "2.00";
+		return "1.00";
 	}
 }

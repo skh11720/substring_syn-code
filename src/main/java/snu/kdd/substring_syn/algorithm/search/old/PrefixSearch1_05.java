@@ -1,24 +1,32 @@
-package snu.kdd.substring_syn.algorithm.search;
+package snu.kdd.substring_syn.algorithm.search.old;
 
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
 import snu.kdd.substring_syn.data.Record;
-import vldb18.PkduckDPEx3;
+import vldb18.PkduckDPExWIthLF;
 
-public class PrefixSearch1_04 extends PrefixSearch1_03 {
+public class PrefixSearch1_05 extends PrefixSearch1_04 {
 	
 	/*
 	 * Use length filtering in the text-side transformation.
-	 * Use TransSetBoundCalculator3. 
+	 * Use TransSetBoundCalculator5. 
 	 * Use PkduckDPEx3.
 	 * Use lbmono in the length filtering.
 	 */
 
-	public PrefixSearch1_04( double theta ) {
+	public PrefixSearch1_05( double theta ) {
 		super(theta);
 	}
 
 	@Override
+	protected void setBoundCalculator(Record rec, double modifiedTheta) {
+		statContainer.startWatch("Time_TransSetBoundCalculatorMem");
+		if ( lf_text ) boundCalculator = new TransSetBoundCalculator(statContainer, rec, modifiedTheta);
+		statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
+	}
+
+	@Override
 	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
-		pkduckdp = new PkduckDPEx3(query, rec, boundCalculator, modifiedTheta);
+		pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
 	}
 
 	@Override
@@ -44,6 +52,6 @@ public class PrefixSearch1_04 extends PrefixSearch1_03 {
 
 	@Override
 	public String getVersion() {
-		return "1.04";
+		return "1.05";
 	}
 }

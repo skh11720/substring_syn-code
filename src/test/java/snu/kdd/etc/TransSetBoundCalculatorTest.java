@@ -11,8 +11,8 @@ import org.junit.runners.MethodSorters;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator5;
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.Record;
@@ -53,7 +53,7 @@ public class TransSetBoundCalculatorTest {
 		
 		for ( Record rec : dataset.indexedList ) {
 			TransSetBoundCalculator3 bc3 = new TransSetBoundCalculator3(null, rec, theta);
-			TransSetBoundCalculator5 bc5 = new TransSetBoundCalculator5(null, rec, theta);
+			TransSetBoundCalculator bc5 = new TransSetBoundCalculator(null, rec, theta);
 			for ( int i=0; i<rec.size(); ++i ) {
 				for ( int j=i; j<rec.size(); ++j ) {
 					try {
@@ -87,7 +87,7 @@ public class TransSetBoundCalculatorTest {
 				statContainer3.stopWatch("Time_TransSetBoundCalculator3");
 
 				statContainer5.startWatch("Time_TransSetBoundCalculator5");
-				TransSetBoundCalculator5 bc5 = new TransSetBoundCalculator5(statContainer5, rec, theta);
+				TransSetBoundCalculator bc5 = new TransSetBoundCalculator(statContainer5, rec, theta);
 				statContainer5.stopWatch("Time_TransSetBoundCalculator5");
 			}
 		}

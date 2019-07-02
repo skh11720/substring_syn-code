@@ -10,16 +10,12 @@ import java.util.Iterator;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_02;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_03;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_04;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_05;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_06;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_01;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.TokenOrder;
+import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PrefixSearchTest {
@@ -27,12 +23,12 @@ public class PrefixSearchTest {
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 	String[] sizeList = {"101", "102", "103", "104", "105"};
 	String[] versionList = {"1.00", "1.01", "1.02", "1.03", "1.04", "1.05"};
-	String currVersion = "1.05";
+	String latestVersion = "2.00";
 	String name = "SPROT_long";
 
 	@Test
 	public void testSingle() throws IOException {
-		test("SYN_test_01", 0.9, "100", "1.06");
+		test("SYN_test_01", 0.9, "100", "2.00");
 	}
 	
 	@Ignore
@@ -43,7 +39,7 @@ public class PrefixSearchTest {
 	@Ignore
 	public void testAllTheta() throws IOException {
 		for ( double theta : thetaList ) {
-			test(name, theta, "100", currVersion);
+			test(name, theta, "100", latestVersion);
 		}
 	}
 	
@@ -63,6 +59,32 @@ public class PrefixSearchTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testLengthFilter() throws IOException {
+		String size = "100";
+		double theta = 0.7;
+		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		TokenOrder order = new TokenOrder(dataset);
+		dataset.reindexByOrder(order);
+
+		String[] results = new String[4];
+		int i = 0;
+		for ( boolean lf_text: new boolean[]{false, true} ) {
+			for ( boolean lf_query : new boolean[]{false, true} ) {
+				AbstractSearch prefixSearch = new PrefixSearch(theta, lf_query, lf_text);
+				prefixSearch.run(dataset);
+				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
+				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
+				String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_2_TSTotal);
+				results[i++] = String.format("%s\t%s\t%s\t%s\t%s", lf_query, lf_text, time_0, time_1, time_2);
+			}
+		}
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s", "lf_query", "lf_text", Stat.Time_0_Total, Stat.Time_1_QSTotal, Stat.Time_2_TSTotal));
+		for ( String result : results ) {
+			System.out.println(result);
+		}
+	}
 
 	public void test( String name, double theta, String size, String version ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
@@ -70,14 +92,8 @@ public class PrefixSearchTest {
 		dataset.reindexByOrder(order);
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
-		PrefixSearch prefixSearch = null;
-		if ( version.equals("1.00") ) prefixSearch = new PrefixSearch(theta);
-		else if ( version.equals("1.01") ) prefixSearch = new PrefixSearch1_01(theta);
-		else if ( version.equals("1.02") ) prefixSearch = new PrefixSearch1_02(theta);
-		else if ( version.equals("1.03") ) prefixSearch = new PrefixSearch1_03(theta);
-		else if ( version.equals("1.04") ) prefixSearch = new PrefixSearch1_04(theta);
-		else if ( version.equals("1.05") ) prefixSearch = new PrefixSearch1_05(theta);
-		else if ( version.equals("1.06") ) prefixSearch = new PrefixSearch1_06(theta);
+		AbstractSearch prefixSearch = null;
+		if ( version.equals("2.00") ) prefixSearch = new PrefixSearch(theta, true, true);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
@@ -86,7 +102,7 @@ public class PrefixSearchTest {
 		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );
 	}
 
-	public boolean isOutputCorrect( NaiveSearch naiveSearch, PrefixSearch prefixSearch, Dataset dataset ) throws IOException {
+	public boolean isOutputCorrect( NaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
 		BufferedReader br0 = new BufferedReader(new FileReader(naiveSearch.getOutputPath(dataset)));
 		BufferedReader br1 = new BufferedReader(new FileReader(prefixSearch.getOutputPath(dataset)));
 		Iterator<String> iter0 = br0.lines().iterator();

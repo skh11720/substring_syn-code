@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.search;
+package snu.kdd.substring_syn.algorithm.search.old;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.IntPair;

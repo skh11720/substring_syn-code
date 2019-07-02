@@ -5,14 +5,14 @@ import java.io.IOException;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 import vldb18.PkduckDPEx;
-import vldb18.PkduckDPEx2;
-import vldb18.PkduckDPEx3;
+import vldb18.PkduckDPExWIthLF;
+import vldb18.old.PkduckDPEx2;
 
 public class PkduckDPExDiffVersionTest {
 	
@@ -62,7 +62,7 @@ public class PkduckDPExDiffVersionTest {
 		@Override
 		public void init(Record query, Record rec, double theta) {
 			boundCalculator = new TransSetBoundCalculator3(null, rec, theta);
-			pkduckdp = new PkduckDPEx3(query, rec, boundCalculator, theta);
+			pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, theta);
 		}
 	}
 

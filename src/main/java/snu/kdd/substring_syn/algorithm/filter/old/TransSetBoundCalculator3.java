@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.filter;
+package snu.kdd.substring_syn.algorithm.filter.old;
 
 import java.util.Comparator;
 import java.util.List;
@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;

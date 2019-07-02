@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Double2IntSetList;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class TransSetBoundCalculator5 implements TransSetBoundCalculatorInterface {
+public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface {
 	/*
 	 * TransSetBoundCalculator1: 
 	 * 		Compute the bounds incrementally. it does not keep the computation result.
@@ -45,7 +45,7 @@ public class TransSetBoundCalculator5 implements TransSetBoundCalculatorInterfac
 		}
 	};
 
-	public TransSetBoundCalculator5( StatContainer statContainer, Record rec, double theta ) {
+	public TransSetBoundCalculator( StatContainer statContainer, Record rec, double theta ) {
 		this.statContainer = statContainer;
 		this.rec = rec;
 		this.theta = theta;

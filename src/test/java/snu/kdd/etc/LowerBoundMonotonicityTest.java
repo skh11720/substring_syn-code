@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator3;
+import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Util;

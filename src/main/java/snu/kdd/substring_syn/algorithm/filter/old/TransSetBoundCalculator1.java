@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.filter;
+package snu.kdd.substring_syn.algorithm.filter.old;
 
 import java.util.Comparator;
 import java.util.Iterator;

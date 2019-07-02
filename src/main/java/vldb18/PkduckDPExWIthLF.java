@@ -4,11 +4,11 @@ import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 
-public class PkduckDPEx3 extends PkduckDPEx {
+public class PkduckDPExWIthLF extends PkduckDPEx {
 	
 	protected final TransSetBoundCalculatorInterface boundCalculator;
 	
-	public PkduckDPEx3( Record query, Record rec, TransSetBoundCalculatorInterface boundCalculator, double theta ) {
+	public PkduckDPExWIthLF( Record query, Record rec, TransSetBoundCalculatorInterface boundCalculator, double theta ) {
 		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}

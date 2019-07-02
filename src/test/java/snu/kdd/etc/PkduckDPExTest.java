@@ -17,7 +17,7 @@ import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
-import vldb18.PkduckDPExOld;
+import vldb18.old.PkduckDPExOld;
 
 public class PkduckDPExTest {
 	
