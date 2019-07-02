@@ -18,18 +18,18 @@ public class NaiveSearchTest {
 	public void testAll() throws IOException {
 		for ( String size : sizeList ) {
 			for ( double theta : thetaList ) {
-				test(theta, size);
+				test("SPROT_long", theta, size);
 			}
 		}
 	}
 	
 	@Test
 	public void testSingle() throws IOException {
-		test(0.6, "100");
+		test("SYN_test_01", 0.9, "100");
 	}
 	
-	public void test( double theta, String size ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
+	public void test( String name, double theta, String size ) throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		

@@ -47,6 +47,7 @@ public class NaiveSearch extends AbstractSearch {
 			while ( witer.hasNext() ) {
 				statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
 				Subrecord window = witer.next();
+				log.trace("w=%d, widx=%d", w, window.sidx);
 				statContainer.startWatch(Stat.Time_3_Validation);
 				boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
 				statContainer.stopWatch(Stat.Time_3_Validation);

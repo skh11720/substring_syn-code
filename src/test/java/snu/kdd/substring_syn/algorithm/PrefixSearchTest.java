@@ -16,6 +16,7 @@ import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_02;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_03;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_04;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_05;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_06;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch1_01;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -27,10 +28,11 @@ public class PrefixSearchTest {
 	String[] sizeList = {"101", "102", "103", "104", "105"};
 	String[] versionList = {"1.00", "1.01", "1.02", "1.03", "1.04", "1.05"};
 	String currVersion = "1.05";
+	String name = "SPROT_long";
 
 	@Test
 	public void testSingle() throws IOException {
-		test(0.7, "100", currVersion);
+		test("SYN_test_01", 0.9, "100", "1.06");
 	}
 	
 	@Ignore
@@ -41,7 +43,7 @@ public class PrefixSearchTest {
 	@Ignore
 	public void testAllTheta() throws IOException {
 		for ( double theta : thetaList ) {
-			test(theta, "100", currVersion);
+			test(name, theta, "100", currVersion);
 		}
 	}
 	
@@ -56,14 +58,14 @@ public class PrefixSearchTest {
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
 				for ( String version : versionList ) {
-					test(theta, size, version);
+					test(name, theta, size, version);
 				}
 			}
 		}
 	}
 
-	public void test( double theta, String size, String version ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
+	public void test( String name, double theta, String size, String version ) throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 		
@@ -75,6 +77,7 @@ public class PrefixSearchTest {
 		else if ( version.equals("1.03") ) prefixSearch = new PrefixSearch1_03(theta);
 		else if ( version.equals("1.04") ) prefixSearch = new PrefixSearch1_04(theta);
 		else if ( version.equals("1.05") ) prefixSearch = new PrefixSearch1_05(theta);
+		else if ( version.equals("1.06") ) prefixSearch = new PrefixSearch1_06(theta);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
