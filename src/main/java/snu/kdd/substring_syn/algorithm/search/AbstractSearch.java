@@ -66,23 +66,28 @@ public abstract class AbstractSearch {
 	protected void searchBody( Dataset dataset ) {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
-			searchQuery(query, dataset);
+			searchGivenQuery(query, dataset);
 			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 	}
 	
-	protected void searchQuery( Record query, Dataset dataset ) {
-		search(query, dataset.indexedList);
+	protected void searchGivenQuery( Record query, Dataset dataset ) {
+		searchQuerySide(query, dataset.indexedList);
+		searchTextSide(query, dataset.indexedList);
 	}
 	
-	protected void search( Record query, Iterable<Record> records ) {
+	protected void searchQuerySide( Record query, Iterable<Record> records ) {
 		for ( Record rec :  records ) {
 			statContainer.startWatch(Stat.Time_1_QSTotal);
-			searchQuerySide(query, rec);
+			searchRecordQuerySide(query, rec);
 			statContainer.stopWatch(Stat.Time_1_QSTotal);
-
+		}
+	}
+	
+	protected void searchTextSide( Record query, Iterable<Record> records ) {
+		for ( Record rec :  records ) {
 			statContainer.startWatch(Stat.Time_2_TSTotal);
-			searchTextSide(query, rec);
+			searchRecordTextSide(query, rec);
 			statContainer.stopWatch(Stat.Time_2_TSTotal);
 		}
 	}
@@ -116,9 +121,9 @@ public abstract class AbstractSearch {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchQuerySide( Record query, Record rec );
+	protected abstract void searchRecordQuerySide( Record query, Record rec );
 	
-	protected abstract void searchTextSide( Record query, Record rec ); 
+	protected abstract void searchRecordTextSide( Record query, Record rec ); 
 
 	public String getID() { return id; }
 	

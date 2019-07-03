@@ -12,16 +12,19 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected InvertedIndex index;
 	protected IndexBasedFilter indexFilter;
 	protected final boolean idxFilter_query;
+	protected final boolean idxFilter_text;
 
-	public AbstractIndexBasedSearch( double theta, boolean idxFilter_query ) {
+	public AbstractIndexBasedSearch( double theta, boolean idxFilter_query, boolean idxFilter_text ) {
 		super(theta);
 		this.idxFilter_query = idxFilter_query;
+		this.idxFilter_text = idxFilter_text;
 		param.put("idxFilter_query", Boolean.toString(idxFilter_query));
+		param.put("idxFilter_text", Boolean.toString(idxFilter_text));
 	}
 
 	@Override
 	protected void prepareSearch( Dataset dataset ) {
-		if (idxFilter_query) buildIndex(dataset);
+		if (idxFilter_query || idxFilter_text) buildIndex(dataset);
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
@@ -30,16 +33,34 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		indexFilter = new IndexBasedFilter(index, theta);
 		statContainer.stopWatch(Stat.Time_4_BuildIndex);
 	}
-	
+
 	@Override
-	protected void searchQuery( Record query, Dataset dataset ) {
+	protected void searchGivenQuery( Record query, Dataset dataset ) {
+		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		searchQuerySide(query, candListQuerySide);
+		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
+		searchTextSide(query, candListTextSide);
+	}
+	
+	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if (idxFilter_query) {
 			statContainer.startWatch(Stat.Time_5_IndexFilter);
 			ObjectList<Record> candRecordList = indexFilter.querySideCountFilter(query);
 			statContainer.stopWatch(Stat.Time_5_IndexFilter);
 			statContainer.addCount(Stat.Num_QS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
-			search(query, candRecordList);
+			return candRecordList;
 		}
-		else search(query, dataset.indexedList);
+		else return dataset.indexedList;
+	}
+	
+	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
+		if (idxFilter_text) {
+			statContainer.startWatch(Stat.Time_5_IndexFilter);
+			ObjectList<Record> candRecordList = indexFilter.textSideCountFilter(query);
+			statContainer.stopWatch(Stat.Time_5_IndexFilter);
+			statContainer.addCount(Stat.Num_TS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
+			return candRecordList;
+		}
+		else return dataset.indexedList;
 	}
 }

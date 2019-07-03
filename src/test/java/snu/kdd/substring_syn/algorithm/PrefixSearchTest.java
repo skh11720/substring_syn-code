@@ -21,8 +21,8 @@ import snu.kdd.substring_syn.utils.Util;
 public class PrefixSearchTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-	String[] sizeList = {"101", "102", "103", "104", "105"};
-	String[] versionList = {"1.00", "1.01", "1.02", "1.03", "1.04", "1.05"};
+	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
+	String[] versionList = {"2.00"};
 	String latestVersion = "2.00";
 	String name = "SPROT_long";
 
@@ -31,7 +31,7 @@ public class PrefixSearchTest {
 		test("SPROT_long", 0.7, "100", "2.00");
 	}
 	
-	@Ignore
+	@Test
 	public void testAll() throws IOException {
 		testIteration(thetaList, sizeList, versionList);
 	}
@@ -72,7 +72,7 @@ public class PrefixSearchTest {
 		int i = 0;
 		for ( boolean lf_text: new boolean[]{false, true} ) {
 			for ( boolean lf_query : new boolean[]{false, true} ) {
-				AbstractSearch prefixSearch = new PrefixSearch(theta, false, lf_query, lf_text);
+				AbstractSearch prefixSearch = new PrefixSearch(theta, false, false, lf_query, lf_text);
 				prefixSearch.run(dataset);
 				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
 				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
@@ -94,19 +94,22 @@ public class PrefixSearchTest {
 		TokenOrder order = new TokenOrder(dataset);
 		dataset.reindexByOrder(order);
 
-		String[] results = new String[2];
+		String[] results = new String[4];
 		int i = 0;
-		for ( boolean idxFilter_query : new boolean[]{false, true} ) {
-			AbstractSearch prefixSearch = new PrefixSearch(theta, idxFilter_query, true, true);
-			prefixSearch.run(dataset);
-			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
-			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
-			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_2_TSTotal);
-			String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_5_IndexFilter);
-			String num_qs_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Num_QS_IndexFiltered);
-			results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s", idxFilter_query, time_0, time_1, time_2, time_5, num_qs_idxFilter);
+		for ( boolean idxFilter_text : new boolean[]{false, true} ) {
+			for ( boolean idxFilter_query : new boolean[]{false, true} ) {
+				AbstractSearch prefixSearch = new PrefixSearch(theta, idxFilter_query, idxFilter_text, true, true);
+				prefixSearch.run(dataset);
+				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
+				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
+				String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_2_TSTotal);
+				String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_5_IndexFilter);
+				String num_qs_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Num_QS_IndexFiltered);
+				String num_ts_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Num_TS_IndexFiltered);
+				results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", idxFilter_query, idxFilter_text, time_0, time_1, time_2, time_5, num_qs_idxFilter, num_ts_idxFilter);
+			}
 		}
-		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", Stat.Time_0_Total, Stat.Time_1_QSTotal, Stat.Time_2_TSTotal, Stat.Time_5_IndexFilter, Stat.Num_QS_IndexFiltered));
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_0_Total, Stat.Time_1_QSTotal, Stat.Time_2_TSTotal, Stat.Time_5_IndexFilter, Stat.Num_QS_IndexFiltered, Stat.Num_TS_IndexFiltered));
 		for ( String result : results ) {
 			System.out.println(result);
 		}
@@ -119,7 +122,7 @@ public class PrefixSearchTest {
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		if ( version.equals("2.00") ) prefixSearch = new PrefixSearch(theta, true, true, true);
+		if ( version.equals("2.00") ) prefixSearch = new PrefixSearch(theta, true, true, true, true);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);

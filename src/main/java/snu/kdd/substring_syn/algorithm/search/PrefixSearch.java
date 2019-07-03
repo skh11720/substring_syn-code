@@ -27,8 +27,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected PkduckDPEx pkduckdp = null;
 
 	
-	public PrefixSearch( double theta, boolean idxFilter_query, boolean lf_query, boolean lf_text ) {
-		super(theta, idxFilter_query);
+	public PrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text ) {
+		super(theta, idxFilter_query, idxFilter_text);
 		this.lf_query = lf_query;
 		this.lf_text = lf_text;
 		param.put("lf_query", Boolean.toString(lf_query));
@@ -37,7 +37,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	@Override
-	protected void searchQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
@@ -89,7 +89,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		double modifiedTheta = getModifiedTheta(query, rec);

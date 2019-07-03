@@ -33,7 +33,7 @@ public class PrefixSearch1_00 extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
@@ -82,7 +82,7 @@ public class PrefixSearch1_00 extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		double modifiedTheta = getModifiedTheta(query, rec);

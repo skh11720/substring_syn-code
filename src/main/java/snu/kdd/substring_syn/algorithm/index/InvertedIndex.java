@@ -35,6 +35,7 @@ public class InvertedIndex {
 		Int2ObjectMap<ObjectList<Record>> transInvList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
 			for ( Rule rule : rec.getApplicableRuleIterable() ) {
+				if ( rule.isSelfRule ) continue;
 				for ( int token : rule.getRhs() ) {
 					if ( !transInvList.containsKey(token) ) transInvList.put(token, new ObjectArrayList<Record>());
 					transInvList.get(token).add(rec);

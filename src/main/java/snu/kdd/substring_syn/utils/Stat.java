@@ -44,6 +44,7 @@ public class Stat {
 	public static final String Num_TS_WindowSizeAll = "Num_TS_WindowSizeAll";
 	
 	public static final String Num_QS_IndexFiltered = "Num_QS_IndexFiltered";
+	public static final String Num_TS_IndexFiltered = "Num_TS_IndexFiltered";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

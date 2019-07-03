@@ -23,7 +23,7 @@ public class PrefixSearch1_06 extends PrefixSearch1_05 {
 	}
 
 	@Override
-	protected void searchQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
