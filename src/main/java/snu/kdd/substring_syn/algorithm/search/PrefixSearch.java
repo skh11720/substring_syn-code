@@ -8,7 +8,6 @@ import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Records;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Stat;
@@ -19,7 +18,7 @@ import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
 import vldb18.PkduckDPExWIthLF;
 
-public class PrefixSearch extends AbstractSearch {
+public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	protected boolean lf_query = true;
 	protected boolean lf_text = true;
@@ -28,8 +27,8 @@ public class PrefixSearch extends AbstractSearch {
 	protected PkduckDPEx pkduckdp = null;
 
 	
-	public PrefixSearch( double theta, boolean lf_query, boolean lf_text ) {
-		super(theta);
+	public PrefixSearch( double theta, boolean idxFilter_query, boolean lf_query, boolean lf_text ) {
+		super(theta, idxFilter_query);
 		this.lf_query = lf_query;
 		this.lf_text = lf_text;
 		param.put("lf_query", Boolean.toString(lf_query));

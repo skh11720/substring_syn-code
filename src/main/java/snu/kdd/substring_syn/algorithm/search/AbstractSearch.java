@@ -52,15 +52,27 @@ public abstract class AbstractSearch {
 	public void run( Dataset dataset ) {
 		statContainer = new StatContainer(this, dataset);
 		statContainer.startWatch(Stat.Time_0_Total);
-		for ( Record query : dataset.searchedList ) {
-			long ts = System.nanoTime();;
-			search(query, dataset.indexedList);
-			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
-		}
+		prepareSearch(dataset);
+		searchBody(dataset);
 		statContainer.stopWatch(Stat.Time_0_Total);
 		putResultIntoStat();
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
+	}
+	
+	protected void prepareSearch( Dataset dataset ) {
+	}
+	
+	protected void searchBody( Dataset dataset ) {
+		for ( Record query : dataset.searchedList ) {
+			long ts = System.nanoTime();
+			searchQuery(query, dataset);
+			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+		}
+	}
+	
+	protected void searchQuery( Record query, Dataset dataset ) {
+		search(query, dataset.indexedList);
 	}
 	
 	protected void search( Record query, Iterable<Record> records ) {

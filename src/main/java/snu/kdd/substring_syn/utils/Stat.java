@@ -26,6 +26,8 @@ public class Stat {
 	public static final String Time_1_QSTotal = "Time_1_QSTotal";
 	public static final String Time_2_TSTotal = "Time_2_TSTotal";
 	public static final String Time_3_Validation = "Time_3_Validation";
+	public static final String Time_4_BuildIndex = "Time_4_BuildIndex";
+	public static final String Time_5_IndexFilter = "Time_5_IndexFilter";
 
 //	public static final String Mem_,
 	public static final String Num_Result = "Num_Result";
@@ -40,6 +42,8 @@ public class Stat {
 	public static final String Num_TS_WindowSizeVerified = "Num_TS_WindowSizeVerified";
 	public static final String Num_QS_WindowSizeAll = "Num_QS_WindowSizeAll";
 	public static final String Num_TS_WindowSizeAll = "Num_TS_WindowSizeAll";
+	
+	public static final String Num_QS_IndexFiltered = "Num_QS_IndexFiltered";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();
