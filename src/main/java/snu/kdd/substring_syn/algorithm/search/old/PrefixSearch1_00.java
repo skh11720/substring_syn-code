@@ -73,7 +73,7 @@ public class PrefixSearch1_00 extends AbstractSearch {
 	
 	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
 		if (lf_query) {
-			int lb = Records.getTransSetSizeLowerBound(query);
+			int lb = query.getTransSetLB();
 			int min = Math.max(1, (int)Math.ceil(theta*lb));
 			int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
 			return new IntRange(min, max);

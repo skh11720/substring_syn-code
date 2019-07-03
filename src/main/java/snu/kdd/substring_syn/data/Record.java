@@ -28,6 +28,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	private long[] estTrans;
 
 	private int maxRhsSize = 0;
+	private int transSetLB = 0;
 	
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
@@ -80,6 +81,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public int getToken( int i ) {
 		return tokens[i];
+	}
+	
+	public int getTransSetLB() {
+		if ( transSetLB == 0 ) transSetLB = Records.getTransSetSizeLowerBound(this);
+		return transSetLB;
 	}
 
 	/**

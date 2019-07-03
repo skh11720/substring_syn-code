@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class Records {
 
-	public static int getTransSetSizeLowerBound( Record rec ) {
+	static int getTransSetSizeLowerBound( Record rec ) {
 		Iterator<Int2DoubleMap.Entry> tokenCountIter = getTokenCountUpperBoundIterator(rec);
 		return computeLowerBound(rec, tokenCountIter);
 	}
