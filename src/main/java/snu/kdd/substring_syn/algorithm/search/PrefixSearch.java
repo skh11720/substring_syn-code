@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.verify.GreedyValidator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
@@ -22,7 +23,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	protected boolean lf_query = true;
 	protected boolean lf_text = true;
-	protected final NaivePkduckValidator validator;
+	protected final GreedyValidator validator;
 	protected TransSetBoundCalculatorInterface boundCalculator;
 	protected PkduckDPEx pkduckdp = null;
 
@@ -33,7 +34,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		this.lf_text = lf_text;
 		param.put("lf_query", Boolean.toString(lf_query));
 		param.put("lf_text", Boolean.toString(lf_text));
-		validator = new NaivePkduckValidator();
+		validator = new GreedyValidator();
 	}
 
 	@Override
@@ -55,12 +56,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
 					statContainer.startWatch(Stat.Time_3_Validation);
-					boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
+					double sim = validator.simQuerySide(query, window.toRecord());
 					statContainer.stopWatch(Stat.Time_3_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
-					if (isSim) {
+					if ( sim >= theta ) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d, sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx, ()->sim);
 						return;
 					}
 				}
@@ -157,12 +158,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
 			Subrecord window = new Subrecord(rec, widx, widx+w);
 			statContainer.startWatch(Stat.Time_3_Validation);
-			boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
+			double sim = validator.simTextSide(query, window.toRecord());
 			statContainer.stopWatch(Stat.Time_3_Validation);
 			statContainer.increment(Stat.Num_TS_Verified);
-			if (isSim) {
+			if ( sim >= theta ) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-				log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", query.getID(), rec.getID(), w, widx);
+				log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d, sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->w, ()->widx, ()->sim);
 				return true;
 			}
 		}

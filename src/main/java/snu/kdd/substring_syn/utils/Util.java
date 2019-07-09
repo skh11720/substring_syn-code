@@ -12,10 +12,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 
@@ -495,7 +497,19 @@ public class Util {
 		return sim;
 	}
 
-	public static double subJaccard( int[] q, int[] t ) {
+	public static double jaccard( IntList x, IntList y ) {
+		// consider x and y as sets, not multisets
+		IntList shorter = x.size() <= y.size()? x: y;
+		IntList longer = x.size() <= y.size()? y: x;
+		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
+		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
+		int common = 0;
+		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
+		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
+		return sim;
+	}
+
+	public static double subJaccard0( int[] q, int[] t ) {
 		double simMax = 0;
 		for ( int i=0; i<t.length; ++i ) {
 			for ( int j=i; j<t.length; ++j ) {
@@ -503,6 +517,50 @@ public class Util {
 				simMax = Math.max(simMax, sim);
 			}
 		}
+		return simMax;
+	}
+
+	public static double subJaccard1( IntList q, IntList t ) {
+		double simMax = 0;
+		for ( int i=0; i<t.size(); ++i ) {
+			for ( int j=i; j<t.size(); ++j ) {
+				double sim = Util.jaccard(q, t.subList(i, j+1));
+				simMax = Math.max(simMax, sim);
+			}
+		}
+		return simMax;
+	}
+
+	public static double subJaccard( IntList q, IntList t ) {
+		double simMax = 0;
+		IntList idxList = new IntArrayList();
+		IntSet queryTokenSet = new IntOpenHashSet(q);
+		ObjectList<IntSet> segList = new ObjectArrayList<>();
+		IntSet lastSeg = new IntOpenHashSet();
+
+		for ( int i=0; i<t.size(); ++i ) {
+			int token = t.get(i);
+			if ( queryTokenSet.contains(token) ) {
+				lastSeg.add(token);
+				idxList.add(i);
+				segList.add(lastSeg);
+				lastSeg = new IntOpenHashSet();
+			}
+			else lastSeg.add(token);
+		}
+
+		for ( int i=0; i<idxList.size(); ++i ) {
+			IntSet cap = new IntOpenHashSet();
+			IntSet cup = new IntOpenHashSet(q);
+			cap.add(t.get(idxList.get(i)));
+			simMax = Math.max(simMax, 1.0*cap.size()/cup.size());
+			for ( int j=i+1; j<idxList.size(); ++j ) {
+				cap.add(t.get(idxList.get(j)));
+				cup.addAll(segList.get(j));
+				simMax = Math.max(simMax, 1.0*cap.size()/cup.size());
+			}
+		}
+
 		return simMax;
 	}
 

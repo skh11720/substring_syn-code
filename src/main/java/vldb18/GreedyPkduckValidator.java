@@ -14,7 +14,6 @@ public class GreedyPkduckValidator extends AbstractGreedyValidator {
 		else return simx2y(x, y);
 	}
 	
-	@Override
 	public boolean isSimx2yOverThreahold(Record x, Record y, double theta) {
 		return simx2y(x, y) >= theta;
 	}

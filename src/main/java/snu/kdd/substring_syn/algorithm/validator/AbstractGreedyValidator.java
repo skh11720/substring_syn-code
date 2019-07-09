@@ -89,7 +89,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 
 		public int[] getTransformedString( Record x ) {
 			int transformedSize = (int)(Arrays.stream(bAvailable).filter(b -> b).count());
-			for (PosRule rule : appliedRuleSet) transformedSize += rule.rhsSize();
+			for ( PosRule rule : appliedRuleSet ) transformedSize += rule.rhsSize();
 			int[] transformedString = new int[transformedSize];
 			Iterator<PosRule> ruleIter = appliedRuleSet.stream().sorted().iterator();
 			
