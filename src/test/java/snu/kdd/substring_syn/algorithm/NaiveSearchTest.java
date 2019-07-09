@@ -25,7 +25,7 @@ public class NaiveSearchTest {
 	
 	@Test
 	public void testSingle() throws IOException {
-		test("SYN_test_01", 0.9, "100");
+		test("SPROT_long", 0.9, "100");
 	}
 	
 	public void test( String name, double theta, String size ) throws IOException {

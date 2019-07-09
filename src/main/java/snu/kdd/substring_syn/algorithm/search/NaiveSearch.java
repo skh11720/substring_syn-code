@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
+import java.util.ArrayList;
+
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
@@ -10,30 +12,30 @@ import vldb18.NaivePkduckValidator;
 
 public class NaiveSearch extends AbstractSearch {
 
-	final NaivePkduckValidator validator;
-
 
 	public NaiveSearch(double theta) {
 		super(theta);
-		validator = new NaivePkduckValidator();
 	}
 
 	protected void searchRecordQuerySide( Record query, Record rec ) {
 		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		ArrayList<Record> queryExpArr = query.expandAll();
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
 				statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
 				Subrecord window = witer.next();
-				statContainer.startWatch(Stat.Time_3_Validation);
-				boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
-				statContainer.stopWatch(Stat.Time_3_Validation);
-				statContainer.increment(Stat.Num_QS_Verified);
-				if (isSim) {
-					log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-					return;
+				for ( Record queryExp : queryExpArr ) {
+					statContainer.startWatch(Stat.Time_3_Validation);
+					double sim = Util.jaccard(queryExp.getTokenArray(), window.getTokenArray());
+					statContainer.stopWatch(Stat.Time_3_Validation);
+					statContainer.increment(Stat.Num_QS_Verified);
+					if ( sim >= theta ) {
+						log.debug("rsltFromQuery.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
+						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+						return;
+					}
 				}
 			}
 		}
@@ -41,21 +43,23 @@ public class NaiveSearch extends AbstractSearch {
 	
 	protected void searchRecordTextSide( Record query, Record rec ) {
 		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
-		for ( int w=1; w<=rec.size(); ++w ) {
-			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
-			while ( witer.hasNext() ) {
-				statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
-				Subrecord window = witer.next();
-				log.trace("w=%d, widx=%d", w, window.sidx);
-				statContainer.startWatch(Stat.Time_3_Validation);
-				boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
-				statContainer.stopWatch(Stat.Time_3_Validation);
-				statContainer.increment(Stat.Num_TS_Verified);
-				if (isSim) {
-					log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-					return;
+		for ( Record exp : rec.expandAll() ) {
+			statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(exp));
+			for ( int w=1; w<=exp.size(); ++w ) {
+				SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(exp, w, theta);
+				while ( witer.hasNext() ) {
+					statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
+					Subrecord window = witer.next();
+					log.trace("w=%d, widx=%d", w, window.sidx);
+					statContainer.startWatch(Stat.Time_3_Validation);
+					double sim = Util.jaccard(window.getTokenArray(), query.getTokenArray());
+					statContainer.stopWatch(Stat.Time_3_Validation);
+					statContainer.increment(Stat.Num_TS_Verified);
+					if ( sim >= theta ) {
+						log.debug("rsltFromText.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
+						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+						return;
+					}
 				}
 			}
 		}
@@ -68,6 +72,6 @@ public class NaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "1.00";
+		return "2.00";
 	}
 }
