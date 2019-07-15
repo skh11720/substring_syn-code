@@ -633,22 +633,7 @@ public class Util {
 //	}
 
 	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-		Dataset dataset = Dataset.createInstanceByName(name, size);
-		for( final Record record : dataset.searchedList ) {
-			record.preprocessApplicableRules( dataset.getAutomataR() );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
-		}
-		if ( !dataset.selfJoin ) {
-			for( final Record record : dataset.indexedList ) {
-				record.preprocessApplicableRules( dataset.getAutomataR() );
-				record.preprocessSuffixApplicableRules();
-				record.preprocessTransformLength();
-				record.preprocessEstimatedRecords();
-			}
-		}
-		return dataset;
+		return Dataset.createInstanceByName(name, size);
 	}
 
 	public static String getGroundTruthPath( String name ) {

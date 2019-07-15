@@ -48,8 +48,6 @@ public class TransSetBoundCalculatorTest {
 
 	public void checkCorrectness( double theta, String size ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 		
 		for ( Record rec : dataset.indexedList ) {
 			TransSetBoundCalculator3 bc3 = new TransSetBoundCalculator3(null, rec, theta);
@@ -77,8 +75,6 @@ public class TransSetBoundCalculatorTest {
 		StatContainer statContainer5 = new StatContainer();
 
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 
 		for ( Record query : dataset.searchedList ) {
 			for ( Record rec : dataset.indexedList ) {

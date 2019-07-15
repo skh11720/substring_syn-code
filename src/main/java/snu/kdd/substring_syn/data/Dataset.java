@@ -20,17 +20,14 @@ public class Dataset {
 	public final List<Record> indexedList;
 	public final List<Record> searchedList;
 	public final String outputPath;
-	public final boolean selfJoin;
 	
 	public static Dataset createInstance( CommandLine cmd ) throws IOException {
-		if ( cmd.hasOption("dataName") ) {
-			String name = cmd.getOptionValue( "dataName" );
-			String size = cmd.getOptionValue( "size" );
-			return createInstanceByName(name, size);
-		}
-		else return createInstanceByPath(cmd);
+		String name = cmd.getOptionValue( "data" );
+		String size = cmd.getOptionValue( "nt" );
+		return createInstanceByName(name, size);
 	}
 
+	@Deprecated
 	public static Dataset createInstanceByPath( CommandLine cmd ) throws IOException {
 		final String rulePath = cmd.getOptionValue( "rulePath" );
 		final String searchedPath = cmd.getOptionValue( "searchedPath" );
@@ -60,14 +57,11 @@ public class Dataset {
 		this.outputPath = outputPath;
 		TokenIndex tokenIndex = new TokenIndex();
 
-		if( indexedPath.equals( searchedPath ) ) selfJoin = true;
-		else selfJoin = false;
-
 		indexedList = loadRecordList(indexedPath, tokenIndex);
-		if( selfJoin ) searchedList = indexedList;
-		else searchedList = loadRecordList(searchedPath, tokenIndex);
+		searchedList = loadRecordList(searchedPath, tokenIndex);
 		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
 		Record.tokenIndex = tokenIndex;
+		preprocess();
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {
@@ -84,10 +78,26 @@ public class Dataset {
 	private Iterable<Integer> getDistinctTokens() {
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : searchedList ) tokenSet.addAll( rec.getTokens() );
-		if ( !selfJoin ) 
-			for ( Record rec : indexedList ) tokenSet.addAll( rec.getTokens() );
+		for ( Record rec : indexedList ) tokenSet.addAll( rec.getTokens() );
 		List<Integer> sortedTokenList = tokenSet.stream().sorted().collect(Collectors.toList());
 		return sortedTokenList;
+	}
+	
+	private void preprocess() {
+		for( final Record record : searchedList ) {
+			record.preprocessApplicableRules( getAutomataR() );
+			record.preprocessSuffixApplicableRules();
+			record.preprocessTransformLength();
+			record.preprocessEstimatedRecords();
+		}
+		for( final Record record : indexedList ) {
+			record.preprocessApplicableRules( getAutomataR() );
+			record.preprocessSuffixApplicableRules();
+			record.preprocessTransformLength();
+			record.preprocessEstimatedRecords();
+		}
+		TokenOrder order = new TokenOrder(this);
+		reindexByOrder(order);
 	}
 
 	public void reindexByOrder( TokenOrder order ) {
@@ -98,9 +108,7 @@ public class Dataset {
 	
 	private void reindexRecords( TokenOrder order ) {
 		for ( Record rec : indexedList ) rec.reindex(order);
-		if ( !selfJoin ) {
-			for ( Record rec : searchedList ) rec.reindex(order);
-		}
+		for ( Record rec : searchedList ) rec.reindex(order);
 	}
 	
 	private void reindexRules( TokenOrder order ) {

@@ -35,8 +35,6 @@ public class PrefixOfSlidingWindowTest {
 	@BeforeClass
 	public static void init() throws IOException {
 		dataset = Dataset.createInstanceByName("SPROT_long", "10000");
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 	}
 
 	@Test

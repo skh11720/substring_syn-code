@@ -14,7 +14,6 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -65,8 +64,6 @@ public class PrefixSearchTest {
 		String size = "100";
 		double theta = 0.7;
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -91,8 +88,6 @@ public class PrefixSearchTest {
 		String size = "100";
 		double theta = 0.7;
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -117,8 +112,6 @@ public class PrefixSearchTest {
 
 	public void test( String name, double theta, String size, String version ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		AbstractSearch prefixSearch = null;

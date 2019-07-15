@@ -12,7 +12,6 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
@@ -94,9 +93,7 @@ public class PkduckDPExTest {
 	@Ignore
 	public void test() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "1000");
-		TokenOrder order = new TokenOrder(dataset);
 		long ts;
-		dataset.reindexByOrder(order);
 		PkduckDPInterface[] pkduckdpArr = new PkduckDPInterface[3];
 		pkduckdpArr[0] = new PkduckDPWrapper();
 		pkduckdpArr[1] = new PkduckDPExOldWrapper();
@@ -154,8 +151,6 @@ public class PkduckDPExTest {
 	@Test
 	public void testPair() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 		double theta = 0.6;
 		Record qrec = dataset.searchedList.get(2);
 		Record rec = dataset.indexedList.get(31);

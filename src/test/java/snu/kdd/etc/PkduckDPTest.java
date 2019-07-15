@@ -26,9 +26,7 @@ public class PkduckDPTest {
 	@Test
 	public void test() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "10000");
-		TokenOrder order = new TokenOrder(dataset);
 		long ts;
-		dataset.reindexByOrder(order);
 		long[] tArr = new long[1];
 		for ( double theta : thetaList ) {
 			for ( Record rec : dataset.searchedList ) {
