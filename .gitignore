@@ -2,3 +2,6 @@ target
 .settings
 *.swp
 *.un~
+tmp/*
+log/*
+output/*

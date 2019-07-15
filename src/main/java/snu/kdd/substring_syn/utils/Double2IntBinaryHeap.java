@@ -1,0 +1,271 @@
+package snu.kdd.substring_syn.utils;
+
+import java.util.Comparator;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import snu.kdd.substring_syn.data.IntDouble;
+
+/**
+ * 
+ * @author ghsong
+ *
+ */
+
+public class Double2IntBinaryHeap {
+	/*
+	 * The naming convention assumes that the heap is a min-heap.
+	 */
+	
+	protected double[] keys;
+	protected int[] values;
+	protected int size = 0;
+	protected Comparator<Double> comp = null;
+	
+	public Double2IntBinaryHeap() {
+		this(10, Double::compare);
+	}
+
+	public Double2IntBinaryHeap(Comparator<Double> comp ) {
+		this(10, comp);
+	}
+	
+	public Double2IntBinaryHeap( int initialCapacity ) {
+		this(initialCapacity, Double::compare);
+	}
+
+	public Double2IntBinaryHeap( int initialCapacity, Comparator<Double> comp ) {
+		keys = new double[initialCapacity];
+		values = new int[initialCapacity];
+		this.comp = comp;
+		size = 0;
+		build();
+	}
+	
+	public Double2IntBinaryHeap( double[] keys, int[] values ) {
+		this(keys, values, Double::compare);
+	}
+	
+	public Double2IntBinaryHeap( double[] keys, int[] values, Comparator<Double> comp ) {
+		if ( keys.length != values.length ) throw new IllegalArgumentException();
+		this.keys = keys;
+		this.values = values;
+		this.comp = comp;
+		size = keys.length;
+		build();
+	}
+	
+	public DoubleList getKeys() {
+		return new DoubleArrayList(keys, 0, size);
+	}
+	
+	public boolean isEmpty() {
+		return ( size == 0 );
+	}
+	
+	public int size() {
+		return size;
+	}
+	
+	public int capacity() {
+		return keys.length;
+	}
+	
+	protected void heapify( int i ) {
+		int l = left(i);
+		int r = right(i);
+		int smallest;
+		if ( l < size && comp.compare(keys[i],  keys[l]) > 0 ) smallest =  l;
+		else smallest = i;
+		if ( r < size && comp.compare(keys[smallest],  keys[r]) > 0 ) smallest = r;
+		if ( smallest != i ) {
+			swap(i, smallest);
+			heapify(smallest);
+		}
+	}
+
+	public void increaseKey( int i, double newKey ) {
+		if ( comp.compare(newKey, keys[i]) > 0 ) throw new RuntimeException();
+		keys[i] = newKey;
+		while ( i > 0 && comp.compare(keys[parent(i)], keys[i]) > 0 ) {
+			swap(i, parent(i));
+			i = parent(i);
+		}
+	}
+	
+	public void decreaseKey( int i, double newKey ) {
+		if ( comp.compare(newKey, keys[i]) < 0 ) throw new RuntimeException();
+		keys[i] = newKey;
+		heapify(i);
+	}
+	
+	public void insert( double key, int value ) {
+		increaseSize();
+		keys[size-1] = getMinimumKey();
+		values[size-1] = value;
+		increaseKey(size-1, key);
+	}
+	
+	protected void deleteMin() {
+		swap(0, size-1);
+		decreaseSize();
+		heapify(0);
+	}
+	
+	public double peek() {
+		if ( isEmpty() ) throw new RuntimeException();
+		return keys[0];
+	}
+	
+	public IntDouble poll() {
+		if ( isEmpty() ) throw new RuntimeException();
+		double minKey = keys[0];
+		int value = values[0];
+		deleteMin();
+		return new IntDouble(value, minKey);
+	}
+	
+	public boolean isValidHeap() {
+		for ( int i=parent(size-1); i >=0; --i ) {
+			int l = left(i);
+			int r = right(i);
+			if ( l < size && comp.compare(keys[i], keys[l]) > 0 ) return false;
+			if ( r < size && comp.compare(keys[i], keys[r]) > 0 ) return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<(size+1)/2; ++i ) {
+			strbld.append("  "+keys[i]+":"+values[i]);
+			int l = left(i);
+			int r = right(i);
+			if ( l < size ) strbld.append(" -> "+keys[l]+":"+values[l]);
+			if ( r < size ) strbld.append(", "+keys[r]+":"+values[r]+"\n");
+		}
+		strbld.append("] "+String.format("(%d/%d)", size, keys.length));
+		return strbld.toString();
+	}
+	
+	protected void checkUnderflow() {
+		if ( isEmpty() ) throw new RuntimeException("Heap underflow occurred");
+	}
+	
+	protected void build() {
+		for ( int i=parent(size-1); i >=0; --i ) {
+			heapify(i);
+		}
+	}
+	
+	protected int parent( int i ) {
+		return (i-1)/2;
+	}
+	
+	protected int left( int i ) {
+		return 2*i+1;
+	}
+	
+	protected int right( int i ) {
+		return 2*i+2;
+	}
+	
+	protected void swap( int i, int j ) {
+		if ( i >= size || j >= size ) throw new RuntimeException();
+		swapInKeyArr(keys, i, j);
+		swapInValueArr(values, i, j);
+	}
+
+	protected void swapInKeyArr( double[] arr, int i, int j ) {
+		double tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+	
+	protected void swapInValueArr( int[] arr, int i, int j ) {
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+	
+	protected void increaseSize() {
+		if ( size == keys.length ) increaseCapacity();
+		++size;
+	}
+	
+	protected void decreaseSize() {
+		if ( size < keys.length/3 ) decreaseCapacitiy();
+		--size;
+	}
+	
+	protected void increaseCapacity() {
+		keys = getIncreasedKeyArr(keys);
+		values = getIncreasedValueArr(values);
+	}
+	
+	protected double[] getIncreasedKeyArr( double[] arr ) {
+		double[] arr0 = new double[(arr.length+1)*3/2];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
+	}
+	
+	protected int[] getIncreasedValueArr( int[] arr ) {
+		int[] arr0 = new int[(arr.length+1)*3/2];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
+	}
+	
+	protected void decreaseCapacitiy() {
+		keys = getDecreasedKeyArr(keys);
+		values = getDecreasedValueArr(values);
+	}
+	
+	protected double[] getDecreasedKeyArr( double[] arr ) {
+		double[] arr0 = new double[arr.length*2/3];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
+	}
+
+	protected int[] getDecreasedValueArr( int[] arr ) {
+		int[] arr0 = new int[arr.length*2/3];
+		for ( int i=0; i<size; ++i ) arr0[i] = arr[i];
+		return arr0;
+	}
+	
+	protected double getMaximumKey() {
+		if ( comp.compare(0.0, 1.0) < 0 ) return Double.MIN_VALUE;
+		else return Double.MAX_VALUE;
+	}
+
+	protected double getMinimumKey() {
+		if ( comp.compare(0.0, 1.0) < 0 ) return Double.MAX_VALUE;
+		else return Double.MIN_VALUE;
+	}
+
+	
+	public static void main(String[] args) {
+		double[] keys = {16,1,7,8,14,3,9,4,2,10};
+		int[] values = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};
+		Double2IntBinaryHeap heap = new Double2IntBinaryHeap(keys, values, (x,y) -> Double.compare(x,y));
+		System.out.println(heap);
+		if ( !heap.isValidHeap() ) throw new RuntimeException();
+		
+		double [] keys2 = {24,34,11, 11, 11, 11, 11};
+		int[] values2 = {200, 201, 202, 203, 204, 205, 206};
+		for ( int i=0; i<keys2.length; ++i ) {
+			double key = keys2[i];
+			int value = values2[i];
+			heap.insert(key, value);
+			System.out.println(heap);
+			if ( !heap.isValidHeap() ) throw new RuntimeException();
+		}
+		
+		for ( int i=0; i<17; ++i ) {
+			double minKey = heap.poll().v;
+			System.out.println(minKey);
+			System.out.println(heap);
+			if ( !heap.isValidHeap() ) throw new RuntimeException();
+		}
+	}
+}
