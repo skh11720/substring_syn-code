@@ -646,7 +646,7 @@ public class Util {
 			sep = "\\\\";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "data_store/";
+			prefix = "data/";
 			sep = "/";
 		}
 		return prefix + name+sep+name+"_groundtruth.txt";
