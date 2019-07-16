@@ -2,9 +2,14 @@ package snu.kdd.substring_syn.utils;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
+
+import org.json.simple.JSONObject;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -66,7 +71,6 @@ public class StatContainer {
 		for ( String key : statMap.keySet() ) {
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
 		}
-
 	}
 	
 	public void print() {
@@ -89,8 +93,40 @@ public class StatContainer {
 		ps.println();
 		ps.close();
 	}
-
-
+	
+	@SuppressWarnings("unchecked")
+	public String outputJson() {
+		JSONObject json = new JSONObject();
+		json.put("Date", new Date());
+		
+		JSONObject json_dataset = new JSONObject();
+		json_dataset.put("Name", statMap.get(Stat.Dataset_Name));
+		json_dataset.put("numSearched", statMap.get(Stat.Dataset_numSearched));
+		json_dataset.put("numIndexed", statMap.get(Stat.Dataset_numIndexed));
+		json_dataset.put("numRule", statMap.get(Stat.Dataset_numRule));
+		json.put("Dataset", json_dataset);
+		
+		JSONObject json_alg = new JSONObject();
+		json_alg.put("Name", statMap.get(Stat.Alg_Name));
+		json_alg.put("Version", statMap.get(Stat.Alg_Version));
+		json.put("Algorithm", json_alg);
+		
+		json.put("Param", statMap.get(Stat.Alg_Param));
+		
+		JSONObject json_output = new JSONObject();
+		for ( String key : keyList ) json_output.put(key, statMap.get(key));
+		json.put("Output", json_output);
+		
+		try {
+			PrintWriter pw = new PrintWriter("json/"+statMap.get(Stat.Alg_Name)+"_"+(new SimpleDateFormat("yyyyMMdd_HHmmss_z")).format(json.get("Date")) + ".txt");
+			pw.write(json.toJSONString());
+			pw.close();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return "";
+	}
 	
 	// interfaces for counters
 

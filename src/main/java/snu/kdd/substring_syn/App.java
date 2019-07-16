@@ -38,5 +38,6 @@ public class App {
     	Dataset dataset = Dataset.createInstance(cmd);
     	AbstractSearch alg = AlgorithmFactory.createInstance(cmd);
     	alg.run(dataset);
+    	alg.getStatContainer().outputJson();
     }
 }

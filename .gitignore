@@ -5,3 +5,4 @@ target
 tmp/*
 log/*
 output/*
+json/*
