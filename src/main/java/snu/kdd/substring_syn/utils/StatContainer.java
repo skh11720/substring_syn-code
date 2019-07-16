@@ -20,6 +20,7 @@ import snu.kdd.substring_syn.data.Dataset;
 
 public class StatContainer {
 
+	private AbstractSearch alg;
 	private final Object2ObjectMap<String, String> statMap;
 //	private Object2ObjectArrayMap<String, String> optionalStatMap;
 	
@@ -37,11 +38,12 @@ public class StatContainer {
 	
 	public StatContainer( AbstractSearch alg, Dataset dataset ) {
 		this();
+		this.alg = alg;
 //		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
-		statMap.put(Stat.Alg_Param, alg.getParam().toString());
+		statMap.put(Stat.Param, alg.getParam().toString());
 		statMap.put(Stat.Dataset_Name, dataset.name);
 		statMap.put(Stat.Dataset_numSearched, Integer.toString(dataset.searchedList.size()));
 		statMap.put(Stat.Dataset_numIndexed, Integer.toString(dataset.indexedList.size()));
@@ -112,7 +114,7 @@ public class StatContainer {
 		json_alg.put("Version", statMap.get(Stat.Alg_Version));
 		json.put("Algorithm", json_alg);
 		
-		json.put("Param", statMap.get(Stat.Alg_Param));
+		json.put("Param", alg.getParam().toJson());
 		
 		JSONObject json_output = new JSONObject();
 		for ( String key : keyList ) json_output.put(key, statMap.get(key));
