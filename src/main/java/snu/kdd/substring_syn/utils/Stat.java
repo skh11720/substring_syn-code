@@ -13,7 +13,7 @@ public class Stat {
 	public static final String Alg_ID = "Alg_ID";
 	public static final String Alg_Name = "Alg_Name";
 	public static final String Alg_Version = "Alg_Version";
-	public static final String Alg_Param = "Alg_Param";
+	public static final String Param = "Param";
 //	public static final String Dataset_searchedPath = "Dataset_searchedPath";
 //	public static final String Dataset_indexedPath = "Dataset_indexedPath";
 //	public static final String Dataset_rulePath = "Dataset_rulePath";

@@ -2,6 +2,8 @@ package snu.kdd.substring_syn.utils;
 
 import java.util.Map.Entry;
 
+import org.json.simple.JSONObject;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -18,6 +20,16 @@ public class Param {
 	
 	public Iterable<Entry<String, String>> getEntries() {
 		return map.entrySet();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public JSONObject toJson() {
+		JSONObject json = new JSONObject();
+		for ( String key : keyList ) {
+			String value = map.get(key);
+			json.put(key, value);
+		}
+		return json;
 	}
 	
 	public String toSummaryString() {
@@ -40,7 +52,6 @@ public class Param {
 		return strbld.toString();
 	}
 	
-	@Override
 	public String toString() {
 		return toSummaryString();
 	}
