@@ -97,7 +97,8 @@ public class StatContainer {
 	@SuppressWarnings("unchecked")
 	public String outputJson() {
 		JSONObject json = new JSONObject();
-		json.put("Date", new Date());
+		Date date = new Date();
+		json.put("Date", date.toString());
 		
 		JSONObject json_dataset = new JSONObject();
 		json_dataset.put("Name", statMap.get(Stat.Dataset_Name));
@@ -118,7 +119,7 @@ public class StatContainer {
 		json.put("Output", json_output);
 		
 		try {
-			PrintWriter pw = new PrintWriter("json/"+statMap.get(Stat.Alg_Name)+"_"+(new SimpleDateFormat("yyyyMMdd_HHmmss_z")).format(json.get("Date")) + ".txt");
+			PrintWriter pw = new PrintWriter("json/"+statMap.get(Stat.Alg_Name)+"_"+(new SimpleDateFormat("yyyyMMdd_HHmmss_z")).format(date) + ".txt");
 			pw.write(json.toJSONString());
 			pw.close();
 		} catch ( IOException e ) {
