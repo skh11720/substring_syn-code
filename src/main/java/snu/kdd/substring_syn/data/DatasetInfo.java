@@ -12,7 +12,7 @@ public class DatasetInfo {
 	static {
 		String osName = System.getProperty( "os.name" );
 		if ( osName.startsWith( "Windows" ) ) prefix = "D:\\ghsong\\data\\synonyms\\";
-		else if ( osName.startsWith( "Linux" ) ) prefix = "data_store/";
+		else if ( osName.startsWith( "Linux" ) ) prefix = "data/";
 		else prefix = "";
 		
 		map.put("SPROT", new DataPathInfo( 
