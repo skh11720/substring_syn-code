@@ -11,6 +11,7 @@ public class IndexBasedFilter {
 
 	protected final InvertedIndex index;
 	protected final double theta;
+	protected final boolean useCountFilter = true;
 	
 	public IndexBasedFilter( InvertedIndex index, double theta ) {
 		this.index = index;
@@ -29,6 +30,7 @@ public class IndexBasedFilter {
 		}
 
 		ObjectList<Record> candRecordList = pruneRecordsByMinCount(counter, minCount);
+		visualizeCandRecords(candTokenSet, candRecordList, counter);
 		return candRecordList;
 	}
 	
@@ -51,6 +53,7 @@ public class IndexBasedFilter {
 	}
 	
 	private ObjectList<Record> pruneRecordsByMinCount( Object2IntMap<Record> counter, int minCount ) {
+		if ( !useCountFilter ) return new ObjectArrayList<Record>(counter.keySet());
 		ObjectList<Record> candRecordList = new ObjectArrayList<>();
 		for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
 			Record rec = entry.getKey();
