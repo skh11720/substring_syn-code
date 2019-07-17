@@ -1,0 +1,13 @@
+# SPROT_long (for debugging)
+SPROT_long: 
+    searchedPath: 'sprot_long/splitted/SPROT_short_100.txt'
+    indexedPath: 'sprot_long/splitted/SPROT_long_%s.txt'
+    rulePath: 'sprot_long/rule.txt'
+    nt: ['100', '101', '102', '103', '104', '105']
+
+# WIKI
+WIKI_3:
+    searchedPath: 'wiki/queries_3.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
