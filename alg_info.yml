@@ -1,0 +1,11 @@
+theta_list: &theta_list ['0.6', '0.7', '0.8', '0.9', '1.0']
+ 
+NaiveSearch:
+  theta: *theta_list
+ 
+PrefixSearch:
+  theta: *theta_list
+  bIFQ: ['false', 'true']
+  bIFT: ['false', 'true']
+  bLFQ: ['false', 'true']
+  bLFT: ['false', 'true']
