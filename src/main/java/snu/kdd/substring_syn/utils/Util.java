@@ -499,13 +499,13 @@ public class Util {
 
 	public static double jaccard( IntList x, IntList y ) {
 		// consider x and y as sets, not multisets
-		IntList shorter = x.size() <= y.size()? x: y;
-		IntList longer = x.size() <= y.size()? y: x;
-		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
-		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
+		IntSet xSet = new IntOpenHashSet(x);
+		IntSet ySet = new IntOpenHashSet(y);
+		IntSet smaller = xSet.size() <= ySet.size()? xSet: ySet;
+		IntSet larger = xSet.size() <= ySet.size()? ySet: xSet;
 		int common = 0;
-		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
-		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
+		for ( int token : smaller ) if (larger.contains(token)) ++common;
+		double sim = 1.0*common/(larger.size() + smaller.size() - common);
 		return sim;
 	}
 

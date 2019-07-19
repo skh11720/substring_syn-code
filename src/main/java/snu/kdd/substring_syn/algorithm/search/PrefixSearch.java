@@ -56,12 +56,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
 					statContainer.startWatch(Stat.Time_3_Validation);
-					double sim = validator.simQuerySide(query, window.toRecord());
+					boolean isSim = verifyQuerySide(query, window);
 					statContainer.stopWatch(Stat.Time_3_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
-					if ( sim >= theta ) {
+					if ( isSim ) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d, sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx, ()->sim);
+						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 						return;
 					}
 				}
@@ -87,6 +87,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			return new IntRange(min, max);
 		}
 		else return new IntRange(1, rec.size());
+	}
+	
+	protected boolean verifyQuerySide( Record query, Subrecord window ) {
+		double sim = validator.simQuerySide(query, window.toRecord());
+		if ( sim >= theta ) log.debug("verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
+		return sim >= theta;
 	}
 	
 	@Override
@@ -158,16 +164,22 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
 			Subrecord window = new Subrecord(rec, widx, widx+w);
 			statContainer.startWatch(Stat.Time_3_Validation);
-			double sim = validator.simTextSide(query, window.toRecord());
+			boolean isSim = verifyTextSide(query, window);
 			statContainer.stopWatch(Stat.Time_3_Validation);
 			statContainer.increment(Stat.Num_TS_Verified);
-			if ( sim >= theta ) {
+			if (isSim) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-				log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d, sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->w, ()->widx, ()->sim);
+				log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->w, ()->widx);
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	protected boolean verifyTextSide( Record query, Subrecord window ) {
+		double sim = validator.simTextSide(query, window.toRecord());
+		if ( sim >= theta ) log.debug("verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
+		return sim >= theta;
 	}
 
 	protected enum LFOutput {

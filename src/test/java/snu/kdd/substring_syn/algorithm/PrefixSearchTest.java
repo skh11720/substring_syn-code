@@ -11,6 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
@@ -115,7 +116,7 @@ public class PrefixSearchTest {
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		if ( version.equals("2.00") ) prefixSearch = new PrefixSearch(theta, true, true, true, true);
+		if ( version.equals("2.00") ) prefixSearch = new ExactPrefixSearch(theta, true, true, true, true);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
