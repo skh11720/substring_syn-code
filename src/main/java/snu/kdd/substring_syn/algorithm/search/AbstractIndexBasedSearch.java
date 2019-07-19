@@ -1,6 +1,6 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.IndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.InvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
@@ -30,7 +30,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected void buildIndex( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_4_BuildIndex);
 		index = new InvertedIndex(dataset);
-		indexFilter = new IndexBasedFilter(index, theta);
+		indexFilter = new IndexBasedFilter(index, theta, statContainer);
 		statContainer.stopWatch(Stat.Time_4_BuildIndex);
 	}
 
@@ -45,10 +45,9 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if (idxFilter_query) {
 			statContainer.startWatch(Stat.Time_5_IndexFilter);
-			ObjectList<Record> candRecordList = indexFilter.querySideCountFilter(query);
+			ObjectSet<Record> candRecordSet = indexFilter.querySideFilter(query);
 			statContainer.stopWatch(Stat.Time_5_IndexFilter);
-			statContainer.addCount(Stat.Num_QS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
-			return candRecordList;
+			return candRecordSet;
 		}
 		else return dataset.indexedList;
 	}
@@ -56,10 +55,9 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if (idxFilter_text) {
 			statContainer.startWatch(Stat.Time_5_IndexFilter);
-			ObjectList<Record> candRecordList = indexFilter.textSideCountFilter(query);
+			ObjectSet<Record> candRecordSet = indexFilter.textSideFilter(query);
 			statContainer.stopWatch(Stat.Time_5_IndexFilter);
-			statContainer.addCount(Stat.Num_TS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
-			return candRecordList;
+			return candRecordSet;
 		}
 		else return dataset.indexedList;
 	}
