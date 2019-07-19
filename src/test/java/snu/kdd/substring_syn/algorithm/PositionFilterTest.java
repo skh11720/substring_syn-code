@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PositionFilterTest {
@@ -63,6 +64,7 @@ public class PositionFilterTest {
 								System.out.println("query: "+queryTokenList);
 								System.out.println("rec: "+recTokenList);
 								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
+								System.out.println("window: "+(new Subrecord(rec, sidx, eidx+1)).toOriginalString());
 								System.out.println("appendedSize: "+appendedSize);
 								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx+", "+simPrev+", "+sim);
 								throw e;
