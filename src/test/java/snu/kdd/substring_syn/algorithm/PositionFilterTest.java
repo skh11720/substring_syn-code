@@ -62,8 +62,8 @@ public class PositionFilterTest {
 								assertTrue( simPrev >= theta );
 							} catch ( AssertionError e ) {
 								System.out.println("theta: "+theta);
-								System.out.println("query: "+queryTokenList);
-								System.out.println("rec: "+recTokenList);
+								System.out.println("query: ["+query.getID()+"]  "+queryTokenList);
+								System.out.println("rec: ["+rec.getID()+"]  "+recTokenList);
 								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
 								System.out.println("window: "+(new Subrecord(rec, sidx, eidx+1)).toOriginalString());
 								System.out.println("appendedSize: "+appendedSize);
@@ -98,20 +98,22 @@ public class PositionFilterTest {
 					double sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, sidx+1));
 					for ( int j=i+1; j<idxList.size(); ++j ) {
 						simPrev = sim;
-						int eidx = idxList.get(j);
-						IntSet appended = new IntOpenHashSet(recTokenList.subList(idxList.get(j-1)+1, eidx));
-						sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, eidx+1));
+						int eidx0 = idxList.get(j-1);
+						int eidx1 = idxList.get(j);
+						IntSet appended = new IntOpenHashSet(recTokenList.subList(eidx0+1, eidx1));
+						appended.removeAll(recTokenList.subList(sidx, eidx0+1));
+						sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, eidx1+1));
 						if ( sim >= theta && theta >= 1.0/appended.size() ) {
 							try {
 								assertTrue( simPrev >= theta );
 							} catch ( AssertionError e ) {
 								System.out.println("theta: "+theta);
-								System.out.println("query: "+queryTokenList);
-								System.out.println("rec: "+recTokenList);
-								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
-								System.out.println("window: "+(new Subrecord(rec, sidx, eidx+1)).toOriginalString());
+								System.out.println("query: ["+query.getID()+"]  "+queryTokenList);
+								System.out.println("rec: ["+rec.getID()+"]  "+recTokenList);
+								System.out.println("window: "+recTokenList.subList(sidx, eidx1+1));
+								System.out.println("window: "+(new Subrecord(rec, sidx, eidx1+1)).toOriginalString());
 								System.out.println("appended.size: "+appended.size());
-								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx+", "+simPrev+", "+sim);
+								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx1+", "+simPrev+", "+sim);
 								throw e;
 							}
 						}
