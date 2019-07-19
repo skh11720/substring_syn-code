@@ -37,7 +37,7 @@ public class IndexBasedFilter {
 		ObjectSet<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
 		statContainer.stopWatch("Time_QS_IndexCountFilter");
 		statContainer.addCount("Num_QS_IndexCountFilter", candRecordSet.size());
-		visualizeCandRecords(candTokenSet, candRecordSet, counter);
+//		visualizeCandRecords(candTokenSet, candRecordSet, counter);
 
 		return candRecordSet;
 	}
