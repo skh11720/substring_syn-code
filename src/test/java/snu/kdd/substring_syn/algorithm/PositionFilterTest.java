@@ -32,7 +32,8 @@ public class PositionFilterTest {
 		}
 	}
 
-	public void testQuerySide( String dataName, String size, double theta ) throws IOException {
+	public void testQuerySideDistinct( String dataName, String size, double theta ) throws IOException {
+		// assume tokens in a string are distinct 
 		Dataset dataset = Dataset.createInstanceByName(dataName, size);
 		
 		for ( Record query : dataset.searchedList ) {
@@ -66,6 +67,50 @@ public class PositionFilterTest {
 								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
 								System.out.println("window: "+(new Subrecord(rec, sidx, eidx+1)).toOriginalString());
 								System.out.println("appendedSize: "+appendedSize);
+								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx+", "+simPrev+", "+sim);
+								throw e;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void testQuerySide( String dataName, String size, double theta ) throws IOException {
+		// do not assume tokens in a string are distinct 
+		Dataset dataset = Dataset.createInstanceByName(dataName, size);
+		
+		for ( Record query : dataset.searchedList ) {
+			IntSet tokenSet = new IntOpenHashSet(query.getTokens());
+			IntList queryTokenList = new IntArrayList(query.getTokenArray());
+			for ( Record rec : dataset.indexedList ) {
+				IntList recTokenList = new IntArrayList(rec.getTokenArray());
+				IntList idxList = new IntArrayList();
+				for ( int i=0; i<rec.size(); ++i ) {
+					if ( tokenSet.contains(rec.getToken(i)) ) idxList.add(i);
+				}
+				if ( idxList.size() == 0 ) continue;
+				
+				for ( int i=0; i<idxList.size()-1; ++i ) {
+					int sidx = idxList.get(i);
+					double simPrev;
+					double sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, sidx+1));
+					for ( int j=i+1; j<idxList.size(); ++j ) {
+						simPrev = sim;
+						int eidx = idxList.get(j);
+						IntSet appended = new IntOpenHashSet(recTokenList.subList(idxList.get(j-1)+1, eidx));
+						sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, eidx+1));
+						if ( sim >= theta && theta >= 1.0/appended.size() ) {
+							try {
+								assertTrue( simPrev >= theta );
+							} catch ( AssertionError e ) {
+								System.out.println("theta: "+theta);
+								System.out.println("query: "+queryTokenList);
+								System.out.println("rec: "+recTokenList);
+								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
+								System.out.println("window: "+(new Subrecord(rec, sidx, eidx+1)).toOriginalString());
+								System.out.println("appended.size: "+appended.size());
 								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx+", "+simPrev+", "+sim);
 								throw e;
 							}
