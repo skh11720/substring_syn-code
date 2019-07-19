@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.data.Rule;
 
 public class InvertedIndex {
 	
-	final Int2ObjectMap<ObjectList<IndexEntry>> invList;
+	final Int2ObjectMap<ObjectList<Record>> invList;
 	final Int2ObjectMap<ObjectList<Record>> transInvList;
 	int size;
 
@@ -20,13 +20,13 @@ public class InvertedIndex {
 		size = computeSize();
 	}
 
-	private Int2ObjectMap<ObjectList<IndexEntry>> buildInvList( Dataset dataset ) {
-		Int2ObjectMap<ObjectList<IndexEntry>> invList = new Int2ObjectOpenHashMap<>();
+	private Int2ObjectMap<ObjectList<Record>> buildInvList( Dataset dataset ) {
+		Int2ObjectMap<ObjectList<Record>> invList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
-				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<IndexEntry>());
-				invList.get(token).add(new IndexEntry(rec, i));
+				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<Record>());
+				invList.get(token).add(rec);
 			}
 		}
 		return invList;
@@ -48,12 +48,12 @@ public class InvertedIndex {
 	
 	private int computeSize() {
 		int size = 0;
-		for ( ObjectList<IndexEntry> list : invList.values() ) size += list.size();
+		for ( ObjectList<Record> list : invList.values() ) size += list.size();
 		for ( ObjectList<Record> list : transInvList.values() ) size += list.size();
 		return size;
 	}
 	
-	public ObjectList<IndexEntry> getInvList( int token ) {
+	public ObjectList<Record> getInvList( int token ) {
 		return invList.get(token);
 	}
 	

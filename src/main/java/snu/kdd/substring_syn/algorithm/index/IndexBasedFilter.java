@@ -27,9 +27,9 @@ public class IndexBasedFilter {
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
-			ObjectList<IndexEntry> invList = index.getInvList(token);
+			ObjectList<Record> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( IndexEntry e : invList ) counter.addTo(e.rec, 1);
+				for ( Record rec : invList ) counter.addTo(rec, 1);
 			}
 		}
 
@@ -46,9 +46,9 @@ public class IndexBasedFilter {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
 		for ( int token : query.getTokens() ) {
-			ObjectList<IndexEntry> invList = index.getInvList(token);
+			ObjectList<Record> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( IndexEntry e : invList ) counter.addTo(e.rec, 1);
+				for ( Record rec : invList ) counter.addTo(rec, 1);
 			}
 			ObjectList<Record> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
