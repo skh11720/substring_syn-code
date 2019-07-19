@@ -12,6 +12,7 @@ import org.apache.commons.cli.CommandLine;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.utils.Log;
 
 public class Dataset {
 	
@@ -60,6 +61,7 @@ public class Dataset {
 		indexedList = loadRecordList(indexedPath, tokenIndex);
 		searchedList = loadRecordList(searchedPath, tokenIndex);
 		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
+		Log.log.info("Ruleset created: %d rules", ruleSet.size());
 		Record.tokenIndex = tokenIndex;
 		preprocess();
 	}
@@ -72,6 +74,7 @@ public class Dataset {
 			recordList.add( new Record( i, line, tokenIndex ) );
 		}
 		br.close();
+		Log.log.info("loadRecordList(%s): %d records", dataPath, recordList.size());
 		return recordList;
 	}
 	
@@ -84,6 +87,14 @@ public class Dataset {
 	}
 	
 	private void preprocess() {
+//		preprocessByRecord();
+		preprocessByTask(searchedList);
+		preprocessByTask(indexedList);
+		TokenOrder order = new TokenOrder(this);
+		reindexByOrder(order);
+	}
+	
+	private void preprocessByRecord() {
 		for( final Record record : searchedList ) {
 			record.preprocessApplicableRules( getAutomataR() );
 			record.preprocessSuffixApplicableRules();
@@ -96,8 +107,17 @@ public class Dataset {
 			record.preprocessTransformLength();
 			record.preprocessEstimatedRecords();
 		}
-		TokenOrder order = new TokenOrder(this);
-		reindexByOrder(order);
+	}
+	
+	private void preprocessByTask( List<Record> recordList ) {
+		for ( final Record record : recordList ) record.preprocessApplicableRules( getAutomataR() );
+		Log.log.info("preprocessByTask: preprocessApplicableRules, %d records", recordList.size() );
+		for ( final Record record : recordList ) record.preprocessSuffixApplicableRules();
+		Log.log.info("preprocessByTask: preprocessSuffixApplicableRules, %d records", recordList.size() );
+		for ( final Record record : recordList ) record.preprocessTransformLength();
+		Log.log.info("preprocessByTask: preprocessTransformLength, %d records", recordList.size() );
+		for ( final Record record : recordList ) record.preprocessEstimatedRecords();
+		Log.log.info("preprocessByTask: preprocessEstimatedRecords, %d records", recordList.size() );
 	}
 
 	public void reindexByOrder( TokenOrder order ) {
