@@ -17,10 +17,10 @@ import snu.kdd.substring_syn.utils.Util;
 public class PositionFilterTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-//	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
-//	String dataName = "SPROT_long";
-	String dataName = "WIKI_3";
-	String[] sizeList = {"874070"};
+	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
+	String dataName = "SPROT_long";
+//	String dataName = "WIKI_3";
+//	String[] sizeList = {"874070"};
 	
 	@Test
 	public void testQuerySideAll() throws IOException {
@@ -52,17 +52,18 @@ public class PositionFilterTest {
 					for ( int j=i+1; j<idxList.size(); ++j ) {
 						simPrev = sim;
 						int eidx = idxList.get(j);
-						IntSet appended = new IntOpenHashSet(recTokenList.subList(idxList.get(j-1)+1, eidx));
+//						IntSet appended = new IntOpenHashSet(recTokenList.subList(idxList.get(j-1)+1, eidx));
+						int appendedSize = eidx - idxList.get(j-1) - 1;
 						sim = Util.jaccard(queryTokenList, recTokenList.subList(sidx, eidx+1));
-						if ( simPrev >= theta && theta >= 1.0/appended.size() ) {
+						if ( sim >= theta && theta >= 1.0/appendedSize ) {
 							try {
-								assertTrue( sim <= simPrev );
+								assertTrue( simPrev >= theta );
 							} catch ( AssertionError e ) {
 								System.out.println("theta: "+theta);
 								System.out.println("query: "+queryTokenList);
 								System.out.println("rec: "+recTokenList);
 								System.out.println("window: "+recTokenList.subList(sidx, eidx+1));
-								System.out.println("appended: "+appended);
+								System.out.println("appendedSize: "+appendedSize);
 								System.out.println("sidx, eidx, simPrev, sim: "+sidx+", "+eidx+", "+simPrev+", "+sim);
 								throw e;
 							}
