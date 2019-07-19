@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
-import vldb18.NaivePkduckValidator;
 
 public class NaiveSearch extends AbstractSearch {
 
@@ -18,7 +18,7 @@ public class NaiveSearch extends AbstractSearch {
 	}
 
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		ArrayList<Record> queryExpArr = query.expandAll();
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
@@ -32,7 +32,7 @@ public class NaiveSearch extends AbstractSearch {
 					statContainer.stopWatch(Stat.Time_3_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
 					if ( sim >= theta ) {
-						log.debug("rsltFromQuery.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
+						Log.log.debug("rsltFromQuery.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 						return;
 					}
@@ -42,7 +42,7 @@ public class NaiveSearch extends AbstractSearch {
 	}
 	
 	protected void searchRecordTextSide( Record query, Record rec ) {
-		log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		for ( Record exp : rec.expandAll() ) {
 			statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(exp));
 			for ( int w=1; w<=exp.size(); ++w ) {
@@ -50,13 +50,13 @@ public class NaiveSearch extends AbstractSearch {
 				while ( witer.hasNext() ) {
 					statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
 					Subrecord window = witer.next();
-					log.trace("w=%d, widx=%d", w, window.sidx);
+					Log.log.trace("w=%d, widx=%d", w, window.sidx);
 					statContainer.startWatch(Stat.Time_3_Validation);
 					double sim = Util.jaccard(window.getTokenArray(), query.getTokenArray());
 					statContainer.stopWatch(Stat.Time_3_Validation);
 					statContainer.increment(Stat.Num_TS_Verified);
 					if ( sim >= theta ) {
-						log.debug("rsltFromText.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
+						Log.log.debug("rsltFromText.add(%d, %d), sim=%.3f", ()->query.getID(), ()->rec.getID(), ()->sim);
 						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 						return;
 					}

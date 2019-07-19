@@ -7,15 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.appender.FileAppender;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -27,7 +24,6 @@ public abstract class AbstractSearch {
 	protected final double theta;
 	protected final Set<IntPair> rsltQuerySide;
 	protected final Set<IntPair> rsltTextSide;
-	protected final Logger log; 
 	protected StatContainer statContainer;
 	
 	protected enum Phase {
@@ -36,10 +32,7 @@ public abstract class AbstractSearch {
 	}
 	
 	public AbstractSearch( double theta ) {
-		this.log = LogManager.getFormatterLogger(this);
-		Appender appender = ((org.apache.logging.log4j.core.Logger)log).getAppenders().get("File");
-		String logpath = ((FileAppender)appender).getFileName();
-		id = FilenameUtils.getBaseName(logpath);
+		id = FilenameUtils.getBaseName(Log.logpath);
 
 		param = new Param();
 		this.theta = theta;
@@ -67,7 +60,7 @@ public abstract class AbstractSearch {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
-			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+			Log.log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 	}
 	

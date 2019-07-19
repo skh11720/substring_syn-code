@@ -5,6 +5,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
@@ -24,11 +25,11 @@ public class PrefixSearch1_06 extends PrefixSearch1_05 {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
-		log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
+		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
@@ -45,7 +46,7 @@ public class PrefixSearch1_06 extends PrefixSearch1_05 {
 					statContainer.increment(Stat.Num_QS_Verified);
 					if (isSim) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-						log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+						Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 						return;
 					}
 				}
