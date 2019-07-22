@@ -1,16 +1,16 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.InvertedIndex;
+import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.NaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.Stat;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
-	protected InvertedIndex index;
-	protected IndexBasedFilter indexFilter;
+	protected NaiveInvertedIndex index;
+	protected NaiveIndexBasedFilter indexFilter;
 	protected final boolean idxFilter_query;
 	protected final boolean idxFilter_text;
 
@@ -29,8 +29,8 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected void buildIndex( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_4_BuildIndex);
-		index = new InvertedIndex(dataset);
-		indexFilter = new IndexBasedFilter(index, theta, statContainer);
+		index = new NaiveInvertedIndex(dataset);
+		indexFilter = new NaiveIndexBasedFilter(index, theta, statContainer);
 		statContainer.stopWatch(Stat.Time_4_BuildIndex);
 	}
 

@@ -8,13 +8,13 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 
-public class InvertedIndex {
+public class NaiveInvertedIndex {
 	
 	final Int2ObjectMap<ObjectList<Record>> invList;
 	final Int2ObjectMap<ObjectList<Record>> transInvList;
 	int size;
 
-	public InvertedIndex( Dataset dataset ) {
+	public NaiveInvertedIndex( Dataset dataset ) {
 		invList = buildInvList(dataset);
 		transInvList = buildTransIntList(dataset);
 		size = computeSize();

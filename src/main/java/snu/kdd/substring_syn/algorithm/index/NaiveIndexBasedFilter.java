@@ -9,14 +9,14 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class IndexBasedFilter {
+public class NaiveIndexBasedFilter {
 
-	protected final InvertedIndex index;
+	protected final NaiveInvertedIndex index;
 	protected final double theta;
 	protected final StatContainer statContainer;
 	protected final boolean useCountFilter = true;
 	
-	public IndexBasedFilter( InvertedIndex index, double theta, StatContainer statContainer ) {
+	public NaiveIndexBasedFilter( NaiveInvertedIndex index, double theta, StatContainer statContainer ) {
 		this.index = index;
 		this.theta = theta;
 		this.statContainer = statContainer;
