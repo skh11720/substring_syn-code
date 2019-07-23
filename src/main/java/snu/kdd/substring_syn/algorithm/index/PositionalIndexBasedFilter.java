@@ -125,7 +125,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				int eidx1 = idxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
-				splitScoreArr[j-1] = Math.max(splitScoreArr[j-1], (double)numSet.size()/denumSet.size());
+				for ( int k=i; k<j; ++k ) splitScoreArr[k] = Math.max(splitScoreArr[k], (double)numSet.size()/denumSet.size());
 				eidx0 = eidx1;
 			}
 		}

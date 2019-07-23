@@ -144,10 +144,10 @@ public class PositionFilterTest {
 			for ( Record rec : dataset.indexedList ) {
 				IntList commonTokenIdxList = getCommonTokenIdxList(rec, queryTokenSet);
 				if ( commonTokenIdxList.size() < minCount ) continue;
-				visualizeCandRecord(rec, queryTokenSet);
 				double[] scoreArr = computeSplitScore(rec, commonTokenIdxList);
 				ObjectList<IntPair> segmentList = splitRecord(rec, commonTokenIdxList, scoreArr, theta, queryTokenSet, minCount);
 				if ( segmentList.size() == 0 ) continue;
+				visualizeCandRecord(rec, queryTokenSet);
 			}
 		}
 	}
@@ -172,7 +172,7 @@ public class PositionFilterTest {
 				int eidx1 = commonTokenIdxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
-				scoreArr[j-1] = Math.max(scoreArr[j-1], (double)numSet.size()/denumSet.size());
+				for ( int k=i; k<j; ++k ) scoreArr[k] = Math.max(scoreArr[k], (double)numSet.size()/denumSet.size());
 				eidx0 = eidx1;
 			}
 		}
