@@ -6,23 +6,22 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class NaiveIndexBasedFilter {
+public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 
 	protected final NaiveInvertedIndex index;
-	protected final double theta;
-	protected final StatContainer statContainer;
 	protected final boolean useCountFilter = true;
 	
-	public NaiveIndexBasedFilter( NaiveInvertedIndex index, double theta, StatContainer statContainer ) {
-		this.index = index;
-		this.theta = theta;
-		this.statContainer = statContainer;
+	public NaiveIndexBasedFilter( Dataset dataset, double theta, StatContainer statContainer ) {
+		super(theta, statContainer);
+		index = new NaiveInvertedIndex(dataset);
 	}
 	
-	public ObjectSet<Record> querySideFilter( Record query ) {
+	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
 		IntSet candTokenSet = query.getCandTokenSet();
@@ -34,7 +33,7 @@ public class NaiveIndexBasedFilter {
 		}
 
 		statContainer.startWatch("Time_QS_IndexCountFilter");
-		ObjectSet<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
+		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>(pruneRecordsByCount(counter, minCount));
 		statContainer.stopWatch("Time_QS_IndexCountFilter");
 		statContainer.addCount("Num_QS_IndexCountFilter", candRecordSet.size());
 //		visualizeCandRecords(candTokenSet, candRecordSet, counter);

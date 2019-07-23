@@ -70,8 +70,8 @@ public abstract class AbstractSearch {
 		searchTextSide(query, dataset.indexedList);
 	}
 	
-	protected void searchQuerySide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
+	protected void searchQuerySide( Record query, Iterable<? extends RecordInterface> records ) {
+		for ( RecordInterface rec :  records ) {
 			statContainer.startWatch(Stat.Time_1_QSTotal);
 			searchRecordQuerySide(query, rec);
 			statContainer.stopWatch(Stat.Time_1_QSTotal);
