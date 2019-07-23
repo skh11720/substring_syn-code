@@ -12,7 +12,10 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
@@ -134,24 +137,29 @@ public class PositionFilterTest {
 	
 	public void testQuerySideSplit( String dataName, String size, double theta ) throws IOException {
 		Dataset dataset = Dataset.createInstanceByName(dataName, size);
-		
 		for ( Record query : dataset.searchedList ) {
 			IntSet queryTokenSet = query.getCandTokenSet();
-//			IntSet queryTokenSet = new IntOpenHashSet(query.getTokens());
 			int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 			System.out.println("minCount: "+minCount);
 			for ( Record rec : dataset.indexedList ) {
-//				IntList recTokenList = new IntArrayList(rec.getTokenArray());
 				IntList commonTokenIdxList = getCommonTokenIdxList(rec, queryTokenSet);
-				if ( commonTokenIdxList.size() == 0 ) continue;
-				if ( commonTokenIdxList.size() < 10 ) continue; // debugging
+				if ( commonTokenIdxList.size() < minCount ) continue;
 				visualizeCandRecord(rec, queryTokenSet);
 				double[] scoreArr = computeSplitScore(rec, commonTokenIdxList);
-				splitRecord(rec, commonTokenIdxList, scoreArr, theta, queryTokenSet);
+				ObjectList<IntPair> segmentList = splitRecord(rec, commonTokenIdxList, scoreArr, theta, queryTokenSet, minCount);
+				if ( segmentList.size() == 0 ) continue;
 			}
 		}
 	}
 	
+	private static IntList getCommonTokenIdxList( Record rec, IntSet tokenSet ) {
+		IntList commonTokenIdxList = new IntArrayList();
+		for ( int i=0; i<rec.size(); ++i ) {
+			if ( tokenSet.contains(rec.getToken(i)) ) commonTokenIdxList.add(i);
+		}
+		return commonTokenIdxList;
+	}
+
 	private static double[] computeSplitScore( Record rec, IntList commonTokenIdxList ) {
 		int m = commonTokenIdxList.size();
 		double[] scoreArr = new double[m-1];
@@ -173,26 +181,25 @@ public class PositionFilterTest {
 		return scoreArr;
 	}
 	
-	private static IntList getCommonTokenIdxList( Record rec, IntSet tokenSet ) {
-		IntList commonTokenIdxList = new IntArrayList();
-		for ( int i=0; i<rec.size(); ++i ) {
-			if ( tokenSet.contains(rec.getToken(i)) ) commonTokenIdxList.add(i);
-		}
-		return commonTokenIdxList;
-	}
-	
-	private static void splitRecord( Record rec, IntList commonTokenIdxList, double[] scoreArr, double theta, IntSet candTokenSet ) {
+	private static ObjectList<IntPair> splitRecord( Record rec, IntList commonTokenIdxList, double[] scoreArr, double theta, IntSet candTokenSet, int minCount ) {
+		ObjectList<IntPair> segmentList = new ObjectArrayList<>();
 		int sidx = commonTokenIdxList.get(0);
 		int eidx = -1;
+		int count = 1;
 		for ( int i=0; i<scoreArr.length; ++i ) {
 			if ( scoreArr[i] < theta ) {
 				eidx = commonTokenIdxList.get(i);
+				if ( count >= minCount ) segmentList.add(new IntPair(sidx, eidx+1));
 				IntList segment = rec.getTokenList().subList(sidx, eidx+1);
 				visualizeCandRecord(segment, candTokenSet);
 				sidx = commonTokenIdxList.get(i+1);
+				count = 1;
 			}
+			++count;
 		}
 		visualizeCandRecord(rec.getTokenList().subList(sidx, commonTokenIdxList.get(commonTokenIdxList.size()-1)+1), candTokenSet);
+		System.out.println(segmentList);
+		return segmentList;
 	}
 
 	private static void visualizeCandRecord( Record rec, IntSet candTokenSet ) {
