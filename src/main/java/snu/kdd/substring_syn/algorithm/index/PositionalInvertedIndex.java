@@ -11,7 +11,7 @@ import snu.kdd.substring_syn.data.Rule;
 public class PositionalInvertedIndex {
 	
 	final Int2ObjectMap<ObjectList<IndexEntry>> invList;
-	final Int2ObjectMap<ObjectList<Record>> transInvList;
+	final Int2ObjectMap<ObjectList<IndexEntry>> transInvList;
 	int size;
 
 	public PositionalInvertedIndex( Dataset dataset ) {
@@ -32,14 +32,16 @@ public class PositionalInvertedIndex {
 		return invList;
 	}
 	
-	private Int2ObjectMap<ObjectList<Record>> buildTransIntList( Dataset dataset ) {
-		Int2ObjectMap<ObjectList<Record>> transInvList = new Int2ObjectOpenHashMap<>();
+	private Int2ObjectMap<ObjectList<IndexEntry>> buildTransIntList( Dataset dataset ) {
+		Int2ObjectMap<ObjectList<IndexEntry>> transInvList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
-			for ( Rule rule : rec.getApplicableRuleIterable() ) {
-				if ( rule.isSelfRule ) continue;
-				for ( int token : rule.getRhs() ) {
-					if ( !transInvList.containsKey(token) ) transInvList.put(token, new ObjectArrayList<Record>());
-					transInvList.get(token).add(rec);
+			for ( int k=0; k<rec.size(); ++k ) {
+				for ( Rule rule : rec.getApplicableRules(k) ) {
+					if ( rule.isSelfRule ) continue;
+					for ( int token : rule.getRhs() ) {
+						if ( !transInvList.containsKey(token) ) transInvList.put(token, new ObjectArrayList<IndexEntry>());
+						transInvList.get(token).add(new IndexEntry(rec, k));
+					}
 				}
 			}
 		}
@@ -49,7 +51,7 @@ public class PositionalInvertedIndex {
 	private int computeSize() {
 		int size = 0;
 		for ( ObjectList<IndexEntry> list : invList.values() ) size += list.size();
-		for ( ObjectList<Record> list : transInvList.values() ) size += list.size();
+		for ( ObjectList<IndexEntry> list : transInvList.values() ) size += list.size();
 		return size;
 	}
 	
@@ -57,7 +59,7 @@ public class PositionalInvertedIndex {
 		return invList.get(token);
 	}
 	
-	public ObjectList<Record> getTransInvList( int token ) {
+	public ObjectList<IndexEntry> getTransInvList( int token ) {
 		return transInvList.get(token);
 	}
 	

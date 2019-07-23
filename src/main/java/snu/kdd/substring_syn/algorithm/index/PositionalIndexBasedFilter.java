@@ -67,9 +67,9 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			if ( invList != null ) {
 				for ( IndexEntry e : invList ) counter.addTo(e.rec, 1);
 			}
-			ObjectList<Record> transInvList = index.getTransInvList(token);
+			ObjectList<IndexEntry> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
-				for ( Record rec : transInvList ) counter.addTo(rec, 1);
+				for ( IndexEntry e : transInvList ) counter.addTo(e.rec, 1);
 			}
 		}
 
