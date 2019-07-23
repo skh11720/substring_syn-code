@@ -12,8 +12,8 @@ public class Subrecord implements RecordInterface {
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
 		this.rec = rec.getSuperRecord();
-		this.sidx = sidx; // inclusive
-		this.eidx = eidx; // exclusive
+		this.sidx = sidx + rec.getSidx(); // inclusive
+		this.eidx = eidx + rec.getSidx(); // exclusive
 		hash = getHash();
 	}
 	
@@ -32,6 +32,11 @@ public class Subrecord implements RecordInterface {
 	@Override
 	public int hashCode() {
 		return hash;
+	}
+	
+	@Override
+	public int getSidx() {
+		return sidx;
 	}
 	
 	@Override
@@ -67,7 +72,7 @@ public class Subrecord implements RecordInterface {
 	@Override
 	public String toString() {
 		StringBuilder rslt = new StringBuilder();
-		for ( int i=0; i<rec.size(); ++i ) {
+		for ( int i=sidx; i<eidx; ++i ) {
 			if( rslt.length() != 0 ) {
 				rslt.append(" ");
 			}
@@ -83,6 +88,19 @@ public class Subrecord implements RecordInterface {
 		StringBuilder rslt = new StringBuilder();
 		for( int i=sidx; i<eidx; ++i ) {
 			rslt.append(Record.tokenIndex.getToken( rec.getToken(i) ) + " ");
+		}
+		return rslt.toString();
+	}
+
+	public String toSuperString() {
+		StringBuilder rslt = new StringBuilder();
+		for ( int i=0; i<rec.size(); ++i ) {
+			if( rslt.length() != 0 ) {
+				rslt.append(" ");
+			}
+			if (i == sidx) rslt.append("[");
+			rslt.append(rec.getToken(i));
+			if (i+1 == eidx) rslt.append("]");
 		}
 		return rslt.toString();
 	}

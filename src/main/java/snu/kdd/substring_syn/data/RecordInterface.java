@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 public interface RecordInterface {
 	int getID();
+	int getSidx();
 	int getToken(int i);
 	Record getSuperRecord();
 	IntList getTokenList();

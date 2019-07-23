@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
@@ -21,8 +22,10 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 		index = new NaiveInvertedIndex(dataset);
 	}
 	
+	@Override
 	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
+		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
@@ -41,6 +44,7 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 		return candRecordSet;
 	}
 	
+	@Override
 	public ObjectSet<Record> textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
@@ -71,17 +75,5 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 			if ( count >= minCount ) candRecordSet.add(rec);
 		}
 		return candRecordSet;
-	}
-	
-	private void visualizeCandRecords( IntSet candTokenSet, ObjectSet<Record> candRecordList, Object2IntOpenHashMap<Record> counter ) {
-		for ( Record rec : candRecordList ) {
-			int[] tokens = rec.getTokenArray();
-			StringBuilder strbld = new StringBuilder();
-			for ( int token : tokens ) {
-				if ( candTokenSet.contains(token) ) strbld.append("O");
-				else strbld.append('-');
-			}
-			System.out.println(counter.getInt(rec)+"\t"+strbld.toString());
-		}
 	}
 }

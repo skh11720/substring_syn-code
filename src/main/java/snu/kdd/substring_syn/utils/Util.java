@@ -684,4 +684,14 @@ public class Util {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
 	}
+	
+	public static String toFormattedString( double[] arr ) {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<arr.length; ++i ) {
+			if ( i > 0 ) strbld.append(", ");
+			strbld.append(String.format("%.3f", arr[0]));
+		}
+		strbld.append("]");
+		return strbld.toString();
+	}
 }

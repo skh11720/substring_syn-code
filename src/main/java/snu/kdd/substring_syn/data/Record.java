@@ -91,6 +91,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return this;
 	}
 	
+	@Override
+	public int getSidx() {
+		return 0;
+	}
+	
 	public int getTransSetLB() {
 		if ( transSetLB == 0 ) transSetLB = Records.getTransSetSizeLowerBound(this);
 		return transSetLB;

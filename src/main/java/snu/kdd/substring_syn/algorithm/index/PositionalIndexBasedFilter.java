@@ -19,7 +19,9 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.Util;
 
 public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 
@@ -31,16 +33,24 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		index = new PositionalInvertedIndex(dataset);
 	}
 	
+	@Override
 	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
+		Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 		statContainer.startWatch("Time_QS_PositionFilter");
 		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-		int minCount = (int)Math.ceil(theta*query.size());
+		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
+		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
+		Log.log.trace("minCount=%d", ()->minCount);
 		Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
 		for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
 			Record rec = entry.getKey();
 			IntList idxList = entry.getValue();
+			idxList.sort(Integer::compare);
+			Log.log.trace("idxList=%s", idxList);
+			Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 			if ( useCountFilter && idxList.size() < minCount ) continue;
 			ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
+			Log.log.trace("segmentList=%s", strSegmentList(segmentList));
 			candRecordSet.addAll(segmentList);
 		}
 		statContainer.stopWatch("Time_QS_PositionFilter");
@@ -48,6 +58,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		return candRecordSet;
 	}
 	
+	@Override
 	public ObjectSet<Record> textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
@@ -97,6 +108,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 	
 	private ObjectList<RecordInterface> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
 		double[] splitScoreArr = computeSplitScore(rec, idxList);
+		Log.log.trace("splitScoreArr=%s", Util.toFormattedString(splitScoreArr));
 		ObjectList<RecordInterface> segmentList = splitRecord(rec, idxList, splitScoreArr, theta, minCount);
 		return segmentList;
 	}
@@ -126,26 +138,26 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		int eidx = -1;
 		int count = 1;
 		for ( int i=0; i<splitScoreArr.length; ++i ) {
+			eidx = idxList.get(i+1);
+			++count;
 			if ( splitScoreArr[i] < theta ) {
-				eidx = idxList.get(i);
 				if ( !useCountFilter || count >= minCount ) segmentList.add(new Subrecord(rec, sidx, eidx+1));
 				sidx = idxList.get(i+1);
 				count = 1;
 			}
-			++count;
 		}
+		if ( !useCountFilter || count >= minCount ) segmentList.add(new Subrecord(rec, sidx, eidx+1));
 		return segmentList;
 	}
-
-	private void visualizeCandRecords( IntSet candTokenSet, ObjectSet<Record> candRecordList, Object2IntOpenHashMap<Record> counter ) {
-		for ( Record rec : candRecordList ) {
-			int[] tokens = rec.getTokenArray();
-			StringBuilder strbld = new StringBuilder();
-			for ( int token : tokens ) {
-				if ( candTokenSet.contains(token) ) strbld.append("O");
-				else strbld.append('-');
-			}
-			System.out.println(counter.getInt(rec)+"\t"+strbld.toString());
+	
+	private String strSegmentList( ObjectList<RecordInterface> segmentList ) {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<segmentList.size(); ++i ) {
+			if ( i > 0 ) strbld.append(", ");
+			Subrecord subrec = (Subrecord)segmentList.get(i);
+			strbld.append(String.format("(%d,%d)", subrec.sidx, subrec.eidx));
 		}
+		strbld.append("]");
+		return strbld.toString();
 	}
 }

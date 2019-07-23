@@ -6,7 +6,11 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.PositionalIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.verify.GreedyValidator;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
@@ -36,6 +40,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		param.put("lf_query", Boolean.toString(lf_query));
 		param.put("lf_text", Boolean.toString(lf_text));
 		validator = new GreedyValidator();
+	}
+	
+	@Override
+	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
+		return new NaiveIndexBasedFilter(dataset, theta, statContainer);
+//		return new PositionalIndexBasedFilter(dataset, theta, statContainer);
 	}
 
 	@Override
@@ -216,6 +226,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	@Override
 	public String getVersion() {
-		return "2.00";
+		return "3.00";
 	}
 }

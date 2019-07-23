@@ -1,15 +1,16 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.RecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
-	protected NaiveIndexBasedFilter indexFilter;
+	protected AbstractIndexBasedFilter indexFilter;
 	protected final boolean idxFilter_query;
 	protected final boolean idxFilter_text;
 
@@ -28,12 +29,15 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected void buildIndex( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_4_BuildIndex);
-		indexFilter = new NaiveIndexBasedFilter(dataset, theta, statContainer);
+		indexFilter = buildSpecificIndex(dataset);
 		statContainer.stopWatch(Stat.Time_4_BuildIndex);
 	}
+	
+	protected abstract AbstractIndexBasedFilter buildSpecificIndex( Dataset dataset );
 
 	@Override
 	protected void searchGivenQuery( Record query, Dataset dataset ) {
+		Log.log.debug("AbstractIndexBasedSearch.searchGivenQuery(%d, dataset)", ()->query.getID());
 		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		searchQuerySide(query, candListQuerySide);
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
