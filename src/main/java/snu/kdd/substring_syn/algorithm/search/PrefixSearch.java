@@ -26,26 +26,37 @@ import vldb18.PkduckDPExWIthLF;
 
 public class PrefixSearch extends AbstractIndexBasedSearch {
 
+	public static enum IndexChoice {
+		Naive,
+		Position,
+	}
+
 	protected boolean lf_query = true;
 	protected boolean lf_text = true;
+	protected final IndexChoice indexChoice;
 	protected final GreedyValidator validator;
 	protected TransSetBoundCalculatorInterface boundCalculator;
 	protected PkduckDPEx pkduckdp = null;
 
 	
-	public PrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text ) {
+	public PrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text, IndexChoice indexChoice ) {
 		super(theta, idxFilter_query, idxFilter_text);
 		this.lf_query = lf_query;
 		this.lf_text = lf_text;
+		this.indexChoice = indexChoice;
 		param.put("lf_query", Boolean.toString(lf_query));
 		param.put("lf_text", Boolean.toString(lf_text));
+		param.put("index_impl", indexChoice.toString());
 		validator = new GreedyValidator();
 	}
 	
 	@Override
 	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
-		return new NaiveIndexBasedFilter(dataset, theta, statContainer);
-//		return new PositionalIndexBasedFilter(dataset, theta, statContainer);
+		switch(indexChoice) {
+		case Naive: return new NaiveIndexBasedFilter(dataset, theta, statContainer);
+		case Position: return new PositionalIndexBasedFilter(dataset, theta, statContainer);
+		default: throw new RuntimeException("Unknown index type: "+indexChoice);
+		}
 	}
 
 	@Override

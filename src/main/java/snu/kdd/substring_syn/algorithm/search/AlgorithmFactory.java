@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.search;
 import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 
 public class AlgorithmFactory {
 
@@ -33,7 +34,8 @@ public class AlgorithmFactory {
 		boolean idxFilter_text = Boolean.parseBoolean(param.get("bIFT"));
 		boolean lf_query = Boolean.parseBoolean(param.get("bLFQ"));
 		boolean lf_text = Boolean.parseBoolean(param.get("bLFT"));
-		return new PrefixSearch(theta, idxFilter_query, idxFilter_text, lf_query, lf_text);
+		IndexChoice indexChoice = IndexChoice.valueOf(param.get("index_impl"));
+		return new PrefixSearch(theta, idxFilter_query, idxFilter_text, lf_query, lf_text, indexChoice);
 	}
 	
 	

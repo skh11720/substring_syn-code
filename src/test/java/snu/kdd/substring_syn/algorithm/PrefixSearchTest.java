@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -70,7 +71,7 @@ public class PrefixSearchTest {
 		int i = 0;
 		for ( boolean lf_text: new boolean[]{false, true} ) {
 			for ( boolean lf_query : new boolean[]{false, true} ) {
-				AbstractSearch prefixSearch = new PrefixSearch(theta, false, false, lf_query, lf_text);
+				AbstractSearch prefixSearch = new PrefixSearch(theta, false, false, lf_query, lf_text, IndexChoice.Naive);
 				prefixSearch.run(dataset);
 				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
 				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
@@ -94,7 +95,7 @@ public class PrefixSearchTest {
 		int i = 0;
 		for ( boolean idxFilter_text : new boolean[]{false, true} ) {
 			for ( boolean idxFilter_query : new boolean[]{false, true} ) {
-				AbstractSearch prefixSearch = new PrefixSearch(theta, idxFilter_query, idxFilter_text, true, true);
+				AbstractSearch prefixSearch = new PrefixSearch(theta, idxFilter_query, idxFilter_text, true, true, IndexChoice.Naive);
 				prefixSearch.run(dataset);
 				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_0_Total);
 				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_1_QSTotal);
@@ -116,7 +117,7 @@ public class PrefixSearchTest {
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		if ( version.equals("2.00") ) prefixSearch = new ExactPrefixSearch(theta, true, true, true, true);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Position);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
@@ -140,5 +141,25 @@ public class PrefixSearchTest {
 		br0.close();
 		br1.close();
 		return b;
+	}
+	
+	@Test
+	public void testIndexImplComparison() throws IOException {
+		String name = "SPROT_long";
+		String size = "102";
+		double theta = 0.6;
+		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		
+		AbstractSearch prefixSearch = null;
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Naive);
+		prefixSearch.run(dataset);
+		String num_qs0 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
+		String num_ts0 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Position);
+		prefixSearch.run(dataset);
+		String num_qs1 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
+		String num_ts1 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
+		assertTrue(num_qs0.equals(num_qs1));
+		assertTrue(num_ts0.equals(num_ts1));
 	}
 }
