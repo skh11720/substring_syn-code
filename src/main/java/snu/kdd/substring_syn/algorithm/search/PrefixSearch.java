@@ -16,7 +16,6 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
-import vldb18.NaivePkduckValidator;
 import vldb18.PkduckDP;
 import vldb18.PkduckDPEx;
 import vldb18.PkduckDPExWIthLF;
