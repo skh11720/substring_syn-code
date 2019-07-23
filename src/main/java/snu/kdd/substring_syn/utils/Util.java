@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -679,7 +680,7 @@ public class Util {
 		return false;
 	}
 
-	public static int sumWindowSize( Record rec ) {
+	public static int sumWindowSize( RecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
 	}

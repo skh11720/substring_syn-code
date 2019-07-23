@@ -3,11 +3,16 @@ package snu.kdd.substring_syn.data;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 public interface RecordInterface {
-
+	int getID();
+	int getToken(int i);
+	Record getSuperRecord();
 	IntList getTokenList();
 	int getMaxTransLength();
 	int size();
+	int getNumApplicableRules();
+	Iterable<Rule> getApplicableRuleIterable();
 	Rule[] getSuffixApplicableRules(int i);
-	public String toString();
-	public String toOriginalString();
+	String toString();
+	String toOriginalString();
+	String toStringDetails();
 }

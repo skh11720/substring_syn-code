@@ -7,11 +7,11 @@ public class Subrecord implements RecordInterface {
 	
 	private final Record rec;
 	public final int sidx;
-	private final int eidx;
+	public final int eidx;
 	private final int hash;
 
-	public Subrecord( Record rec, int sidx, int eidx ) {
-		this.rec = rec;
+	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
+		this.rec = rec.getSuperRecord();
 		this.sidx = sidx; // inclusive
 		this.eidx = eidx; // exclusive
 		hash = getHash();
@@ -25,8 +25,18 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	@Override
+	public int getID() {
+		return rec.getID();
+	}
+	
+	@Override
 	public int hashCode() {
 		return hash;
+	}
+	
+	@Override
+	public int getToken(int i) {
+		return rec.getToken(sidx+i);
 	}
 	
 	@Override
@@ -77,8 +87,14 @@ public class Subrecord implements RecordInterface {
 		return rslt.toString();
 	}
 	
+	@Override
+	public String toStringDetails() {
+		return toRecord().toStringDetails();
+	}
+	
 	public Record toRecord() {
 		Record newrec = new Record(getTokenList().toIntArray());
+		newrec.id = getID();
 		Rule[][] applicableRules = new Rule[this.size()][];
 		if ( rec.getApplicableRules() != null ) {
 			for ( int k=sidx; k<eidx; ++k ) {
@@ -97,5 +113,17 @@ public class Subrecord implements RecordInterface {
 	
 	public Record getSuperRecord() {
 		return rec;
+	}
+
+	@Override
+	public int getNumApplicableRules() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Iterable<Rule> getApplicableRuleIterable() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

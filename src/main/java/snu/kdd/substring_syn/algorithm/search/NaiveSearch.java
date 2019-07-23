@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -17,7 +18,7 @@ public class NaiveSearch extends AbstractSearch {
 		super(theta);
 	}
 
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		ArrayList<Record> queryExpArr = query.expandAll();
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));

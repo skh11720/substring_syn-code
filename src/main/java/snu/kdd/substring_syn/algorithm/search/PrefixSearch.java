@@ -9,6 +9,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.algorithm.verify.GreedyValidator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
@@ -39,7 +40,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
@@ -80,7 +81,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
+	protected IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
 		if (lf_query) {
 			int lb = query.getTransSetLB();
 			int min = Math.max(1, (int)Math.ceil(theta*lb));

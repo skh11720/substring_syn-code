@@ -17,18 +17,18 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	private final int[] tokens;
-	private final int id;
-	private final int num_dist_tokens;
-	private final int hash;
+	protected int id;
+	protected int[] tokens;
+	protected int num_dist_tokens;
+	protected int hash;
 
-	private Rule[][] applicableRules = null;
-	private Rule[][] suffixApplicableRules = null;
-	private int[][] transformLengths = null;
-	private long[] estTrans;
+	protected Rule[][] applicableRules = null;
+	protected Rule[][] suffixApplicableRules = null;
+	protected int[][] transformLengths = null;
+	protected long[] estTrans;
 
-	private int maxRhsSize = 0;
-	private int transSetLB = 0;
+	protected int maxRhsSize = 0;
+	protected int transSetLB = 0;
 	
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
@@ -41,13 +41,17 @@ public class Record implements RecordInterface, Comparable<Record> {
 		num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		hash = getHash();
 	}
-
-	public Record( int[] tokens ) {
-		this.id = -1;
+	
+	public Record( int id, int[] tokens ) {
+		this.id = id;
 		this.tokens = tokens;
 		if (tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		else num_dist_tokens = 0;
 		hash = getHash();
+	}
+
+	public Record( int[] tokens ) { // for transformed strings
+		this(-1, tokens);
 	}
 
 	@Override
@@ -81,6 +85,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public int getToken( int i ) {
 		return tokens[i];
+	}
+	
+	public Record getSuperRecord() {
+		return this;
 	}
 	
 	public int getTransSetLB() {
@@ -314,10 +322,14 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public String toStringDetails() {
 		StringBuilder rslt = new StringBuilder();
-		rslt.append(id+"\t:\t"+toString()+"\n");
-		rslt.append(toOriginalString() + "\n");
-		for ( Rule rule : getApplicableRuleIterable() )
+		rslt.append("ID: "+id+"\n");
+		rslt.append("rec: "+toOriginalString()+"\n");
+		rslt.append("tokens: "+toString()+"\n");
+		rslt.append("nRules: "+getNumApplicableRules()+"\n");
+		for ( Rule rule : getApplicableRuleIterable() ) {
+			if ( rule.isSelfRule ) continue;
 			rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
+		}
 		return rslt.toString();
 	}
 
@@ -466,7 +478,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	
 	
-	class RuleIterator implements Iterator<Rule> {
+	protected class RuleIterator implements Iterator<Rule> {
 		int k = 0;
 		int i = 0;
 

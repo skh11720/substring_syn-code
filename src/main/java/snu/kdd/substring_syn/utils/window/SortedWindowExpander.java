@@ -5,7 +5,7 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 
 public class SortedWindowExpander implements Iterator<Subrecord> {
@@ -13,12 +13,12 @@ public class SortedWindowExpander implements Iterator<Subrecord> {
 	final IntSet tokenSet;
 	final IntSet prefix;
 	final IntArrayList list;
-	final Record rec;
+	final RecordInterface rec;
 	final int widx;
 	final double theta;
 	int w = 0;
 	
-	public SortedWindowExpander( Record rec, int widx, double theta ) {
+	public SortedWindowExpander( RecordInterface rec, int widx, double theta ) {
 		tokenSet = new IntOpenHashSet();
 		prefix = new IntOpenHashSet();
 		list = new IntArrayList();

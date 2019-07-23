@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.search.old;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -21,7 +22,7 @@ public class NaiveSearch1_00 extends AbstractSearch {
 		validator = new NaivePkduckValidator();
 	}
 
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {

@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.RecordInterface;
 
 public class SortedRecordSlidingWindowIterator extends AbstractRecordSlidingWindowIterator {
 	
@@ -13,7 +13,7 @@ public class SortedRecordSlidingWindowIterator extends AbstractRecordSlidingWind
 	final Int2ObjectMap<Element> pos2elemMap;
 	final IntSet prefix;
 	
-	public SortedRecordSlidingWindowIterator( Record rec, int w, double theta ) {
+	public SortedRecordSlidingWindowIterator( RecordInterface rec, int w, double theta ) {
 		super(rec, w, theta);
 		list = new ObjectArrayList<>();
 		pos2elemMap = new Int2ObjectOpenHashMap<>();
