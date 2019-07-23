@@ -237,6 +237,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	@Override
 	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 * 2.00: length filtering
+		 * 3.00: index filtering for query-side
+		 */
 		return "3.00";
 	}
 }
