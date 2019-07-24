@@ -75,13 +75,13 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 	}
 	
 	private ObjectList<RecordInterface> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
-		ObjectList<IntRange> segmentList = findSegments(rec, idxList, theta);
+		ObjectList<IntRange> segmentList = findSegments(query, rec, idxList, theta);
 		Log.log.trace("segmentList=%s", ()->segmentList);
 		ObjectList<RecordInterface> splitList = splitRecord(rec, segmentList, idxList, minCount );
 		return splitList;
 	}
 
-	private ObjectList<IntRange> findSegments( Record rec, IntList idxList, double theta ) {
+	private ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
 		int m = idxList.size();
 		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 		for ( int i=0; i<m-1; ++i ) {
@@ -93,7 +93,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				int eidx1 = idxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
-				double score = (double)numSet.size()/denumSet.size();
+				double score = (double)numSet.size()/Math.max(query.getTransSetLB(), denumSet.size());
 				Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 				if ( score >= theta ) {
 					if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
