@@ -89,7 +89,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
 			IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
 			int eidx0 = sidx;
-			for ( int j=i+1; j<m; ++j ) {
+			for ( int j=i; j<m; ++j ) {
 				int eidx1 = idxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
