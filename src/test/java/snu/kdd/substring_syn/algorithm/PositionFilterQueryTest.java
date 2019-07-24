@@ -17,10 +17,12 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Util;
 
-public class PositionFilterTest {
+public class PositionFilterQueryTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
@@ -142,17 +144,18 @@ public class PositionFilterTest {
 			int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 			System.out.println("minCount: "+minCount);
 			for ( Record rec : dataset.indexedList ) {
-				IntList commonTokenIdxList = getCommonTokenIdxList(rec, queryTokenSet);
+				IntList commonTokenIdxList = getCommonTokenIdxListQuerySide(rec, queryTokenSet);
 				if ( commonTokenIdxList.size() < minCount ) continue;
+				visualizeCandRecord(rec, queryTokenSet);
 				double[] scoreArr = computeSplitScore(rec, commonTokenIdxList);
+				findSplitPoint(rec, commonTokenIdxList, theta);
 				ObjectList<IntPair> segmentList = splitRecord(rec, commonTokenIdxList, scoreArr, theta, queryTokenSet, minCount);
 				if ( segmentList.size() == 0 ) continue;
-				visualizeCandRecord(rec, queryTokenSet);
 			}
 		}
 	}
 	
-	private static IntList getCommonTokenIdxList( Record rec, IntSet tokenSet ) {
+	private static IntList getCommonTokenIdxListQuerySide( Record rec, IntSet tokenSet ) {
 		IntList commonTokenIdxList = new IntArrayList();
 		for ( int i=0; i<rec.size(); ++i ) {
 			if ( tokenSet.contains(rec.getToken(i)) ) commonTokenIdxList.add(i);
@@ -179,6 +182,49 @@ public class PositionFilterTest {
 		Arrays.stream(scoreArr).forEach(x -> System.out.print(String.format("%.3f, ", x)));
 		System.out.println();
 		return scoreArr;
+	}
+
+	private static void findSplitPoint( Record rec, IntList commonTokenIdxList, double theta ) {
+		int m = commonTokenIdxList.size();
+		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
+		for ( int i=0; i<m-1; ++i ) {
+			int sidx = commonTokenIdxList.get(i);
+			IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
+			IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
+			int eidx0 = sidx;
+			for ( int j=i+1; j<m; ++j ) {
+				int eidx1 = commonTokenIdxList.get(j);
+				numSet.add(rec.getToken(eidx1));
+				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
+				double score = (double)numSet.size()/denumSet.size();
+				if ( score >= theta ) {
+					if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
+					else rangeList.add(new IntRange(sidx, eidx1));
+				}
+				eidx0 = eidx1;
+			}
+		}
+		for ( IntRange range : rangeList ) System.out.println(range);
+		
+		// merge
+		if ( rangeList.size() > 0 ) {
+			System.out.println("merge:");
+			ObjectList<IntRange> mergedRangeList = new ObjectArrayList<>();
+			IntRange mergedRange = rangeList.get(0);
+			for ( int i=1; i<rangeList.size(); ++i ) {
+				IntRange thisRange = rangeList.get(i);
+				if ( mergedRange.min == thisRange.min ) mergedRange.max = thisRange.max;
+				else {
+					if ( thisRange.min <= mergedRange.max ) mergedRange.max = Math.max(mergedRange.max, thisRange.max);
+					else {
+						mergedRangeList.add(mergedRange);
+						mergedRange = thisRange;
+					}
+				}
+			}
+			mergedRangeList.add(mergedRange);
+			for ( IntRange range : mergedRangeList ) System.out.println(range);
+		}
 	}
 	
 	private static ObjectList<IntPair> splitRecord( Record rec, IntList commonTokenIdxList, double[] scoreArr, double theta, IntSet candTokenSet, int minCount ) {
