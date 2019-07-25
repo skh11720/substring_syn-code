@@ -68,22 +68,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public boolean equals( Object o ) {
 		if( o != null ) {
 			Record orec = (Record) o;
-
-			if( this == orec ) {
-				return true;
-			}
+			if( this == orec ) return true;
 			if( id == orec.id || id == -1 || orec.id == -1 ) {
 				if( id == -1 || orec.id == -1 ) {
-					return Record.compare( tokens, orec.tokens ) == 0;
+					return Records.compare( tokens, orec.tokens ) == 0;
 				}
 				return true;
 			}
-
 			return false;
 		}
-		else {
-			return false;
-		}
+		else return false;
 	}
 
 	public Collection<Integer> getTokens() {
@@ -106,10 +100,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		tokens[i] = token;
 	}
 
-	public int size() {
-		return tokens.length;
-	}
-	
 	@Override
 	public int getSidx() {
 		return 0;
@@ -132,6 +122,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return 0;
 	}
 
+	public int size() {
+		return tokens.length;
+	}
+	
 	public int getDistinctTokenCount() {
 		return num_dist_tokens;
 	}
@@ -145,31 +139,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return transSetLB;
 	}
 
-	public Rule[][] getApplicableRules() {
-		return applicableRules;
-	}
-	
-	public Iterable<Rule> getApplicableRuleIterable() {
-		return new Iterable<Rule>() {
-			@Override
-			public Iterator<Rule> iterator() {
-				return new RuleIterator();
-			}
-		};
-	}
-
-	public Rule[] getApplicableRules( int k ) {
-		if( applicableRules == null ) {
-			return null;
-		}
-		else if( k < applicableRules.length ) {
-			return applicableRules[ k ];
-		}
-		else {
-			return Rule.EMPTY_RULE;
-		}
-	}
-
 	public int getNumApplicableRules() {
 		int count = 0;
 		for( int i = 0; i < applicableRules.length; ++i ) {
@@ -181,6 +150,31 @@ public class Record implements RecordInterface, Comparable<Record> {
 			}
 		}
 		return count;
+	}
+
+	public Iterable<Rule> getApplicableRuleIterable() {
+		return new Iterable<Rule>() {
+			@Override
+			public Iterator<Rule> iterator() {
+				return new RuleIterator();
+			}
+		};
+	}
+
+	public Rule[][] getApplicableRules() {
+		return applicableRules;
+	}
+	
+	public Rule[] getApplicableRules( int k ) {
+		if( applicableRules == null ) {
+			return null;
+		}
+		else if( k < applicableRules.length ) {
+			return applicableRules[ k ];
+		}
+		else {
+			return Rule.EMPTY_RULE;
+		}
 	}
 
 	public int[][] getTransLengthsAll() {
@@ -271,32 +265,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		rules.addAll( Arrays.asList(applicableRules[k]) );
 		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
 		return rules;
-	}
-	
-	public static int compare( int[] str1, int[] str2 ) {
-		if( str1.length == 0 || str2.length == 0 ) {
-			return str1.length - str2.length;
-		}
-
-		int idx = 0;
-		int lastcmp = 0;
-
-		while( idx < str1.length && idx < str2.length && ( lastcmp = Integer.compare( str1[ idx ], str2[ idx ] ) ) == 0 ) {
-			++idx;
-		}
-
-		if( lastcmp != 0 ) {
-			return lastcmp;
-		}
-		else if( str1.length == str2.length ) {
-			return 0;
-		}
-		else if( idx == str1.length ) {
-			return -1;
-		}
-		else {
-			return 1;
-		}
 	}
 	
 	@Override

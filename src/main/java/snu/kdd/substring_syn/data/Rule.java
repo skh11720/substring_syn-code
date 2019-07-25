@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.data;
 import java.util.Arrays;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class Rule implements Comparable<Rule> {
 	final int[] lhs;
@@ -73,7 +74,7 @@ public class Rule implements Comparable<Rule> {
 	@Override
 	public int compareTo( Rule o ) {
 		// only compares lhs
-		return Record.compare( lhs, o.lhs );
+		return Records.compare( lhs, o.lhs );
 	}
 
 	@Override
