@@ -61,26 +61,32 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 	}
 
 	public int getLB( int i, int j ) {
+		// both inclusive
 		return lb[i][j];
 	}
 
 	public int getLBMono( int i, int j ) {
+		// both inclusive
 		return lbMono[i][j];
 	}
 
 	public int getUB( int i, int j ) {
+		// both inclusive
 		return ub[i][j];
 	}
 	
 	public int getLFLB( int i, int j ) {
+		// both inclusive
 		return (int)Math.ceil(1.0*lb[i][j]*theta);
 	}
 	
 	public int getLFLBMono( int i, int j ) {
+		// both inclusive
 		return (int)Math.ceil(1.0*lbMono[i][j]*theta);
 	}
 
 	public int getLFUB( int i, int j ) {
+		// both inclusive
 		return (int)(1.0*ub[i][j]/theta);
 	}
 

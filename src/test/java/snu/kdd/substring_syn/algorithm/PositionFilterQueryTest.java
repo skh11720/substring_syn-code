@@ -208,7 +208,9 @@ public class PositionFilterQueryTest {
 			for ( IntRange range : segmentList ) {
 				int count = 0;
 				for ( int idx : idxList ) {
-					if ( range.min <= idx && idx <= range.max ) ++count;
+					if ( range.min > idx ) continue;
+					if ( idx > range.max ) break;
+					++count;
 				}
 				if ( count >= minCount ) splitList.add(new Subrecord(rec, range.min, range.max+1));
 			}
