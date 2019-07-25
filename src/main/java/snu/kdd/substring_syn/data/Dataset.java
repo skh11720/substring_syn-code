@@ -129,8 +129,8 @@ public class Dataset {
 	}
 	
 	private void reindexRecords( TokenOrder order ) {
-		for ( Record rec : indexedList ) rec.reindex(order);
-		for ( Record rec : searchedList ) rec.reindex(order);
+		for ( Record rec : indexedList ) order.reindex(rec);
+		for ( Record rec : searchedList ) order.reindex(rec);
 	}
 	
 	private void reindexRules( TokenOrder order ) {

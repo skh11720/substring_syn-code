@@ -41,6 +41,12 @@ public class TokenOrder implements Comparator<Integer> {
 		return tokenIndex;
 	}
 	
+	public void reindex( Record rec ) {
+		for ( int i=0; i<rec.size(); ++i ) {
+			rec.setToken(getOrder(rec.getToken(i)), i);
+		}
+	}
+	
 	@Override
 	public int compare(Integer o1, Integer o2) {
 		return Integer.compare(orderMap.get(o1), orderMap.get(o2));

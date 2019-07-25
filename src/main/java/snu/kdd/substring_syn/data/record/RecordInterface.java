@@ -7,11 +7,14 @@ import snu.kdd.substring_syn.data.Rule;
 public interface RecordInterface {
 	int getID();
 	int size();
-	int getSidx();
 	int getToken(int i);
+
+	int getSidx();
 	Record getSuperRecord();
+
 	IntList getTokenList();
 	IntSet getCandTokenSet();
+
 	int getMaxTransLength();
 	int getMaxRhsSize();
 	int getNumApplicableRules();

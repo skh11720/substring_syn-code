@@ -101,6 +101,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public int getToken( int i ) {
 		return tokens[i];
 	}
+	
+	public void setToken( int token, int i ) {
+		tokens[i] = token;
+	}
 
 	public int size() {
 		return tokens.length;
@@ -292,12 +296,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		else {
 			return 1;
-		}
-	}
-	
-	public void reindex( TokenOrder order ) {
-		for ( int i=0; i<tokens.length; ++i ) {
-			tokens[i] = order.getOrder(tokens[i]);
 		}
 	}
 	
