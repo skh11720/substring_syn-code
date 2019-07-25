@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record implements RecordInterface, Comparable<Record> {
@@ -46,7 +45,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public Record( int id, int[] tokens ) {
 		this.id = id;
 		this.tokens = tokens;
-		if (tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
+		if ( tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		else num_dist_tokens = 0;
 		hash = getHash();
 	}
@@ -177,6 +176,22 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
+	public Rule[][] getSuffixApplicableRules() {
+		return suffixApplicableRules;
+	}
+
+	public Iterable<Rule> getSuffixApplicableRules( int k ) {
+		if( suffixApplicableRules == null ) {
+			return null;
+		}
+		else if( k < suffixApplicableRules.length ) {
+			return Arrays.asList(suffixApplicableRules[k]);
+		}
+		else {
+			return Arrays.asList(Rule.EMPTY_RULE);
+		}
+	}
+	
 	public int[][] getTransLengthsAll() {
 		return transformLengths;
 	}
@@ -193,6 +208,31 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return transformLengths[ tokens.length - 1 ][ 0 ];
 	}
 
+	public int getMaxRhsSize() {
+		if ( maxRhsSize == 0 ) {
+			for ( Rule rule : getApplicableRuleIterable() ) {
+				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
+			}
+		}
+		return maxRhsSize;
+	}
+	
+	public Iterable<Rule> getIncompatibleRules( int k ) {
+		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
+		rules.addAll( Arrays.asList(applicableRules[k]) );
+		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
+		return rules;
+	}
+	
+	@Override
+	public IntOpenHashSet getCandTokenSet() {
+		IntOpenHashSet tokenSet = new IntOpenHashSet();
+		for ( Rule r : getApplicableRuleIterable() ) {
+			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
+		}
+		return tokenSet;
+	}
+	
 	public String toString() {
 		StringBuilder rslt = new StringBuilder();
 		for( int id : tokens ) {
@@ -235,47 +275,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
 
-	public Rule[][] getSuffixApplicableRules() {
-		return suffixApplicableRules;
-	}
-
-	public Iterable<Rule> getSuffixApplicableRules( int k ) {
-		if( suffixApplicableRules == null ) {
-			return null;
-		}
-		else if( k < suffixApplicableRules.length ) {
-			return Arrays.asList(suffixApplicableRules[k]);
-		}
-		else {
-			return Arrays.asList(Rule.EMPTY_RULE);
-		}
-	}
-	
-	public int getMaxRhsSize() {
-		if ( maxRhsSize == 0 ) {
-			for ( Rule rule : getApplicableRuleIterable() ) {
-				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
-			}
-		}
-		return maxRhsSize;
-	}
-	
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( Arrays.asList(applicableRules[k]) );
-		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
-		return rules;
-	}
-	
-	@Override
-	public IntOpenHashSet getCandTokenSet() {
-		IntOpenHashSet tokenSet = new IntOpenHashSet();
-		for ( Rule r : getApplicableRuleIterable() ) {
-			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
-		}
-		return tokenSet;
-	}
-	
 	
 	
 	class RuleIterator implements Iterator<Rule> {

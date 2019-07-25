@@ -71,8 +71,35 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
+	public Iterable<Rule> getApplicableRuleIterable() {
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new PrefixRuleIterator();
+			}
+		};
+	}
+	
+	public Iterable<Rule> getSuffixApplicableRuleIterable() {
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new SuffixRuleIterator();
+			}
+		};
+	}
+
+	@Override
 	public Iterable<Rule> getSuffixApplicableRules(int i) {
-		return rec.getSuffixApplicableRules(sidx+i);
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new SuffixRuleIterator(i);
+			}
+		};
 	}
 	
 	@Override
@@ -164,38 +191,82 @@ public class Subrecord implements RecordInterface {
 		return rec;
 	}
 
-	@Override
-	public int getNumApplicableRules() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public Iterable<Rule> getApplicableRuleIterable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	class ruleIterator implements Iterator<Rule> {
-		
-		Rule[] ruleList;
+	abstract class RuleIterator implements Iterator<Rule> {
+		final int kMax;
 		int k;
 		int i = 0;
+		Rule[][] rules;
 		
-		public ruleIterator( int k ) {
-			this.k = k;
-			ruleList = rec.getApplicableRules(k);
+		RuleIterator() {
+			k = sidx;
+			kMax = eidx;
 		}
 
+		RuleIterator( int k ) {
+			this.k = sidx+k;
+			kMax = this.k+1;
+		}
+		
 		@Override
 		public boolean hasNext() {
-			return i < ruleList.length;
+			return (k < kMax);
 		}
 
 		@Override
 		public Rule next() {
-			while ( i < ruleList.length && ruleList[i].lhsSize() > eidx-k ) ++i;
-			return null;
+			Rule rule = rules[k][i++];
+			findNext();
+			return rule;
+		}
+		
+		void findNext() {
+			while ( k < kMax) {
+				while ( i < rules[k].length ) {
+					if ( isValid(rules[k][i]) ) return;
+					++i;
+				}
+				++k;
+				i = 0;
+			}
+		}
+		
+		abstract boolean isValid( Rule rule );
+	}
+
+	class PrefixRuleIterator extends RuleIterator {
+		
+		PrefixRuleIterator() {
+			rules = rec.applicableRules;
+			findNext();
+		}
+		
+		PrefixRuleIterator( int k ) {
+			this();
+			findNext();
+		}
+		
+		@Override
+		boolean isValid(Rule rule) {
+			return k+rule.lhsSize() <= eidx;
+		}
+	}
+	
+	class SuffixRuleIterator extends RuleIterator {
+		
+		SuffixRuleIterator() {
+			rules = rec.suffixApplicableRules;
+			findNext();
+		}
+		
+		SuffixRuleIterator( int k ) {
+			super(k);
+			rules = rec.suffixApplicableRules;
+			findNext();
+		}
+		
+		@Override
+		boolean isValid(Rule rule) {
+			return k-rule.lhsSize()+1 >= sidx;
 		}
 	}
 }

@@ -17,7 +17,6 @@ public interface RecordInterface {
 
 	int getMaxTransLength();
 	int getMaxRhsSize();
-	int getNumApplicableRules();
 
 	Iterable<Rule> getApplicableRuleIterable();
 	Iterable<Rule> getSuffixApplicableRules(int i);
