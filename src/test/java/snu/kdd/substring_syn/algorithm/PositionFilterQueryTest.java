@@ -17,7 +17,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Util;
@@ -147,10 +147,9 @@ public class PositionFilterQueryTest {
 				IntList commonTokenIdxList = getCommonTokenIdxListQuerySide(rec, queryTokenSet);
 				if ( commonTokenIdxList.size() < minCount ) continue;
 				visualizeCandRecord(rec, queryTokenSet);
-				double[] scoreArr = computeSplitScore(rec, commonTokenIdxList);
-				findSplitPoint(rec, commonTokenIdxList, theta);
-				ObjectList<IntPair> segmentList = splitRecord(rec, commonTokenIdxList, scoreArr, theta, queryTokenSet, minCount);
-				if ( segmentList.size() == 0 ) continue;
+				ObjectList<IntRange> segmentList = findSegments(query, rec, commonTokenIdxList, theta);
+				ObjectList<RecordInterface> splitList = splitRecord(rec, segmentList, commonTokenIdxList, minCount);
+				if ( splitList.size() == 0 ) continue;
 			}
 		}
 	}
@@ -161,6 +160,60 @@ public class PositionFilterQueryTest {
 			if ( tokenSet.contains(rec.getToken(i)) ) commonTokenIdxList.add(i);
 		}
 		return commonTokenIdxList;
+	}
+
+	private static ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
+		int m = idxList.size();
+		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
+		for ( int i=0; i<m-1; ++i ) {
+			int sidx = idxList.get(i);
+			IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
+			IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
+			int eidx0 = sidx;
+			for ( int j=i; j<m; ++j ) {
+				int eidx1 = idxList.get(j);
+				numSet.add(rec.getToken(eidx1));
+				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
+				double score = (double)numSet.size()/Math.max(query.getTransSetLB(), denumSet.size());
+				if ( score >= theta ) {
+					if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
+					else rangeList.add(new IntRange(sidx, eidx1));
+				}
+				eidx0 = eidx1;
+			}
+		}
+		if ( rangeList.size() == 0 ) return null;
+		
+		// merge
+		ObjectList<IntRange> mergedRangeList = new ObjectArrayList<>();
+		IntRange mergedRange = rangeList.get(0);
+		for ( int i=1; i<rangeList.size(); ++i ) {
+			IntRange thisRange = rangeList.get(i);
+			if ( mergedRange.min == thisRange.min ) mergedRange.max = thisRange.max;
+			else {
+				if ( thisRange.min <= mergedRange.max ) mergedRange.max = Math.max(mergedRange.max, thisRange.max);
+				else {
+					mergedRangeList.add(mergedRange);
+					mergedRange = thisRange;
+				}
+			}
+		}
+		mergedRangeList.add(mergedRange);
+		return mergedRangeList;
+	}
+	
+	private static ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentList, IntList idxList, int minCount ) {
+		ObjectList<RecordInterface> splitList = new ObjectArrayList<>();
+		if ( segmentList != null ) {
+			for ( IntRange range : segmentList ) {
+				int count = 0;
+				for ( int idx : idxList ) {
+					if ( range.min <= idx && idx <= range.max ) ++count;
+				}
+				if ( count >= minCount ) splitList.add(new Subrecord(rec, range.min, range.max+1));
+			}
+		}
+		return splitList;
 	}
 
 	private static double[] computeSplitScore( Record rec, IntList commonTokenIdxList ) {
