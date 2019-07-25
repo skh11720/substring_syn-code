@@ -1,16 +1,13 @@
 package snu.kdd.substring_syn.data.record;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.substring_syn.data.ACAutomataR;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.TokenOrder;
@@ -29,7 +26,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
 	int[][] transformLengths = null;
-	long[] estTrans;
+//	long[] estTrans;
 
 	int maxRhsSize = 0;
 	int transSetLB = 0;
@@ -58,6 +55,62 @@ public class Record implements RecordInterface, Comparable<Record> {
 		this(-1, tokens);
 	}
 
+	public int getID() {
+		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		return hash;
+	}
+
+	@Override
+	public boolean equals( Object o ) {
+		if( o != null ) {
+			Record orec = (Record) o;
+
+			if( this == orec ) {
+				return true;
+			}
+			if( id == orec.id || id == -1 || orec.id == -1 ) {
+				if( id == -1 || orec.id == -1 ) {
+					return Record.compare( tokens, orec.tokens ) == 0;
+				}
+				return true;
+			}
+
+			return false;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public Collection<Integer> getTokens() {
+		return IntArrayList.wrap(tokens);
+	}
+
+	public int[] getTokenArray() {
+		return tokens;
+	}
+
+	public IntList getTokenList() {
+		return IntArrayList.wrap(tokens);
+	}
+
+	public int getToken( int i ) {
+		return tokens[i];
+	}
+
+	public int size() {
+		return tokens.length;
+	}
+	
+	@Override
+	public int getSidx() {
+		return 0;
+	}
+	
 	@Override
 	public int compareTo( Record o ) {
 		if( tokens.length != o.tokens.length ) {
@@ -75,46 +128,17 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return 0;
 	}
 
-	public int[] getTokenArray() {
-		return tokens;
-	}
-
-	public IntList getTokenList() {
-		return IntArrayList.wrap(tokens);
-	}
-
 	public int getDistinctTokenCount() {
 		return num_dist_tokens;
-	}
-	
-	public int getToken( int i ) {
-		return tokens[i];
 	}
 	
 	public Record getSuperRecord() {
 		return this;
 	}
 	
-	@Override
-	public int getSidx() {
-		return 0;
-	}
-	
 	public int getTransSetLB() {
 		if ( transSetLB == 0 ) transSetLB = Records.getTransSetSizeLowerBound(this);
 		return transSetLB;
-	}
-
-	/**
-	 * Set applicable rules
-	 */
-
-	public void preprocessApplicableRules( ACAutomataR automata ) {
-		applicableRules = automata.applicableRules( tokens );
-	}
-	
-	public void setApplicableRules( Rule[][] applicableRules ) {
-		this.applicableRules = applicableRules;
 	}
 
 	public Rule[][] getApplicableRules() {
@@ -155,86 +179,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return count;
 	}
 
-	/**
-	 * Set and return estimated number of transformed strings of the string
-	 */
-
-	public void preprocessEstimatedRecords() {
-		@SuppressWarnings( "unchecked" )
-		ArrayList<Rule>[] tmpAppRules = new ArrayList[ tokens.length ];
-		for( int i = 0; i < tokens.length; ++i )
-			tmpAppRules[ i ] = new ArrayList<Rule>();
-
-		for( int i = 0; i < tokens.length; ++i ) {
-			for( Rule rule : applicableRules[ i ] ) {
-				int eidx = i + rule.lhsSize() - 1;
-				tmpAppRules[ eidx ].add( rule );
-			}
-		}
-
-		long[] est = new long[ tokens.length ];
-		estTrans = est;
-		for( int i = 0; i < est.length; ++i ) {
-			est[ i ] = Long.MAX_VALUE;
-		}
-
-		for( int i = 0; i < tokens.length; ++i ) {
-			long size = 0;
-			for( Rule rule : tmpAppRules[ i ] ) {
-				int sidx = i - rule.lhsSize() + 1;
-				if( sidx == 0 ) {
-					size += 1;
-				}
-				else {
-					size += est[ sidx - 1 ];
-				}
-
-				if( size < 0 ) {
-					return;
-				}
-			}
-			est[ i ] = size;
-		}
-	}
-
-	/**
-	 * Expand this record with preprocessed rules
-	 */
-
-	public void preprocessTransformLength() {
-		transformLengths = new int[ tokens.length ][ 2 ];
-		for( int i = 0; i < tokens.length; ++i )
-			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
-
-		for( Rule rule : applicableRules[ 0 ] ) {
-			int fromSize = rule.lhsSize();
-			int toSize = rule.rhsSize();
-			if( fromSize > toSize ) {
-				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
-			}
-			else if( fromSize < toSize ) {
-				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
-			}
-		}
-		for( int i = 1; i < tokens.length; ++i ) {
-			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
-			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
-			for( Rule rule : applicableRules[ i ] ) {
-				int fromSize = rule.lhsSize();
-				int toSize = rule.rhsSize();
-				if( fromSize > toSize ) {
-					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
-							transformLengths[ i - 1 ][ 0 ] + toSize );
-				}
-				else if( fromSize < toSize ) {
-					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
-							transformLengths[ i - 1 ][ 1 ] + toSize );
-				}
-
-			}
-		}
-	}
-	
 	public int[][] getTransLengthsAll() {
 		return transformLengths;
 	}
@@ -283,10 +227,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return rslt.toString();
 	}
 
-	public int getID() {
-		return id;
-	}
-	
 	private int getHash() {
 		int hash = 0;
 		for( int token : tokens ) {
@@ -297,55 +237,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
 
-	@Override
-	public int hashCode() {
-		return hash;
-	}
-
-	@Override
-	public boolean equals( Object o ) {
-		if( o != null ) {
-			Record orec = (Record) o;
-
-			if( this == orec ) {
-				return true;
-			}
-			if( id == orec.id || id == -1 || orec.id == -1 ) {
-				if( id == -1 || orec.id == -1 ) {
-					return Record.compare( tokens, orec.tokens ) == 0;
-				}
-				return true;
-			}
-
-			return false;
-		}
-		else {
-			return false;
-		}
-	}
-
-	/* Get/set suffix applicable rules for validators */
-
-	public void preprocessSuffixApplicableRules() {
-		List<List<Rule>> tmplist = new ArrayList<List<Rule>>();
-
-		for( int i = 0; i < tokens.length; ++i ) {
-			tmplist.add( new ArrayList<Rule>() );
-		}
-
-		for( int i = tokens.length - 1; i >= 0; --i ) {
-			for( Rule rule : applicableRules[ i ] ) {
-				int suffixidx = i + rule.getLhs().length - 1;
-				tmplist.get( suffixidx ).add( rule );
-			}
-		}
-
-		suffixApplicableRules = new Rule[ tokens.length ][];
-		for( int i = 0; i < tokens.length; ++i ) {
-			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
-		}
-	}
-	
 	public Rule[][] getSuffixApplicableRules() {
 		return suffixApplicableRules;
 	}
@@ -378,14 +269,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return rules;
 	}
 	
-	public int size() {
-		return tokens.length;
-	}
-
-	public Collection<Integer> getTokens() {
-		return IntArrayList.wrap(tokens);
-	}
-
 	public static int compare( int[] str1, int[] str2 ) {
 		if( str1.length == 0 || str2.length == 0 ) {
 			return str1.length - str2.length;

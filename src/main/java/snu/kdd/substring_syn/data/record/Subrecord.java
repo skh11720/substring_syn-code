@@ -155,8 +155,8 @@ public class Subrecord implements RecordInterface {
 				ruleList.toArray( applicableRules[k-sidx] );
 			}
 		}
-		newrec.setApplicableRules(applicableRules);
-		newrec.preprocessSuffixApplicableRules();
+		newrec.applicableRules = applicableRules;
+		RecordPreprocess.preprocessSuffixApplicableRules(newrec);
 		return newrec;
 	}
 	
