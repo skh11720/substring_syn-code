@@ -45,7 +45,7 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
-	public ObjectSet<Record> textSideFilter( Record query ) {
+	public ObjectSet<RecordInterface> textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
 		for ( int token : query.getTokens() ) {
@@ -60,15 +60,15 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 		}
 
 		statContainer.startWatch("Time_TS_IndexCountFilter");
-		ObjectSet<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
+		ObjectSet<RecordInterface> candRecordSet = pruneRecordsByCount(counter, minCount);
 		statContainer.stopWatch("Time_TS_IndexCountFilter");
 		statContainer.addCount("Num_TS_IndexCountFilter", candRecordSet.size());
 		return candRecordSet;
 	}
 	
-	private ObjectSet<Record> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
-		if ( !useCountFilter ) return new ObjectOpenHashSet<Record>(counter.keySet());
-		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+	private ObjectSet<RecordInterface> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
+		if ( !useCountFilter ) return new ObjectOpenHashSet<RecordInterface>(counter.keySet());
+		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 		for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
 			Record rec = entry.getKey();
 			int count = entry.getIntValue();

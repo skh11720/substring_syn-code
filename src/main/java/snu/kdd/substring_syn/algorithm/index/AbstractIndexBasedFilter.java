@@ -19,7 +19,7 @@ public abstract class AbstractIndexBasedFilter {
 	}
 
 	public abstract ObjectSet<RecordInterface> querySideFilter( Record query );
-	public abstract ObjectSet<Record> textSideFilter( Record query );
+	public abstract ObjectSet<RecordInterface> textSideFilter( Record query );
 
 	protected String visualizeCandRecord( Record rec, IntList idxList ) {
 		StringBuilder strbld = new StringBuilder();

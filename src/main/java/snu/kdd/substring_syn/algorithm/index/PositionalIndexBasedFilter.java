@@ -148,14 +148,14 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
-	public ObjectSet<Record> textSideFilter( Record query ) {
+	public ObjectSet<RecordInterface> textSideFilter( Record query ) {
 		TextSideFilter filter = new TextSideFilter();
 		return filter.run(query);
 	}
 	
 	private class TextSideFilter {
 		
-		public ObjectSet<Record> run( Record query ) {
+		public ObjectSet<RecordInterface> run( Record query ) {
 			statContainer.startWatch("Time_TS_PositionFilter");
 //			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.size());
@@ -171,14 +171,14 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				}
 			}
 
-			ObjectSet<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
+			ObjectSet<RecordInterface> candRecordSet = pruneRecordsByCount(counter, minCount);
 			statContainer.stopWatch("Time_TS_PositionFilter");
 			statContainer.addCount("Num_TS_PositionFilter", candRecordSet.size());
 			return candRecordSet;
 		}
 
-		private ObjectSet<Record> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
-			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+		private ObjectSet<RecordInterface> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
+			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
 				Record rec = entry.getKey();
 				int count = entry.getIntValue();
