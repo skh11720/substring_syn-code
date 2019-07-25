@@ -2,8 +2,8 @@ package vldb18.old;
 
 import java.util.Arrays;
 
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
 
 public class PkduckDPExOld {
 	

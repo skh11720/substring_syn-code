@@ -5,8 +5,8 @@ import java.util.Comparator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Double2IntSetList;
 import snu.kdd.substring_syn.utils.StatContainer;
 

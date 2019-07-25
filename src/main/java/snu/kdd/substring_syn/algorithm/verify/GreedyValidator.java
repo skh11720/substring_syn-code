@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.verify;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyValidator extends AbstractGreedyValidator {

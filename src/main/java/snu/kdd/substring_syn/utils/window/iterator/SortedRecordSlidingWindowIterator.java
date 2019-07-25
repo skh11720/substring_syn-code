@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.data.RecordInterface;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class SortedRecordSlidingWindowIterator extends AbstractRecordSlidingWindowIterator {
 	

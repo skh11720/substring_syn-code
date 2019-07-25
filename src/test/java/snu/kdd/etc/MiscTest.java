@@ -20,8 +20,9 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -75,7 +76,7 @@ public class MiscTest {
 	
 	protected IntSet getExpandedPrefix2( Record rec, double theta ) {
 		IntSet expandedPrefix = new IntOpenHashSet();
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			System.out.println("exp: "+exp);
 			System.out.println("exp.prefix: "+Util.getPrefixLength(exp, theta));
 			expandedPrefix.addAll(Util.getPrefix(exp, theta));

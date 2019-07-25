@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.search.old;
 
 import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator1;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
 
 public class PrefixSearch1_01 extends PrefixSearch1_00 {
 	

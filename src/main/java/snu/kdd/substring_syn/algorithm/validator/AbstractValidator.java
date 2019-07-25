@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.validator;
 
 import java.util.Arrays;
 
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
 
 public abstract class AbstractValidator {
 

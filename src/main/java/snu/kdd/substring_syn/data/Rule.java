@@ -2,6 +2,8 @@ package snu.kdd.substring_syn.data;
 
 import java.util.Arrays;
 
+import snu.kdd.substring_syn.data.record.Record;
+
 public class Rule implements Comparable<Rule> {
 	final int[] lhs;
 	final int[] rhs;
@@ -12,7 +14,7 @@ public class Rule implements Comparable<Rule> {
 
 	private static int count = 0;
 
-	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
+	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
 	public static Rule createRule( String str, TokenIndex tokenIndex ) {
 		String[] rstr = str.split(", ");

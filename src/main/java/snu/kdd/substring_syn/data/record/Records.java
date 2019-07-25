@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.data;
+package snu.kdd.substring_syn.data.record;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -6,8 +6,64 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.Rule;
 
 public class Records {
+
+	public static ObjectList<Record> expandAll( Record rec ) {
+		ObjectList<Record> rslt = new ObjectArrayList<Record>();
+		int[] tokens = rec.getTokenArray();
+		expandAll( rslt, rec, 0, tokens );
+		return rslt;
+	}
+
+	private static void expandAll( ObjectList<Record> rslt, Record rec, int idx, int[] t ) {
+
+		Rule[] rules = rec.applicableRules[idx];
+
+		for( Rule rule : rules ) {
+			if( rule.isSelfRule ) {
+				if( idx + 1 != rec.size() ) {
+					expandAll( rslt, rec, idx + 1, t );
+				}
+				else {
+					rslt.add( new Record( t ) );
+				}
+			}
+			else {
+				int newSize = t.length - rule.lhsSize() + rule.rhsSize();
+
+				int[] new_rec = new int[ newSize ];
+
+				int rightSize = rec.size() - idx;
+				int rightMostSize = rightSize - rule.lhsSize();
+
+				int[] rhs = rule.getRhs();
+
+				int k = 0;
+				for( int i = 0; i < t.length - rightSize; i++ ) {
+					new_rec[ k++ ] = t[ i ];
+				}
+				for( int i = 0; i < rhs.length; i++ ) {
+					new_rec[ k++ ] = rhs[ i ];
+				}
+				for( int i = t.length - rightMostSize; i < t.length; i++ ) {
+					new_rec[ k++ ] = t[ i ];
+				}
+
+				int new_idx = idx + rule.lhsSize();
+				if( new_idx == rec.size() ) {
+					rslt.add( new Record( new_rec ) );
+				}
+				else {
+					expandAll( rslt, rec, new_idx, new_rec );
+				}
+			}
+		}
+	}
+
 
 	static int getTransSetSizeLowerBound( Record rec ) {
 		Iterator<Int2DoubleMap.Entry> tokenCountIter = getTokenCountUpperBoundIterator(rec);

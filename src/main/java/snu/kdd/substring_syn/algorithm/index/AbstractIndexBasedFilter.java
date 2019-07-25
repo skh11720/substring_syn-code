@@ -3,8 +3,8 @@ package snu.kdd.substring_syn.algorithm.index;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.RecordInterface;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractIndexBasedFilter {

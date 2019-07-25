@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.data;
+package snu.kdd.substring_syn.data.record;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +10,10 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.substring_syn.data.ACAutomataR;
+import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.TokenIndex;
+import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record implements RecordInterface, Comparable<Record> {
@@ -17,18 +21,18 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	protected int id;
-	protected int[] tokens;
-	protected int num_dist_tokens;
-	protected int hash;
+	int id;
+	int[] tokens;
+	int num_dist_tokens;
+	int hash;
 
-	protected Rule[][] applicableRules = null;
-	protected Rule[][] suffixApplicableRules = null;
-	protected int[][] transformLengths = null;
-	protected long[] estTrans;
+	Rule[][] applicableRules = null;
+	Rule[][] suffixApplicableRules = null;
+	int[][] transformLengths = null;
+	long[] estTrans;
 
-	protected int maxRhsSize = 0;
-	protected int transSetLB = 0;
+	int maxRhsSize = 0;
+	int transSetLB = 0;
 	
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
@@ -193,68 +197,9 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
-	public long[] getEstNumTransformedArray() {
-		return estTrans;
-	}
-
-	public long getEstNumTransformed() {
-		return estTrans[ estTrans.length - 1 ];
-	}
-
 	/**
 	 * Expand this record with preprocessed rules
 	 */
-
-	public ArrayList<Record> expandAll() {
-		ArrayList<Record> rslt = new ArrayList<Record>();
-		expandAll( rslt, 0, this.tokens );
-		return rslt;
-	}
-
-	protected void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
-
-		Rule[] rules = applicableRules[ idx ];
-
-		for( Rule rule : rules ) {
-			if( rule.isSelfRule ) {
-				if( idx + 1 != tokens.length ) {
-					expandAll( rslt, idx + 1, t );
-				}
-				else {
-					rslt.add( new Record( t ) );
-				}
-			}
-			else {
-				int newSize = t.length - rule.lhsSize() + rule.rhsSize();
-
-				int[] new_rec = new int[ newSize ];
-
-				int rightSize = tokens.length - idx;
-				int rightMostSize = rightSize - rule.lhsSize();
-
-				int[] rhs = rule.getRhs();
-
-				int k = 0;
-				for( int i = 0; i < t.length - rightSize; i++ ) {
-					new_rec[ k++ ] = t[ i ];
-				}
-				for( int i = 0; i < rhs.length; i++ ) {
-					new_rec[ k++ ] = rhs[ i ];
-				}
-				for( int i = t.length - rightMostSize; i < t.length; i++ ) {
-					new_rec[ k++ ] = t[ i ];
-				}
-
-				int new_idx = idx + rule.lhsSize();
-				if( new_idx == tokens.length ) {
-					rslt.add( new Record( new_rec ) );
-				}
-				else {
-					expandAll( rslt, new_idx, new_rec );
-				}
-			}
-		}
-	}
 
 	public void preprocessTransformLength() {
 		transformLengths = new int[ tokens.length ][ 2 ];
@@ -405,15 +350,15 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return suffixApplicableRules;
 	}
 
-	public Rule[] getSuffixApplicableRules( int k ) {
+	public Iterable<Rule> getSuffixApplicableRules( int k ) {
 		if( suffixApplicableRules == null ) {
 			return null;
 		}
 		else if( k < suffixApplicableRules.length ) {
-			return suffixApplicableRules[ k ];
+			return Arrays.asList(suffixApplicableRules[k]);
 		}
 		else {
-			return Rule.EMPTY_RULE;
+			return Arrays.asList(Rule.EMPTY_RULE);
 		}
 	}
 	
@@ -473,6 +418,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 	
+	@Override
 	public IntOpenHashSet getCandTokenSet() {
 		IntOpenHashSet tokenSet = new IntOpenHashSet();
 		for ( Rule r : getApplicableRuleIterable() ) {
@@ -483,7 +429,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	
 	
-	protected class RuleIterator implements Iterator<Rule> {
+	class RuleIterator implements Iterator<Rule> {
 		int k = 0;
 		int i = 0;
 

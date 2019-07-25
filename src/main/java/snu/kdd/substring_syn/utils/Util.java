@@ -19,8 +19,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.RecordInterface;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -664,7 +665,7 @@ public class Util {
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			int prefixLen = getPrefixLength(exp, theta);
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}

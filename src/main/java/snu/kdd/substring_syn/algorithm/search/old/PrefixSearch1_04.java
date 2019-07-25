@@ -1,6 +1,6 @@
 package snu.kdd.substring_syn.algorithm.search.old;
 
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
 import vldb18.PkduckDPExWIthLF;
 
 public class PrefixSearch1_04 extends PrefixSearch1_03 {

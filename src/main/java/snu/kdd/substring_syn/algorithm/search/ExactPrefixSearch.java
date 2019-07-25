@@ -1,7 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import vldb18.NaivePkduckValidator;
 
 public class ExactPrefixSearch extends PrefixSearch {

@@ -2,10 +2,12 @@ package snu.kdd.substring_syn.algorithm.search;
 
 import java.util.ArrayList;
 
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.RecordInterface;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -20,7 +22,7 @@ public class NaiveSearch extends AbstractSearch {
 
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		ArrayList<Record> queryExpArr = query.expandAll();
+		ObjectList<Record> queryExpArr = Records.expandAll(query);
 		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
@@ -44,7 +46,7 @@ public class NaiveSearch extends AbstractSearch {
 	
 	protected void searchRecordTextSide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(exp));
 			for ( int w=1; w<=exp.size(); ++w ) {
 				SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(exp, w, theta);

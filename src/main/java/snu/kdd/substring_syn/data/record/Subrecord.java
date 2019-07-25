@@ -1,7 +1,12 @@
-package snu.kdd.substring_syn.data;
+package snu.kdd.substring_syn.data.record;
 
+import java.util.Iterator;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.data.Rule;
 
 public class Subrecord implements RecordInterface {
 	
@@ -9,6 +14,7 @@ public class Subrecord implements RecordInterface {
 	public final int sidx;
 	public final int eidx;
 	private final int hash;
+	protected int maxRhsSize = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
 		this.rec = rec.getSuperRecord();
@@ -65,8 +71,33 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
-	public Rule[] getSuffixApplicableRules(int i) {
+	public Iterable<Rule> getSuffixApplicableRules(int i) {
 		return rec.getSuffixApplicableRules(sidx+i);
+	}
+	
+	@Override
+	public int getMaxRhsSize() {
+		if ( maxRhsSize == 0 ) {
+			for ( int k=sidx; k<eidx; ++k ) {
+				for ( Rule rule : rec.getApplicableRules(k) ) {
+					if ( rule.lhsSize() <= eidx-k ) 
+						maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
+				}
+			}
+		}
+		return maxRhsSize;
+	}
+	
+	@Override
+	public IntOpenHashSet getCandTokenSet() {
+		IntOpenHashSet tokenSet = new IntOpenHashSet();
+		for ( int k=sidx; k<eidx; ++k ) {
+			for ( Rule rule : rec.getApplicableRules(k) ) {
+				if ( rule.lhsSize() <= eidx-k ) 
+					tokenSet.addAll(IntArrayList.wrap(rule.getRhs()));
+			}
+		}
+		return tokenSet;
 	}
 	
 	@Override
@@ -143,5 +174,28 @@ public class Subrecord implements RecordInterface {
 	public Iterable<Rule> getApplicableRuleIterable() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	class ruleIterator implements Iterator<Rule> {
+		
+		Rule[] ruleList;
+		int k;
+		int i = 0;
+		
+		public ruleIterator( int k ) {
+			this.k = k;
+			ruleList = rec.getApplicableRules(k);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return i < ruleList.length;
+		}
+
+		@Override
+		public Rule next() {
+			while ( i < ruleList.length && ruleList[i].lhsSize() > eidx-k ) ++i;
+			return null;
+		}
 	}
 }

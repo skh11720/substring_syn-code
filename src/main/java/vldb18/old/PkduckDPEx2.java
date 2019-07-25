@@ -1,8 +1,8 @@
 package vldb18.old;
 
 import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
 import vldb18.PkduckDPEx;
 
 public class PkduckDPEx2 extends PkduckDPEx {
