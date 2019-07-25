@@ -164,15 +164,15 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return applicableRules;
 	}
 	
-	public Rule[] getApplicableRules( int k ) {
+	public Iterable<Rule> getApplicableRules( int k ) {
 		if( applicableRules == null ) {
 			return null;
 		}
 		else if( k < applicableRules.length ) {
-			return applicableRules[ k ];
+			return Arrays.asList(applicableRules[k]);
 		}
 		else {
-			return Rule.EMPTY_RULE;
+			return Arrays.asList(Rule.EMPTY_RULE);
 		}
 	}
 

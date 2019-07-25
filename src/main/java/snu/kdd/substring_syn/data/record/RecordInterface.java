@@ -12,6 +12,7 @@ public interface RecordInterface {
 	int getSidx();
 	Record getSuperRecord();
 
+	int[] getTokenArray();
 	IntList getTokenList();
 	IntSet getCandTokenSet();
 
@@ -19,7 +20,9 @@ public interface RecordInterface {
 	int getMaxRhsSize();
 
 	Iterable<Rule> getApplicableRuleIterable();
-	Iterable<Rule> getSuffixApplicableRules(int i);
+	Iterable<Rule> getApplicableRules( int i );
+	Iterable<Rule> getSuffixApplicableRules( int i );
+	Iterable<Rule> getIncompatibleRules( int k );
 
 	String toString();
 	String toOriginalString();

@@ -40,7 +40,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		Log.log.debug("AbstractIndexBasedSearch.searchGivenQuery(%d, dataset)", ()->query.getID());
 		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		searchQuerySide(query, candListQuerySide);
-		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
+		Iterable<? extends RecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
 		searchTextSide(query, candListTextSide);
 	}
 	
@@ -54,7 +54,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		else return dataset.indexedList;
 	}
 	
-	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
+	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if (idxFilter_text) {
 			statContainer.startWatch(Stat.Time_5_IndexFilter);
 			ObjectSet<Record> candRecordSet = indexFilter.textSideFilter(query);

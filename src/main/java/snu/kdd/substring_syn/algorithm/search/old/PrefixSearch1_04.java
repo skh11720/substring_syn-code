@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search.old;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import vldb18.PkduckDPExWIthLF;
 
 public class PrefixSearch1_04 extends PrefixSearch1_03 {
@@ -17,7 +18,7 @@ public class PrefixSearch1_04 extends PrefixSearch1_03 {
 	}
 
 	@Override
-	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
+	protected void setPkduckDP(Record query, RecordInterface rec, double modifiedTheta) {
 		pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
 	}
 

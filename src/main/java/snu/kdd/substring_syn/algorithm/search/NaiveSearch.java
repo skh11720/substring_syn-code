@@ -1,7 +1,5 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import java.util.ArrayList;
-
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
@@ -44,7 +42,7 @@ public class NaiveSearch extends AbstractSearch {
 		}
 	}
 	
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		for ( Record exp : Records.expandAll(rec) ) {
 			statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(exp));

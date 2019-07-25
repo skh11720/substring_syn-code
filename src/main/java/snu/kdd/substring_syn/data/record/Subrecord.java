@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 
 public class Subrecord implements RecordInterface {
@@ -80,6 +81,17 @@ public class Subrecord implements RecordInterface {
 			}
 		};
 	}
+
+	@Override
+	public Iterable<Rule> getApplicableRules( int i ) {
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new PrefixRuleIterator(i);
+			}
+		};
+	}
 	
 	public Iterable<Rule> getSuffixApplicableRuleIterable() {
 		return new Iterable<Rule>() {
@@ -92,7 +104,7 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
-	public Iterable<Rule> getSuffixApplicableRules(int i) {
+	public Iterable<Rule> getSuffixApplicableRules( int i ) {
 		return new Iterable<Rule>() {
 			
 			@Override
@@ -100,6 +112,14 @@ public class Subrecord implements RecordInterface {
 				return new SuffixRuleIterator(i);
 			}
 		};
+	}
+
+	@Override
+	public Iterable<Rule> getIncompatibleRules( int k ) {
+		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
+		rules.addAll( new ObjectArrayList<Rule>(getApplicableRules(k).iterator()) );
+		rules.addAll( new ObjectArrayList<Rule>(getSuffixApplicableRules(k).iterator()) );
+		return rules;
 	}
 	
 	@Override

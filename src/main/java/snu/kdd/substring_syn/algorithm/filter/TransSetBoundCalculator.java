@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Double2IntSetList;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -28,7 +29,7 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 	 */
 	private static final double eps = 1e-10;
 	private final StatContainer statContainer;
-	private final Record rec;
+	private final RecordInterface rec;
 	private final double theta;
 	private final Int2DoubleOpenHashMap[] counterArr;
 	private final int[][] transLen;
@@ -45,7 +46,7 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 		}
 	};
 
-	public TransSetBoundCalculator( StatContainer statContainer, Record rec, double theta ) {
+	public TransSetBoundCalculator( StatContainer statContainer, RecordInterface rec, double theta ) {
 		this.statContainer = statContainer;
 		this.rec = rec;
 		this.theta = theta;

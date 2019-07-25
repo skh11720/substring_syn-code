@@ -78,8 +78,8 @@ public abstract class AbstractSearch {
 		}
 	}
 	
-	protected void searchTextSide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
+	protected void searchTextSide( Record query, Iterable<? extends RecordInterface> records ) {
+		for ( RecordInterface rec :  records ) {
 			statContainer.startWatch(Stat.Time_2_TSTotal);
 			searchRecordTextSide(query, rec);
 			statContainer.stopWatch(Stat.Time_2_TSTotal);
@@ -117,7 +117,7 @@ public abstract class AbstractSearch {
 	
 	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
 	
-	protected abstract void searchRecordTextSide( Record query, Record rec ); 
+	protected abstract void searchRecordTextSide( Record query, RecordInterface rec ); 
 
 	public String getID() { return id; }
 	

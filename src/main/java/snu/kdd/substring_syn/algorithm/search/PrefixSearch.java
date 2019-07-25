@@ -121,7 +121,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		double modifiedTheta = getModifiedTheta(query, rec);
@@ -137,17 +137,17 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected double getModifiedTheta( Record query, Record rec ) {
+	protected double getModifiedTheta( Record query, RecordInterface rec ) {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 
-	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
+	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected void setBoundCalculator(Record rec, double modifiedTheta) {
+	protected void setBoundCalculator(RecordInterface rec, double modifiedTheta) {
 		if ( lf_text ) {
 			statContainer.startWatch("Time_TransSetBoundCalculatorMem");
 			boundCalculator = new TransSetBoundCalculator(statContainer, rec, modifiedTheta);
@@ -155,12 +155,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
+	protected void setPkduckDP(Record query, RecordInterface rec, double modifiedTheta) {
 		if ( lf_text ) pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
 		else pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
 	}
 	
-	protected boolean applyPrefixFiltering( Record query, Record rec ) {
+	protected boolean applyPrefixFiltering( Record query, RecordInterface rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			if ( applyPrefixFilteringFrom(query, rec, widx) ) return true;
 		}
@@ -168,7 +168,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return false;
 	}
 	
-	protected boolean applyPrefixFilteringFrom( Record query, Record rec, int widx ) {
+	protected boolean applyPrefixFilteringFrom( Record query, RecordInterface rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
 			Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
 			if ( lf_text ) {
@@ -182,7 +182,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return false;
 	}
 
-	protected boolean applyPrefixFilteringToWindow( Record query, Record rec, int widx, int w ) {
+	protected boolean applyPrefixFilteringToWindow( Record query, RecordInterface rec, int widx, int w ) {
 		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
 		boolean isInSigU = pkduckdp.isInSigU(widx, w);
 		if ( isInSigU ) {

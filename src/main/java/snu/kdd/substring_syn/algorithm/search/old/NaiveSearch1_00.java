@@ -43,7 +43,7 @@ public class NaiveSearch1_00 extends AbstractSearch {
 		}
 	}
 	
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
 		for ( int w=1; w<=rec.size(); ++w ) {

@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
 import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class TransSetBoundCalculator3 implements TransSetBoundCalculatorInterface {
@@ -29,7 +29,7 @@ public class TransSetBoundCalculator3 implements TransSetBoundCalculatorInterfac
 	 * 		sort the updated entries only in insertion sort-style.
 	 */
 	private final StatContainer statContainer;
-	private final Record rec;
+	private final RecordInterface rec;
 	private final double theta;
 	private final Int2DoubleOpenHashMap[] counterArr;
 	private final int[][] transLen;
@@ -46,7 +46,7 @@ public class TransSetBoundCalculator3 implements TransSetBoundCalculatorInterfac
 		}
 	};
 
-	public TransSetBoundCalculator3( StatContainer statContainer, Record rec, double theta ) {
+	public TransSetBoundCalculator3( StatContainer statContainer, RecordInterface rec, double theta ) {
 		this.statContainer = statContainer;
 		this.rec = rec;
 		this.theta = theta;
