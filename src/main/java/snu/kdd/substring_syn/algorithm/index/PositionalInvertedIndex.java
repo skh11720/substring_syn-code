@@ -10,8 +10,8 @@ import snu.kdd.substring_syn.data.Rule;
 
 public class PositionalInvertedIndex {
 	
-	final Int2ObjectMap<ObjectList<IndexEntry>> invList;
-	final Int2ObjectMap<ObjectList<IndexEntry>> transInvList;
+	final Int2ObjectMap<ObjectList<InvListEntry>> invList;
+	final Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList;
 	int size;
 
 	public PositionalInvertedIndex( Dataset dataset ) {
@@ -20,27 +20,27 @@ public class PositionalInvertedIndex {
 		size = computeSize();
 	}
 
-	private Int2ObjectMap<ObjectList<IndexEntry>> buildInvList( Dataset dataset ) {
-		Int2ObjectMap<ObjectList<IndexEntry>> invList = new Int2ObjectOpenHashMap<>();
+	private Int2ObjectMap<ObjectList<InvListEntry>> buildInvList( Dataset dataset ) {
+		Int2ObjectMap<ObjectList<InvListEntry>> invList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
-				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<IndexEntry>());
-				invList.get(token).add( new IndexEntry(rec, i) );
+				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<InvListEntry>());
+				invList.get(token).add( new InvListEntry(rec, i) );
 			}
 		}
 		return invList;
 	}
 	
-	private Int2ObjectMap<ObjectList<IndexEntry>> buildTransIntList( Dataset dataset ) {
-		Int2ObjectMap<ObjectList<IndexEntry>> transInvList = new Int2ObjectOpenHashMap<>();
+	private Int2ObjectMap<ObjectList<TransInvListEntry>> buildTransIntList( Dataset dataset ) {
+		Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.isSelfRule ) continue;
 					for ( int token : rule.getRhs() ) {
-						if ( !transInvList.containsKey(token) ) transInvList.put(token, new ObjectArrayList<IndexEntry>());
-						transInvList.get(token).add(new IndexEntry(rec, k));
+						if ( !transInvList.containsKey(token) ) transInvList.put(token, new ObjectArrayList<TransInvListEntry>());
+						transInvList.get(token).add(new TransInvListEntry(rec, k, k+rule.lhsSize()-1));
 					}
 				}
 			}
@@ -50,26 +50,38 @@ public class PositionalInvertedIndex {
 	
 	private int computeSize() {
 		int size = 0;
-		for ( ObjectList<IndexEntry> list : invList.values() ) size += list.size();
-		for ( ObjectList<IndexEntry> list : transInvList.values() ) size += list.size();
+		for ( ObjectList<InvListEntry> list : invList.values() ) size += list.size();
+		for ( ObjectList<TransInvListEntry> list : transInvList.values() ) size += list.size();
 		return size;
 	}
 	
-	public ObjectList<IndexEntry> getInvList( int token ) {
+	public ObjectList<InvListEntry> getInvList( int token ) {
 		return invList.get(token);
 	}
 	
-	public ObjectList<IndexEntry> getTransInvList( int token ) {
+	public ObjectList<TransInvListEntry> getTransInvList( int token ) {
 		return transInvList.get(token);
 	}
 	
-	class IndexEntry {
+	class InvListEntry {
 		final Record rec;
 		final int pos;
 		
-		public IndexEntry( Record rec, int pos ) {
+		public InvListEntry( Record rec, int pos ) {
 			this.rec = rec;
 			this.pos = pos;
+		}
+	}
+	
+	class TransInvListEntry {
+		final Record rec;
+		final int left;
+		final int right;
+		
+		public TransInvListEntry( Record rec, int left, int right ) {
+			this.rec = rec;
+			this.left = left;
+			this.right = right;
 		}
 	}
 }
