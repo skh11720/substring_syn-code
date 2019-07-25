@@ -49,18 +49,18 @@ public class PositionFilterTextSideTest {
 			System.out.println("minCount: "+minCount);
 			for ( Record rec : dataset.indexedList ) {
 				double modifiedTheta = getModifiedTheta(query, rec, theta);
-				ObjectList<TokenPosPair> prefixIdxList = getCommonTokenIdxListPrefix(rec, queryTokenSet);
-				ObjectList<TokenPosPair> suffixIdxList = getCommonTokenIdxListSuffix(rec, queryTokenSet);
+				ObjectList<TokenPosPair> prefixIdxList = getPrefixIdxList(rec, queryTokenSet);
+				ObjectList<TokenPosPair> suffixIdxList = getSuffixIdxList(rec, queryTokenSet);
 				if ( prefixIdxList.size() < minCount ) continue;
 				String vizPrefix = visualizeCandRecord(rec, prefixIdxList);
 				String vizSuffix = visualizeCandRecord(rec, suffixIdxList);
 				System.out.println(vizPrefix);
 				System.out.println(vizSuffix);
 				compareVisualizingStrigs(vizPrefix, vizSuffix);
-				ObjectList<IntRange> segmentList = findSegments(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
-				System.out.println("segmentList="+segmentList);
-				ObjectList<RecordInterface> splitList = splitRecord(rec, segmentList, prefixIdxList, minCount);
-				System.out.println("splitList="+strSplitList(splitList));
+				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
+				System.out.println("segmentRangeList="+segmentRangeList);
+				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, minCount);
+				System.out.println("segmentList="+strSplitList(segmentList));
 				System.out.println();
 			}
 		}
@@ -70,7 +70,7 @@ public class PositionFilterTextSideTest {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 
-	private static ObjectList<TokenPosPair> getCommonTokenIdxListPrefix( Record rec, IntSet queryTokenSet ) {
+	private static ObjectList<TokenPosPair> getPrefixIdxList( Record rec, IntSet queryTokenSet ) {
 		ObjectList<TokenPosPair> idxList = new ObjectArrayList<>();
 		for ( int k=0; k<rec.size(); ++k ) {
 			for ( Rule rule : rec.getApplicableRules(k) ) {
@@ -82,7 +82,7 @@ public class PositionFilterTextSideTest {
 		return idxList;
 	}
 
-	private static ObjectList<TokenPosPair> getCommonTokenIdxListSuffix( Record rec, IntSet queryTokenSet ) {
+	private static ObjectList<TokenPosPair> getSuffixIdxList( Record rec, IntSet queryTokenSet ) {
 		ObjectList<TokenPosPair> idxList = new ObjectArrayList<>();
 		for ( int k=0; k<rec.size(); ++k ) {
 			for ( Rule rule : rec.getSuffixApplicableRules(k) ) {
@@ -94,7 +94,7 @@ public class PositionFilterTextSideTest {
 		return idxList;
 	}
 	
-	private static ObjectList<IntRange> findSegments( Record query, Record rec, ObjectList<TokenPosPair> prefixIdxList, ObjectList<TokenPosPair> suffixIdxList, double theta ) {
+	private static ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<TokenPosPair> prefixIdxList, ObjectList<TokenPosPair> suffixIdxList, double theta ) {
 		TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(null, rec, theta);
 		int m = prefixIdxList.size();
 		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
@@ -143,20 +143,20 @@ public class PositionFilterTextSideTest {
 		return mergedRangeList;
 	}
 
-	private static ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentList, ObjectList<TokenPosPair> prefixIdxList, int minCount ) {
-		ObjectList<RecordInterface> splitList = new ObjectArrayList<>();
-		if ( segmentList != null ) {
-			for ( IntRange range : segmentList ) {
+	private static ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, ObjectList<TokenPosPair> prefixIdxList, int minCount ) {
+		ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
+		if ( segmentRangeList != null ) {
+			for ( IntRange range : segmentRangeList ) {
 				int count = 0;
 				for ( TokenPosPair e : prefixIdxList ) {
 					if ( range.min > e.pos ) continue;
 					if ( e.pos > range.max ) break;
 					++count;
 				}
-				if ( count >= minCount ) splitList.add(new Subrecord(rec, range.min, range.max+1));
+				if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
 			}
 		}
-		return splitList;
+		return segmentList;
 	}
 	
 	private static String visualizeCandRecord( Record rec, ObjectList<TokenPosPair> idxList ) {

@@ -49,9 +49,9 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			Log.log.trace("idxList=%s", ()->idxList);
 			Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 			if ( useCountFilter && idxList.size() < minCount ) continue;
-			ObjectList<RecordInterface> splitList =  pruneSingleRecord(query, rec, idxList, minCount);
-			Log.log.trace("splitList=%s", ()->strSplitList(splitList));
-			candRecordSet.addAll(splitList);
+			ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
+			Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
+			candRecordSet.addAll(segmentList);
 		}
 		statContainer.stopWatch("Time_QS_PositionFilter");
 		statContainer.addCount("Num_QS_PositionFilter", candRecordSet.size());
@@ -75,10 +75,10 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 	}
 	
 	private ObjectList<RecordInterface> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
-		ObjectList<IntRange> segmentList = findSegments(query, rec, idxList, theta);
-		Log.log.trace("segmentList=%s", ()->segmentList);
-		ObjectList<RecordInterface> splitList = splitRecord(rec, segmentList, idxList, minCount );
-		return splitList;
+		ObjectList<IntRange> segmentRangeList = findSegments(query, rec, idxList, theta);
+		Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
+		ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
+		return segmentList;
 	}
 
 	private ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
@@ -124,18 +124,18 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		return mergedRangeList;
 	}
 	
-	private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentList, IntList idxList, int minCount ) {
-		ObjectList<RecordInterface> splitList = new ObjectArrayList<>();
-		if ( segmentList != null ) {
-			for ( IntRange range : segmentList ) {
+	private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList idxList, int minCount ) {
+		ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
+		if ( segmentRangeList != null ) {
+			for ( IntRange range : segmentRangeList ) {
 				int count = 0;
 				for ( int idx : idxList ) {
 					if ( range.min <= idx && idx <= range.max ) ++count;
 				}
-				if ( count >= minCount ) splitList.add(new Subrecord(rec, range.min, range.max+1));
+				if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
 			}
 		}
-		return splitList;
+		return segmentList;
 	}
 	
 	@Deprecated
@@ -160,7 +160,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 	
 	@Deprecated
 	private ObjectList<RecordInterface> splitRecordOld( Record rec, IntList idxList, double[] splitScoreArr, double theta, int minCount ) {
-		ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
+		ObjectList<RecordInterface> segmentRangeList = new ObjectArrayList<>();
 		int sidx = idxList.get(0);
 		int eidx = -1;
 		int count = 1;
@@ -168,13 +168,13 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			eidx = idxList.get(i+1);
 			++count;
 			if ( splitScoreArr[i] < theta ) {
-				if ( !useCountFilter || count >= minCount ) segmentList.add(new Subrecord(rec, sidx, eidx+1));
+				if ( !useCountFilter || count >= minCount ) segmentRangeList.add(new Subrecord(rec, sidx, eidx+1));
 				sidx = idxList.get(i+1);
 				count = 1;
 			}
 		}
-		if ( !useCountFilter || count >= minCount ) segmentList.add(new Subrecord(rec, sidx, eidx+1));
-		return segmentList;
+		if ( !useCountFilter || count >= minCount ) segmentRangeList.add(new Subrecord(rec, sidx, eidx+1));
+		return segmentRangeList;
 	}
 	
 	@Override
@@ -209,11 +209,11 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		return candRecordSet;
 	}
 	
-	private String strSplitList( ObjectList<RecordInterface> segmentList ) {
+	private String strSegmentList( ObjectList<RecordInterface> segmentRangeList ) {
 		StringBuilder strbld = new StringBuilder("[");
-		for ( int i=0; i<segmentList.size(); ++i ) {
+		for ( int i=0; i<segmentRangeList.size(); ++i ) {
 			if ( i > 0 ) strbld.append(", ");
-			Subrecord subrec = (Subrecord)segmentList.get(i);
+			Subrecord subrec = (Subrecord)segmentRangeList.get(i);
 			strbld.append(String.format("(%d,%d)", subrec.sidx, subrec.eidx));
 		}
 		strbld.append("]");

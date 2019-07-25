@@ -144,25 +144,25 @@ public class PositionFilterQueryTest {
 			int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 			System.out.println("minCount: "+minCount);
 			for ( Record rec : dataset.indexedList ) {
-				IntList commonTokenIdxList = getCommonTokenIdxListQuerySide(rec, queryTokenSet);
-				if ( commonTokenIdxList.size() < minCount ) continue;
+				IntList idxList = getCommonTokenIdxListQuerySide(rec, queryTokenSet);
+				if ( idxList.size() < minCount ) continue;
 				visualizeCandRecord(rec, queryTokenSet);
-				ObjectList<IntRange> segmentList = findSegments(query, rec, commonTokenIdxList, theta);
-				ObjectList<RecordInterface> splitList = splitRecord(rec, segmentList, commonTokenIdxList, minCount);
-				if ( splitList.size() == 0 ) continue;
+				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, idxList, theta);
+				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount);
+				if ( segmentList.size() == 0 ) continue;
 			}
 		}
 	}
 	
 	private static IntList getCommonTokenIdxListQuerySide( Record rec, IntSet tokenSet ) {
-		IntList commonTokenIdxList = new IntArrayList();
+		IntList idxList = new IntArrayList();
 		for ( int i=0; i<rec.size(); ++i ) {
-			if ( tokenSet.contains(rec.getToken(i)) ) commonTokenIdxList.add(i);
+			if ( tokenSet.contains(rec.getToken(i)) ) idxList.add(i);
 		}
-		return commonTokenIdxList;
+		return idxList;
 	}
 
-	private static ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
+	private static ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList idxList, double theta ) {
 		int m = idxList.size();
 		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 		for ( int i=0; i<m-1; ++i ) {
@@ -202,32 +202,32 @@ public class PositionFilterQueryTest {
 		return mergedRangeList;
 	}
 	
-	private static ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentList, IntList idxList, int minCount ) {
-		ObjectList<RecordInterface> splitList = new ObjectArrayList<>();
+	private static ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList idxList, int minCount ) {
+		ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
 		if ( segmentList != null ) {
-			for ( IntRange range : segmentList ) {
+			for ( IntRange range : segmentRangeList ) {
 				int count = 0;
 				for ( int idx : idxList ) {
 					if ( range.min > idx ) continue;
 					if ( idx > range.max ) break;
 					++count;
 				}
-				if ( count >= minCount ) splitList.add(new Subrecord(rec, range.min, range.max+1));
+				if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
 			}
 		}
-		return splitList;
+		return segmentList;
 	}
 
-	private static double[] computeSplitScore( Record rec, IntList commonTokenIdxList ) {
-		int m = commonTokenIdxList.size();
+	private static double[] computeSplitScore( Record rec, IntList idxList ) {
+		int m = idxList.size();
 		double[] scoreArr = new double[m-1];
 		for ( int i=0; i<m-1; ++i ) {
-			int sidx = commonTokenIdxList.get(i);
+			int sidx = idxList.get(i);
 			IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
 			IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
 			int eidx0 = sidx;
 			for ( int j=i+1; j<m; ++j ) {
-				int eidx1 = commonTokenIdxList.get(j);
+				int eidx1 = idxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
 				for ( int k=i; k<j; ++k ) scoreArr[k] = Math.max(scoreArr[k], (double)numSet.size()/denumSet.size());
@@ -239,16 +239,16 @@ public class PositionFilterQueryTest {
 		return scoreArr;
 	}
 
-	private static void findSplitPoint( Record rec, IntList commonTokenIdxList, double theta ) {
-		int m = commonTokenIdxList.size();
+	private static void findSplitPoint( Record rec, IntList idxList, double theta ) {
+		int m = idxList.size();
 		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 		for ( int i=0; i<m-1; ++i ) {
-			int sidx = commonTokenIdxList.get(i);
+			int sidx = idxList.get(i);
 			IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
 			IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
 			int eidx0 = sidx;
 			for ( int j=i+1; j<m; ++j ) {
-				int eidx1 = commonTokenIdxList.get(j);
+				int eidx1 = idxList.get(j);
 				numSet.add(rec.getToken(eidx1));
 				denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
 				double score = (double)numSet.size()/denumSet.size();
@@ -282,23 +282,23 @@ public class PositionFilterQueryTest {
 		}
 	}
 	
-	private static ObjectList<IntPair> splitRecord( Record rec, IntList commonTokenIdxList, double[] scoreArr, double theta, IntSet candTokenSet, int minCount ) {
+	private static ObjectList<IntPair> splitRecord( Record rec, IntList idxList, double[] scoreArr, double theta, IntSet candTokenSet, int minCount ) {
 		ObjectList<IntPair> segmentList = new ObjectArrayList<>();
-		int sidx = commonTokenIdxList.get(0);
+		int sidx = idxList.get(0);
 		int eidx = -1;
 		int count = 1;
 		for ( int i=0; i<scoreArr.length; ++i ) {
 			if ( scoreArr[i] < theta ) {
-				eidx = commonTokenIdxList.get(i);
+				eidx = idxList.get(i);
 				if ( count >= minCount ) segmentList.add(new IntPair(sidx, eidx+1));
 				IntList segment = rec.getTokenList().subList(sidx, eidx+1);
 				visualizeCandRecord(segment, candTokenSet);
-				sidx = commonTokenIdxList.get(i+1);
+				sidx = idxList.get(i+1);
 				count = 1;
 			}
 			++count;
 		}
-		visualizeCandRecord(rec.getTokenList().subList(sidx, commonTokenIdxList.get(commonTokenIdxList.size()-1)+1), candTokenSet);
+		visualizeCandRecord(rec.getTokenList().subList(sidx, idxList.get(idxList.size()-1)+1), candTokenSet);
 		System.out.println(segmentList);
 		return segmentList;
 	}
