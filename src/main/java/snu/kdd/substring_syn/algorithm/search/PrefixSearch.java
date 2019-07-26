@@ -241,7 +241,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 2.00: length filtering
 		 * 3.00: index filtering for query-side
 		 * 3.01: takes O(n^2) time to split records
+		 * 3.02: position filter text-side
 		 */
-		return "3.01";
+		return "3.02";
 	}
 }
