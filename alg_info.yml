@@ -9,3 +9,4 @@ PrefixSearch:
   bIFT: ['false', 'true']
   bLFQ: ['false', 'true']
   bLFT: ['false', 'true']
+  index_impl: ['Naive', 'Position']
