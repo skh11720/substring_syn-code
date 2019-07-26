@@ -5,7 +5,6 @@ import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
@@ -36,12 +35,19 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected abstract AbstractIndexBasedFilter buildSpecificIndex( Dataset dataset );
 
 	@Override
-	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		Log.log.debug("AbstractIndexBasedSearch.searchGivenQuery(%d, dataset)", ()->query.getID());
+	protected void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
-		searchQuerySide(query, candListQuerySide);
+		for ( RecordInterface rec : candListQuerySide ) {
+			searchRecordQuerySide(query, rec);
+		}
+	}
+	
+	@Override
+	protected void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<? extends RecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
-		searchTextSide(query, candListTextSide);
+		for ( RecordInterface rec : candListTextSide ) {
+			searchRecordTextSide(query, rec);
+		}
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {

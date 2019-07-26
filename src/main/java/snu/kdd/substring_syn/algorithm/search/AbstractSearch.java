@@ -66,23 +66,23 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		searchQuerySide(query, dataset.indexedList);
-		searchTextSide(query, dataset.indexedList);
+		statContainer.startWatch(Stat.Time_1_QSTotal);
+		searchQuerySide(query, dataset);
+		statContainer.stopWatch(Stat.Time_1_QSTotal);
+		statContainer.startWatch(Stat.Time_2_TSTotal);
+		searchTextSide(query, dataset);
+		statContainer.stopWatch(Stat.Time_2_TSTotal);
 	}
 	
-	protected void searchQuerySide( Record query, Iterable<? extends RecordInterface> records ) {
-		for ( RecordInterface rec :  records ) {
-			statContainer.startWatch(Stat.Time_1_QSTotal);
+	protected void searchQuerySide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordQuerySide(query, rec);
-			statContainer.stopWatch(Stat.Time_1_QSTotal);
 		}
 	}
 	
-	protected void searchTextSide( Record query, Iterable<? extends RecordInterface> records ) {
-		for ( RecordInterface rec :  records ) {
-			statContainer.startWatch(Stat.Time_2_TSTotal);
+	protected void searchTextSide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordTextSide(query, rec);
-			statContainer.stopWatch(Stat.Time_2_TSTotal);
 		}
 	}
 	

@@ -209,7 +209,9 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		}
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<PosToken> prefixIdxList, ObjectList<PosToken> suffixIdxList, double theta ) {
+			statContainer.startWatch("Time_TS_findSegmenRanges.boundCalculator");
 			TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(null, rec, theta);
+			statContainer.stopWatch("Time_TS_findSegmenRanges.boundCalculator");
 			int m = prefixIdxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0, j0=0; i<m; ++i ) {
