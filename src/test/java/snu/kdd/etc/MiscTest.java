@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
@@ -31,7 +32,7 @@ import vldb18.PkduckDP;
 
 public class MiscTest {
 	
-	@Test
+	@Ignore
 	public void testSearchWithLowTheta() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
 		Record query = dataset.searchedList.get(41);

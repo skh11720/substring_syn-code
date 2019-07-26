@@ -124,7 +124,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
-		double modifiedTheta = getModifiedTheta(query, rec);
+		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		setBoundCalculator(rec, modifiedTheta);
 		setPkduckDP(query, rec, modifiedTheta);
@@ -137,10 +137,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected double getModifiedTheta( Record query, RecordInterface rec ) {
-		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
-	}
-
 	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));

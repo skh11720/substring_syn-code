@@ -71,6 +71,11 @@ public class PositionalInvertedIndex {
 			this.rec = rec;
 			this.pos = pos;
 		}
+		
+		@Override
+		public String toString() {
+			return String.format("(%d, %d)", rec.getID(), pos);
+		}
 	}
 	
 	class TransInvListEntry {
@@ -82,6 +87,11 @@ public class PositionalInvertedIndex {
 			this.rec = rec;
 			this.left = left;
 			this.right = right;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("(%d, %d, %d)", rec.getID(), left, right);
 		}
 	}
 }

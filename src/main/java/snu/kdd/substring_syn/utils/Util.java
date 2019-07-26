@@ -662,6 +662,10 @@ public class Util {
 		int prefixLen = getPrefixLength(rec, theta);
 		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
 	}
+
+	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
