@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.RecordInterface;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;

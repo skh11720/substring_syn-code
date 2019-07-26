@@ -1,8 +1,8 @@
 package snu.kdd.substring_syn.algorithm.search.old;
 
 import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator1;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PrefixSearch1_01 extends PrefixSearch1_00 {
 	
@@ -17,12 +17,12 @@ public class PrefixSearch1_01 extends PrefixSearch1_00 {
 	}
 
 	@Override
-	protected void setBoundCalculator( Record rec, double modifiedTheta ) {
+	protected void setBoundCalculator( RecordInterface rec, double modifiedTheta ) {
 		boundCalculator = new TransSetBoundCalculator1(rec, modifiedTheta);
 	}
 
 	@Override
-	protected boolean applyPrefixFilteringFrom( Record query, Record rec, int widx ) {
+	protected boolean applyPrefixFilteringFrom( Record query, RecordInterface rec, int widx ) {
 		boundCalculator.setStart(widx);
 		return super.applyPrefixFilteringFrom(query, rec, widx);
 	}

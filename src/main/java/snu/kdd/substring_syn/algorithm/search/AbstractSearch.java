@@ -11,7 +11,8 @@ import org.apache.commons.io.FilenameUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -26,11 +27,6 @@ public abstract class AbstractSearch {
 	protected final Set<IntPair> rsltTextSide;
 	protected StatContainer statContainer;
 	
-	protected enum Phase {
-		QuerySide,
-		TextSide,
-	}
-	
 	public AbstractSearch( double theta ) {
 		id = FilenameUtils.getBaseName(Log.logpath);
 
@@ -44,10 +40,10 @@ public abstract class AbstractSearch {
 	
 	public void run( Dataset dataset ) {
 		statContainer = new StatContainer(this, dataset);
-		statContainer.startWatch(Stat.Time_0_Total);
+		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
 		searchBody(dataset);
-		statContainer.stopWatch(Stat.Time_0_Total);
+		statContainer.stopWatch(Stat.Time_Total);
 		putResultIntoStat();
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
@@ -60,28 +56,28 @@ public abstract class AbstractSearch {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
-			Log.log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 	}
 	
 	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		searchQuerySide(query, dataset.indexedList);
-		searchTextSide(query, dataset.indexedList);
+		statContainer.startWatch(Stat.Time_QSTotal);
+		searchQuerySide(query, dataset);
+		statContainer.stopWatch(Stat.Time_QSTotal);
+		statContainer.startWatch(Stat.Time_TSTotal);
+		searchTextSide(query, dataset);
+		statContainer.stopWatch(Stat.Time_TSTotal);
 	}
 	
-	protected void searchQuerySide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
-			statContainer.startWatch(Stat.Time_1_QSTotal);
+	protected void searchQuerySide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordQuerySide(query, rec);
-			statContainer.stopWatch(Stat.Time_1_QSTotal);
 		}
 	}
 	
-	protected void searchTextSide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
-			statContainer.startWatch(Stat.Time_2_TSTotal);
+	protected void searchTextSide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordTextSide(query, rec);
-			statContainer.stopWatch(Stat.Time_2_TSTotal);
 		}
 	}
 	
@@ -114,9 +110,9 @@ public abstract class AbstractSearch {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchRecordQuerySide( Record query, Record rec );
+	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
 	
-	protected abstract void searchRecordTextSide( Record query, Record rec ); 
+	protected abstract void searchRecordTextSide( Record query, RecordInterface rec ); 
 
 	public String getID() { return id; }
 	

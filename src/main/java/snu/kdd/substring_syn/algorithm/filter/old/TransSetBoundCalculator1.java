@@ -6,11 +6,11 @@ import java.util.NoSuchElementException;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class TransSetBoundCalculator1 {
-	private final Record rec;
+	private final RecordInterface rec;
 	private final double theta;
 	private final Int2DoubleOpenHashMap[] counterArr;
 	private final int[][] transLen;
@@ -18,7 +18,7 @@ public class TransSetBoundCalculator1 {
 	private Iterator<Integer> iterUB = null;
 	private Iterator<Integer> iterLB = null;
 	
-	public TransSetBoundCalculator1( Record rec, double theta ) {
+	public TransSetBoundCalculator1( RecordInterface rec, double theta ) {
 		this.rec = rec;
 		this.theta = theta;
 		counterArr = new Int2DoubleOpenHashMap[rec.size()];

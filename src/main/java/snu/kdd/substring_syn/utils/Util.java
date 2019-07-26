@@ -19,7 +19,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -660,10 +662,14 @@ public class Util {
 		int prefixLen = getPrefixLength(rec, theta);
 		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
 	}
+
+	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			int prefixLen = getPrefixLength(exp, theta);
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}
@@ -679,8 +685,18 @@ public class Util {
 		return false;
 	}
 
-	public static int sumWindowSize( Record rec ) {
+	public static int sumWindowSize( RecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
+	}
+	
+	public static String toFormattedString( double[] arr ) {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<arr.length; ++i ) {
+			if ( i > 0 ) strbld.append(", ");
+			strbld.append(String.format("%.3f", arr[0]));
+		}
+		strbld.append("]");
+		return strbld.toString();
 	}
 }

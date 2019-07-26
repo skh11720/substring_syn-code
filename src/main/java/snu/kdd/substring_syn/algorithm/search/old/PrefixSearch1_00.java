@@ -7,9 +7,9 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator1;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Records;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -34,24 +34,25 @@ public class PrefixSearch1_00 extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Len_QS_Searched, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 		for ( int w=wRange.min; w<=wRange.max; ++w ) {
 			SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
 			while ( witer.hasNext() ) {
-				statContainer.addCount(Stat.Num_QS_WindowSizeLF, w);
+				statContainer.addCount(Stat.Len_QS_LF, w);
 				Subrecord window = witer.next();
 				IntSet wprefix = witer.getPrefix();
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
-					statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
-					statContainer.startWatch(Stat.Time_3_Validation);
+					statContainer.addCount(Stat.Len_QS_PF, w);
+					statContainer.startWatch(Stat.Time_Validation);
 					boolean isSim = validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
-					statContainer.stopWatch(Stat.Time_3_Validation);
+					statContainer.stopWatch(Stat.Time_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
+					statContainer.addCount(Stat.Len_QS_Verified, window.size());
 					if (isSim) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 						Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
@@ -72,7 +73,7 @@ public class PrefixSearch1_00 extends AbstractSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
+	protected IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
 		if (lf_query) {
 			int lb = query.getTransSetLB();
 			int min = Math.max(1, (int)Math.ceil(theta*lb));
@@ -83,9 +84,9 @@ public class PrefixSearch1_00 extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Len_TS_Searched, Util.sumWindowSize(rec));
 		double modifiedTheta = getModifiedTheta(query, rec);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		setBoundCalculator(rec, modifiedTheta);
@@ -99,21 +100,21 @@ public class PrefixSearch1_00 extends AbstractSearch {
 		}
 	}
 	
-	protected void setBoundCalculator( Record rec, double modifiedTheta ) {
+	protected void setBoundCalculator( RecordInterface rec, double modifiedTheta ) {
 		boundCalculator = null;
 	}
 	
-	protected void setPkduckDP( Record query, Record rec, double modifiedTheta ) {
+	protected void setPkduckDP( Record query, RecordInterface rec, double modifiedTheta ) {
 		pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
 	}
 	
-	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
+	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 
-	protected boolean applyPrefixFiltering( Record query, Record rec ) {
+	protected boolean applyPrefixFiltering( Record query, RecordInterface rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			if ( applyPrefixFilteringFrom(query, rec, widx) ) return true;
 		}
@@ -121,29 +122,30 @@ public class PrefixSearch1_00 extends AbstractSearch {
 		return false;
 	}
 	
-	protected boolean applyPrefixFilteringFrom( Record query, Record rec, int widx ) {
+	protected boolean applyPrefixFilteringFrom( Record query, RecordInterface rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
 			if ( lf_text ) {
 				LFOutput lfOutput = applyLengthFiltering(query);
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;
 			}
-			statContainer.addCount(Stat.Num_TS_WindowSizeLF, w);
+			statContainer.addCount(Stat.Len_TS_LF, w);
 			if ( applyPrefixFilteringToWindow(query, rec, widx, w) ) return true;
 		}
 		return false;
 	}
 	
-	protected boolean applyPrefixFilteringToWindow( Record query, Record rec, int widx, int w ) {
+	protected boolean applyPrefixFilteringToWindow( Record query, RecordInterface rec, int widx, int w ) {
 		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
 		boolean isInSigU = pkduckdp.isInSigU(widx, w);
 		if ( isInSigU ) {
-			statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
+			statContainer.addCount(Stat.Len_TS_PF, w);
 			Subrecord window = new Subrecord(rec, widx, widx+w);
-			statContainer.startWatch(Stat.Time_3_Validation);
+			statContainer.startWatch(Stat.Time_Validation);
 			boolean isSim = validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
-			statContainer.stopWatch(Stat.Time_3_Validation);
+			statContainer.stopWatch(Stat.Time_Validation);
 			statContainer.increment(Stat.Num_TS_Verified);
+			statContainer.addCount(Stat.Len_TS_Verified, window.size());
 			if (isSim) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 				Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", query.getID(), rec.getID(), w, widx);
@@ -167,7 +169,7 @@ public class PrefixSearch1_00 extends AbstractSearch {
 		return LFOutput.not_filtered;
 	}
 	
-	protected double getModifiedTheta( Record query, Record rec ) {
+	protected double getModifiedTheta( Record query, RecordInterface rec ) {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 

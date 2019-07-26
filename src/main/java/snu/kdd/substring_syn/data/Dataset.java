@@ -12,7 +12,11 @@ import org.apache.commons.cli.CommandLine;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordPreprocess;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class Dataset {
 	
@@ -21,6 +25,7 @@ public class Dataset {
 	public final List<Record> indexedList;
 	public final List<Record> searchedList;
 	public final String outputPath;
+	public final StatContainer statContainer;
 	
 	public static Dataset createInstance( CommandLine cmd ) throws IOException {
 		String name = cmd.getOptionValue( "data" );
@@ -56,6 +61,7 @@ public class Dataset {
 	private Dataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
 		this.name = name;
 		this.outputPath = outputPath;
+		statContainer = new StatContainer();
 		TokenIndex tokenIndex = new TokenIndex();
 
 		indexedList = loadRecordList(indexedPath, tokenIndex);
@@ -64,6 +70,14 @@ public class Dataset {
 		Log.log.info("Ruleset created: %d rules", ruleSet.size());
 		Record.tokenIndex = tokenIndex;
 		preprocess();
+
+		statContainer.setStat(Stat.Dataset_Name, name);
+		statContainer.setStat(Stat.Dataset_numSearched, Integer.toString(searchedList.size()));
+		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(indexedList.size()));
+		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleSet.size()));
+		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
+		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
+		statContainer.finalize();
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {
@@ -86,38 +100,46 @@ public class Dataset {
 		return sortedTokenList;
 	}
 	
+	private long getLengthSum( List<Record> recordList ) {
+		long sum = 0;
+		for ( Record rec : recordList ) sum += rec.size();
+		return sum;
+	}
+	
 	private void preprocess() {
-//		preprocessByRecord();
+		statContainer.startWatch(Stat.Time_Preprocess);
+		preprocessByRecord();
 		preprocessByTask(searchedList);
 		preprocessByTask(indexedList);
 		TokenOrder order = new TokenOrder(this);
 		reindexByOrder(order);
+		statContainer.stopWatch(Stat.Time_Preprocess);
 	}
 	
 	private void preprocessByRecord() {
 		for( final Record record : searchedList ) {
-			record.preprocessApplicableRules( getAutomataR() );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
+			RecordPreprocess.preprocessApplicableRules(record, getAutomataR());
+			RecordPreprocess.preprocessSuffixApplicableRules(record);
+			RecordPreprocess.preprocessTransformLength(record);
+//			record.preprocessEstimatedRecords();
 		}
 		for( final Record record : indexedList ) {
-			record.preprocessApplicableRules( getAutomataR() );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
+			RecordPreprocess.preprocessApplicableRules( record, getAutomataR() );
+			RecordPreprocess.preprocessSuffixApplicableRules(record);
+			RecordPreprocess.preprocessTransformLength(record);
+//			record.preprocessEstimatedRecords();
 		}
 	}
 	
 	private void preprocessByTask( List<Record> recordList ) {
-		for ( final Record record : recordList ) record.preprocessApplicableRules( getAutomataR() );
+		for ( final Record record : recordList ) RecordPreprocess.preprocessApplicableRules(record, getAutomataR());
 		Log.log.info("preprocessByTask: preprocessApplicableRules, %d records", recordList.size() );
-		for ( final Record record : recordList ) record.preprocessSuffixApplicableRules();
+		for ( final Record record : recordList ) RecordPreprocess.preprocessSuffixApplicableRules(record);
 		Log.log.info("preprocessByTask: preprocessSuffixApplicableRules, %d records", recordList.size() );
-		for ( final Record record : recordList ) record.preprocessTransformLength();
+		for ( final Record record : recordList ) RecordPreprocess.preprocessTransformLength(record);
 		Log.log.info("preprocessByTask: preprocessTransformLength, %d records", recordList.size() );
-		for ( final Record record : recordList ) record.preprocessEstimatedRecords();
-		Log.log.info("preprocessByTask: preprocessEstimatedRecords, %d records", recordList.size() );
+//		for ( final Record record : recordList ) record.preprocessEstimatedRecords();
+//		Log.log.info("preprocessByTask: preprocessEstimatedRecords, %d records", recordList.size() );
 	}
 
 	public void reindexByOrder( TokenOrder order ) {
@@ -127,8 +149,8 @@ public class Dataset {
 	}
 	
 	private void reindexRecords( TokenOrder order ) {
-		for ( Record rec : indexedList ) rec.reindex(order);
-		for ( Record rec : searchedList ) rec.reindex(order);
+		for ( Record rec : indexedList ) order.reindex(rec);
+		for ( Record rec : searchedList ) order.reindex(rec);
 	}
 	
 	private void reindexRules( TokenOrder order ) {

@@ -1,7 +1,8 @@
 package snu.kdd.substring_syn.algorithm.search.old;
 
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import vldb18.PkduckDPExWIthLF;
 
 public class PrefixSearch1_05 extends PrefixSearch1_04 {
@@ -18,14 +19,14 @@ public class PrefixSearch1_05 extends PrefixSearch1_04 {
 	}
 
 	@Override
-	protected void setBoundCalculator(Record rec, double modifiedTheta) {
+	protected void setBoundCalculator(RecordInterface rec, double modifiedTheta) {
 		statContainer.startWatch("Time_TransSetBoundCalculatorMem");
 		if ( lf_text ) boundCalculator = new TransSetBoundCalculator(statContainer, rec, modifiedTheta);
 		statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
 	}
 
 	@Override
-	protected void setPkduckDP(Record query, Record rec, double modifiedTheta) {
+	protected void setPkduckDP(Record query, RecordInterface rec, double modifiedTheta) {
 		pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
 	}
 

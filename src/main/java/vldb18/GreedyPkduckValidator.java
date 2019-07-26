@@ -1,7 +1,7 @@
 package vldb18;
 
 import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyPkduckValidator extends AbstractGreedyValidator {
