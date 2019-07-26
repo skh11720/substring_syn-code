@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -132,12 +133,17 @@ public class PrefixSearchTest {
 		Iterator<String> iter0 = br0.lines().iterator();
 		Iterator<String> iter1 = br1.lines().iterator();
 		boolean b = true;
-		while ( iter0.hasNext() && iter1.hasNext() ) {
-			if ( !iter0.next().equals( iter1.next() ) ) {
+		while ( iter0.hasNext() ) {
+			try {
+				if ( !iter0.next().equals( iter1.next() ) ) {
+					b = false;
+					break;
+				}
+			} catch ( NoSuchElementException e ) {
 				b = false;
-				break;
 			}
 		}
+		if ( iter1.hasNext() ) b = false;
 		br0.close();
 		br1.close();
 		return b;
