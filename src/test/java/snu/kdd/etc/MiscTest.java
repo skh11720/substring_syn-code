@@ -32,6 +32,13 @@ import vldb18.PkduckDP;
 
 public class MiscTest {
 	
+	@Test
+	public void testRecord() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "102");
+		Record rec = dataset.indexedList.get(20);
+		System.out.println(rec.toStringDetails());
+	}
+	
 	@Ignore
 	public void testSearchWithLowTheta() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
