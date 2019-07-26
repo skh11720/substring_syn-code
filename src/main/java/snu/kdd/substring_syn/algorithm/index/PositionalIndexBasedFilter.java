@@ -160,7 +160,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
 			statContainer.startWatch("Time_TS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			int minCount = (int)Math.ceil(theta*query.size());
+			int minCount = (int)Math.ceil(theta*query.getDistinctTokenCount());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, TokenPosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, TokenPosListPair> e : rec2idxListMap.entrySet() ) {
