@@ -15,6 +15,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordPreprocess;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class Dataset {
 	
@@ -23,6 +25,7 @@ public class Dataset {
 	public final List<Record> indexedList;
 	public final List<Record> searchedList;
 	public final String outputPath;
+	public final StatContainer statContainer;
 	
 	public static Dataset createInstance( CommandLine cmd ) throws IOException {
 		String name = cmd.getOptionValue( "data" );
@@ -58,6 +61,7 @@ public class Dataset {
 	private Dataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
 		this.name = name;
 		this.outputPath = outputPath;
+		statContainer = new StatContainer();
 		TokenIndex tokenIndex = new TokenIndex();
 
 		indexedList = loadRecordList(indexedPath, tokenIndex);
@@ -66,6 +70,14 @@ public class Dataset {
 		Log.log.info("Ruleset created: %d rules", ruleSet.size());
 		Record.tokenIndex = tokenIndex;
 		preprocess();
+
+		statContainer.setStat(Stat.Dataset_Name, name);
+		statContainer.setStat(Stat.Dataset_numSearched, Integer.toString(searchedList.size()));
+		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(indexedList.size()));
+		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleSet.size()));
+		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
+		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
+		statContainer.finalize();
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {
@@ -88,12 +100,20 @@ public class Dataset {
 		return sortedTokenList;
 	}
 	
+	private long getLengthSum( List<Record> recordList ) {
+		long sum = 0;
+		for ( Record rec : recordList ) sum += rec.size();
+		return sum;
+	}
+	
 	private void preprocess() {
-//		preprocessByRecord();
+		statContainer.startWatch(Stat.Time_Preprocess);
+		preprocessByRecord();
 		preprocessByTask(searchedList);
 		preprocessByTask(indexedList);
 		TokenOrder order = new TokenOrder(this);
 		reindexByOrder(order);
+		statContainer.stopWatch(Stat.Time_Preprocess);
 	}
 	
 	private void preprocessByRecord() {

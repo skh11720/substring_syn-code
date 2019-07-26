@@ -62,7 +62,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_QS_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Len_QS_Searched, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
@@ -73,17 +73,18 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( witer.getSetSize() > wRange.max ) break;
 				if ( witer.getSetSize() < wRange.min ) continue;
 				int w = window.size();
-				statContainer.addCount(Stat.Num_QS_WindowSizeLF, w);
+				statContainer.addCount(Stat.Len_QS_LF, w);
 				IntSet wprefix = witer.getPrefix();
 //				Log.log.debug("wprefix=%s", ()->wprefix);
 //				Log.log.debug("expandedPrefix=%s", ()->expandedPrefix);
 //				Log.log.debug("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
-					statContainer.addCount(Stat.Num_QS_WindowSizeVerified, w);
-					statContainer.startWatch(Stat.Time_3_Validation);
+					statContainer.addCount(Stat.Len_QS_PF, w);
+					statContainer.startWatch(Stat.Time_Validation);
 					boolean isSim = verifyQuerySide(query, window);
-					statContainer.stopWatch(Stat.Time_3_Validation);
+					statContainer.stopWatch(Stat.Time_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
+					statContainer.addCount(Stat.Len_QS_Verified, window.size());
 					if ( isSim ) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 						Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
@@ -123,7 +124,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Num_TS_WindowSizeAll, Util.sumWindowSize(rec));
+		statContainer.addCount(Stat.Len_TS_Searched, Util.sumWindowSize(rec));
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		setBoundCalculator(rec, modifiedTheta);
@@ -172,7 +173,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;
 			}
-			statContainer.addCount(Stat.Num_TS_WindowSizeLF, w);
+			statContainer.addCount(Stat.Len_TS_LF, w);
 			if ( applyPrefixFilteringToWindow(query, rec, widx, w) ) return true;
 		}
 		return false;
@@ -182,12 +183,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
 		boolean isInSigU = pkduckdp.isInSigU(widx, w);
 		if ( isInSigU ) {
-			statContainer.addCount(Stat.Num_TS_WindowSizeVerified, w);
+			statContainer.addCount(Stat.Len_TS_PF, w);
 			Subrecord window = new Subrecord(rec, widx, widx+w);
-			statContainer.startWatch(Stat.Time_3_Validation);
+			statContainer.startWatch(Stat.Time_Validation);
 			boolean isSim = verifyTextSide(query, window);
-			statContainer.stopWatch(Stat.Time_3_Validation);
+			statContainer.stopWatch(Stat.Time_Validation);
 			statContainer.increment(Stat.Num_TS_Verified);
+			statContainer.addCount(Stat.Len_TS_Verified, window.size());
 			if (isSim) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 				Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->w, ()->widx);

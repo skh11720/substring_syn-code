@@ -27,9 +27,9 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
-		statContainer.startWatch(Stat.Time_4_BuildIndex);
+		statContainer.startWatch(Stat.Time_BuildIndex);
 		indexFilter = buildSpecificIndex(dataset);
-		statContainer.stopWatch(Stat.Time_4_BuildIndex);
+		statContainer.stopWatch(Stat.Time_BuildIndex);
 	}
 	
 	protected abstract AbstractIndexBasedFilter buildSpecificIndex( Dataset dataset );
@@ -52,9 +52,9 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if (idxFilter_query) {
-			statContainer.startWatch(Stat.Time_5_IndexFilter);
+			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.querySideFilter(query);
-			statContainer.stopWatch(Stat.Time_5_IndexFilter);
+			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return candRecordSet;
 		}
 		else return dataset.indexedList;
@@ -62,9 +62,9 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if (idxFilter_text) {
-			statContainer.startWatch(Stat.Time_5_IndexFilter);
+			statContainer.startWatch(Stat.Time_TS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.textSideFilter(query);
-			statContainer.stopWatch(Stat.Time_5_IndexFilter);
+			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return candRecordSet;
 		}
 		else return dataset.indexedList;

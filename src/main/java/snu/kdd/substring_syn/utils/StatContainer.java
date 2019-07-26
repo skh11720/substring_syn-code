@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
 
@@ -44,17 +45,12 @@ public class StatContainer {
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
 		statMap.put(Stat.Param, alg.getParam().toString());
-		statMap.put(Stat.Dataset_Name, dataset.name);
-		statMap.put(Stat.Dataset_numSearched, Integer.toString(dataset.searchedList.size()));
-		statMap.put(Stat.Dataset_numIndexed, Integer.toString(dataset.indexedList.size()));
-		statMap.put(Stat.Dataset_numRule, Integer.toString(dataset.ruleSet.size()));
+		mergeStatContainer(dataset.statContainer);
 	}
 	
-//	protected void putParam( Param param ) {
-//		for ( Entry<String, String> entry : param.getEntries() ) {
-//			statMap.put("Param_"+entry.getKey(), entry.getValue());
-//		}
-//	}
+	public void setStat( String key, String value ) {
+		statMap.put(key, value);
+	}
 	
 	public String getStat( String key ) {
 		return statMap.get(key);
@@ -67,7 +63,7 @@ public class StatContainer {
 	}
 
 	public void finalize() {
-		for ( String key : counterBuffer.keySet() ) statMap.put(key, Integer.toString(counterBuffer.get(key).get()));
+		for ( String key : counterBuffer.keySet() ) statMap.put(key, Long.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
 		keyList = new ObjectArrayList<>( Stat.getList() );
 		for ( String key : statMap.keySet() ) {
@@ -145,7 +141,7 @@ public class StatContainer {
 
 	public void stopCount( String key ) {
 		Counter counter = counterBuffer.get(key);
-		statMap.put(key, Integer.toString(counter.get()));
+		statMap.put(key, Long.toString(counter.get()));
 		counterBuffer.remove(key);
 	}
 	
@@ -167,10 +163,16 @@ public class StatContainer {
 //		stopwatchBuffer.remove(key);
 	}
 	
+	private void mergeStatContainer( StatContainer statContainer ) {
+		for ( Entry<String, String> entry : statContainer.statMap.entrySet() ) {
+			statMap.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
 	
 	
 	private class Counter {
-		int c = 0;
+		long c = 0;
 		
 		public void increment() {
 			++c;
@@ -180,7 +182,7 @@ public class StatContainer {
 			c += v;
 		}
 		
-		public int get() {
+		public long get() {
 			return c;
 		}
 	}

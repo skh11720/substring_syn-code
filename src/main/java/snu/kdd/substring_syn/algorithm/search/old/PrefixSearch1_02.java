@@ -37,7 +37,7 @@ public class PrefixSearch1_02 extends PrefixSearch1_00 {
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;
 			}
-			statContainer.addCount(Stat.Num_TS_WindowSizeLF, w);
+			statContainer.addCount(Stat.Len_TS_LF, w);
 			if ( applyPrefixFilteringToWindow(query, rec, widx, w) ) return true;
 		}
 		return false;

@@ -27,11 +27,6 @@ public abstract class AbstractSearch {
 	protected final Set<IntPair> rsltTextSide;
 	protected StatContainer statContainer;
 	
-	protected enum Phase {
-		QuerySide,
-		TextSide,
-	}
-	
 	public AbstractSearch( double theta ) {
 		id = FilenameUtils.getBaseName(Log.logpath);
 
@@ -45,10 +40,10 @@ public abstract class AbstractSearch {
 	
 	public void run( Dataset dataset ) {
 		statContainer = new StatContainer(this, dataset);
-		statContainer.startWatch(Stat.Time_0_Total);
+		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
 		searchBody(dataset);
-		statContainer.stopWatch(Stat.Time_0_Total);
+		statContainer.stopWatch(Stat.Time_Total);
 		putResultIntoStat();
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
@@ -61,17 +56,17 @@ public abstract class AbstractSearch {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
-			Log.log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 	}
 	
 	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		statContainer.startWatch(Stat.Time_1_QSTotal);
+		statContainer.startWatch(Stat.Time_QSTotal);
 		searchQuerySide(query, dataset);
-		statContainer.stopWatch(Stat.Time_1_QSTotal);
-		statContainer.startWatch(Stat.Time_2_TSTotal);
+		statContainer.stopWatch(Stat.Time_QSTotal);
+		statContainer.startWatch(Stat.Time_TSTotal);
 		searchTextSide(query, dataset);
-		statContainer.stopWatch(Stat.Time_2_TSTotal);
+		statContainer.stopWatch(Stat.Time_TSTotal);
 	}
 	
 	protected void searchQuerySide( Record query, Dataset dataset ) {
