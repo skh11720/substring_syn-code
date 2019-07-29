@@ -18,7 +18,7 @@ public class Rule implements Comparable<Rule> {
 	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
 	public static Rule createRule( String str, TokenIndex tokenIndex ) {
-		String[] rstr = str.split(", ");
+		String[] rstr = str.toLowerCase().split("\\|\\|\\|");
 		String[] lhsStr = rstr[0].trim().split(" ");
 		String[] rhsStr = rstr[1].trim().split(" ");
 		int[] lhs = getTokenIndexArray(lhsStr, tokenIndex);
