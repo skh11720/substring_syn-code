@@ -87,6 +87,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					if ( isSim ) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 						Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+						Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
 						return;
 					}
 				}
@@ -192,6 +193,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			if (isSim) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 				Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->w, ()->widx);
+				Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
 				return true;
 			}
 		}
