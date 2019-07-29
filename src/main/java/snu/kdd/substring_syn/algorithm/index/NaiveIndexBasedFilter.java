@@ -34,11 +34,8 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 				for ( Record rec : invList ) counter.addTo(rec, 1);
 			}
 		}
-
-		statContainer.startWatch("Time_QS_IndexCountFilter");
+		
 		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>(pruneRecordsByCount(counter, minCount));
-		statContainer.stopWatch("Time_QS_IndexCountFilter");
-		statContainer.addCount("Num_QS_IndexCountFilter", candRecordSet.size());
 //		visualizeCandRecords(candTokenSet, candRecordSet, counter);
 
 		return candRecordSet;
@@ -59,10 +56,7 @@ public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
 			}
 		}
 
-		statContainer.startWatch("Time_TS_IndexCountFilter");
 		ObjectSet<RecordInterface> candRecordSet = pruneRecordsByCount(counter, minCount);
-		statContainer.stopWatch("Time_TS_IndexCountFilter");
-		statContainer.addCount("Num_TS_IndexCountFilter", candRecordSet.size());
 		return candRecordSet;
 	}
 	

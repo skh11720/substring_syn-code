@@ -45,7 +45,6 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		
 		public ObjectSet<RecordInterface> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
-			statContainer.startWatch("Time_QS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
@@ -62,8 +61,6 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
 			}
-			statContainer.stopWatch("Time_QS_PositionFilter");
-			statContainer.addCount("Num_QS_PositionFilter", candRecordSet.size());
 			return candRecordSet;
 		}
 		
@@ -156,7 +153,6 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		
 		public ObjectSet<RecordInterface> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
-			statContainer.startWatch("Time_TS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
@@ -175,9 +171,6 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
 			}
-
-			statContainer.stopWatch("Time_TS_PositionFilter");
-			statContainer.addCount("Num_TS_PositionFilter", candRecordSet.size());
 			return candRecordSet;
 		}
 		
