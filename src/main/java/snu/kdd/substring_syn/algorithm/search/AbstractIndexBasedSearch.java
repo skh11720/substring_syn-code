@@ -1,16 +1,15 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.InvertedIndex;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
-	protected InvertedIndex index;
-	protected IndexBasedFilter indexFilter;
+	protected AbstractIndexBasedFilter indexFilter;
 	protected final boolean idxFilter_query;
 	protected final boolean idxFilter_text;
 
@@ -28,38 +27,45 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
-		statContainer.startWatch(Stat.Time_4_BuildIndex);
-		index = new InvertedIndex(dataset);
-		indexFilter = new IndexBasedFilter(index, theta);
-		statContainer.stopWatch(Stat.Time_4_BuildIndex);
-	}
-
-	@Override
-	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
-		searchQuerySide(query, candListQuerySide);
-		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
-		searchTextSide(query, candListTextSide);
+		statContainer.startWatch(Stat.Time_BuildIndex);
+		indexFilter = buildSpecificIndex(dataset);
+		statContainer.stopWatch(Stat.Time_BuildIndex);
 	}
 	
-	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
+	protected abstract AbstractIndexBasedFilter buildSpecificIndex( Dataset dataset );
+
+	@Override
+	protected void searchQuerySide( Record query, Dataset dataset ) {
+		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		for ( RecordInterface rec : candListQuerySide ) {
+			searchRecordQuerySide(query, rec);
+		}
+	}
+	
+	@Override
+	protected void searchTextSide( Record query, Dataset dataset ) {
+		Iterable<? extends RecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
+		for ( RecordInterface rec : candListTextSide ) {
+			searchRecordTextSide(query, rec);
+		}
+	}
+	
+	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if (idxFilter_query) {
-			statContainer.startWatch(Stat.Time_5_IndexFilter);
-			ObjectList<Record> candRecordList = indexFilter.querySideCountFilter(query);
-			statContainer.stopWatch(Stat.Time_5_IndexFilter);
-			statContainer.addCount(Stat.Num_QS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
-			return candRecordList;
+			statContainer.startWatch(Stat.Time_QS_IndexFilter);
+			ObjectSet<RecordInterface> candRecordSet = indexFilter.querySideFilter(query);
+			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
+			return candRecordSet;
 		}
 		else return dataset.indexedList;
 	}
 	
-	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
+	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if (idxFilter_text) {
-			statContainer.startWatch(Stat.Time_5_IndexFilter);
-			ObjectList<Record> candRecordList = indexFilter.textSideCountFilter(query);
-			statContainer.stopWatch(Stat.Time_5_IndexFilter);
-			statContainer.addCount(Stat.Num_TS_IndexFiltered, dataset.indexedList.size() - candRecordList.size());
-			return candRecordList;
+			statContainer.startWatch(Stat.Time_TS_IndexFilter);
+			ObjectSet<RecordInterface> candRecordSet = indexFilter.textSideFilter(query);
+			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
+			return candRecordSet;
 		}
 		else return dataset.indexedList;
 	}

@@ -2,9 +2,15 @@ package snu.kdd.substring_syn.utils;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.json.simple.JSONObject;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -15,6 +21,7 @@ import snu.kdd.substring_syn.data.Dataset;
 
 public class StatContainer {
 
+	private AbstractSearch alg;
 	private final Object2ObjectMap<String, String> statMap;
 //	private Object2ObjectArrayMap<String, String> optionalStatMap;
 	
@@ -32,22 +39,18 @@ public class StatContainer {
 	
 	public StatContainer( AbstractSearch alg, Dataset dataset ) {
 		this();
+		this.alg = alg;
 //		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
-		statMap.put(Stat.Alg_Param, alg.getParam().toString());
-		statMap.put(Stat.Dataset_Name, dataset.name);
-		statMap.put(Stat.Dataset_numSearched, Integer.toString(dataset.searchedList.size()));
-		statMap.put(Stat.Dataset_numIndexed, Integer.toString(dataset.indexedList.size()));
-		statMap.put(Stat.Dataset_numRule, Integer.toString(dataset.ruleSet.size()));
+		statMap.put(Stat.Param, alg.getParam().toString());
+		mergeStatContainer(dataset.statContainer);
 	}
 	
-//	protected void putParam( Param param ) {
-//		for ( Entry<String, String> entry : param.getEntries() ) {
-//			statMap.put("Param_"+entry.getKey(), entry.getValue());
-//		}
-//	}
+	public void setStat( String key, String value ) {
+		statMap.put(key, value);
+	}
 	
 	public String getStat( String key ) {
 		return statMap.get(key);
@@ -60,13 +63,12 @@ public class StatContainer {
 	}
 
 	public void finalize() {
-		for ( String key : counterBuffer.keySet() ) statMap.put(key, Integer.toString(counterBuffer.get(key).get()));
+		for ( String key : counterBuffer.keySet() ) statMap.put(key, Long.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
 		keyList = new ObjectArrayList<>( Stat.getList() );
 		for ( String key : statMap.keySet() ) {
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
 		}
-
 	}
 	
 	public void print() {
@@ -89,8 +91,41 @@ public class StatContainer {
 		ps.println();
 		ps.close();
 	}
-
-
+	
+	@SuppressWarnings("unchecked")
+	public String outputJson() {
+		JSONObject json = new JSONObject();
+		Date date = new Date();
+		json.put("Date", date.toString());
+		
+		JSONObject json_dataset = new JSONObject();
+		json_dataset.put("Name", statMap.get(Stat.Dataset_Name));
+		json_dataset.put("numSearched", statMap.get(Stat.Dataset_numSearched));
+		json_dataset.put("numIndexed", statMap.get(Stat.Dataset_numIndexed));
+		json_dataset.put("numRule", statMap.get(Stat.Dataset_numRule));
+		json.put("Dataset", json_dataset);
+		
+		JSONObject json_alg = new JSONObject();
+		json_alg.put("Name", statMap.get(Stat.Alg_Name));
+		json_alg.put("Version", statMap.get(Stat.Alg_Version));
+		json.put("Algorithm", json_alg);
+		
+		json.put("Param", alg.getParam().toJson());
+		
+		JSONObject json_output = new JSONObject();
+		for ( String key : keyList ) json_output.put(key, statMap.get(key));
+		json.put("Output", json_output);
+		
+		try {
+			PrintWriter pw = new PrintWriter("json/"+statMap.get(Stat.Alg_Name)+"_"+(new SimpleDateFormat("yyyyMMdd_HHmmss_z")).format(date) + ".txt");
+			pw.write(json.toJSONString());
+			pw.close();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return "";
+	}
 	
 	// interfaces for counters
 
@@ -106,7 +141,7 @@ public class StatContainer {
 
 	public void stopCount( String key ) {
 		Counter counter = counterBuffer.get(key);
-		statMap.put(key, Integer.toString(counter.get()));
+		statMap.put(key, Long.toString(counter.get()));
 		counterBuffer.remove(key);
 	}
 	
@@ -128,10 +163,16 @@ public class StatContainer {
 //		stopwatchBuffer.remove(key);
 	}
 	
+	private void mergeStatContainer( StatContainer statContainer ) {
+		for ( Entry<String, String> entry : statContainer.statMap.entrySet() ) {
+			statMap.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
 	
 	
 	private class Counter {
-		int c = 0;
+		long c = 0;
 		
 		public void increment() {
 			++c;
@@ -141,7 +182,7 @@ public class StatContainer {
 			c += v;
 		}
 		
-		public int get() {
+		public long get() {
 			return c;
 		}
 	}

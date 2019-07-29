@@ -7,15 +7,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.appender.FileAppender;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -27,19 +25,10 @@ public abstract class AbstractSearch {
 	protected final double theta;
 	protected final Set<IntPair> rsltQuerySide;
 	protected final Set<IntPair> rsltTextSide;
-	protected final Logger log; 
 	protected StatContainer statContainer;
 	
-	protected enum Phase {
-		QuerySide,
-		TextSide,
-	}
-	
 	public AbstractSearch( double theta ) {
-		this.log = LogManager.getFormatterLogger(this);
-		Appender appender = ((org.apache.logging.log4j.core.Logger)log).getAppenders().get("File");
-		String logpath = ((FileAppender)appender).getFileName();
-		id = FilenameUtils.getBaseName(logpath);
+		id = FilenameUtils.getBaseName(Log.logpath);
 
 		param = new Param();
 		this.theta = theta;
@@ -51,10 +40,10 @@ public abstract class AbstractSearch {
 	
 	public void run( Dataset dataset ) {
 		statContainer = new StatContainer(this, dataset);
-		statContainer.startWatch(Stat.Time_0_Total);
+		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
 		searchBody(dataset);
-		statContainer.stopWatch(Stat.Time_0_Total);
+		statContainer.stopWatch(Stat.Time_Total);
 		putResultIntoStat();
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
@@ -67,28 +56,28 @@ public abstract class AbstractSearch {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
-			log.debug("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
 		}
 	}
 	
 	protected void searchGivenQuery( Record query, Dataset dataset ) {
-		searchQuerySide(query, dataset.indexedList);
-		searchTextSide(query, dataset.indexedList);
+		statContainer.startWatch(Stat.Time_QSTotal);
+		searchQuerySide(query, dataset);
+		statContainer.stopWatch(Stat.Time_QSTotal);
+		statContainer.startWatch(Stat.Time_TSTotal);
+		searchTextSide(query, dataset);
+		statContainer.stopWatch(Stat.Time_TSTotal);
 	}
 	
-	protected void searchQuerySide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
-			statContainer.startWatch(Stat.Time_1_QSTotal);
+	protected void searchQuerySide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordQuerySide(query, rec);
-			statContainer.stopWatch(Stat.Time_1_QSTotal);
 		}
 	}
 	
-	protected void searchTextSide( Record query, Iterable<Record> records ) {
-		for ( Record rec :  records ) {
-			statContainer.startWatch(Stat.Time_2_TSTotal);
+	protected void searchTextSide( Record query, Dataset dataset ) {
+		for ( RecordInterface rec : dataset.indexedList ) {
 			searchRecordTextSide(query, rec);
-			statContainer.stopWatch(Stat.Time_2_TSTotal);
 		}
 	}
 	
@@ -121,9 +110,9 @@ public abstract class AbstractSearch {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchRecordQuerySide( Record query, Record rec );
+	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
 	
-	protected abstract void searchRecordTextSide( Record query, Record rec ); 
+	protected abstract void searchRecordTextSide( Record query, RecordInterface rec ); 
 
 	public String getID() { return id; }
 	

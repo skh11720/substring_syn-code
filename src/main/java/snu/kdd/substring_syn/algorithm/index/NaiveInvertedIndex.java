@@ -5,16 +5,16 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
 
-public class InvertedIndex {
+public class NaiveInvertedIndex {
 	
 	final Int2ObjectMap<ObjectList<Record>> invList;
 	final Int2ObjectMap<ObjectList<Record>> transInvList;
 	int size;
 
-	public InvertedIndex( Dataset dataset ) {
+	public NaiveInvertedIndex( Dataset dataset ) {
 		invList = buildInvList(dataset);
 		transInvList = buildTransIntList(dataset);
 		size = computeSize();
@@ -23,7 +23,8 @@ public class InvertedIndex {
 	private Int2ObjectMap<ObjectList<Record>> buildInvList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<Record>> invList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.indexedList ) {
-			for ( int token : rec.getTokens() ) {
+			for ( int i=0; i<rec.size(); ++i ) {
+				int token = rec.getToken(i);
 				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<Record>());
 				invList.get(token).add(rec);
 			}

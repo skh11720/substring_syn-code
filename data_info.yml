@@ -1,0 +1,37 @@
+# SPROT_long (for debugging)
+SPROT_long: 
+    searchedPath: 'sprot_long/splitted/SPROT_short_100.txt'
+    indexedPath: 'sprot_long/splitted/SPROT_long_%s.txt'
+    rulePath: 'sprot_long/rule.txt'
+    nt: ['100', '101', '102', '103', '104', '105']
+
+# WIKI
+WIKI_1:
+    searchedPath: 'wiki/queries/queries_1.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+
+WIKI_3:
+    searchedPath: 'wiki/queries/queries_3.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+
+WIKI_5:
+    searchedPath: 'wiki/queries/queries_5.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+
+WIKI_7:
+    searchedPath: 'wiki/queries/queries_7.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+
+WIKI_0:
+    searchedPath: 'wiki/queries/queries_0.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['0']

@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.record.Record;
 
 public class TokenOrder implements Comparator<Integer> {
 	
@@ -18,7 +19,7 @@ public class TokenOrder implements Comparator<Integer> {
 	public TokenOrder( Dataset dataset ) {
 		initCounter();
 		countTokens(dataset.searchedList);
-		if ( !dataset.selfJoin ) countTokens(dataset.indexedList);
+		countTokens(dataset.indexedList);
 		countTokens(dataset.ruleSet);
 		buildOrderMap(counter);
 	}
@@ -38,6 +39,12 @@ public class TokenOrder implements Comparator<Integer> {
 			tokenIndex.getIDOrAdd(token);
 		}
 		return tokenIndex;
+	}
+	
+	public void reindex( Record rec ) {
+		for ( int i=0; i<rec.size(); ++i ) {
+			rec.setToken(getOrder(rec.getToken(i)), i);
+		}
 	}
 	
 	@Override

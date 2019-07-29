@@ -1,44 +1,45 @@
 package snu.kdd.substring_syn.data;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.yaml.snakeyaml.Yaml;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class DatasetInfo {
 	
 	private static final String prefix;
-	private static final Object2ObjectOpenHashMap<String, DataPathInfo> map = new Object2ObjectOpenHashMap<>();;
+	private static final Object2ObjectOpenHashMap<String, DatasetInfo> map = new Object2ObjectOpenHashMap<>();;
 	
 	static {
 		String osName = System.getProperty( "os.name" );
 		if ( osName.startsWith( "Windows" ) ) prefix = "D:\\ghsong\\data\\synonyms\\";
-		else if ( osName.startsWith( "Linux" ) ) prefix = "data_store/";
+		else if ( osName.startsWith( "Linux" ) ) prefix = "data/";
 		else prefix = "";
-		
-		map.put("SPROT", new DataPathInfo( 
-				String.join(File.separator, "sprot", "splitted", "SPROT_two_%s.txt"), 
-				String.join(File.separator, "sprot", "splitted", "SPROT_two_%s.txt"), 
-				String.join(File.separator, "sprot", "rule.txt")
-				));
-		map.put("SPROT_long", new DataPathInfo( 
-				String.join(File.separator, "sprot_long", "splitted", "SPROT_short_%s.txt"), 
-				String.join(File.separator, "sprot_long", "splitted", "SPROT_long_%s.txt"), 
-				String.join(File.separator, "sprot_long", "rule.txt")
-				));
-		map.put("AOL", new DataPathInfo( 
-				String.join(File.separator, "aol", "splitted", "aol_%s_data.txt"), 
-				String.join(File.separator, "aol", "splitted", "aol_%s_data.txt"), 
-				String.join(File.separator, "wordnet", "rules.noun")
-				));
-		map.put("SYN_test_01", new DataPathInfo( 
-				String.join(File.separator, "SYN_test_01", "SYN_test_01_short_%s.txt"), 
-				String.join(File.separator, "SYN_test_01", "SYN_test_01_long_%s.txt"), 
-				String.join(File.separator, "SYN_test_01", "SYN_test_01_rules.txt")
-				));
+
+		Yaml yaml = new Yaml();
+		InputStream inputStream;
+		try {
+			inputStream = new FileInputStream("data_info.yml");
+            LinkedHashMap<String, Map> yamlMap = yaml.load(inputStream);
+            for ( Entry<String, Map>entry : yamlMap.entrySet() ) {
+                DatasetInfo info = new DatasetInfo(entry.getValue());
+                map.put(entry.getKey(), info);
+            }
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static String getSearchedPath( String name, String size ) {
-		return String.format(map.get(name).searchedPath, size);
+		return map.get(name).searchedPath;
 	}
 	
 	public static String getIndexedPath( String name, String size ) {
@@ -48,16 +49,27 @@ public class DatasetInfo {
 	public static String getRulePath( String name ) {
 		return map.get(name).rulePath;
 	}
-
-	private static class DataPathInfo {
-		final String searchedPath;
-		final String indexedPath;
-		final String rulePath;
-		
-		public DataPathInfo( String searchedPath, String indexedPath, String rulePath ) {
-			this.searchedPath = prefix + searchedPath;
-			this.indexedPath = prefix + indexedPath;
-			this.rulePath = prefix + rulePath;
-		}
+	
+	private final String searchedPath;
+	private final String indexedPath;
+	private final String rulePath;
+	private final List<String> nt;
+	
+	public DatasetInfo( Map<String, ?> map ) {
+		searchedPath = String.join(File.separator, prefix, (String)map.get("searchedPath"));
+		indexedPath = String.join(File.separator, prefix, (String)map.get("indexedPath"));
+		rulePath = String.join(File.separator, prefix, (String)map.get("rulePath"));
+		nt = (List<String>)map.get("nt");
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder strbld = new StringBuilder("DatasetInfo {\n");
+		strbld.append("\tsearchedPath: "+searchedPath+"\n");
+		strbld.append("\tindexedPath: "+indexedPath+"\n");
+		strbld.append("\trulePath: "+rulePath+"\n");
+		strbld.append("\tnt: "+nt.toString()+"\n");
+		strbld.append("}");
+		return strbld.toString();
 	}
 }

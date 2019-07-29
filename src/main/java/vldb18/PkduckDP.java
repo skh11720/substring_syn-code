@@ -3,8 +3,8 @@ package vldb18;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkduckDP {
 	

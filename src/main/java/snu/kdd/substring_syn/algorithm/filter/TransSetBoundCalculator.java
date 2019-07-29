@@ -5,8 +5,9 @@ import java.util.Comparator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Double2IntSetList;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -28,7 +29,7 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 	 */
 	private static final double eps = 1e-10;
 	private final StatContainer statContainer;
-	private final Record rec;
+	private final RecordInterface rec;
 	private final double theta;
 	private final Int2DoubleOpenHashMap[] counterArr;
 	private final int[][] transLen;
@@ -45,7 +46,7 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 		}
 	};
 
-	public TransSetBoundCalculator( StatContainer statContainer, Record rec, double theta ) {
+	public TransSetBoundCalculator( StatContainer statContainer, RecordInterface rec, double theta ) {
 		this.statContainer = statContainer;
 		this.rec = rec;
 		this.theta = theta;
@@ -61,26 +62,32 @@ public class TransSetBoundCalculator implements TransSetBoundCalculatorInterface
 	}
 
 	public int getLB( int i, int j ) {
+		// both inclusive
 		return lb[i][j];
 	}
 
 	public int getLBMono( int i, int j ) {
+		// both inclusive
 		return lbMono[i][j];
 	}
 
 	public int getUB( int i, int j ) {
+		// both inclusive
 		return ub[i][j];
 	}
 	
 	public int getLFLB( int i, int j ) {
+		// both inclusive
 		return (int)Math.ceil(1.0*lb[i][j]*theta);
 	}
 	
 	public int getLFLBMono( int i, int j ) {
+		// both inclusive
 		return (int)Math.ceil(1.0*lbMono[i][j]*theta);
 	}
 
 	public int getLFUB( int i, int j ) {
+		// both inclusive
 		return (int)(1.0*ub[i][j]/theta);
 	}
 

@@ -4,16 +4,16 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 
 public abstract class AbstractRecordSlidingWindowIterator implements Iterator<Subrecord> {
-	protected final Record rec;
+	protected final RecordInterface rec;
 	protected final int w;
 	protected final int lenPrefix;
 	protected int widx = -1;
 	
-	public AbstractRecordSlidingWindowIterator( Record rec, int w, double theta ) {
+	public AbstractRecordSlidingWindowIterator( RecordInterface rec, int w, double theta ) {
 		this.rec = rec;
 		this.w  = w;
 		this.lenPrefix = w - (int)(Math.ceil(w*theta)) + 1;

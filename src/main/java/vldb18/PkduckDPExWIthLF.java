@@ -1,14 +1,15 @@
 package vldb18;
 
 import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkduckDPExWIthLF extends PkduckDPEx {
 	
 	protected final TransSetBoundCalculatorInterface boundCalculator;
 	
-	public PkduckDPExWIthLF( Record query, Record rec, TransSetBoundCalculatorInterface boundCalculator, double theta ) {
+	public PkduckDPExWIthLF( Record query, RecordInterface rec, TransSetBoundCalculatorInterface boundCalculator, double theta ) {
 		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}

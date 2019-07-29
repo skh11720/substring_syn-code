@@ -19,7 +19,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -499,13 +501,13 @@ public class Util {
 
 	public static double jaccard( IntList x, IntList y ) {
 		// consider x and y as sets, not multisets
-		IntList shorter = x.size() <= y.size()? x: y;
-		IntList longer = x.size() <= y.size()? y: x;
-		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
-		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
+		IntSet xSet = new IntOpenHashSet(x);
+		IntSet ySet = new IntOpenHashSet(y);
+		IntSet smaller = xSet.size() <= ySet.size()? xSet: ySet;
+		IntSet larger = xSet.size() <= ySet.size()? ySet: xSet;
 		int common = 0;
-		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
-		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
+		for ( int token : smaller ) if (larger.contains(token)) ++common;
+		double sim = 1.0*common/(larger.size() + smaller.size() - common);
 		return sim;
 	}
 
@@ -633,22 +635,7 @@ public class Util {
 //	}
 
 	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-		Dataset dataset = Dataset.createInstanceByName(name, size);
-		for( final Record record : dataset.searchedList ) {
-			record.preprocessApplicableRules( dataset.getAutomataR() );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
-		}
-		if ( !dataset.selfJoin ) {
-			for( final Record record : dataset.indexedList ) {
-				record.preprocessApplicableRules( dataset.getAutomataR() );
-				record.preprocessSuffixApplicableRules();
-				record.preprocessTransformLength();
-				record.preprocessEstimatedRecords();
-			}
-		}
-		return dataset;
+		return Dataset.createInstanceByName(name, size);
 	}
 
 	public static String getGroundTruthPath( String name ) {
@@ -661,7 +648,7 @@ public class Util {
 			sep = "\\\\";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "data_store/";
+			prefix = "data/";
 			sep = "/";
 		}
 		return prefix + name+sep+name+"_groundtruth.txt";
@@ -675,10 +662,14 @@ public class Util {
 		int prefixLen = getPrefixLength(rec, theta);
 		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
 	}
+
+	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			int prefixLen = getPrefixLength(exp, theta);
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}
@@ -694,8 +685,18 @@ public class Util {
 		return false;
 	}
 
-	public static int sumWindowSize( Record rec ) {
+	public static int sumWindowSize( RecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
+	}
+	
+	public static String toFormattedString( double[] arr ) {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<arr.length; ++i ) {
+			if ( i > 0 ) strbld.append(", ");
+			strbld.append(String.format("%.3f", arr[0]));
+		}
+		strbld.append("]");
+		return strbld.toString();
 	}
 }

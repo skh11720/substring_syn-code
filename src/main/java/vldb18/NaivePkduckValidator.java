@@ -1,7 +1,9 @@
 package vldb18;
 
 import snu.kdd.substring_syn.algorithm.validator.AbstractValidator;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
 public class NaivePkduckValidator extends AbstractValidator {
@@ -16,7 +18,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 	public double simx2y( Record x, Record y ) {
 		if ( areSameString(x, y) ) return 1;
 		double sim = 0;
-		for ( Record exp : x.expandAll() ) {
+		for ( Record exp : Records.expandAll(x) ) {
 			sim = Math.max(sim, Util.jaccard(exp.getTokenArray(), y.getTokenArray()));
 		}
 		return sim;
@@ -24,9 +26,12 @@ public class NaivePkduckValidator extends AbstractValidator {
 	
 	public boolean isSimx2yOverThreahold( Record x, Record y, double theta ) {
 		if ( areSameString(x, y) ) return true;
-		for ( Record exp : x.expandAll() ) {
+		for ( Record exp : Records.expandAll(x) ) {
 			double sim = Util.jaccard(exp.getTokenArray(), y.getTokenArray());
-			if ( sim >= theta ) return true;
+			if ( sim >= theta ) {
+				Log.log.debug("NaivePkduckValidator.isSimx2yOverThreshold(%d, %d): sim=%.3f", ()->x.getID(), ()->y.getID(), ()->sim);
+				return true;
+			}
 		}
 		return false;
 	}

@@ -15,9 +15,9 @@ import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
 import snu.kdd.substring_syn.algorithm.filter.old.TransSetBoundCalculator3;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
-import snu.kdd.substring_syn.data.Record;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenOrder;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Double2IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -48,8 +48,6 @@ public class TransSetBoundCalculatorTest {
 
 	public void checkCorrectness( double theta, String size ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 		
 		for ( Record rec : dataset.indexedList ) {
 			TransSetBoundCalculator3 bc3 = new TransSetBoundCalculator3(null, rec, theta);
@@ -77,8 +75,6 @@ public class TransSetBoundCalculatorTest {
 		StatContainer statContainer5 = new StatContainer();
 
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 
 		for ( Record query : dataset.searchedList ) {
 			for ( Record rec : dataset.indexedList ) {

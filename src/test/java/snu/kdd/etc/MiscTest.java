@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
@@ -15,15 +16,81 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
+import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
+import vldb18.NaivePkduckValidator;
+import vldb18.PkduckDP;
 
 public class MiscTest {
+	
+	@Test
+	public void testRecord() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "102");
+		Record rec = dataset.indexedList.get(20);
+		System.out.println(rec.toStringDetails());
+	}
+	
+	@Ignore
+	public void testSearchWithLowTheta() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
+		Record query = dataset.searchedList.get(41);
+		Record rec = dataset.indexedList.get(26);
+		double theta = 0.1;
+		NaivePkduckValidator validator = new NaivePkduckValidator();
+		
+		System.out.println(query);
+		System.out.println(query.getDistinctTokenCount());
+		System.out.println(rec);
+		
+		double maxSim = 0;
+		IntSet expandedPrefix = getExpandedPrefix(query, theta);
+		for ( int widx=0; widx < rec.size(); ++ widx ) {
+			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
+			while ( witer.hasNext() ) {
+				Subrecord window = witer.next();
+				double sim = validator.simx2y(query, window.toRecord());
+				if ( sim > maxSim ) {
+					maxSim = Math.max(maxSim, sim);
+					System.out.println(widx+", "+window.size()+", "+sim);
+					IntSet wprefix = witer.getPrefix();
+					System.out.println("expandedPrefix: "+expandedPrefix);
+					System.out.println("expandedPrefix2: "+getExpandedPrefix2(query, theta));
+					System.out.println("wprefix: "+wprefix);
+					System.out.println(Util.hasIntersection(expandedPrefix, wprefix));
+				}
+			}
+		}
+		System.out.println(maxSim);
+	}
+
+	protected IntSet getExpandedPrefix( Record query, double theta ) {
+		IntSet candTokenSet = query.getCandTokenSet();
+		IntSet expandedPrefix = new IntOpenHashSet();
+		PkduckDP pkduckdp = new PkduckDP(query, theta);
+		for ( int target : candTokenSet ) {
+			if ( pkduckdp.isInSigU(target) ) expandedPrefix.add(target);
+		}
+		return expandedPrefix;
+	}
+	
+	protected IntSet getExpandedPrefix2( Record rec, double theta ) {
+		IntSet expandedPrefix = new IntOpenHashSet();
+		for ( Record exp : Records.expandAll(rec) ) {
+			System.out.println("exp: "+exp);
+			System.out.println("exp.prefix: "+Util.getPrefixLength(exp, theta));
+			expandedPrefix.addAll(Util.getPrefix(exp, theta));
+		}
+		return expandedPrefix;
+	}
 	
 	@Test
 	public void testSubrecord() throws IOException {

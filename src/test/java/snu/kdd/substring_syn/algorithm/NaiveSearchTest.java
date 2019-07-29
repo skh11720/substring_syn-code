@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.utils.Util;
 
 public class NaiveSearchTest {
@@ -30,8 +29,6 @@ public class NaiveSearchTest {
 	
 	public void test( String name, double theta, String size ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
-		TokenOrder order = new TokenOrder(dataset);
-		dataset.reindexByOrder(order);
 		
 		NaiveSearch naiveSearch = new NaiveSearch(theta);
 		
