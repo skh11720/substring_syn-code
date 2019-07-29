@@ -21,7 +21,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(query, text);
 		state.findBestTransform();
 		int[] transformedQuery = state.getTransformedString(query);
-		double sim = Util.jaccard( transformedQuery, text.getTokenArray());
+		double sim = Util.jaccardM( transformedQuery, text.getTokenArray());
 		return sim;
 	}
 
@@ -29,7 +29,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(text, query);
 		state.findBestTransform();
 		int[] transformedText = state.getTransformedString(text);
-		double sim = Util.subJaccard( query.getTokenList(), IntArrayList.wrap(transformedText) );
+		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
 		return sim;
 	}
 

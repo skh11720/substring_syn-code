@@ -4,8 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.PositionalIndexBasedFilter;
@@ -35,7 +34,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected boolean lf_text = true;
 	protected final IndexChoice indexChoice;
 	protected final GreedyValidator validator;
-	protected TransSetBoundCalculatorInterface boundCalculator;
+	protected TransLenCalculator transLenCalculator;
 	protected PkduckDPEx pkduckdp = null;
 
 	
@@ -147,13 +146,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void setBoundCalculator(RecordInterface rec, double modifiedTheta) {
 		if ( lf_text ) {
 			statContainer.startWatch("Time_TransSetBoundCalculatorMem");
-			boundCalculator = new TransSetBoundCalculator(statContainer, rec, modifiedTheta);
+			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
 			statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
 		}
 	}
 	
 	protected void setPkduckDP(Record query, RecordInterface rec, double modifiedTheta) {
-		if ( lf_text ) pkduckdp = new PkduckDPExWIthLF(query, rec, boundCalculator, modifiedTheta);
+		if ( lf_text ) pkduckdp = new PkduckDPExWIthLF(query, rec, transLenCalculator, modifiedTheta);
 		else pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
 	}
 	
@@ -212,14 +211,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected LFOutput applyLengthFiltering( Record query, int widx, int w ) {
-		int ub = boundCalculator.getLFUB(widx, widx+w-1);
-		int lb = boundCalculator.getLFLB(widx, widx+w-1);
-		int lbMono = boundCalculator.getLFLBMono(widx, widx+w-1);
+		int ub = transLenCalculator.getLFUB(widx, widx+w-1);
+		int lb = transLenCalculator.getLFLB(widx, widx+w-1);
 		int qSetSize = query.getDistinctTokenCount();
-		if ( qSetSize < lbMono ) {
-			statContainer.increment("Num_TS_LFByLBMono");
-			return LFOutput.filtered_stop;
-		}
 		if ( qSetSize > ub ) {
 			statContainer.increment("Num_TS_LFByUB");
 			return LFOutput.filtered_ignore;
@@ -244,7 +238,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 3.00: index filtering for query-side
 		 * 3.01: takes O(n^2) time to split records
 		 * 3.02: position filter text-side
+		 * 3.03: multiset
 		 */
-		return "3.02";
+		return "3.03";
 	}
 }

@@ -5,12 +5,11 @@ import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -95,7 +94,7 @@ public class PositionFilterTextSideTest {
 	}
 	
 	private static ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<TokenPosPair> prefixIdxList, ObjectList<TokenPosPair> suffixIdxList, double theta ) {
-		TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(null, rec, theta);
+		TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, theta);
 		int m = prefixIdxList.size();
 		ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 		for ( int i=0, j0=0; i<m; ++i ) {

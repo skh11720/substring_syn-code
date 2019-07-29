@@ -28,7 +28,7 @@ public class NaiveSearch extends AbstractSearch {
 				Subrecord window = witer.next();
 				for ( Record queryExp : queryExpArr ) {
 					statContainer.startWatch(Stat.Time_Validation);
-					double sim = Util.jaccard(queryExp.getTokenArray(), window.getTokenArray());
+					double sim = Util.jaccardM(queryExp.getTokenArray(), window.getTokenArray());
 					statContainer.stopWatch(Stat.Time_Validation);
 					statContainer.increment(Stat.Num_QS_Verified);
 					statContainer.addCount(Stat.Len_QS_Verified, window.size());
@@ -52,7 +52,7 @@ public class NaiveSearch extends AbstractSearch {
 					Subrecord window = witer.next();
 					Log.log.trace("w=%d, widx=%d", w, window.sidx);
 					statContainer.startWatch(Stat.Time_Validation);
-					double sim = Util.jaccard(window.getTokenArray(), query.getTokenArray());
+					double sim = Util.jaccardM(window.getTokenArray(), query.getTokenArray());
 					statContainer.stopWatch(Stat.Time_Validation);
 					statContainer.increment(Stat.Num_TS_Verified);
 					statContainer.addCount(Stat.Len_TS_Verified, window.size());
@@ -73,6 +73,9 @@ public class NaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "2.00";
+		/*
+		 * 3.00: multiset
+		 */
+		return "3.00";
 	}
 }
