@@ -47,7 +47,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 			statContainer.startWatch("Time_QS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			int minCount = (int)Math.ceil(theta*query.getTransSetLB());
+			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
@@ -95,14 +95,12 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<m-1; ++i ) {
 				int sidx = idxList.get(i);
-				IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
-				IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
+				int num = 1;
 				int eidx0 = sidx;
 				for ( int j=i; j<m; ++j ) {
 					int eidx1 = idxList.get(j);
-					numSet.add(rec.getToken(eidx1));
-					denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
-					double score = (double)numSet.size()/Math.max(query.getTransSetLB(), denumSet.size());
+					++num;
+					double score = (double)num/Math.max(query.getMinTransLength(), eidx1-sidx+1);
 					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
@@ -160,7 +158,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
 			statContainer.startWatch("Time_TS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			int minCount = (int)Math.ceil(theta*query.getDistinctTokenCount());
+			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, TokenPosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, TokenPosListPair> e : rec2idxListMap.entrySet() ) {
@@ -217,8 +215,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			for ( int i=0, j0=0; i<m; ++i ) {
 				PosToken entL = prefixIdxList.get(i);
 				int sidx = entL.pos;
-				IntSet numSet = new IntOpenHashSet();
-				numSet.add(entL.token);
+				int num = 1;
 				for ( int j=j0; j<m; ++j ) {
 					PosToken entR = suffixIdxList.get(j);
 					int eidx1 = entR.pos;
@@ -226,8 +223,8 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 						++j0;
 						continue;
 					}
-					numSet.add(entR.token);
-					double score = (double)numSet.size()/Math.max(query.getDistinctTokenCount(), boundCalculator.getLB(sidx, eidx1));
+					++num;
+					double score = (double)num/Math.max(query.size(), boundCalculator.getLB(sidx, eidx1));
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
 						else rangeList.add(new IntRange(sidx, eidx1));
