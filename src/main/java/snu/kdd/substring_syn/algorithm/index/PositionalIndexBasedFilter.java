@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.InvListEntry;
 import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.TransInvListEntry;
 import snu.kdd.substring_syn.data.Dataset;
@@ -210,7 +210,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<PosToken> prefixIdxList, ObjectList<PosToken> suffixIdxList, double theta ) {
 			statContainer.startWatch("Time_TS_findSegmenRanges.boundCalculator");
-			TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(null, rec, theta);
+			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, theta);
 			statContainer.stopWatch("Time_TS_findSegmenRanges.boundCalculator");
 			int m = prefixIdxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();

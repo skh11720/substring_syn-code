@@ -1,15 +1,15 @@
 package vldb18;
 
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculatorInterface;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkduckDPExWIthLF extends PkduckDPEx {
 	
-	protected final TransSetBoundCalculatorInterface boundCalculator;
+	protected final TransLenCalculator boundCalculator;
 	
-	public PkduckDPExWIthLF( Record query, RecordInterface rec, TransSetBoundCalculatorInterface boundCalculator, double theta ) {
+	public PkduckDPExWIthLF( Record query, RecordInterface rec, TransLenCalculator boundCalculator, double theta ) {
 		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}
@@ -20,7 +20,7 @@ public class PkduckDPExWIthLF extends PkduckDPEx {
 			// compute g[0][i][v][l].
 			init();
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+                if ( boundCalculator.getLFLB(i-1, i+v-2) > qSetSize ) break;
 				for (int l=1; l<=boundCalculator.getUB(i-1, i+v-2); ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
@@ -43,7 +43,7 @@ public class PkduckDPExWIthLF extends PkduckDPEx {
 		
 			// compute g[1][i][l].
 			for (int v=1; v<=rec.size()-i+1; ++v) {
-                if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+                if ( boundCalculator.getLFLB(i-1, i+v-2) > qSetSize ) break;
 				for (int l=1; l<=boundCalculator.getUB(i-1, i+v-2); ++l) {
 					for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 	//					System.out.println( rule );
@@ -72,7 +72,7 @@ public class PkduckDPExWIthLF extends PkduckDPEx {
 	@Override
 	protected void updateResult( int i ) {
 		for ( int v=1; v<=rec.size()-i+1; ++v ) {
-			if ( boundCalculator.getLFLBMono(i-1, i+v-2) > qSetSize ) break;
+			if ( boundCalculator.getLFLB(i-1, i+v-2) > qSetSize ) break;
 			b[i][v] = computeIsInSigU(i, v);
 		}
 	}

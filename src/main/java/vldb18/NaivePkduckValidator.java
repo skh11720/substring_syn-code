@@ -19,7 +19,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 		if ( areSameString(x, y) ) return 1;
 		double sim = 0;
 		for ( Record exp : Records.expandAll(x) ) {
-			sim = Math.max(sim, Util.jaccard(exp.getTokenArray(), y.getTokenArray()));
+			sim = Math.max(sim, Util.jaccardM(exp.getTokenArray(), y.getTokenArray()));
 		}
 		return sim;
 	}
@@ -27,7 +27,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 	public boolean isSimx2yOverThreahold( Record x, Record y, double theta ) {
 		if ( areSameString(x, y) ) return true;
 		for ( Record exp : Records.expandAll(x) ) {
-			double sim = Util.jaccard(exp.getTokenArray(), y.getTokenArray());
+			double sim = Util.jaccardM(exp.getTokenArray(), y.getTokenArray());
 			if ( sim >= theta ) {
 				Log.log.debug("NaivePkduckValidator.isSimx2yOverThreshold(%d, %d): sim=%.3f", ()->x.getID(), ()->y.getID(), ()->sim);
 				return true;
