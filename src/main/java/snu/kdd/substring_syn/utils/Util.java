@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
@@ -597,18 +599,18 @@ public class Util {
 		IntList idxList = new IntArrayList();
 		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
 		for ( int token : q ) qCounter.addTo(token, 1);
-		ObjectList<IntList> segList = new ObjectArrayList<>();
-		IntList lastSeg = new IntArrayList();
+		ObjectList<Int2IntOpenHashMap> counterList = new ObjectArrayList<>();
+		Int2IntOpenHashMap lastCounter = new Int2IntOpenHashMap();
 
 		for ( int i=0; i<t.size(); ++i ) {
 			int token = t.get(i);
 			if ( qCounter.keySet().contains(token) ) {
-				lastSeg.add(token);
+				lastCounter.addTo(token, 1);
 				idxList.add(i);
-				segList.add(lastSeg);
-				lastSeg = new IntArrayList();
+				counterList.add(lastCounter);
+				lastCounter = new Int2IntOpenHashMap();
 			}
-			else lastSeg.add(token);
+			else lastCounter.addTo(token, 1);
 		}
 		
 		if ( idxList.size() > 0 ) simMax = 1.0/q.size();
@@ -618,14 +620,20 @@ public class Util {
 			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
 			tCounter.addTo(t.get(sidx), 1);
 			for ( int j=i+1; j<idxList.size(); ++j ) {
-				int eidx = idxList.get(j);
-				for ( int idx=sidx+1; idx<=eidx; ++idx ) tCounter.addTo(t.get(idx), 1);
+				sumCounters(tCounter, counterList.get(j));
 				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
-				sidx = eidx;
 			}
 		}
 
 		return simMax;
+	}
+	
+	public static void sumCounters( Int2IntOpenHashMap thisCounter, Int2IntOpenHashMap other ) {
+		for ( Int2IntMap.Entry entry : other.int2IntEntrySet() ) {
+			int key = entry.getIntKey();
+			int val = entry.getIntValue();
+			thisCounter.addTo(key, val);
+		}
 	}
 
 	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
