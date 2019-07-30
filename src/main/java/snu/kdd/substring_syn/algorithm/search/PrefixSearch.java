@@ -101,7 +101,10 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		IntSet expandedPrefix = new IntOpenHashSet();
 		PkduckDP pkduckdp = new PkduckDP(query, theta);
 		for ( int target : candTokenSet ) {
-			if ( pkduckdp.isInSigU(target) ) expandedPrefix.add(target);
+			statContainer.startWatch("Time_QS_Pkduck");
+			boolean isInSigU = pkduckdp.isInSigU(target);
+			statContainer.stopWatch("Time_QS_Pkduck");
+			if (isInSigU) expandedPrefix.add(target);
 		}
 		return expandedPrefix;
 	}
@@ -147,9 +150,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	protected void setBoundCalculator(RecordInterface rec, double modifiedTheta) {
 		if ( lf_text ) {
-			statContainer.startWatch("Time_TransSetBoundCalculatorMem");
+			statContainer.startWatch("Time_TransSetBoundCalculator");
 			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
-			statContainer.stopWatch("Time_TransSetBoundCalculatorMem");
+			statContainer.stopWatch("Time_TransSetBoundCalculator");
 		}
 	}
 	
