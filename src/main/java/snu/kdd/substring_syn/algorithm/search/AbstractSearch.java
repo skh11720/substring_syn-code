@@ -56,7 +56,9 @@ public abstract class AbstractSearch {
 		for ( Record query : dataset.searchedList ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
-			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->(System.nanoTime()-ts)/1e6);
+			double searchTime = (System.nanoTime()-ts)/1e6;
+			statContainer.addSampleValue("Time_SearchPerQuery", searchTime);
+			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->searchTime);
 		}
 	}
 	
