@@ -60,6 +60,7 @@ public class StatContainer {
 	
 	public void finalizeAndOutput() {
 		finalize();
+		setDefault();
 		print();
 		outputSummary();
 	}
@@ -76,6 +77,16 @@ public class StatContainer {
 		keyList = new ObjectArrayList<>( Stat.getList() );
 		for ( String key : statMap.keySet() ) {
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
+		}
+	}
+	
+	private void setDefault() {
+		for ( String key : keyList ) {
+			if ( !statMap.containsKey(key) ) {
+				if ( key.startsWith("Num") || key.startsWith("Len") ) statMap.put(key, "0");
+				else if ( key.startsWith("Time") ) statMap.put(key, "0.0");
+				else statMap.put(key, "null");
+			}
 		}
 	}
 	
