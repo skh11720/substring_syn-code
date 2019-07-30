@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn;
+package snu.kdd.deprecated;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,6 +11,7 @@ import java.util.Random;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.blumarsh.graphmaker.core.util.FibonacciHeap;
@@ -20,7 +21,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 
-public class HeapTest {
+@Ignore
+public class HeapPerformanceTest {
 	
 	private static PrintStream ps = null;
 	

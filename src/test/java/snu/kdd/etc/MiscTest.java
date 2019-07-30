@@ -30,7 +30,7 @@ import vldb18.PkduckDP;
 
 public class MiscTest {
 	
-	@Test
+	@Ignore
 	public void testRecord() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_0", "13657");
 		Record rec = dataset.searchedList.get(1);
@@ -88,25 +88,6 @@ public class MiscTest {
 			expandedPrefix.addAll(Util.getPrefix(exp, theta));
 		}
 		return expandedPrefix;
-	}
-	
-	@Test
-	public void testSubrecord() throws IOException {
-		
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
-		double theta = 1.0;
-		Record rec = dataset.indexedList.get(622);
-		System.out.println(rec.toStringDetails());
-		
-		for ( int w=1; w<=rec.size(); ++w ) {
-			System.out.println("window size: "+w);
-			SortedRecordSlidingWindowIterator slider = new SortedRecordSlidingWindowIterator(rec, w, theta);
-			while ( slider.hasNext() ) {
-				Subrecord window = slider.next();
-				Record wrec = window.toRecord();
-				System.out.println(wrec.toStringDetails());
-			}
-		}
 	}
 	
 	@Test

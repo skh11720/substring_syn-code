@@ -1,6 +1,5 @@
 package snu.kdd.etc;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
@@ -15,9 +14,7 @@ import java.util.Random;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntLists;
 import snu.kdd.substring_syn.utils.Util;
 
 public class SubJaccardTest {
