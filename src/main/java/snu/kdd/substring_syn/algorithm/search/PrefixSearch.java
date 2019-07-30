@@ -161,13 +161,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			if ( applyPrefixFilteringFrom(query, rec, widx) ) return true;
 		}
-		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  isInSigU=false", query.getID(), rec.getID());
+//		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  isInSigU=false", query.getID(), rec.getID());
 		return false;
 	}
 	
 	protected boolean applyPrefixFilteringFrom( Record query, RecordInterface rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
-			Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
+//			Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
 			if ( lf_text ) {
 				LFOutput lfOutput = applyLengthFiltering(query, widx, w);
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
@@ -180,7 +180,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	protected boolean applyPrefixFilteringToWindow( Record query, RecordInterface rec, int widx, int w ) {
-		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
+//		Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size());
 		boolean isInSigU = pkduckdp.isInSigU(widx, w);
 		if ( isInSigU ) {
 			statContainer.addCount(Stat.Len_TS_PF, w);

@@ -53,10 +53,10 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 			for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
 				Record rec = entry.getKey();
 				IntList idxList = entry.getValue();
+				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
 				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 				if ( useCountFilter && idxList.size() < minCount ) continue;
-				idxList.sort(Integer::compare);
 				ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
@@ -90,7 +90,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		private ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
 			int m = idxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
-			for ( int i=0; i<m-1; ++i ) {
+			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
 				int num = 1;
 				int eidx0 = sidx;
@@ -98,7 +98,7 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 					int eidx1 = idxList.get(j);
 					++num;
 					double score = (double)num/Math.max(query.getMinTransLength(), eidx1-sidx+1);
-					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
+//					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
 						else rangeList.add(new IntRange(sidx, eidx1));
