@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -614,15 +615,14 @@ public class Util {
 
 		for ( int i=0; i<idxList.size(); ++i ) {
 			int sidx = idxList.get(i);
-			int num = 1;
 			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
 			tCounter.addTo(t.get(sidx), 1);
 			for ( int j=i+1; j<idxList.size(); ++j ) {
-				++num;
 				int eidx = idxList.get(j);
 				for ( int idx=sidx+1; idx<=eidx; ++idx ) tCounter.addTo(t.get(idx), 1);
+				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
+				sidx = eidx;
 			}
-			simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
 		}
 
 		return simMax;
@@ -670,9 +670,9 @@ public class Util {
 		return prefix;
 	}
 	
-	public static boolean hasIntersection( IntSet set0, IntSet set1 ) {
-		IntSet smallSet = set1.size() < set0.size()? set1: set0;
-		IntSet largeSet = set1.size() < set0.size()? set0: set1;
+	public static boolean hasIntersection( IntCollection set0, IntCollection set1 ) {
+		IntCollection smallSet = set1.size() < set0.size()? set1: set0;
+		IntCollection largeSet = set1.size() < set0.size()? set0: set1;
 		for ( int token : smallSet ) {
 			if ( largeSet.contains(token) ) return true;
 		}

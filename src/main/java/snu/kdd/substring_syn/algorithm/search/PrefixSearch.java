@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -69,14 +70,16 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-				if ( witer.getSetSize() > wRange.max ) break;
-				if ( witer.getSetSize() < wRange.min ) continue;
+				if ( window.size() > wRange.max ) break;
+				if ( window.size() < wRange.min ) continue;
 				int w = window.size();
 				statContainer.addCount(Stat.Len_QS_LF, w);
-				IntSet wprefix = witer.getPrefix();
-//				Log.log.debug("wprefix=%s", ()->wprefix);
-//				Log.log.debug("expandedPrefix=%s", ()->expandedPrefix);
-//				Log.log.debug("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
+				IntCollection wprefix = witer.getPrefix();
+				if ( query.getID() == 80 && rec.getID() == 56 ) {
+					Log.log.trace("wprefix=%s", ()->wprefix);
+					Log.log.trace("expandedPrefix=%s", ()->expandedPrefix);
+					Log.log.trace("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
+				}
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					statContainer.addCount(Stat.Len_QS_PF, w);
 					statContainer.startWatch(Stat.Time_Validation);
@@ -215,12 +218,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected LFOutput applyLengthFiltering( Record query, int widx, int w ) {
 		int ub = transLenCalculator.getLFUB(widx, widx+w-1);
 		int lb = transLenCalculator.getLFLB(widx, widx+w-1);
-		int qSetSize = query.getDistinctTokenCount();
-		if ( qSetSize > ub ) {
+		if ( query.size() > ub ) {
 			statContainer.increment("Num_TS_LFByUB");
 			return LFOutput.filtered_ignore;
 		}
-		if ( qSetSize < lb ) {
+		if ( query.size() < lb ) {
 			statContainer.increment("Num_TS_LFByLB");
 			return LFOutput.filtered_ignore;
 		}

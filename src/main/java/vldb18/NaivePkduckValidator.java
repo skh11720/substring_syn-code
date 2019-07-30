@@ -23,13 +23,25 @@ public class NaivePkduckValidator extends AbstractValidator {
 		}
 		return sim;
 	}
-	
-	public boolean isSimx2yOverThreahold( Record x, Record y, double theta ) {
-		if ( areSameString(x, y) ) return true;
-		for ( Record exp : Records.expandAll(x) ) {
-			double sim = Util.jaccardM(exp.getTokenArray(), y.getTokenArray());
+
+	public boolean verifyQuerySide( Record query, Record window, double theta ) {
+		if ( areSameString(query, window) ) return true;
+		for ( Record exp : Records.expandAll(query) ) {
+			double sim = Util.subJaccardM(exp.getTokenList(), window.getTokenList());
 			if ( sim >= theta ) {
-				Log.log.debug("NaivePkduckValidator.isSimx2yOverThreshold(%d, %d): sim=%.3f", ()->x.getID(), ()->y.getID(), ()->sim);
+				Log.log.debug("NaivePkduckValidator.verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean verifyTextSide( Record query, Record window, double theta ) {
+		if ( areSameString(query, window) ) return true;
+		for ( Record exp : Records.expandAll(window) ) {
+			double sim = Util.subJaccardM(query.getTokenList(), exp.getTokenList());
+			if ( sim >= theta ) {
+				Log.log.debug("NaivePkduckValidator.verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
 				return true;
 			}
 		}

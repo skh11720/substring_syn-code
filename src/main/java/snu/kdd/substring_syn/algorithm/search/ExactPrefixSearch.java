@@ -15,11 +15,11 @@ public class ExactPrefixSearch extends PrefixSearch {
 	}
 
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		return validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
+		return validator.verifyQuerySide(query, window.toRecord(), theta);
 	}
 
 	protected boolean verifyTextSide( Record query, Subrecord window ) {
-		return validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
+		return validator.verifyTextSide(query, window.toRecord(), theta);
 	}
 
 	@Override

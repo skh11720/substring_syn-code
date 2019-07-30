@@ -1,7 +1,6 @@
 package snu.kdd.etc;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,8 +13,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -34,8 +32,8 @@ public class MiscTest {
 	
 	@Test
 	public void testRecord() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "102");
-		Record rec = dataset.indexedList.get(20);
+		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_0", "13657");
+		Record rec = dataset.searchedList.get(1);
 		System.out.println(rec.toStringDetails());
 	}
 	
@@ -61,7 +59,7 @@ public class MiscTest {
 				if ( sim > maxSim ) {
 					maxSim = Math.max(maxSim, sim);
 					System.out.println(widx+", "+window.size()+", "+sim);
-					IntSet wprefix = witer.getPrefix();
+					IntCollection wprefix = witer.getPrefix();
 					System.out.println("expandedPrefix: "+expandedPrefix);
 					System.out.println("expandedPrefix2: "+getExpandedPrefix2(query, theta));
 					System.out.println("wprefix: "+wprefix);
