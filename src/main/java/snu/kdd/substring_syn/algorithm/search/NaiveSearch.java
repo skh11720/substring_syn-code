@@ -50,7 +50,7 @@ public class NaiveSearch extends AbstractSearch {
 				SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(exp, w, theta);
 				while ( witer.hasNext() ) {
 					Subrecord window = witer.next();
-					Log.log.trace("w=%d, widx=%d", w, window.sidx);
+					Log.log.trace("w=%d, widx=%d", ()->window.size(), ()->window.sidx);
 					statContainer.startWatch(Stat.Time_Validation);
 					double sim = Util.jaccardM(window.getTokenArray(), query.getTokenArray());
 					statContainer.stopWatch(Stat.Time_Validation);

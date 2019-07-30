@@ -1,8 +1,15 @@
 package snu.kdd.etc;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.junit.Test;
@@ -70,14 +77,41 @@ public class SubJaccardTest {
 	
 	@Test
 	public void testSubJaccardM() {
-		int nRepeat = 10;
+		int nRepeat = 10000;
+		File f = new File("tmp/testSubJaccardM.answer");
+		double[] answerArray = null;
+		PrintWriter ps = null;
+		try {
+			if ( f.exists() ) {
+				BufferedReader br = new BufferedReader( new FileReader(f) );
+				answerArray = new double[nRepeat];
+				Iterator<String> iter=br.lines().iterator();
+				for ( int i=0; i<nRepeat; ++i ) {
+					answerArray[i] = Double.parseDouble(iter.next());
+				}
+				br.close();
+			}
+			else ps = new PrintWriter(f);
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
 		for ( int repeat=0; repeat<nRepeat; ++repeat ) {
 			int[] x = genRandomArr();
 			int[] y = genRandomArr();
+			double sim = Util.subJaccardM(x, y);
 			System.out.println(Arrays.toString(x));
 			System.out.println(Arrays.toString(y));
-			System.out.println(Util.subJaccardM(x, y));
+			System.out.println(sim);
+			if ( answerArray != null ) {
+				System.out.println(answerArray[repeat]);
+				assertTrue(Math.abs(answerArray[repeat]-sim) <= 1e-5);
+			}
+			else ps.println(sim);
 		}
+		
+		if ( ps != null ) ps.close();
 	}
 
 	
