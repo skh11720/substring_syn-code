@@ -75,11 +75,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				int w = window.size();
 				statContainer.addCount(Stat.Len_QS_LF, w);
 				IntCollection wprefix = witer.getPrefix();
-				if ( query.getID() == 80 && rec.getID() == 56 ) {
-					Log.log.trace("wprefix=%s", ()->wprefix);
-					Log.log.trace("expandedPrefix=%s", ()->expandedPrefix);
-					Log.log.trace("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
-				}
+				Log.log.trace("wprefix=%s", ()->wprefix);
+				Log.log.trace("expandedPrefix=%s", ()->expandedPrefix);
+				Log.log.trace("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
 				if (Util.hasIntersection(wprefix, expandedPrefix)) {
 					statContainer.addCount(Stat.Len_QS_PF, w);
 					statContainer.startWatch(Stat.Time_Validation);
