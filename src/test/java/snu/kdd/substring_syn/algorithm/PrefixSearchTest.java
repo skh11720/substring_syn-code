@@ -30,39 +30,11 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		test("SPROT_long", 0.7, "100", "2.00");
-	}
-	
-	@Test
-	public void testAll() throws IOException {
-		testIteration(thetaList, sizeList, versionList);
+		test("SPROT_long", 1.0, "100", "2.00");
+//		test("WIKI_0", 0.6, "0", "2.00");
 	}
 	
 	@Ignore
-	public void testAllTheta() throws IOException {
-		for ( double theta : thetaList ) {
-			test(name, theta, "100", latestVersion);
-		}
-	}
-	
-	@Ignore
-	public void testAllVersions() throws IOException {
-		double[] thetaList = {0.7};
-		String[] sizeList = {"100"};
-		testIteration(thetaList, sizeList, versionList);
-	}
-	
-	public void testIteration( double[] thetaList, String[] sizeList, String[] versionList ) throws IOException {
-		for ( double theta : thetaList ) {
-			for ( String size : sizeList ) {
-				for ( String version : versionList ) {
-					test(name, theta, size, version);
-				}
-			}
-		}
-	}
-	
-	@Test
 	public void testLengthFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
@@ -86,7 +58,7 @@ public class PrefixSearchTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testIndexFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
@@ -150,7 +122,7 @@ public class PrefixSearchTest {
 		return b;
 	}
 	
-	@Test
+	@Ignore
 	public void testIndexImplComparison() throws IOException {
 		String name = "SPROT_long";
 		String size = "102";
