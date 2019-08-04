@@ -9,8 +9,13 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractGreedyValidator extends AbstractValidator {
+
+	public AbstractGreedyValidator(double theta, StatContainer statContainer) {
+		super(theta, statContainer);
+	}
 
 	protected class State {
 		ObjectSet<PosRule> candRuleSet;

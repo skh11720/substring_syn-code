@@ -9,7 +9,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.PositionalIndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.verify.GreedyValidator;
+import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
@@ -47,7 +47,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		param.put("lf_query", Boolean.toString(lf_query));
 		param.put("lf_text", Boolean.toString(lf_text));
 		param.put("index_impl", indexChoice.toString());
-		validator = new GreedyValidator();
+		validator = new GreedyValidator(theta, statContainer);
 	}
 	
 	@Override

@@ -1,8 +1,8 @@
-package snu.kdd.substring_syn.algorithm.verify;
+package snu.kdd.substring_syn.algorithm.validator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyValidator extends AbstractGreedyValidator {
@@ -16,6 +16,10 @@ public class GreedyValidator extends AbstractGreedyValidator {
 //		}
 //		return simMax;
 //	}
+
+	public GreedyValidator(double theta, StatContainer statContainer) {
+		super(theta, statContainer);
+	}
 
 	public double simQuerySide( Record query, Record text ) {
 		State state = new State(query, text);

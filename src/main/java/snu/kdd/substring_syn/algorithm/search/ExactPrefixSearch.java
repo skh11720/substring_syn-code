@@ -11,7 +11,7 @@ public class ExactPrefixSearch extends PrefixSearch {
 	
 	public ExactPrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text, IndexChoice indexChoice ) {
 		super(theta, idxFilter_query, idxFilter_text, lf_text, lf_text, indexChoice);
-		validator = new NaivePkduckValidator();
+		validator = new NaivePkduckValidator(theta, statContainer);
 	}
 
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {

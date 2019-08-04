@@ -22,6 +22,7 @@ import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -43,7 +44,7 @@ public class MiscTest {
 		Record query = dataset.searchedList.get(41);
 		Record rec = dataset.indexedList.get(26);
 		double theta = 0.1;
-		NaivePkduckValidator validator = new NaivePkduckValidator();
+		NaivePkduckValidator validator = new NaivePkduckValidator(theta, null);
 		
 		System.out.println(query);
 		System.out.println(query.getDistinctTokenCount());

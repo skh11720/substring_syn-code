@@ -4,6 +4,7 @@ import snu.kdd.substring_syn.algorithm.validator.AbstractValidator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
 public class NaivePkduckValidator extends AbstractValidator {
@@ -14,6 +15,11 @@ public class NaivePkduckValidator extends AbstractValidator {
 //		else return simx2y(x, y);
 //	}
 	
+	public NaivePkduckValidator(double theta, StatContainer statContainer) {
+		super(theta, statContainer);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Deprecated
 	public double simx2y( Record x, Record y ) {
 		if ( areSameString(x, y) ) return 1;
