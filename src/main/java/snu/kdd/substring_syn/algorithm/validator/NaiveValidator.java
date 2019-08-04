@@ -76,7 +76,10 @@ public class NaiveValidator extends AbstractValidator {
 		public Double next() {
 			double sim = Util.jaccardM( queryExpArr.get(qidx).getTokenArray(), window.getTokenArray());
 			++qidx;
-			if ( statContainer != null ) statContainer.addCount(Stat.Len_QS_Verified, window.size());
+			if ( statContainer != null ) {
+				statContainer.addCount(Stat.Len_QS_Verified, window.size());
+				statContainer.increment(Stat.Num_QS_Verified);
+			}
 			if ( qidx >= queryExpArr.size() ) {
 				qidx = 0;
 				if ( witer.hasNext() ) window = witer.next();
@@ -117,7 +120,10 @@ public class NaiveValidator extends AbstractValidator {
 		@Override
 		public Double next() {
 			double sim = Util.jaccardM(window.getTokenArray(), query.getTokenArray());
-			if ( statContainer != null ) statContainer.addCount(Stat.Len_TS_Verified, window.size());
+			if ( statContainer != null ) {
+				statContainer.addCount(Stat.Len_TS_Verified, window.size());
+				statContainer.increment(Stat.Num_TS_Verified);
+			}
 //			System.out.println("LINE0\t"+"eidx: "+eidx+"\thasNext: "+witer.hasNext()+"\tw: "+w+"/"+expList.get(eidx).size()+"\twidx: "+window.sidx+"/"+(expList.get(eidx).size()-1));
 			if ( !witer.hasNext() ) {
 				++w;
