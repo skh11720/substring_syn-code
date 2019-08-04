@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 public class AlgorithmFactory {
 
 	private enum AlgorithmName {
-		NaiveSearch,
+		ExactNaiveSearch,
 		PrefixSearch,
 	}
 	
@@ -17,13 +17,13 @@ public class AlgorithmFactory {
 		String paramStr = cmd.getOptionValue("param");
 		DictParam param = new DictParam(paramStr);
 		switch ( algName ) {
-		case NaiveSearch: return createNaiveSearch(param);
+		case ExactNaiveSearch: return createExactNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
 	
-	private static ExactNaiveSearch createNaiveSearch( DictParam param ) {
+	private static ExactNaiveSearch createExactNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		return new ExactNaiveSearch(theta);
 	}
