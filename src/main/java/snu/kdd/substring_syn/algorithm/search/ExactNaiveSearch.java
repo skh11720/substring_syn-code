@@ -21,7 +21,6 @@ public class ExactNaiveSearch extends AbstractSearch {
 	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Len_QS_Searched, Util.sumWindowSize(rec));
 		statContainer.startWatch(Stat.Time_Validation);
 		boolean isSim = validator.isOverThresholdQuerySide(query, rec); 
 		statContainer.stopWatch(Stat.Time_Validation);

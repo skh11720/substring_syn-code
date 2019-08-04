@@ -46,8 +46,6 @@ public class Stat {
 	
 	public static final String Len_SearchedAll= "Len_SearchedAll";
 	public static final String Len_IndexedAll= "Len_IndexedAll";
-	public static final String Len_QS_Searched = "Len_QS_Searched";
-	public static final String Len_TS_Searched = "Len_TS_Searched";
 	public static final String Len_QS_LF = "Len_QS_LF";
 	public static final String Len_TS_LF = "Len_TS_LF";
 	public static final String Len_QS_PF = "Len_QS_PF";

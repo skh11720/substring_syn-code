@@ -62,7 +62,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Len_QS_Searched, Util.sumWindowSize(rec));
 		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
@@ -128,7 +127,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		statContainer.addCount(Stat.Len_TS_Searched, Util.sumWindowSize(rec));
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		setBoundCalculator(rec, modifiedTheta);

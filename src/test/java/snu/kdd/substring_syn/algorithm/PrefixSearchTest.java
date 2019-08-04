@@ -30,8 +30,8 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		test("SPROT_long", 1.0, "100", "2.00");
-//		test("WIKI_0", 0.6, "0", "2.00");
+//		test("SPROT_long", 1.0, "100", "2.00");
+		test("WIKI_3", 0.8, "13657", "2.00");
 	}
 	
 	@Ignore
@@ -75,12 +75,10 @@ public class PrefixSearchTest {
 				String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
 				String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_IndexFilter);
 				String time_6 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_IndexFilter);
-				String num_qs_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Len_QS_Searched);
-				String num_ts_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Len_TS_Searched);
-				results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", idxFilter_query, idxFilter_text, time_0, time_1, time_2, time_5, time_6, num_qs_idxFilter, num_ts_idxFilter);
+				results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", idxFilter_query, idxFilter_text, time_0, time_1, time_2, time_5, time_6);
 			}
 		}
-		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter, Stat.Len_QS_Searched, Stat.Len_TS_Searched));
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter));
 		for ( String result : results ) {
 			System.out.println(result);
 		}

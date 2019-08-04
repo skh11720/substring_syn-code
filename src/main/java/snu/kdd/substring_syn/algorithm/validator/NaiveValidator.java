@@ -129,7 +129,6 @@ public class NaiveValidator extends AbstractValidator {
 				++w;
 				if ( w > expList.get(eidx).size() ) {
 					w = 1;
-					if ( statContainer != null ) statContainer.addCount(Stat.Len_TS_Searched, Util.sumWindowSize(expList.get(eidx)));
 					++eidx;
 				}
 				if ( eidx < expList.size() ) witer = new SortedRecordSlidingWindowIterator(expList.get(eidx), w, theta);
