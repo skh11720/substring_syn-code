@@ -9,6 +9,7 @@ public class AlgorithmFactory {
 
 	private enum AlgorithmName {
 		ExactNaiveSearch,
+		GreedyNaiveSearch,
 		PrefixSearch,
 	}
 	
@@ -18,6 +19,7 @@ public class AlgorithmFactory {
 		DictParam param = new DictParam(paramStr);
 		switch ( algName ) {
 		case ExactNaiveSearch: return createExactNaiveSearch(param);
+		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
@@ -26,6 +28,11 @@ public class AlgorithmFactory {
 	private static ExactNaiveSearch createExactNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		return new ExactNaiveSearch(theta);
+	}
+	
+	private static GreedyNaiveSearch createGreedyNaiveSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		return new GreedyNaiveSearch(theta);
 	}
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {

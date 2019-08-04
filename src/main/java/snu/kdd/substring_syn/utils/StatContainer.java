@@ -39,7 +39,7 @@ public class StatContainer {
 		statBuffer = new Object2ObjectOpenHashMap<>();
 	}
 	
-	public StatContainer( AbstractSearch alg, Dataset dataset ) {
+	public StatContainer( AbstractSearch alg ) {
 		this();
 		this.alg = alg;
 //		putParam(alg.getParam());
@@ -47,7 +47,6 @@ public class StatContainer {
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
 		statMap.put(Stat.Param, alg.getParam().toString());
-		mergeStatContainer(dataset.statContainer);
 	}
 	
 	public void setStat( String key, String value ) {
@@ -187,7 +186,7 @@ public class StatContainer {
 		statBuffer.get(key).append(value);
 	}
 	
-	private void mergeStatContainer( StatContainer statContainer ) {
+	public void mergeStatContainer( StatContainer statContainer ) {
 		for ( Entry<String, String> entry : statContainer.statMap.entrySet() ) {
 			statMap.put(entry.getKey(), entry.getValue());
 		}

@@ -25,7 +25,7 @@ public abstract class AbstractSearch {
 	protected final double theta;
 	protected final Set<IntPair> rsltQuerySide;
 	protected final Set<IntPair> rsltTextSide;
-	protected StatContainer statContainer;
+	protected final StatContainer statContainer;
 	
 	public AbstractSearch( double theta ) {
 		id = FilenameUtils.getBaseName(Log.logpath);
@@ -36,10 +36,11 @@ public abstract class AbstractSearch {
 
 		this.rsltQuerySide = new ObjectOpenHashSet<>();
 		this.rsltTextSide = new ObjectOpenHashSet<>();
+		statContainer = new StatContainer(this);
 	}
 	
 	public void run( Dataset dataset ) {
-		statContainer = new StatContainer(this, dataset);
+		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
 		searchBody(dataset);

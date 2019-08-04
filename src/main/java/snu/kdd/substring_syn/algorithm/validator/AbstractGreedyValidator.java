@@ -12,9 +12,12 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractGreedyValidator extends AbstractValidator {
+	
+	protected final StatContainer statContainer;
 
 	public AbstractGreedyValidator(double theta, StatContainer statContainer) {
 		super(theta, statContainer);
+		this.statContainer = statContainer;
 	}
 
 	protected class State {
