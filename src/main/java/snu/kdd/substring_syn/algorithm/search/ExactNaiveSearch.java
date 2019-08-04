@@ -8,12 +8,12 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
-public class NaiveSearch extends AbstractSearch {
+public class ExactNaiveSearch extends AbstractSearch {
 	
 	NaiveValidator validator;
 
 
-	public NaiveSearch(double theta) {
+	public ExactNaiveSearch(double theta) {
 		super(theta);
 		validator = new NaiveValidator(theta, statContainer);
 	}
@@ -49,7 +49,7 @@ public class NaiveSearch extends AbstractSearch {
 	
 	@Override
 	public String getName() {
-		return "NaiveSearch";
+		return "ExactNaiveSearch";
 	}
 
 	@Override
@@ -57,7 +57,8 @@ public class NaiveSearch extends AbstractSearch {
 		/*
 		 * 3.00: multiset
 		 * 4.00: refactor
+		 * 4.01: rename: NaiveSearch -> ExactNaiveSearch
 		 */
-		return "4.00";
+		return "4.01";
 	}
 }

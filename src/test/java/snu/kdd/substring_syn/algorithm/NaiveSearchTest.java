@@ -10,7 +10,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -51,7 +51,7 @@ public class NaiveSearchTest {
 	public void test() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(param.name, param.size);
 		
-		NaiveSearch naiveSearch = new NaiveSearch(param.theta);
+		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		
 		long ts = System.nanoTime();
 		naiveSearch.run(dataset);

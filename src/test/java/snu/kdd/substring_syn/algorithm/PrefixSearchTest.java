@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 import snu.kdd.substring_syn.data.Dataset;
@@ -89,7 +89,7 @@ public class PrefixSearchTest {
 	public void test( String name, double theta, String size, String version ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
 		
-		NaiveSearch naiveSearch = new NaiveSearch(theta);
+		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
 		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Position);
 		
@@ -100,7 +100,7 @@ public class PrefixSearchTest {
 		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );
 	}
 
-	public boolean isOutputCorrect( NaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
+	public boolean isOutputCorrect( ExactNaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
 		BufferedReader br0 = new BufferedReader(new FileReader(naiveSearch.getOutputPath(dataset)));
 		BufferedReader br1 = new BufferedReader(new FileReader(prefixSearch.getOutputPath(dataset)));
 		Iterator<String> iter0 = br0.lines().iterator();

@@ -23,9 +23,9 @@ public class AlgorithmFactory {
 		}
 	}
 	
-	private static NaiveSearch createNaiveSearch( DictParam param ) {
+	private static ExactNaiveSearch createNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		return new NaiveSearch(theta);
+		return new ExactNaiveSearch(theta);
 	}
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {

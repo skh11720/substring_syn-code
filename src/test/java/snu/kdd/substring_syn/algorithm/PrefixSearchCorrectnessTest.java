@@ -18,7 +18,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Util;
@@ -70,7 +70,7 @@ public class PrefixSearchCorrectnessTest {
 	public void test() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(param.name, param.size);
 		
-		NaiveSearch naiveSearch = new NaiveSearch(param.theta);
+		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;
 		prefixSearch = new ExactPrefixSearch(param.theta, param.idxFilter_query, param.idxFilter_text, param.lf_query, param.lf_text, param.index_impl);
 		
@@ -81,7 +81,7 @@ public class PrefixSearchCorrectnessTest {
 		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );
 	}
 
-	public boolean isOutputCorrect( NaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
+	public boolean isOutputCorrect( ExactNaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
 		BufferedReader br0 = new BufferedReader(new FileReader(naiveSearch.getOutputPath(dataset)));
 		BufferedReader br1 = new BufferedReader(new FileReader(prefixSearch.getOutputPath(dataset)));
 		Iterator<String> iter0 = br0.lines().iterator();
