@@ -77,12 +77,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					case filtered_stop: break;
 					default:
 					}
+					statContainer.addCount(Stat.Len_QS_LF, w);
 				}
-				statContainer.addCount(Stat.Len_QS_LF, w);
 				
 				if ( bPF && isFilteredByPrefixFilteringQuerySide(witer, expandedPrefix)) continue;
 
-				statContainer.addCount(Stat.Len_QS_PF, window.size());
+				statContainer.addCount(Stat.Len_QS_PF, w); 
 				statContainer.startWatch(Stat.Time_Validation);
 				boolean isSim = verifyQuerySide(query, window);
 				statContainer.stopWatch(Stat.Time_Validation);
