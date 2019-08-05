@@ -307,7 +307,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	public String getName() {
-		return "PrefixSearchNew";
+		return "PrefixSearch";
 	}
 
 	@Override
