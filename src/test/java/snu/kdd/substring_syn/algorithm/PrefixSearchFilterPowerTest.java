@@ -52,11 +52,17 @@ public class PrefixSearchFilterPowerTest {
 		ObjectList<Param> paramList = new ObjectArrayList<>();
 		double[] thetaList = {1.0, 0.8, 0.6};
 		String[] sizeList = {"100"};
-		boolean[][] optionList = {{false, false, false}, {true, false, false}, {true, true, false}, {true, false, true}, {true, true, true}};
+		boolean[][] optionList = {
+				{false, false, false, false}, 
+				{false, false, false, true}, 
+				{true, false, false, true}, 
+				{true, true, false, true}, 
+				{true, false, true, true}, 
+				{true, true, true, true}};
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
 				for ( boolean[] option : optionList ) {
-					paramList.add( new Param(theta, size, option[0], option[1], option[2], IndexChoice.Naive) );
+					paramList.add( new Param(theta, size, option[0], option[1], option[2], option[3]?IndexChoice.Position:IndexChoice.Naive) );
 				}
 			}
 		}
