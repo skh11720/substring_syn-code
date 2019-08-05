@@ -1,12 +1,14 @@
 theta_list: &theta_list ['0.6', '0.7', '0.8', '0.9', '1.0']
  
-NaiveSearch:
+ExactNaiveSearch:
+  theta: *theta_list
+
+GreedyNaiveSearch:
   theta: *theta_list
  
 PrefixSearch:
   theta: *theta_list
-  bIFQ: ['false', 'true']
-  bIFT: ['false', 'true']
-  bLFQ: ['false', 'true']
-  bLFT: ['false', 'true']
+  bIF: ['false', 'true']
+  bLF: ['false', 'true']
+  bPF: ['false', 'true']
   index_impl: ['Naive', 'Position']
