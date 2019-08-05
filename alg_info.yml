@@ -8,7 +8,4 @@ GreedyNaiveSearch:
  
 PrefixSearch:
   theta: *theta_list
-  bIF: ['false', 'true']
-  bLF: ['false', 'true']
-  bPF: ['false', 'true']
-  index_impl: ['Naive', 'Position']
+  filter: ['NoFilter', 'ICF', 'IPF', 'LF', 'PF']

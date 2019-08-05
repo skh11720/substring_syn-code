@@ -13,6 +13,14 @@ public class AlgorithmFactory {
 		PrefixSearch,
 	}
 	
+	private enum FilterOption {
+		NoFilter,
+		ICF, // ICF
+		IPF, // ICF+IPF
+		LF, // ICF+IPF+LF
+		PF, // ICF+IPF+LF+PF
+	}
+	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
 		String paramStr = cmd.getOptionValue("param");
@@ -37,10 +45,29 @@ public class AlgorithmFactory {
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		boolean bIF = Boolean.parseBoolean(param.get("bIF"));
-		boolean bLF = Boolean.parseBoolean(param.get("bLF"));
-		boolean bPF = Boolean.parseBoolean(param.get("bPF"));
-		IndexChoice indexChoice = IndexChoice.valueOf(param.get("index_impl"));
+		boolean bIF;
+		boolean bLF;
+		boolean bPF;
+		IndexChoice indexChoice;
+	
+		if ( param.containsKey("filter")) {
+			indexChoice = IndexChoice.Naive;
+			bIF = bLF = bPF = false;
+			switch (FilterOption.valueOf(param.get("filter"))) {
+			case PF: bPF = true;
+			case LF: bLF = true;
+			case IPF: indexChoice = IndexChoice.Position;
+			case ICF: bIF = true;
+			case NoFilter: break;
+			default: throw new RuntimeException("Unexpected error");
+			}
+		}
+		else {
+			bIF = Boolean.parseBoolean(param.get("bIF"));
+			bLF = Boolean.parseBoolean(param.get("bLF"));
+			bPF = Boolean.parseBoolean(param.get("bPF"));
+			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
+		}
 		return new PrefixSearch(theta, bIF, bLF, bPF, indexChoice);
 	}
 	
@@ -59,6 +86,10 @@ public class AlgorithmFactory {
 		public String get( String key ) {
 			if ( map.containsKey(key) ) return map.get(key);
 			else throw new RuntimeException("No such key in DictParam: "+key);
+		}
+		
+		public boolean containsKey( String key ) {
+			return map.containsKey(key);
 		}
 	}
 }
