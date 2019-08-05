@@ -2,10 +2,15 @@ package vldb18;
 
 import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyPkduckValidator extends AbstractGreedyValidator {
 	
+	public GreedyPkduckValidator(double theta, StatContainer statContainer) {
+		super(theta, statContainer);
+	}
+
 	public double sim( Record x, Record y ) {
 		/*
 		 * TODO:  call sim2y with y and x

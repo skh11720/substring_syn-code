@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.filter.TransSetBoundCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.InvListEntry;
 import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.TransInvListEntry;
 import snu.kdd.substring_syn.data.Dataset;
@@ -45,25 +45,22 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		
 		public ObjectSet<RecordInterface> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
-			statContainer.startWatch("Time_QS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			int minCount = (int)Math.ceil(theta*query.getTransSetLB());
+			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
 				Record rec = entry.getKey();
 				IntList idxList = entry.getValue();
+				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
 				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 				if ( useCountFilter && idxList.size() < minCount ) continue;
-				idxList.sort(Integer::compare);
 				ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
 			}
-			statContainer.stopWatch("Time_QS_PositionFilter");
-			statContainer.addCount("Num_QS_PositionFilter", candRecordSet.size());
 			return candRecordSet;
 		}
 		
@@ -93,17 +90,15 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		private ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
 			int m = idxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
-			for ( int i=0; i<m-1; ++i ) {
+			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
-				IntSet numSet = new IntOpenHashSet(rec.getToken(sidx));
-				IntSet denumSet = new IntOpenHashSet(rec.getToken(sidx));
+				int num = 1;
 				int eidx0 = sidx;
 				for ( int j=i; j<m; ++j ) {
 					int eidx1 = idxList.get(j);
-					numSet.add(rec.getToken(eidx1));
-					denumSet.addAll(rec.getTokenList().subList(eidx0+1, eidx1+1));
-					double score = (double)numSet.size()/Math.max(query.getTransSetLB(), denumSet.size());
-					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
+					++num;
+					double score = (double)num/Math.max(query.getMinTransLength(), eidx1-sidx+1);
+//					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
 						else rangeList.add(new IntRange(sidx, eidx1));
@@ -158,9 +153,8 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 		
 		public ObjectSet<RecordInterface> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
-			statContainer.startWatch("Time_TS_PositionFilter");
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			int minCount = (int)Math.ceil(theta*query.getDistinctTokenCount());
+			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, TokenPosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, TokenPosListPair> e : rec2idxListMap.entrySet() ) {
@@ -177,9 +171,6 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
 			}
-
-			statContainer.stopWatch("Time_TS_PositionFilter");
-			statContainer.addCount("Num_TS_PositionFilter", candRecordSet.size());
 			return candRecordSet;
 		}
 		
@@ -210,15 +201,14 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<PosToken> prefixIdxList, ObjectList<PosToken> suffixIdxList, double theta ) {
 			statContainer.startWatch("Time_TS_findSegmenRanges.boundCalculator");
-			TransSetBoundCalculator boundCalculator = new TransSetBoundCalculator(null, rec, theta);
+			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, theta);
 			statContainer.stopWatch("Time_TS_findSegmenRanges.boundCalculator");
 			int m = prefixIdxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0, j0=0; i<m; ++i ) {
 				PosToken entL = prefixIdxList.get(i);
 				int sidx = entL.pos;
-				IntSet numSet = new IntOpenHashSet();
-				numSet.add(entL.token);
+				int num = 1;
 				for ( int j=j0; j<m; ++j ) {
 					PosToken entR = suffixIdxList.get(j);
 					int eidx1 = entR.pos;
@@ -226,8 +216,8 @@ public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
 						++j0;
 						continue;
 					}
-					numSet.add(entR.token);
-					double score = (double)numSet.size()/Math.max(query.getDistinctTokenCount(), boundCalculator.getLB(sidx, eidx1));
+					++num;
+					double score = (double)num/Math.max(query.size(), boundCalculator.getLB(sidx, eidx1));
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
 						else rangeList.add(new IntRange(sidx, eidx1));

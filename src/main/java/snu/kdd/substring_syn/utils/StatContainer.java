@@ -17,7 +17,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.data.Dataset;
 
 public class StatContainer {
 
@@ -27,6 +26,7 @@ public class StatContainer {
 	
 	private final Object2ObjectMap<String, Counter> counterBuffer;
 	private final Object2ObjectMap<String, StopWatch> stopwatchBuffer;
+	private final Object2ObjectMap<String, BasicStatCalculator> statBuffer;
 	List<String> keyList;
 	
 	public StatContainer() {
@@ -35,17 +35,16 @@ public class StatContainer {
 //		optionalStatMap = new Object2ObjectArrayMap<>();
 		counterBuffer = new Object2ObjectOpenHashMap<>();
 		stopwatchBuffer = new Object2ObjectOpenHashMap<>();
+		statBuffer = new Object2ObjectOpenHashMap<>();
 	}
 	
-	public StatContainer( AbstractSearch alg, Dataset dataset ) {
-		this();
+	public void setAlgorithm( AbstractSearch alg ) {
 		this.alg = alg;
 //		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
 		statMap.put(Stat.Param, alg.getParam().toString());
-		mergeStatContainer(dataset.statContainer);
 	}
 	
 	public void setStat( String key, String value ) {
@@ -58,6 +57,7 @@ public class StatContainer {
 	
 	public void finalizeAndOutput() {
 		finalize();
+		setDefault();
 		print();
 		outputSummary();
 	}
@@ -65,9 +65,25 @@ public class StatContainer {
 	public void finalize() {
 		for ( String key : counterBuffer.keySet() ) statMap.put(key, Long.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
+		for ( String key : statBuffer.keySet() ) {
+			statMap.put(key+"_MIN", String.format("%.3f", statBuffer.get(key).min()));
+			statMap.put(key+"_MAX", String.format("%.3f", statBuffer.get(key).max()));
+			statMap.put(key+"_MEAN", String.format("%.3f", statBuffer.get(key).mean()));
+			statMap.put(key+"_STD", String.format("%.3f", statBuffer.get(key).std()));
+		}
 		keyList = new ObjectArrayList<>( Stat.getList() );
 		for ( String key : statMap.keySet() ) {
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
+		}
+	}
+	
+	private void setDefault() {
+		for ( String key : keyList ) {
+			if ( !statMap.containsKey(key) ) {
+				if ( key.startsWith("Num") || key.startsWith("Len") ) statMap.put(key, "0");
+				else if ( key.startsWith("Time") ) statMap.put(key, "0.0");
+				else statMap.put(key, "null");
+			}
 		}
 	}
 	
@@ -78,6 +94,14 @@ public class StatContainer {
 		}
 	}
 	
+	public String outputSummaryString() {
+		StringBuilder strbld = new StringBuilder();
+		for ( String key : keyList ) {
+			strbld.append(key+":"+statMap.get(key)+"\t");
+		}
+		return strbld.toString();
+	}
+	
 	public void outputSummary() {
 		PrintStream ps = null;
 		try {
@@ -85,10 +109,7 @@ public class StatContainer {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		for ( String key : keyList ) {
-			ps.print(key+":"+statMap.get(key)+"\t");
-		}
-		ps.println();
+		ps.println(outputSummaryString());
 		ps.close();
 	}
 	
@@ -163,7 +184,12 @@ public class StatContainer {
 //		stopwatchBuffer.remove(key);
 	}
 	
-	private void mergeStatContainer( StatContainer statContainer ) {
+	public void addSampleValue( String key, double value ) {
+		if ( !statBuffer.containsKey(key) ) statBuffer.put(key, new BasicStatCalculator());
+		statBuffer.get(key).append(value);
+	}
+	
+	public void mergeStatContainer( StatContainer statContainer ) {
 		for ( Entry<String, String> entry : statContainer.statMap.entrySet() ) {
 			statMap.put(entry.getKey(), entry.getValue());
 		}
@@ -206,5 +232,25 @@ public class StatContainer {
 			if (active) throw new RuntimeException();
 			return t;
 		}
+	}
+	
+	private class BasicStatCalculator {
+		int n = 0;
+		double sum = 0;
+		double sqsum = 0;
+		double max = Double.MIN_VALUE;
+		double min = Double.MAX_VALUE;
+		
+		public void append( double value ) {
+			++n;
+			sum += value;
+			sqsum += value*value;
+			max = Math.max(max, value);
+			min = Math.min(min, value);
+		}
+		public double max() { return max; }
+		public double min() { return min; }
+		public double mean() { return sum/n; }
+		public double std() { return Math.sqrt(sqsum/n - mean()*mean()); }
 	}
 }

@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn;
+package snu.kdd.deprecated;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 
+@Ignore
 public class IntHashBasedBinaryHeapTest {
 	
 	Random rn = new Random(0);

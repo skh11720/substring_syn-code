@@ -7,11 +7,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -511,6 +515,26 @@ public class Util {
 		return sim;
 	}
 
+	public static double jaccardM( int[] x, int[] y ) {
+		Int2IntOpenHashMap xCounter = new Int2IntOpenHashMap();
+		for ( int token : x ) xCounter.addTo(token, 1);
+		Int2IntOpenHashMap yCounter = new Int2IntOpenHashMap();
+		for ( int token : y ) yCounter.addTo(token, 1);
+		return jaccardM(xCounter, yCounter);
+	}
+
+	public static double jaccardM( Int2IntOpenHashMap x, Int2IntOpenHashMap y ) {
+		IntSet tokenSet = new IntOpenHashSet(x.keySet());
+		tokenSet.addAll(y.keySet());
+		int num = 0;
+		int denum = 0;
+		for ( int token : tokenSet ) {
+			num += Math.min(x.get(token), y.get(token));
+			denum += Math.max(x.get(token), y.get(token));
+		}
+		return (double)num/denum;
+	}
+
 	public static double subJaccard0( int[] q, int[] t ) {
 		double simMax = 0;
 		for ( int i=0; i<t.length; ++i ) {
@@ -565,74 +589,52 @@ public class Util {
 
 		return simMax;
 	}
+	
+	public static double subJaccardM( int[] q, int[] t ) {
+		return subJaccardM(IntArrayList.wrap(q), IntArrayList.wrap(t));
+	}
 
-//	public static Dataset getDataset( String name, long size ) throws IOException {
-//
-//		String osName = System.getProperty( "os.name" );
-//		String prefix = null;
-//		String sep = null;
-//		if ( osName.startsWith( "Windows" ) ) {
-//			prefix = "D:\\ghsong\\data\\synonyms\\";
-//			sep = "\\";
-//		}
-//		else if ( osName.startsWith( "Linux" ) ) {
-//			prefix = "data_store/";
-//			sep = "/";
-//		}
-//		
-//		String searchedPath, indexedPath, rulePath;
-//		if ( name.equals( "AOL" )) {
-//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-//			rulePath = prefix + "wordnet"+sep+"rules.noun";
-//		}
-//		else if ( name.equals( "AOL_1K" )) {
-//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-//			rulePath = prefix + "wordnet"+sep+"rules.noun";
-//		}
-//		else if ( name.equals( "SPROT" ) ) {
-//			searchedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-//			indexedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-//			rulePath = prefix + "sprot"+sep+"rule.txt";
-//		}
-//		else if ( name.equals( "USPS" ) ) {
-//			searchedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-//			indexedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-//		}
-//		else if ( name.startsWith("NAMES") ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_freebase.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_sport.txt" );
-//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-//		}
-//		else if ( name.startsWith( "UNIV" ) ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
-//		}
-//		else if ( name.startsWith( "CONF" ) ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + name+sep+name+"_rule.txt";
-//		}
-//		else if ( name.startsWith("POLY") ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + name+sep+name+"_rule.txt";
-//		}
-//		else if ( name.equals( "SPROT_long" ) ) {
-//			searchedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_short_%d.txt", size );
-//			indexedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_long_%d.txt", size );
-//			rulePath = prefix + "sprot_long"+sep+"rule.txt";
-//		}
-//		else throw new RuntimeException();
-//
-//		String outputPath = "output";
-//		Dataset dataset = new Dataset(rulePath, searchedPath, indexedPath, outputPath);
-//
-//		return dataset;
-//	}
+	public static double subJaccardM( IntList q, IntList t ) {
+		double simMax = 0;
+		IntList idxList = new IntArrayList();
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		ObjectList<Int2IntOpenHashMap> counterList = new ObjectArrayList<>();
+		Int2IntOpenHashMap lastCounter = new Int2IntOpenHashMap();
+
+		for ( int i=0; i<t.size(); ++i ) {
+			int token = t.get(i);
+			if ( qCounter.keySet().contains(token) ) {
+				lastCounter.addTo(token, 1);
+				idxList.add(i);
+				counterList.add(lastCounter);
+				lastCounter = new Int2IntOpenHashMap();
+			}
+			else lastCounter.addTo(token, 1);
+		}
+		
+		if ( idxList.size() > 0 ) simMax = 1.0/q.size();
+
+		for ( int i=0; i<idxList.size(); ++i ) {
+			int sidx = idxList.get(i);
+			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
+			tCounter.addTo(t.get(sidx), 1);
+			for ( int j=i+1; j<idxList.size(); ++j ) {
+				sumCounters(tCounter, counterList.get(j));
+				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
+			}
+		}
+
+		return simMax;
+	}
+	
+	public static void sumCounters( Int2IntOpenHashMap thisCounter, Int2IntOpenHashMap other ) {
+		for ( Int2IntMap.Entry entry : other.int2IntEntrySet() ) {
+			int key = entry.getIntKey();
+			int val = entry.getIntValue();
+			thisCounter.addTo(key, val);
+		}
+	}
 
 	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
 		return Dataset.createInstanceByName(name, size);
@@ -676,9 +678,9 @@ public class Util {
 		return prefix;
 	}
 	
-	public static boolean hasIntersection( IntSet set0, IntSet set1 ) {
-		IntSet smallSet = set1.size() < set0.size()? set1: set0;
-		IntSet largeSet = set1.size() < set0.size()? set0: set1;
+	public static boolean hasIntersection( IntCollection set0, IntCollection set1 ) {
+		IntCollection smallSet = set1.size() < set0.size()? set1: set0;
+		IntCollection largeSet = set1.size() < set0.size()? set0: set1;
 		for ( int token : smallSet ) {
 			if ( largeSet.contains(token) ) return true;
 		}

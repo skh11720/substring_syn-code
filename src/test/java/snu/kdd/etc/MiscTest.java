@@ -1,7 +1,6 @@
 package snu.kdd.etc;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,8 +13,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -24,6 +22,7 @@ import snu.kdd.substring_syn.data.IntDouble;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -32,10 +31,10 @@ import vldb18.PkduckDP;
 
 public class MiscTest {
 	
-	@Test
+	@Ignore
 	public void testRecord() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "102");
-		Record rec = dataset.indexedList.get(20);
+		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_0", "13657");
+		Record rec = dataset.searchedList.get(1);
 		System.out.println(rec.toStringDetails());
 	}
 	
@@ -45,7 +44,7 @@ public class MiscTest {
 		Record query = dataset.searchedList.get(41);
 		Record rec = dataset.indexedList.get(26);
 		double theta = 0.1;
-		NaivePkduckValidator validator = new NaivePkduckValidator();
+		NaivePkduckValidator validator = new NaivePkduckValidator(theta, null);
 		
 		System.out.println(query);
 		System.out.println(query.getDistinctTokenCount());
@@ -61,7 +60,7 @@ public class MiscTest {
 				if ( sim > maxSim ) {
 					maxSim = Math.max(maxSim, sim);
 					System.out.println(widx+", "+window.size()+", "+sim);
-					IntSet wprefix = witer.getPrefix();
+					IntCollection wprefix = witer.getPrefix();
 					System.out.println("expandedPrefix: "+expandedPrefix);
 					System.out.println("expandedPrefix2: "+getExpandedPrefix2(query, theta));
 					System.out.println("wprefix: "+wprefix);
@@ -90,25 +89,6 @@ public class MiscTest {
 			expandedPrefix.addAll(Util.getPrefix(exp, theta));
 		}
 		return expandedPrefix;
-	}
-	
-	@Test
-	public void testSubrecord() throws IOException {
-		
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
-		double theta = 1.0;
-		Record rec = dataset.indexedList.get(622);
-		System.out.println(rec.toStringDetails());
-		
-		for ( int w=1; w<=rec.size(); ++w ) {
-			System.out.println("window size: "+w);
-			SortedRecordSlidingWindowIterator slider = new SortedRecordSlidingWindowIterator(rec, w, theta);
-			while ( slider.hasNext() ) {
-				Subrecord window = slider.next();
-				Record wrec = window.toRecord();
-				System.out.println(wrec.toStringDetails());
-			}
-		}
 	}
 	
 	@Test
@@ -262,39 +242,6 @@ public class MiscTest {
 			StringBuilder strbld = new StringBuilder();
 			for ( IntDouble entry : list ) strbld.append(key2posMap.get(entry.k)+":"+entry+", ");
 			return strbld.toString();
-		}
-	}
-	
-	@Test
-	public void testSubjaccard() {
-		long[] tArr = new long[3];
-		Random rn = new Random();
-		
-		for ( int l=0; l<1000; ++l ) {
-			int lx = rn.nextInt(5)+3;
-			int ly = rn.nextInt(100)+5;
-			int[] x = new int[lx];
-			int[] y = new int[ly];
-			for ( int i=0; i<lx; ++i ) x[i] = rn.nextInt(10);
-			for ( int i=0; i<ly; ++i ) y[i] = rn.nextInt(10);
-			IntList xList = IntArrayList.wrap(x);
-			IntList yList = IntArrayList.wrap(y);
-			
-			long ts = System.nanoTime();
-			double sim0 = Util.subJaccard0(x, y);
-			tArr[0] += System.nanoTime() - ts;
-			ts = System.nanoTime();
-			double sim1 = Util.subJaccard1(xList, yList);
-			tArr[1] += System.nanoTime() - ts;
-			ts = System.nanoTime();
-			double sim2 = Util.subJaccard(xList, yList);
-			tArr[2] += System.nanoTime() - ts;
-			assertTrue(Math.abs(sim0 - sim1) < 1e-7);
-			assertTrue(Math.abs(sim0 - sim2) < 1e-7);
-		}
-		
-		for (int i=0; i<tArr.length; ++i ) {
-			System.out.println(tArr[i]/1.0e6);
 		}
 	}
 }

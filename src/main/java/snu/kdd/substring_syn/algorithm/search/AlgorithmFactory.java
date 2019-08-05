@@ -8,7 +8,8 @@ import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 public class AlgorithmFactory {
 
 	private enum AlgorithmName {
-		NaiveSearch,
+		ExactNaiveSearch,
+		GreedyNaiveSearch,
 		PrefixSearch,
 	}
 	
@@ -17,25 +18,30 @@ public class AlgorithmFactory {
 		String paramStr = cmd.getOptionValue("param");
 		DictParam param = new DictParam(paramStr);
 		switch ( algName ) {
-		case NaiveSearch: return createNaiveSearch(param);
+		case ExactNaiveSearch: return createExactNaiveSearch(param);
+		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
 	
-	private static NaiveSearch createNaiveSearch( DictParam param ) {
+	private static ExactNaiveSearch createExactNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		return new NaiveSearch(theta);
+		return new ExactNaiveSearch(theta);
+	}
+	
+	private static GreedyNaiveSearch createGreedyNaiveSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		return new GreedyNaiveSearch(theta);
 	}
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		boolean idxFilter_query = Boolean.parseBoolean(param.get("bIFQ"));
-		boolean idxFilter_text = Boolean.parseBoolean(param.get("bIFT"));
-		boolean lf_query = Boolean.parseBoolean(param.get("bLFQ"));
-		boolean lf_text = Boolean.parseBoolean(param.get("bLFT"));
+		boolean bIF = Boolean.parseBoolean(param.get("bIF"));
+		boolean bLF = Boolean.parseBoolean(param.get("bLF"));
+		boolean bPF = Boolean.parseBoolean(param.get("bPF"));
 		IndexChoice indexChoice = IndexChoice.valueOf(param.get("index_impl"));
-		return new PrefixSearch(theta, idxFilter_query, idxFilter_text, lf_query, lf_text, indexChoice);
+		return new PrefixSearch(theta, bIF, bLF, bPF, indexChoice);
 	}
 	
 	

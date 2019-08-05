@@ -29,3 +29,9 @@ WIKI_7:
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules.noun'
     nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+
+WIKI_0:
+    searchedPath: 'wiki/queries/queries_0.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['0']

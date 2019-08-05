@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.NaiveSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 import snu.kdd.substring_syn.data.Dataset;
@@ -31,38 +31,10 @@ public class PrefixSearchTest {
 	@Test
 	public void testSingle() throws IOException {
 		test("SPROT_long", 0.7, "100", "2.00");
-	}
-	
-	@Test
-	public void testAll() throws IOException {
-		testIteration(thetaList, sizeList, versionList);
+//		test("WIKI_3", 0.8, "13657", "2.00");
 	}
 	
 	@Ignore
-	public void testAllTheta() throws IOException {
-		for ( double theta : thetaList ) {
-			test(name, theta, "100", latestVersion);
-		}
-	}
-	
-	@Ignore
-	public void testAllVersions() throws IOException {
-		double[] thetaList = {0.7};
-		String[] sizeList = {"100"};
-		testIteration(thetaList, sizeList, versionList);
-	}
-	
-	public void testIteration( double[] thetaList, String[] sizeList, String[] versionList ) throws IOException {
-		for ( double theta : thetaList ) {
-			for ( String size : sizeList ) {
-				for ( String version : versionList ) {
-					test(name, theta, size, version);
-				}
-			}
-		}
-	}
-	
-	@Test
 	public void testLengthFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
@@ -70,15 +42,13 @@ public class PrefixSearchTest {
 
 		String[] results = new String[4];
 		int i = 0;
-		for ( boolean lf_text: new boolean[]{false, true} ) {
-			for ( boolean lf_query : new boolean[]{false, true} ) {
-				AbstractSearch prefixSearch = new PrefixSearch(theta, false, false, lf_query, lf_text, IndexChoice.Naive);
-				prefixSearch.run(dataset);
-				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
-				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
-				String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
-				results[i++] = String.format("%s\t%s\t%s\t%s\t%s", lf_query, lf_text, time_0, time_1, time_2);
-			}
+		for ( boolean bLF: new boolean[]{false, true} ) {
+			AbstractSearch prefixSearch = new PrefixSearch(theta, false, bLF, false, IndexChoice.Naive);
+			prefixSearch.run(dataset);
+			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
+			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
+			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
+			results[i++] = String.format("%s\t%s\t%s\t%s", bLF, time_0, time_1, time_2);
 		}
 		System.out.println(String.format("%s\t%s\t%s\t%s\t%s", "lf_query", "lf_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal));
 		for ( String result : results ) {
@@ -86,7 +56,7 @@ public class PrefixSearchTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testIndexFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
@@ -94,21 +64,17 @@ public class PrefixSearchTest {
 
 		String[] results = new String[4];
 		int i = 0;
-		for ( boolean idxFilter_text : new boolean[]{false, true} ) {
-			for ( boolean idxFilter_query : new boolean[]{false, true} ) {
-				AbstractSearch prefixSearch = new PrefixSearch(theta, idxFilter_query, idxFilter_text, true, true, IndexChoice.Naive);
-				prefixSearch.run(dataset);
-				String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
-				String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
-				String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
-				String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_IndexFilter);
-				String time_6 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_IndexFilter);
-				String num_qs_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Len_QS_Searched);
-				String num_ts_idxFilter = prefixSearch.getStatContainer().getStat(Stat.Len_TS_Searched);
-				results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", idxFilter_query, idxFilter_text, time_0, time_1, time_2, time_5, time_6, num_qs_idxFilter, num_ts_idxFilter);
-			}
+		for ( boolean bIF : new boolean[]{false, true} ) {
+			AbstractSearch prefixSearch = new PrefixSearch(theta, bIF, true, true, IndexChoice.Naive);
+			prefixSearch.run(dataset);
+			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
+			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
+			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
+			String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_IndexFilter);
+			String time_6 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_IndexFilter);
+			results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", bIF, time_0, time_1, time_2, time_5, time_6);
 		}
-		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter, Stat.Len_QS_Searched, Stat.Len_TS_Searched));
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter));
 		for ( String result : results ) {
 			System.out.println(result);
 		}
@@ -117,9 +83,9 @@ public class PrefixSearchTest {
 	public void test( String name, double theta, String size, String version ) throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
 		
-		NaiveSearch naiveSearch = new NaiveSearch(theta);
+		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Position);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, IndexChoice.Position);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
@@ -128,7 +94,7 @@ public class PrefixSearchTest {
 		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );
 	}
 
-	public boolean isOutputCorrect( NaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
+	public boolean isOutputCorrect( ExactNaiveSearch naiveSearch, AbstractSearch prefixSearch, Dataset dataset ) throws IOException {
 		BufferedReader br0 = new BufferedReader(new FileReader(naiveSearch.getOutputPath(dataset)));
 		BufferedReader br1 = new BufferedReader(new FileReader(prefixSearch.getOutputPath(dataset)));
 		Iterator<String> iter0 = br0.lines().iterator();
@@ -150,7 +116,7 @@ public class PrefixSearchTest {
 		return b;
 	}
 	
-	@Test
+	@Ignore
 	public void testIndexImplComparison() throws IOException {
 		String name = "SPROT_long";
 		String size = "102";
@@ -158,11 +124,11 @@ public class PrefixSearchTest {
 		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
 		
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Naive);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, IndexChoice.Naive);
 		prefixSearch.run(dataset);
 		String num_qs0 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts0 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
-		prefixSearch = new ExactPrefixSearch(theta, true, true, true, true, IndexChoice.Position);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, true, IndexChoice.Position);
 		prefixSearch.run(dataset);
 		String num_qs1 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts1 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);

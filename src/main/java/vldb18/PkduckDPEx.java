@@ -9,21 +9,21 @@ import snu.kdd.substring_syn.data.record.RecordInterface;
 public class PkduckDPEx {
 	
 	protected final int maxTransLen;
+	protected final Record query;
 	protected final RecordInterface rec;
 	protected final double theta;
 	protected final int[][][] g;
 	protected final boolean[][] b;
-	protected final int qSetSize;
 	
 	
 	public PkduckDPEx( Record query, RecordInterface rec, double theta ) {
+		this.query = query;
 		this.rec = rec;
 		this.theta = theta;
 		this.maxTransLen = rec.getMaxTransLength();
 		this.g = new int[2][rec.size()+1][maxTransLen+1];
 		this.b = new boolean[rec.size()+1][rec.size()+1];
 		for (boolean[] bArr : b) Arrays.fill(bArr, false);
-		this.qSetSize = query.getDistinctTokenCount();
 	}
 
 	public void compute( int target ) {

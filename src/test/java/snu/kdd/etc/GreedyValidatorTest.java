@@ -17,7 +17,7 @@ public class GreedyValidatorTest {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "1000");
 		long ts;
 		long[] tArr = new long[2];
-		GreedyPkduckValidator validator0 = new GreedyPkduckValidator();
+		GreedyPkduckValidator validator0 = new GreedyPkduckValidator(0.0, null);
 		
 		for ( Record recS : dataset.searchedList ) {
 			for ( Record recT : dataset.indexedList ) {

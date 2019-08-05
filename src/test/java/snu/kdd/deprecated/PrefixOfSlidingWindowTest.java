@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn;
+package snu.kdd.deprecated;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -24,6 +25,7 @@ import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIter
 import snu.kdd.substring_syn.utils.window.iterator.SortedSlidingWindowIterator;
 
 @FixMethodOrder
+@Ignore
 public class PrefixOfSlidingWindowTest {
 
 	double[] thetaList = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
