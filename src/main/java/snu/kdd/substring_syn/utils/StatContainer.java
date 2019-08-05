@@ -17,7 +17,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.data.Dataset;
 
 public class StatContainer {
 
@@ -39,8 +38,7 @@ public class StatContainer {
 		statBuffer = new Object2ObjectOpenHashMap<>();
 	}
 	
-	public StatContainer( AbstractSearch alg ) {
-		this();
+	public void setAlgorithm( AbstractSearch alg ) {
 		this.alg = alg;
 //		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());

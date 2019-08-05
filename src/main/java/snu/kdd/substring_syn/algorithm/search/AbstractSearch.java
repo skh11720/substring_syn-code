@@ -36,10 +36,11 @@ public abstract class AbstractSearch {
 
 		this.rsltQuerySide = new ObjectOpenHashSet<>();
 		this.rsltTextSide = new ObjectOpenHashSet<>();
-		statContainer = new StatContainer(this);
+		statContainer = new StatContainer();
 	}
 	
 	public void run( Dataset dataset ) {
+		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
