@@ -96,6 +96,14 @@ public class StatContainer {
 		}
 	}
 	
+	public String outputSummaryString() {
+		StringBuilder strbld = new StringBuilder();
+		for ( String key : keyList ) {
+			strbld.append(key+":"+statMap.get(key)+"\t");
+		}
+		return strbld.toString();
+	}
+	
 	public void outputSummary() {
 		PrintStream ps = null;
 		try {
@@ -103,10 +111,7 @@ public class StatContainer {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		for ( String key : keyList ) {
-			ps.print(key+":"+statMap.get(key)+"\t");
-		}
-		ps.println();
+		ps.println(outputSummaryString());
 		ps.close();
 	}
 	

@@ -145,7 +145,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 		
 		if (bPF) searchRecordTextSideWithPrefixFilter(query, rec);
-		else ;
+		else searchRecordTextSideWithoutPrefixFilter(query, rec);;
 	}
 	
 	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
@@ -163,7 +163,10 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			for ( int widx=0; widx<rec.size(); ++widx ) {
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
-					if ( bLF && transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
+					if ( bLF ) {
+						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
+						statContainer.addCount(Stat.Len_TS_LF, w);
+					}
 					for ( int l=1; l<=transLenCalculator.getUB(widx, widx+w-1); ++l ) {
 						pkduckdp.computeCase0(target, widx+1, w, l);
 						pkduckdp.computeCase1(target, widx+1, w, l);
@@ -187,8 +190,10 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void searchRecordTextSideWithoutPrefixFilter( Record query, RecordInterface rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
-				if ( bLF && transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
-				statContainer.addCount(Stat.Len_TS_PF, w);
+				if ( bLF ) {
+					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
+					statContainer.addCount(Stat.Len_TS_LF, w);
+				}
 				Subrecord window = new Subrecord(rec, widx, widx+w);
 				boolean isSim = verifyTextSideWrapper(query, window);
 				if ( isSim ) {
