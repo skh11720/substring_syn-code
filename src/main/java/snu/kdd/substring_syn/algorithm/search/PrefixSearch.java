@@ -45,6 +45,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		this.bPF = bPF;
 		this.indexChoice = indexChoice;
 		param.put("bLF", Boolean.toString(bLF));
+		param.put("bPF", Boolean.toString(bPF));
 		param.put("index_impl", indexChoice.toString());
 		validator = new GreedyValidator(theta, statContainer);
 	}
