@@ -68,11 +68,11 @@ public class PrefixSearchFilterPowerTest {
 		double[] thetaList = {1.0, 0.8, 0.6};
 		String[] sizeList = {"100"};
 		boolean[][] optionList = {
-//				{false, false, false, false}, 
-//				{false, false, false, true}, 
-//				{true, false, false, true}, 
-//				{true, true, false, true}, 
-//				{true, false, true, true}, 
+				{false, false, false, false}, 
+				{false, false, false, true}, 
+				{true, false, false, true}, 
+				{true, true, false, true}, 
+				{true, false, true, true}, 
 				{true, true, true, true}};
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
