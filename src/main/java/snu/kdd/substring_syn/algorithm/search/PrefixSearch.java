@@ -31,21 +31,20 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		Position,
 	}
 
-	protected boolean lf_query = true;
-	protected boolean lf_text = true;
+	protected final boolean bLF;
+	protected final boolean bPF;
 	protected final IndexChoice indexChoice;
 	protected final GreedyValidator validator;
-	protected TransLenCalculator transLenCalculator;
+	protected TransLenCalculator transLenCalculator = null;
 	protected PkduckDPEx pkduckdp = null;
 
 	
-	public PrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text, IndexChoice indexChoice ) {
-		super(theta, idxFilter_query, idxFilter_text);
-		this.lf_query = lf_query;
-		this.lf_text = lf_text;
+	public PrefixSearch( double theta, boolean bIF, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+		super(theta, bIF);
+		this.bLF = bLF;
+		this.bPF = bPF;
 		this.indexChoice = indexChoice;
-		param.put("lf_query", Boolean.toString(lf_query));
-		param.put("lf_text", Boolean.toString(lf_text));
+		param.put("bLF", Boolean.toString(bLF));
 		param.put("index_impl", indexChoice.toString());
 		validator = new GreedyValidator(theta, statContainer);
 	}
@@ -69,27 +68,30 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-				if ( window.size() > wRange.max ) break;
-				if ( window.size() < wRange.min ) continue;
 				int w = window.size();
-				statContainer.addCount(Stat.Len_QS_LF, w);
-				IntCollection wprefix = witer.getPrefix();
-				Log.log.trace("wprefix=%s", ()->wprefix);
-				Log.log.trace("expandedPrefix=%s", ()->expandedPrefix);
-				Log.log.trace("w=%d, widx=%d, intersection=%s", ()->window.size(), ()->window.sidx, ()->Util.hasIntersection(wprefix, expandedPrefix));
-				if (Util.hasIntersection(wprefix, expandedPrefix)) {
-					statContainer.addCount(Stat.Len_QS_PF, w);
-					statContainer.startWatch(Stat.Time_Validation);
-					boolean isSim = verifyQuerySide(query, window);
-					statContainer.stopWatch(Stat.Time_Validation);
-					statContainer.increment(Stat.Num_QS_Verified);
-					statContainer.addCount(Stat.Len_QS_Verified, window.size());
-					if ( isSim ) {
-						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-						Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-						Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
-						return;
+				
+				if ( bLF ) {
+					switch ( applyLengthFilterQuerySide(w, wRange) ) {
+					case filtered_ignore: continue;
+					case filtered_stop: break;
+					default:
 					}
+				}
+				statContainer.addCount(Stat.Len_QS_LF, w);
+				
+				if ( bPF && isFilteredByPrefixFilteringQuerySide(witer, expandedPrefix)) continue;
+
+				statContainer.addCount(Stat.Len_QS_PF, window.size());
+				statContainer.startWatch(Stat.Time_Validation);
+				boolean isSim = verifyQuerySide(query, window);
+				statContainer.stopWatch(Stat.Time_Validation);
+				statContainer.increment(Stat.Num_QS_Verified);
+				statContainer.addCount(Stat.Len_QS_Verified, window.size());
+				if ( isSim ) {
+					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+					return;
 				}
 			}
 		}
@@ -109,13 +111,20 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
-		if (lf_query) {
-			int lb = query.getTransSetLB();
-			int min = Math.max(1, (int)Math.ceil(theta*lb));
-			int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
-			return new IntRange(min, max);
-		}
-		else return new IntRange(1, rec.size());
+		int min = (int)Math.max(1, Math.ceil(theta*query.getMinTransLength()));
+		int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
+		return new IntRange(min, max);
+	}
+	
+	protected LFOutput applyLengthFilterQuerySide( int w, IntRange wRange ) {
+		if ( w > wRange.max ) return LFOutput.filtered_stop;
+		if ( w < wRange.min ) return LFOutput.filtered_ignore;
+		return LFOutput.not_filtered;
+	}
+	
+	protected boolean isFilteredByPrefixFilteringQuerySide( SortedWindowExpander witer, IntSet expandedPrefix ) {
+		IntCollection wprefix = witer.getPrefix();
+		return !Util.hasIntersection(wprefix, expandedPrefix);
 	}
 	
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
@@ -147,7 +156,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	protected void setBoundCalculator(RecordInterface rec, double modifiedTheta) {
-		if ( lf_text ) {
+		if ( bLF ) {
 			statContainer.startWatch("Time_TransSetBoundCalculator");
 			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
 			statContainer.stopWatch("Time_TransSetBoundCalculator");
@@ -155,7 +164,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected void setPkduckDP(Record query, RecordInterface rec, double modifiedTheta) {
-		if ( lf_text ) pkduckdp = new PkduckDPExWIthLF(query, rec, transLenCalculator, modifiedTheta);
+		if (!bPF) return;
+		if ( bLF ) pkduckdp = new PkduckDPExWIthLF(query, rec, transLenCalculator, modifiedTheta);
 		else pkduckdp = new PkduckDPEx(query, rec, modifiedTheta);
 	}
 	
@@ -170,7 +180,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected boolean applyPrefixFilteringFrom( Record query, RecordInterface rec, int widx ) {
 		for ( int w=1; w<=rec.size()-widx; ++w ) {
 //			Log.log.trace("PrefixSearch.applyPrefixFiltering(query.id=%d, rec.id=%d, ...)  widx=%d/%d  w=%d/%d", query.getID(), rec.getID(), widx, rec.size()-1, w, rec.size() );
-			if ( lf_text ) {
+			if ( bLF ) {
 				LFOutput lfOutput = applyLengthFiltering(query, widx, w);
 				if ( lfOutput == LFOutput.filtered_ignore ) continue;
 				else if ( lfOutput == LFOutput.filtered_stop ) break;
@@ -243,7 +253,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 3.02: position filter text-side
 		 * 3.03: multiset
 		 * 4.00: multiset
+		 * 4.01: refactor
 		 */
-		return "4.00";
+		return "4.01";
 	}
 }

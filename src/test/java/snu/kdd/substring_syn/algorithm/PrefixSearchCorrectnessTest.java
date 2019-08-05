@@ -32,19 +32,17 @@ public class PrefixSearchCorrectnessTest {
 		double theta;
 		String size;
 		String name = "SPROT_long";
-		boolean idxFilter_query = true;
-		boolean idxFilter_text = true;
-		boolean lf_query = true;
-		boolean lf_text = true;
+		boolean bIF = true;
+		boolean bLF = true;
+		boolean bPF = true;
 		IndexChoice index_impl;
 		
-		public Param( double theta, String size, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text, IndexChoice index_impl ) {
+		public Param( double theta, String size, boolean bIF, boolean bLF, boolean bPF, IndexChoice index_impl ) {
 			this.theta = theta;
 			this.size = size;
-			this.idxFilter_query = idxFilter_query;
-			this.idxFilter_text = idxFilter_text;
-			this.lf_query = lf_query;
-			this.lf_text = lf_text;
+			this.bIF = bIF;
+			this.bLF = bLF;
+			this.bPF = bPF;
 			this.index_impl = index_impl;
 		}
 	}
@@ -56,7 +54,7 @@ public class PrefixSearchCorrectnessTest {
 		String[] sizeList = {"100", "101", "102", "103", "104", "105"};
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
-				paramList.add( new Param(theta, size, false, false, false, false, IndexChoice.Naive) );
+				paramList.add( new Param(theta, size, false, false, false, IndexChoice.Naive) );
 			}
 		}
 		return paramList;
@@ -72,7 +70,7 @@ public class PrefixSearchCorrectnessTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(param.theta, param.idxFilter_query, param.idxFilter_text, param.lf_query, param.lf_text, param.index_impl);
+		prefixSearch = new ExactPrefixSearch(param.theta, param.bIF, param.bLF, param.bPF, param.index_impl);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);

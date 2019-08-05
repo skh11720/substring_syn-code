@@ -10,20 +10,17 @@ import snu.kdd.substring_syn.utils.Stat;
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected AbstractIndexBasedFilter indexFilter;
-	protected final boolean idxFilter_query;
-	protected final boolean idxFilter_text;
+	protected final boolean bIF;
 
-	public AbstractIndexBasedSearch( double theta, boolean idxFilter_query, boolean idxFilter_text ) {
+	public AbstractIndexBasedSearch( double theta, boolean bIF ) {
 		super(theta);
-		this.idxFilter_query = idxFilter_query;
-		this.idxFilter_text = idxFilter_text;
-		param.put("idxFilter_query", Boolean.toString(idxFilter_query));
-		param.put("idxFilter_text", Boolean.toString(idxFilter_text));
+		this.bIF = bIF;
+		param.put("bIF", Boolean.toString(bIF));
 	}
 
 	@Override
 	protected void prepareSearch( Dataset dataset ) {
-		if (idxFilter_query || idxFilter_text) buildIndex(dataset);
+		if (bIF) buildIndex(dataset);
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
@@ -51,7 +48,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
-		if (idxFilter_query) {
+		if (bIF) {
 			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.querySideFilter(query);
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
@@ -61,7 +58,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
-		if (idxFilter_text) {
+		if (bIF) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.textSideFilter(query);
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
