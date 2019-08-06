@@ -8,12 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedCountFilter;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
-import snu.kdd.substring_syn.algorithm.index.lIndexBasedPositionFilter;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
-import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -28,41 +23,21 @@ import vldb18.PkduckDP;
 
 public class PrefixSearch extends AbstractIndexBasedSearch {
 
-	public static enum IndexChoice {
-		Naive,
-		Count,
-		Position,
-	}
-
-	protected final boolean bICF, bLF, bPF;
-	protected final IndexChoice indexChoice;
+	protected final boolean bLF, bPF;
 	protected final GreedyValidator validator;
 	protected TransLenCalculator transLenCalculator = null;
 
 	
-	public PrefixSearch( double theta, boolean bIF, boolean bICF, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
-		super(theta, bIF);
-		this.bICF = bICF;
+	public PrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+		super(theta, indexChoice);
 		this.bLF = bLF;
 		this.bPF = bPF;
-		this.indexChoice = indexChoice;
-		param.put("bICF", Boolean.toString(bICF));
 		param.put("bLF", Boolean.toString(bLF));
 		param.put("bPF", Boolean.toString(bPF));
 		param.put("index_impl", indexChoice.toString());
 		validator = new GreedyValidator(theta, statContainer);
 	}
 	
-	@Override
-	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
-		switch(indexChoice) {
-		case Naive: return new IndexBasedNaiveFilter(dataset, theta, statContainer);
-		case Count: return new IndexBasedCountFilter(dataset, theta, statContainer);
-		case Position: return new lIndexBasedPositionFilter(dataset, theta, statContainer);
-		default: throw new RuntimeException("Unknown index type: "+indexChoice);
-		}
-	}
-
 	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());

@@ -2,6 +2,9 @@ package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.IndexBasedCountFilter;
+import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
+import snu.kdd.substring_syn.algorithm.index.lIndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
@@ -9,18 +12,25 @@ import snu.kdd.substring_syn.utils.Stat;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
-	protected AbstractIndexBasedFilter indexFilter;
-	protected final boolean bIF;
+	public static enum IndexChoice {
+		None,
+		Naive,
+		Count,
+		Position,
+	}
 
-	public AbstractIndexBasedSearch( double theta, boolean bIF ) {
+	protected AbstractIndexBasedFilter indexFilter;
+	protected final IndexChoice indexChoice;
+
+
+	public AbstractIndexBasedSearch( double theta, IndexChoice indexChoice ) {
 		super(theta);
-		this.bIF = bIF;
-		param.put("bIF", Boolean.toString(bIF));
+		this.indexChoice = indexChoice; 
 	}
 
 	@Override
 	protected void prepareSearch( Dataset dataset ) {
-		if (bIF) buildIndex(dataset);
+		buildIndex(dataset);
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
@@ -28,8 +38,16 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		indexFilter = buildSpecificIndex(dataset);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
 	}
-	
-	protected abstract AbstractIndexBasedFilter buildSpecificIndex( Dataset dataset );
+
+	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
+		switch(indexChoice) {
+		case None: return null;
+		case Naive: return new IndexBasedNaiveFilter(dataset, theta, statContainer);
+		case Count: return new IndexBasedCountFilter(dataset, theta, statContainer);
+		case Position: return new lIndexBasedPositionFilter(dataset, theta, statContainer);
+		default: throw new RuntimeException("Unknown index type: "+indexChoice);
+		}
+	}
 
 	@Override
 	protected void searchQuerySide( Record query, Dataset dataset ) {
@@ -48,7 +66,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
-		if (bIF) {
+		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.querySideFilter(query);
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
@@ -58,7 +76,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
-		if (bIF) {
+		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
 			ObjectSet<RecordInterface> candRecordSet = indexFilter.textSideFilter(query);
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
