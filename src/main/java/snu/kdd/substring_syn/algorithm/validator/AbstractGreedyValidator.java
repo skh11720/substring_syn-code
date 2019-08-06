@@ -3,13 +3,13 @@ package snu.kdd.substring_syn.algorithm.validator;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.Util;
 
 public abstract class AbstractGreedyValidator extends AbstractValidator {
 	
@@ -23,14 +23,14 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 	protected class State {
 		ObjectSet<PosRule> candRuleSet;
 		Boolean[] bAvailable;
-		IntSet tokenSet;
+		Int2IntOpenHashMap counter;
 		ObjectSet<PosRule> appliedRuleSet;
 		
 		public State( Record x, Record y ) {
 			candRuleSet = createPosRuleList(x.getSuffixApplicableRules());	
 			bAvailable = new Boolean[x.size()];
 			Arrays.fill( bAvailable, true );
-			tokenSet = new IntOpenHashSet( y.getTokenArray() );
+			counter = Util.getCounter(y.getTokenArray());
 			appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 		}
 
@@ -58,7 +58,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			double bestScore = 0;
 			PosRule bestRule = null;
 			for ( PosRule rule : candRuleSet ) {
-				double score = score(rule.rule, tokenSet);
+				double score = score(rule.rule);
 				if (score > bestScore) {
 					bestScore = score;
 					bestRule = rule;
@@ -69,10 +69,13 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			else return bestRule;
 		}
 
-		private double score( Rule rule, IntSet tokenSet ) {
+		private double score( Rule rule ) {
 			double score = 0;
 			for (int token : rule.getRhs()) {
-				if ( tokenSet.contains(token) ) ++score;
+				if ( counter.get(token) > 0 ) ++score;
+				/*
+				 * If the RHS of a rule has duplicate tokens, this code will yield a false negative.
+				 */
 			}
 			score /= rule.rhsSize();
 			return score;
@@ -82,7 +85,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			for (int j=0; j<bestRule.lhsSize(); ++j) bAvailable[bestRule.pos-j] = false;
 			candRuleSet.remove( bestRule );
 			appliedRuleSet.add( bestRule );
-			for (Integer token : bestRule.getRhs()) tokenSet.remove( token );
+			for (Integer token : bestRule.getRhs()) counter.addTo(token, -1);
 		}
 		
 		private void removeInvalidRules() {

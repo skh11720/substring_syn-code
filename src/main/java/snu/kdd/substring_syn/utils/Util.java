@@ -701,4 +701,10 @@ public class Util {
 		strbld.append("]");
 		return strbld.toString();
 	}
+	
+	public static Int2IntOpenHashMap getCounter( int[] arr ) {
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		for ( int token : arr ) counter.addTo(token, 1);
+		return counter;
+	}
 }
