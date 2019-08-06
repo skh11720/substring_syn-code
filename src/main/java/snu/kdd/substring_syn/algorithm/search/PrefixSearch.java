@@ -301,7 +301,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.00: multiset
 		 * 4.01: refactor
 		 * 4.02: filter option
+		 * 4.03: filter option
 		 */
-		return "4.02";
+		return "4.03";
 	}
 }
