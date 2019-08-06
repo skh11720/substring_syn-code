@@ -25,12 +25,12 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class PositionalIndexBasedFilter extends AbstractIndexBasedFilter {
+public class lIndexBasedPositionFilter extends AbstractIndexBasedFilter {
 
 	protected final PositionalInvertedIndex index;
     protected final boolean useCountFilter = true;
 	
-	public PositionalIndexBasedFilter( Dataset dataset, double theta, StatContainer statContainer ) {
+	public lIndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(theta, statContainer);
 		index = new PositionalInvertedIndex(dataset);
 	}

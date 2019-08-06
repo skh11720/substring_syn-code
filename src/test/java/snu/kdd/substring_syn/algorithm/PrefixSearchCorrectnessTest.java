@@ -33,14 +33,16 @@ public class PrefixSearchCorrectnessTest {
 		String size;
 		String name = "SPROT_long";
 		boolean bIF = true;
+		boolean bICF = true;
 		boolean bLF = true;
 		boolean bPF = true;
 		IndexChoice index_impl;
 		
-		public Param( double theta, String size, boolean bIF, boolean bLF, boolean bPF, IndexChoice index_impl ) {
+		public Param( double theta, String size, boolean bIF, boolean bICF, boolean bLF, boolean bPF, IndexChoice index_impl ) {
 			this.theta = theta;
 			this.size = size;
 			this.bIF = bIF;
+			this.bICF = bICF;
 			this.bLF = bLF;
 			this.bPF = bPF;
 			this.index_impl = index_impl;
@@ -54,7 +56,7 @@ public class PrefixSearchCorrectnessTest {
 		String[] sizeList = {"100", "101", "102", "103", "104", "105"};
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
-				paramList.add( new Param(theta, size, false, false, false, IndexChoice.Naive) );
+				paramList.add( new Param(theta, size, false, false, false, false, IndexChoice.Naive) );
 			}
 		}
 		return paramList;
@@ -70,7 +72,7 @@ public class PrefixSearchCorrectnessTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(param.theta, param.bIF, param.bLF, param.bPF, param.index_impl);
+		prefixSearch = new ExactPrefixSearch(param.theta, param.bIF, param.bICF, param.bLF, param.bPF, param.index_impl);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);

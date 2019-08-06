@@ -63,7 +63,7 @@ public class TransLenCalculator {
 					int r = rule.rhsSize();
 					if ( j-i+1 < l ) continue;
 					if ( l < r ) ub[i][j] = Math.max(ub[i][j], r+(j-l>=0? ub[i][j-l]: 0));
-					if (l > r )	lb[i][j] = Math.min(lb[i][j], r+(j-l>=0? lb[i][j-l]: 0));
+					if ( l > r ) lb[i][j] = Math.min(lb[i][j], r+(j-l>=0? lb[i][j-l]: 0));
 				}
 			}
 		}

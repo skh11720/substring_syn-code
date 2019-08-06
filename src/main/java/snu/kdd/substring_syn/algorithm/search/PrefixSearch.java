@@ -9,8 +9,9 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.NaiveIndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.PositionalIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.IndexBasedCountFilter;
+import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
+import snu.kdd.substring_syn.algorithm.index.lIndexBasedPositionFilter;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
@@ -29,22 +30,25 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	public static enum IndexChoice {
 		Naive,
+		Count,
 		Position,
 	}
 
-	protected final boolean bLF;
-	protected final boolean bPF;
+	protected final boolean bICF, bLF, bPF;
 	protected final IndexChoice indexChoice;
 	protected final GreedyValidator validator;
 	protected TransLenCalculator transLenCalculator = null;
 
 	
-	public PrefixSearch( double theta, boolean bIF, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public PrefixSearch( double theta, boolean bIF, boolean bICF, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bIF);
+		this.bICF = bICF;
 		this.bLF = bLF;
 		this.bPF = bPF;
 		this.indexChoice = indexChoice;
+		param.put("bICF", Boolean.toString(bICF));
 		param.put("bLF", Boolean.toString(bLF));
+		param.put("bPF", Boolean.toString(bPF));
 		param.put("index_impl", indexChoice.toString());
 		validator = new GreedyValidator(theta, statContainer);
 	}
@@ -52,8 +56,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
 		switch(indexChoice) {
-		case Naive: return new NaiveIndexBasedFilter(dataset, theta, statContainer);
-		case Position: return new PositionalIndexBasedFilter(dataset, theta, statContainer);
+		case Naive: return new IndexBasedNaiveFilter(dataset, theta, statContainer);
+		case Count: return new IndexBasedCountFilter(dataset, theta, statContainer);
+		case Position: return new lIndexBasedPositionFilter(dataset, theta, statContainer);
 		default: throw new RuntimeException("Unknown index type: "+indexChoice);
 		}
 	}
@@ -76,12 +81,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					case filtered_stop: break;
 					default:
 					}
+					statContainer.addCount(Stat.Len_QS_LF, w);
 				}
-				statContainer.addCount(Stat.Len_QS_LF, w);
 				
 				if ( bPF && isFilteredByPrefixFilteringQuerySide(witer, expandedPrefix)) continue;
 
-				statContainer.addCount(Stat.Len_QS_PF, window.size());
+				statContainer.addCount(Stat.Len_QS_PF, w); 
 				statContainer.startWatch(Stat.Time_Validation);
 				boolean isSim = verifyQuerySide(query, window);
 				statContainer.stopWatch(Stat.Time_Validation);
@@ -306,7 +311,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	public String getName() {
-		return "PrefixSearchNew";
+		return "PrefixSearch";
 	}
 
 	@Override
@@ -320,7 +325,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 3.03: multiset
 		 * 4.00: multiset
 		 * 4.01: refactor
+		 * 4.02: filter option
 		 */
-		return "4.01";
+		return "4.02";
 	}
 }
