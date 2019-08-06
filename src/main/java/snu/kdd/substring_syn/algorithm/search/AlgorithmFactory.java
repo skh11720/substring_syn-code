@@ -15,10 +15,12 @@ public class AlgorithmFactory {
 	
 	private enum FilterOption {
 		NoFilter,
+		IF, // IF
 		ICF, // ICF
-		IPF, // ICF+IPF
-		LF, // ICF+IPF+LF
-		PF, // ICF+IPF+LF+PF
+		IPF, // IPF
+		LF, // IPF+LF
+		PF, // IPF+LF+PF
+		NoIndex, // LF+PF
 	}
 	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
@@ -45,9 +47,7 @@ public class AlgorithmFactory {
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		boolean bIF;
-		boolean bLF;
-		boolean bPF;
+		boolean bIF = false, bICF = false, bLF = false, bPF = false;
 		IndexChoice indexChoice;
 	
 		if ( param.containsKey("filter")) {
@@ -57,18 +57,21 @@ public class AlgorithmFactory {
 			case PF: bPF = true;
 			case LF: bLF = true;
 			case IPF: indexChoice = IndexChoice.Position;
-			case ICF: bIF = true;
+			case ICF: bICF = true;
+			case IF: bIF = true;
 			case NoFilter: break;
+			case NoIndex: bLF = bPF = true; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 		}
 		else {
 			bIF = Boolean.parseBoolean(param.get("bIF"));
+			bICF = Boolean.parseBoolean(param.get("bICF"));
 			bLF = Boolean.parseBoolean(param.get("bLF"));
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		return new PrefixSearch(theta, bIF, bLF, bPF, indexChoice);
+		return new PrefixSearch(theta, bIF, bICF, bLF, bPF, indexChoice);
 	}
 	
 	

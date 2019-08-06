@@ -12,12 +12,12 @@ import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class NaiveIndexBasedFilter extends AbstractIndexBasedFilter {
+public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 
 	protected final NaiveInvertedIndex index;
 	protected final boolean useCountFilter = true;
 	
-	public NaiveIndexBasedFilter( Dataset dataset, double theta, StatContainer statContainer ) {
+	public IndexBasedCountFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(theta, statContainer);
 		index = new NaiveInvertedIndex(dataset);
 	}
