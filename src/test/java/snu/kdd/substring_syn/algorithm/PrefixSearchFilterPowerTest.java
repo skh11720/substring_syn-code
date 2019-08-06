@@ -13,17 +13,19 @@ import java.util.NoSuchElementException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -37,22 +39,21 @@ public class PrefixSearchFilterPowerTest {
 		double theta;
 		String size;
 		String name = "SPROT_long";
-		boolean bIF = true;
-		boolean bICF = true;
 		boolean bLF = true;
 		boolean bPF = true;
 		IndexChoice index_impl;
 		
-		public Param( double theta, String size, boolean bIF, boolean bICF, boolean bLF, boolean bPF, IndexChoice index_impl ) {
+		public Param( double theta, String size, boolean bLF, boolean bPF, IndexChoice index_impl ) {
 			this.theta = theta;
 			this.size = size;
-			this.bIF = bIF;
-			this.bICF = bICF;
 			this.bLF = bLF;
 			this.bPF = bPF;
 			this.index_impl = index_impl;
 		}
 	}
+	
+	@Rule
+	public Timeout globalTimeout = Timeout.seconds(5);
 	
 	@BeforeClass
 	public static void setup() throws FileNotFoundException {
@@ -69,19 +70,20 @@ public class PrefixSearchFilterPowerTest {
 		ObjectList<Param> paramList = new ObjectArrayList<>();
 		double[] thetaList = {1.0, 0.8, 0.6};
 		String[] sizeList = {"100"};
-		boolean[][] optionList = {
-				{false, false, false, false, false}, // NoFilter
-				{true, false, false, false, false}, // IF
-				{true, true, false, false, false}, // ICF
-				{true, true, false, false, true}, // IPF
-				{true, true, true, false, true}, // LF
-				{true, true, true, true, true}, // PF
-				{false, false, true, true, false}, // NoIndex
+		int[][] optionList = {
+				{0, 0, 0}, // NoFilter
+				{0, 0, 1}, // IF
+				{0, 0, 2}, // ICF
+				{0, 0, 3}, // IPF
+				{1, 0, 3}, // LF
+				{1, 1, 3}, // PF
+				{1, 1, 0}, // NoIndex
 				};
 		for ( double theta : thetaList ) {
 			for ( String size : sizeList ) {
-				for ( boolean[] option : optionList ) {
-					paramList.add( new Param(theta, size, option[0], option[1], option[2], option[3], option[4]?IndexChoice.Position:IndexChoice.Naive) );
+				for ( int[] option : optionList ) {
+					
+					paramList.add( new Param(theta, size, option[0]==1?true:false, option[1]==1?true:false, IndexChoice.values()[option[2]]) );
 				}
 			}
 		}
@@ -98,7 +100,7 @@ public class PrefixSearchFilterPowerTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(param.theta, param.bIF, param.bICF, param.bLF, param.bPF, param.index_impl);
+		prefixSearch = new ExactPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		prefixSearch.run(dataset);
 		assertTrue( isOutputCorrect(naiveSearch, prefixSearch, dataset) );

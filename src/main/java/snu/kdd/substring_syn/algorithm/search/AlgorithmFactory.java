@@ -3,7 +3,7 @@ package snu.kdd.substring_syn.algorithm.search;
 import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch.IndexChoice;
+import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 
 public class AlgorithmFactory {
 
@@ -47,31 +47,29 @@ public class AlgorithmFactory {
 	
 	private static PrefixSearch createPrefixSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		boolean bIF = false, bICF = false, bLF = false, bPF = false;
+		boolean bLF = false, bPF = false;
 		IndexChoice indexChoice;
 	
 		if ( param.containsKey("filter")) {
-			indexChoice = IndexChoice.Naive;
-			bIF = bLF = bPF = false;
+			indexChoice = IndexChoice.None;
+			bLF = bPF = false;
 			switch (FilterOption.valueOf(param.get("filter"))) {
 			case PF: bPF = true;
 			case LF: bLF = true;
-			case IPF: indexChoice = IndexChoice.Position;
-			case ICF: bICF = true;
-			case IF: bIF = true;
+			case IPF: indexChoice = IndexChoice.Position; break;
+			case ICF: indexChoice = IndexChoice.Count; break;
+			case IF: indexChoice = IndexChoice.Naive; break;
 			case NoFilter: break;
 			case NoIndex: bLF = bPF = true; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 		}
 		else {
-			bIF = Boolean.parseBoolean(param.get("bIF"));
-			bICF = Boolean.parseBoolean(param.get("bICF"));
 			bLF = Boolean.parseBoolean(param.get("bLF"));
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		return new PrefixSearch(theta, bIF, bICF, bLF, bPF, indexChoice);
+		return new PrefixSearch(theta, bLF, bPF, indexChoice);
 	}
 	
 	

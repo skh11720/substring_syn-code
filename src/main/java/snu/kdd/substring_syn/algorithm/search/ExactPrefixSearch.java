@@ -9,8 +9,8 @@ public class ExactPrefixSearch extends PrefixSearch {
 	protected final NaivePkduckValidator validator;
 
 	
-	public ExactPrefixSearch( double theta, boolean bIF, boolean bICF, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
-		super(theta, bIF, bICF, bLF, bPF, indexChoice);
+	public ExactPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+		super(theta, bLF, bPF, indexChoice);
 		validator = new NaivePkduckValidator(theta, statContainer);
 	}
 
