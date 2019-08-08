@@ -1,8 +1,5 @@
 package snu.kdd.substring_syn.algorithm.filter;
 
-import java.util.Comparator;
-
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -14,14 +11,6 @@ public class TransLenCalculator {
 	private final int[][] ub;
 	private final int[][] lb;
 
-	Comparator<Int2DoubleMap.Entry> comp = new Comparator<Int2DoubleMap.Entry>() {
-		@Override
-		public int compare(Int2DoubleMap.Entry o1, Int2DoubleMap.Entry o2) {
-			if ( o1.getDoubleValue() > o2.getDoubleValue() ) return -1;
-			else if ( o1.getDoubleValue() < o2.getDoubleValue() ) return 1;
-			else return 0;
-		}
-	};
 
 	public TransLenCalculator( StatContainer statContainer, RecordInterface rec, double theta ) {
 		this.statContainer = statContainer;

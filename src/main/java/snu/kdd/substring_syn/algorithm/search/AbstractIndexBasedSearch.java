@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.IndexBasedCountFilter;
 import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
-import snu.kdd.substring_syn.algorithm.index.lIndexBasedPositionFilter;
+import snu.kdd.substring_syn.algorithm.index.IndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
@@ -44,7 +44,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		case None: return null;
 		case Naive: return new IndexBasedNaiveFilter(dataset, theta, statContainer);
 		case Count: return new IndexBasedCountFilter(dataset, theta, statContainer);
-		case Position: return new lIndexBasedPositionFilter(dataset, theta, statContainer);
+		case Position: return new IndexBasedPositionFilter(dataset, theta, statContainer);
 		default: throw new RuntimeException("Unknown index type: "+indexChoice);
 		}
 	}

@@ -65,8 +65,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				statContainer.startWatch(Stat.Time_Validation);
 				boolean isSim = verifyQuerySide(query, window);
 				statContainer.stopWatch(Stat.Time_Validation);
-				statContainer.increment(Stat.Num_QS_Verified);
-				statContainer.addCount(Stat.Len_QS_Verified, window.size());
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
@@ -147,19 +145,19 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
-					for ( int l=1; l<=transLenCalculator.getUB(widx, widx+w-1); ++l ) {
-						pkduckdp.computeCase0(target, widx+1, w, l);
-						pkduckdp.computeCase1(target, widx+1, w, l);
-						if ( pkduckdp.g[1][w][l] <= pkduckdp.getPrefixLen(l)-1 ) { // target is in SigU(i,v)
-							statContainer.addCount(Stat.Len_TS_PF, w);
-							Subrecord window = new Subrecord(rec, widx, widx+w);
-							boolean isSim = verifyTextSideWrapper(query, window);
-							if ( isSim ) {
-								rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-								Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-								Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
-								return;
-							}
+					statContainer.startWatch("Time_TS_Pkduck");
+					pkduckdp.compute(target, widx+1, w);
+					statContainer.stopWatch("Time_TS_Pkduck");
+					
+					if ( pkduckdp.isInSigU(widx, w) ) {
+						statContainer.addCount(Stat.Len_TS_PF, w);
+						Subrecord window = new Subrecord(rec, widx, widx+w);
+						boolean isSim = verifyTextSideWrapper(query, window);
+						if ( isSim ) {
+							rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+							Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+							return;
 						}
 					}
 				}
@@ -190,8 +188,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		statContainer.startWatch(Stat.Time_Validation);
 		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_Validation);
-		statContainer.increment(Stat.Num_TS_Verified);
-		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		return isSim;
 	}
 
@@ -242,30 +238,40 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			for (boolean[] bArr : b) Arrays.fill(bArr, false);
 		}
 		
-		public void computeCase0( int target, int i, int v, int l ) {
-			for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
-				int num_smaller = 0;
-				Boolean isValid = true;
-				for ( int tokenInRhs : rule.getRhs() ) {
-					isValid &= (tokenInRhs != target);
-					num_smaller += (tokenInRhs < target)?1:0;
+		public void compute( int target, int i, int v ) {
+			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
+				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
+					if ( l - rule.rhsSize() < 0 ) continue;
+					int num_smaller = 0;
+					Boolean isValid = true;
+					for ( int tokenInRhs : rule.getRhs() ) {
+						isValid &= (tokenInRhs != target);
+						num_smaller += (tokenInRhs < target)?1:0;
+					}
+					if ( isValid && v-rule.lhsSize() >= 0 ) {
+						g[0][v][l] = Math.min( g[0][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
+					}
 				}
-				if ( isValid && v-rule.lhsSize() >= 0 && l-rule.rhsSize() >= 0 )
-					g[0][v][l] = Math.min( g[0][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
-			}
-		}
-		
-		public void computeCase1( int target, int i, int v, int l ) {
-			for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
-				int num_smaller = 0;
-				Boolean isValid = false;
-				for ( int tokenInRhs : rule.getRhs() ) {
-					isValid |= (tokenInRhs == target);
-					num_smaller += (tokenInRhs < target)?1:0;
+				
+				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
+					if ( l - rule.rhsSize() < 0 ) continue;
+					int num_smaller = 0;
+					Boolean isValid = false;
+					for ( int tokenInRhs : rule.getRhs() ) {
+						isValid |= (tokenInRhs == target);
+						num_smaller += (tokenInRhs < target)?1:0;
+					}
+					if ( v-rule.lhsSize() >= 0 ) {
+						g[1][v][l] = Math.min( g[1][v][l], g[1][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
+						if (isValid) g[1][v][l] = Math.min( g[1][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
+					}
 				}
-				if ( v-rule.lhsSize() >= 0 && l-rule.rhsSize() >= 0 ) {
-					g[1][v][l] = Math.min( g[1][v][l], g[1][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
-					if (isValid) g[1][v][l] = Math.min( g[1][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
+				
+				if ( transLenCalculator.getLB(i-1, i+v-2) <= l && l <= transLenCalculator.getUB(i-1, i+v-2) ) {
+					if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
+						b[i][v] = true;
+						return;
+					}
 				}
 			}
 		}
@@ -277,10 +283,15 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				}
 			}
 			g[0][0][0] = 0;
+			for ( int v=0; v<=rec.size(); ++v ) Arrays.fill(b[v], false);
 		}
 
 		protected int getPrefixLen( int len ) {
 			return len - (int)(Math.ceil(theta*len)) + 1;
+		}
+		
+		protected boolean isInSigU( int i, int v ) {
+			return b[i+1][v];
 		}
 	}
 	
@@ -302,7 +313,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.01: refactor
 		 * 4.02: filter option
 		 * 4.03: filter option
+		 * 4.04: fit stat bug
+		 * 4.05: skip text-side if a pair is an answer
 		 */
-		return "4.03";
+		return "4.05";
 	}
 }

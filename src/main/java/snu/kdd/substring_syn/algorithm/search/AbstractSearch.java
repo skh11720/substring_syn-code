@@ -81,7 +81,8 @@ public abstract class AbstractSearch {
 	
 	protected void searchTextSide( Record query, Dataset dataset ) {
 		for ( RecordInterface rec : dataset.indexedList ) {
-			searchRecordTextSide(query, rec);
+			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) )
+				searchRecordTextSide(query, rec);
 		}
 	}
 	
