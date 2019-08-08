@@ -179,6 +179,7 @@ public class lIndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", token, invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new TokenPosListPair());
@@ -187,6 +188,7 @@ public class lIndexBasedPositionFilter extends AbstractIndexBasedFilter {
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", token, transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new TokenPosListPair());
