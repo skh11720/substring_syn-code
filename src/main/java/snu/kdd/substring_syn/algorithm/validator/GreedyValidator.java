@@ -22,21 +22,23 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		super(theta, statContainer);
 	}
 
-	public double simQuerySide( Record query, Record text ) {
-		State state = new State(query, text);
+	public double simQuerySide( Record query, Record window ) {
+		State state = new State(query, window);
 		state.findBestTransform();
 		int[] transformedQuery = state.getTransformedString(query);
-		double sim = Util.jaccardM( transformedQuery, text.getTokenArray());
+		double sim = Util.jaccardM( transformedQuery, window.getTokenArray());
 		statContainer.increment(Stat.Num_QS_Verified);
+		statContainer.addCount(Stat.Len_QS_Verified, window.size());
 		return sim;
 	}
 
-	public double simTextSide( Record query, Record text ) {
-		State state = new State(text, query);
+	public double simTextSide( Record query, Record window ) {
+		State state = new State(window, query);
 		state.findBestTransform();
-		int[] transformedText = state.getTransformedString(text);
+		int[] transformedText = state.getTransformedString(window);
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
 		statContainer.increment(Stat.Num_TS_Verified);
+		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		return sim;
 	}
 

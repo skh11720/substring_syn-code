@@ -65,8 +65,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				statContainer.startWatch(Stat.Time_Validation);
 				boolean isSim = verifyQuerySide(query, window);
 				statContainer.stopWatch(Stat.Time_Validation);
-				statContainer.increment(Stat.Num_QS_Verified);
-				statContainer.addCount(Stat.Len_QS_Verified, window.size());
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
@@ -148,8 +146,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
 					for ( int l=1; l<=transLenCalculator.getUB(widx, widx+w-1); ++l ) {
-						pkduckdp.computeCase0(target, widx+1, w, l);
-						pkduckdp.computeCase1(target, widx+1, w, l);
+						statContainer.startWatch("Time_TS_Pkduck");
+						pkduckdp.compute(target, widx+1, w, l);
+						statContainer.stopWatch("Time_TS_Pkduck");
 						if ( pkduckdp.g[1][w][l] <= pkduckdp.getPrefixLen(l)-1 ) { // target is in SigU(i,v)
 							statContainer.addCount(Stat.Len_TS_PF, w);
 							Subrecord window = new Subrecord(rec, widx, widx+w);
@@ -190,8 +189,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		statContainer.startWatch(Stat.Time_Validation);
 		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_Validation);
-		statContainer.increment(Stat.Num_TS_Verified);
-		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		return isSim;
 	}
 
@@ -242,7 +239,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			for (boolean[] bArr : b) Arrays.fill(bArr, false);
 		}
 		
-		public void computeCase0( int target, int i, int v, int l ) {
+		public void compute( int target, int i, int v, int l ) {
 			for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 				int num_smaller = 0;
 				Boolean isValid = true;
@@ -253,9 +250,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( isValid && v-rule.lhsSize() >= 0 && l-rule.rhsSize() >= 0 )
 					g[0][v][l] = Math.min( g[0][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
 			}
-		}
-		
-		public void computeCase1( int target, int i, int v, int l ) {
+
 			for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 				int num_smaller = 0;
 				Boolean isValid = false;
@@ -302,7 +297,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.01: refactor
 		 * 4.02: filter option
 		 * 4.03: filter option
+		 * 4.04: fit stat bug
 		 */
-		return "4.03";
+		return "4.04";
 	}
 }
