@@ -10,25 +10,25 @@ WIKI_1:
     searchedPath: 'wiki/queries/queries_1.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
 
 WIKI_3:
     searchedPath: 'wiki/queries/queries_3.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
 
 WIKI_5:
     searchedPath: 'wiki/queries/queries_5.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
 
 WIKI_7:
     searchedPath: 'wiki/queries/queries_7.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
 
 WIKI_0:
     searchedPath: 'wiki/queries/queries_0.txt'
