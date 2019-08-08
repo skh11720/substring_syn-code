@@ -241,24 +241,27 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		public void compute( int target, int i, int v ) {
 			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
 				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
+					if ( l - rule.rhsSize() < 0 ) continue;
 					int num_smaller = 0;
 					Boolean isValid = true;
 					for ( int tokenInRhs : rule.getRhs() ) {
 						isValid &= (tokenInRhs != target);
 						num_smaller += (tokenInRhs < target)?1:0;
 					}
-					if ( isValid && v-rule.lhsSize() >= 0 && l-rule.rhsSize() >= 0 )
+					if ( isValid && v-rule.lhsSize() >= 0 ) {
 						g[0][v][l] = Math.min( g[0][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
+					}
 				}
 				
 				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
+					if ( l - rule.rhsSize() < 0 ) continue;
 					int num_smaller = 0;
 					Boolean isValid = false;
 					for ( int tokenInRhs : rule.getRhs() ) {
 						isValid |= (tokenInRhs == target);
 						num_smaller += (tokenInRhs < target)?1:0;
 					}
-					if ( v-rule.lhsSize() >= 0 && l-rule.rhsSize() >= 0 ) {
+					if ( v-rule.lhsSize() >= 0 ) {
 						g[1][v][l] = Math.min( g[1][v][l], g[1][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
 						if (isValid) g[1][v][l] = Math.min( g[1][v][l], g[0][v-rule.lhsSize()][l-rule.rhsSize()]+num_smaller );
 					}
