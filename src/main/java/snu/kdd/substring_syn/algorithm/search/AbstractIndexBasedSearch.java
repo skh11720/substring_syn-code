@@ -37,6 +37,8 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		statContainer.startWatch(Stat.Time_BuildIndex);
 		indexFilter = buildSpecificIndex(dataset);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
+		statContainer.addCount(Stat.Size_Index_InvList, indexFilter.invListSize());
+		statContainer.addCount(Stat.Size_Index_TransInvList, indexFilter.transInvListSize());
 	}
 
 	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
@@ -53,6 +55,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		for ( RecordInterface rec : candListQuerySide ) {
+			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
 		}
 	}
@@ -61,6 +64,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<? extends RecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( RecordInterface rec : candListTextSide ) {
+			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
 			searchRecordTextSide(query, rec);
 		}
 	}

@@ -11,13 +11,14 @@ public abstract class AbstractIndexBasedFilter {
 
 	protected final double theta;
 	protected final StatContainer statContainer;
-	protected final boolean useCountFilter = true;
 
 	public AbstractIndexBasedFilter( double theta, StatContainer statContainer ) {
 		this.theta = theta;
 		this.statContainer = statContainer;
 	}
 
+	public abstract long invListSize();
+	public abstract long transInvListSize();
 	public abstract ObjectSet<RecordInterface> querySideFilter( Record query );
 	public abstract ObjectSet<RecordInterface> textSideFilter( Record query );
 

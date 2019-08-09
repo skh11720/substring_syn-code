@@ -707,4 +707,10 @@ public class Util {
 		for ( int token : arr ) counter.addTo(token, 1);
 		return counter;
 	}
+	
+	public static double getMemoryUsage() {
+		// return in MB
+		Runtime inst = Runtime.getRuntime();
+		return (inst.totalMemory()-inst.freeMemory())/1e6;
+	}
 }

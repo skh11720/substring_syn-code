@@ -46,6 +46,10 @@ public class Stat {
 	
 	public static final String Len_SearchedAll= "Len_SearchedAll";
 	public static final String Len_IndexedAll= "Len_IndexedAll";
+	public static final String Size_Index_InvList = "Size_Index_InvList";
+	public static final String Size_Index_TransInvList = "Size_Index_TransInvList";
+	public static final String Len_QS_Retrieved = "Len_QS_Retrieved";
+	public static final String Len_TS_Retrieved = "Len_TS_Retrieved";
 	public static final String Len_QS_LF = "Len_QS_LF";
 	public static final String Len_TS_LF = "Len_TS_LF";
 	public static final String Len_QS_PF = "Len_QS_PF";
