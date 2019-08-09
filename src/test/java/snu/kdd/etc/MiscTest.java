@@ -13,12 +13,14 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntDouble;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -31,11 +33,37 @@ import vldb18.PkduckDP;
 
 public class MiscTest {
 	
-	@Ignore
+	@Test
 	public void testRecord() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_0", "13657");
-		Record rec = dataset.searchedList.get(1);
-		System.out.println(rec.toStringDetails());
+		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
+//		Record rec = dataset.searchedList.get(1);
+		for ( Record rec : dataset.indexedList ) {
+			int n1 = 0;
+			for ( int k=0; k<rec.size(); ++k ) {
+				for ( Rule rule : rec.getApplicableRules()[k] ) ++n1;
+			}
+			
+			int n2 = 0;
+			for ( Rule rule : rec.getApplicableRuleIterable() ) ++n2;
+			
+			assertEquals(n1, n2);
+		}
+	}
+	
+	@Test
+	public void testTransformLength() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
+		for ( Record rec : dataset.searchedList ) {
+			System.out.println(rec.getID()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
+		}
+	}
+
+	@Test
+	public void testQueryCandTokenSet() throws IOException {
+		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
+		for ( Record rec : dataset.searchedList ) {
+			System.out.println(rec.getID()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
+		}
 	}
 	
 	@Ignore

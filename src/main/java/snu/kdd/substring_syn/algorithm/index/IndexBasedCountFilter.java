@@ -21,6 +21,20 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		super(theta, statContainer);
 		index = new NaiveInvertedIndex(dataset);
 	}
+
+	@Override
+	public long invListSize() {
+		long size = 0;
+		for ( ObjectList<Record> list : index.invList.values() ) size += list.size();
+		return size;
+	}
+	
+	@Override
+	public long transInvListSize() {
+		long size = 0;
+		for ( ObjectList<Record> list : index.transInvList.values() ) size += list.size();
+		return size;
+	}
 	
 	@Override
 	public ObjectSet<RecordInterface> querySideFilter( Record query ) {

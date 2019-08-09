@@ -125,6 +125,7 @@ public class Subrecord implements RecordInterface {
 	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
+			maxRhsSize = 1;
 			for ( int k=sidx; k<eidx; ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.lhsSize() <= eidx-k ) 

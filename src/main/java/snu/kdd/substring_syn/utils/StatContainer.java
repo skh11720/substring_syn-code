@@ -155,7 +155,7 @@ public class StatContainer {
 		counterBuffer.get(key).increment();
 	}
 	
-	public void addCount( String key, int count ) {
+	public void addCount( String key, long count ) {
 		if ( !counterBuffer.containsKey(key) ) counterBuffer.put(key, new Counter());
 		counterBuffer.get(key).add(count);
 	}
@@ -204,7 +204,7 @@ public class StatContainer {
 			++c;
 		}
 		
-		public void add( int v ) {
+		public void add( long v ) {
 			c += v;
 		}
 		

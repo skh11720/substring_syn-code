@@ -208,8 +208,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return transformLengths[ tokens.length - 1 ][ 0 ];
 	}
 
+	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
+			maxRhsSize = 1;
 			for ( Rule rule : getApplicableRuleIterable() ) {
 				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
 			}

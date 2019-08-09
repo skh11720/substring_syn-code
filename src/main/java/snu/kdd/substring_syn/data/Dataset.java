@@ -17,6 +17,7 @@ import snu.kdd.substring_syn.data.record.RecordPreprocess;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.Util;
 
 public class Dataset {
 	
@@ -66,8 +67,10 @@ public class Dataset {
 
 		indexedList = loadRecordList(indexedPath, tokenIndex);
 		searchedList = loadRecordList(searchedPath, tokenIndex);
+		Log.log.info("[MEM] after loading dataset: %.3f MB", Util.getMemoryUsage());
 		ruleSet = new Ruleset( rulePath, getDistinctTokens(), tokenIndex );
 		Log.log.info("Ruleset created: %d rules", ruleSet.size());
+		Log.log.info("[MEM] after creating rule set: %.3f MB", Util.getMemoryUsage());
 		Record.tokenIndex = tokenIndex;
 		preprocess();
 
@@ -108,7 +111,6 @@ public class Dataset {
 	
 	private void preprocess() {
 		statContainer.startWatch(Stat.Time_Preprocess);
-		preprocessByRecord();
 		preprocessByTask(searchedList);
 		preprocessByTask(indexedList);
 		TokenOrder order = new TokenOrder(this);
@@ -117,14 +119,15 @@ public class Dataset {
 	}
 	
 	private void preprocessByRecord() {
+		ACAutomataR automata = new ACAutomataR(ruleSet.get());
 		for( final Record record : searchedList ) {
-			RecordPreprocess.preprocessApplicableRules(record, getAutomataR());
+			RecordPreprocess.preprocessApplicableRules(record, automata);
 			RecordPreprocess.preprocessSuffixApplicableRules(record);
 			RecordPreprocess.preprocessTransformLength(record);
 //			record.preprocessEstimatedRecords();
 		}
 		for( final Record record : indexedList ) {
-			RecordPreprocess.preprocessApplicableRules( record, getAutomataR() );
+			RecordPreprocess.preprocessApplicableRules(record, automata);
 			RecordPreprocess.preprocessSuffixApplicableRules(record);
 			RecordPreprocess.preprocessTransformLength(record);
 //			record.preprocessEstimatedRecords();
@@ -132,12 +135,16 @@ public class Dataset {
 	}
 	
 	private void preprocessByTask( List<Record> recordList ) {
-		for ( final Record record : recordList ) RecordPreprocess.preprocessApplicableRules(record, getAutomataR());
+		ACAutomataR automata = new ACAutomataR(ruleSet.get());
+		for ( final Record record : recordList ) RecordPreprocess.preprocessApplicableRules(record, automata);
 		Log.log.info("preprocessByTask: preprocessApplicableRules, %d records", recordList.size() );
+		Log.log.info("[MEM] after RecordPreprocess.preprocessingApplicableRules: %.3f MB", Util.getMemoryUsage());
 		for ( final Record record : recordList ) RecordPreprocess.preprocessSuffixApplicableRules(record);
 		Log.log.info("preprocessByTask: preprocessSuffixApplicableRules, %d records", recordList.size() );
+		Log.log.info("[MEM] after RecordPreprocess.preprocessSuffixApplicableRules: %.3f MB", Util.getMemoryUsage());
 		for ( final Record record : recordList ) RecordPreprocess.preprocessTransformLength(record);
 		Log.log.info("preprocessByTask: preprocessTransformLength, %d records", recordList.size() );
+		Log.log.info("[MEM] after RecordPreprocess.preprocessTransformLength: %.3f MB", Util.getMemoryUsage());
 //		for ( final Record record : recordList ) record.preprocessEstimatedRecords();
 //		Log.log.info("preprocessByTask: preprocessEstimatedRecords, %d records", recordList.size() );
 	}
@@ -155,16 +162,11 @@ public class Dataset {
 	
 	private void reindexRules( TokenOrder order ) {
 		for ( Rule rule : ruleSet.ruleList ) rule.reindex(order);
-		ruleSet.automata = new ACAutomataR(ruleSet.get());
 	}
 	
 	private void updateTokenIndex( TokenOrder order ) {
 		TokenIndex tokenIndex = order.getTokenIndex();
 		Record.tokenIndex = tokenIndex;
 		tokenIndex.writeToFile();
-	}
-	
-	public ACAutomataR getAutomataR() {
-		return ruleSet.automata;
 	}
 }

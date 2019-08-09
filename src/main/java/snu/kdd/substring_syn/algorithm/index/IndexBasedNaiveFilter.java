@@ -20,6 +20,20 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
+	public long invListSize() {
+		long size = 0;
+		for ( ObjectList<Record> list : index.invList.values() ) size += list.size();
+		return size;
+	}
+	
+	@Override
+	public long transInvListSize() {
+		long size = 0;
+		for ( ObjectList<Record> list : index.transInvList.values() ) size += list.size();
+		return size;
+	}
+	
+	@Override
 	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
 		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 		IntSet candTokenSet = query.getCandTokenSet();

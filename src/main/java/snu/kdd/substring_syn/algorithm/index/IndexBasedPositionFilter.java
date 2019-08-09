@@ -28,11 +28,24 @@ import snu.kdd.substring_syn.utils.Util;
 public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 
 	protected final PositionalInvertedIndex index;
-    protected final boolean useCountFilter = true;
 	
 	public IndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(theta, statContainer);
 		index = new PositionalInvertedIndex(dataset);
+	}
+
+	@Override
+	public long invListSize() {
+		long size = 0;
+		for ( ObjectList<InvListEntry> list : index.invList.values() ) size += list.size();
+		return size;
+	}
+	
+	@Override
+	public long transInvListSize() {
+		long size = 0;
+		for ( ObjectList<TransInvListEntry> list : index.transInvList.values() ) size += list.size();
+		return size;
 	}
 	
 	@Override
@@ -47,7 +60,6 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
-			Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
@@ -56,7 +68,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
 				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				if ( useCountFilter && idxList.size() < minCount ) continue;
+				if ( idxList.size() < minCount ) continue;
 				ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
@@ -268,7 +280,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
 				Record rec = entry.getKey();
 				int count = entry.getIntValue();
-				if ( !useCountFilter || count >= minCount ) candRecordSet.add(rec);
+				if ( count >= minCount ) candRecordSet.add(rec);
 			}
 			return candRecordSet;
 		}
