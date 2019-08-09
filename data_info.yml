@@ -30,6 +30,67 @@ WIKI_7:
     rulePath: 'wordnet/rules.noun'
     nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
 
+WIKI_9:
+    searchedPath: 'wiki/queries/queries_9.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_11:
+    searchedPath: 'wiki/queries/queries_11.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_13:
+    searchedPath: 'wiki/queries/queries_13.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+# WIKI_FREQ: most frequent 100 queries are selected
+WIKI_FREQ_1:
+    searchedPath: 'wiki/queries/queries_freq_1.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_3:
+    searchedPath: 'wiki/queries/queries_freq_3.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_5:
+    searchedPath: 'wiki/queries/queries_freq_5.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_7:
+    searchedPath: 'wiki/queries/queries_freq_7.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_9:
+    searchedPath: 'wiki/queries/queries_freq_9.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_11:
+    searchedPath: 'wiki/queries/queries_freq_11.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
+WIKI_FREQ_13:
+    searchedPath: 'wiki/queries/queries_freq_13.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+
 WIKI_0:
     searchedPath: 'wiki/queries/queries_0.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
