@@ -57,6 +57,9 @@ public class Stat {
 	public static final String Len_QS_Verified = "Len_QS_Verified";
 	public static final String Len_TS_Verified = "Len_TS_Verified";
 	
+	public static final String Mem_Before_Index = "Mem_Before_Index";
+	public static final String Mem_After_Index = "Mem_After_Index";
+	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();
 		return Arrays.stream(fieldList).map(f->f.getName()).collect(Collectors.toList());

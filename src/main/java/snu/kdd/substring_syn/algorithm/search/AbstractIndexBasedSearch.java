@@ -8,7 +8,9 @@ import snu.kdd.substring_syn.algorithm.index.IndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.Util;
 
 public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
@@ -35,10 +37,16 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	
 	protected void buildIndex( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_BuildIndex);
+		double mem_before = Util.getMemoryUsage();
 		indexFilter = buildSpecificIndex(dataset);
+		double mem_after = Util.getMemoryUsage();
 		statContainer.stopWatch(Stat.Time_BuildIndex);
 		statContainer.addCount(Stat.Size_Index_InvList, indexFilter.invListSize());
 		statContainer.addCount(Stat.Size_Index_TransInvList, indexFilter.transInvListSize());
+		statContainer.setStat(Stat.Mem_Before_Index, String.format("%.3f", mem_before));
+		statContainer.setStat(Stat.Mem_After_Index, String.format("%.3f", mem_after));
+		Log.log.info("[MEM] before building index: %.3f MB", mem_before);
+		Log.log.info("[MEM] after building index: %.3f MB", mem_after);
 	}
 
 	protected AbstractIndexBasedFilter buildSpecificIndex(Dataset dataset) {
