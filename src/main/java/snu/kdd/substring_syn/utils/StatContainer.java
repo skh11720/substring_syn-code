@@ -80,7 +80,7 @@ public class StatContainer {
 	private void setDefault() {
 		for ( String key : keyList ) {
 			if ( !statMap.containsKey(key) ) {
-				if ( key.startsWith("Num") || key.startsWith("Len") ) statMap.put(key, "0");
+				if ( key.startsWith("Num") || key.startsWith("Len") || key.startsWith("Mem") ) statMap.put(key, "0");
 				else if ( key.startsWith("Time") ) statMap.put(key, "0.0");
 				else statMap.put(key, "null");
 			}

@@ -41,8 +41,10 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		indexFilter = buildSpecificIndex(dataset);
 		double mem_after = Util.getMemoryUsage();
 		statContainer.stopWatch(Stat.Time_BuildIndex);
-		statContainer.addCount(Stat.Size_Index_InvList, indexFilter.invListSize());
-		statContainer.addCount(Stat.Size_Index_TransInvList, indexFilter.transInvListSize());
+		if ( indexFilter != null ) {
+			statContainer.addCount(Stat.Size_Index_InvList, indexFilter.invListSize());
+			statContainer.addCount(Stat.Size_Index_TransInvList, indexFilter.transInvListSize());
+		}
 		statContainer.setStat(Stat.Mem_Before_Index, String.format("%.3f", mem_before));
 		statContainer.setStat(Stat.Mem_After_Index, String.format("%.3f", mem_after));
 		Log.log.info("[MEM] before building index: %.3f MB", mem_before);
