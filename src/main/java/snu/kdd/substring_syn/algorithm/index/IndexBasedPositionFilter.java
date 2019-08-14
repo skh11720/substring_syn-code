@@ -104,8 +104,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
-				int num = 1;
-				int eidx0 = sidx;
+				int num = 0;
 				for ( int j=i; j<m; ++j ) {
 					int eidx1 = idxList.get(j);
 					++num;
@@ -116,7 +115,6 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 						else rangeList.add(new IntRange(sidx, eidx1));
 						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
 					}
-					eidx0 = eidx1;
 				}
 			}
 			Log.log.trace("rangeList=%s", ()->rangeList);
@@ -222,7 +220,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			for ( int i=0, j0=0; i<m; ++i ) {
 				PosToken entL = prefixIdxList.get(i);
 				int sidx = entL.pos;
-				int num = 1;
+				int num = 0;
 				for ( int j=j0; j<m; ++j ) {
 					PosToken entR = suffixIdxList.get(j);
 					int eidx1 = entR.pos;

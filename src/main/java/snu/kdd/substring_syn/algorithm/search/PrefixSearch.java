@@ -315,7 +315,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.03: filter option
 		 * 4.04: fit stat bug
 		 * 4.05: skip text-side if a pair is an answer
+		 * 4.06: fix bug in position filter
 		 */
-		return "4.05";
+		return "4.06";
 	}
 }
