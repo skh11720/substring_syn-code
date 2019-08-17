@@ -11,10 +11,10 @@ import snu.kdd.substring_syn.data.Rule;
 
 public class Subrecord implements RecordInterface {
 	
-	private final Record rec;
+	protected final Record rec;
 	public final int sidx;
 	public final int eidx;
-	private final int hash;
+	protected final int hash;
 	protected int maxRhsSize = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
@@ -24,7 +24,7 @@ public class Subrecord implements RecordInterface {
 		hash = getHash();
 	}
 	
-	private int getHash() {
+	protected int getHash() {
 		int hash = rec.hashCode();
 		hash = 0x1f1f1f1f ^ hash+ sidx;
 		hash = 0x1f1f1f1f ^ hash+ eidx;

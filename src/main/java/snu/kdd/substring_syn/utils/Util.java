@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -656,13 +655,13 @@ public class Util {
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 	
-	public static int getPrefixLength( Record rec, double theta ) {
+	public static int getPrefixLength( RecordInterface rec, double theta ) {
 		return rec.size() - (int)(Math.ceil(theta*rec.size())) + 1;
 	}
 
-	public static IntOpenHashSet getPrefix( Record rec, double theta ) {
+	public static IntOpenHashSet getPrefix( RecordInterface rec, double theta ) {
 		int prefixLen = getPrefixLength(rec, theta);
-		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
+		return new IntOpenHashSet( rec.getTokenList().stream().sorted().limit(prefixLen).iterator() );
 	}
 
 	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
