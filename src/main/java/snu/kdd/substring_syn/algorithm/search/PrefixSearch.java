@@ -23,6 +23,8 @@ import vldb18.PkduckDP;
 
 public class PrefixSearch extends AbstractIndexBasedSearch {
 
+	protected IntSet queryCandTokenSet;
+	protected IntSet expandedPrefix;
 	protected final boolean bLF, bPF;
 	protected final GreedyValidator validator;
 	protected TransLenCalculator transLenCalculator = null;
@@ -39,9 +41,14 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
+	protected void prepareSearchGivenQuery(Record query) {
+		queryCandTokenSet = query.getCandTokenSet();
+		expandedPrefix = getExpandedPrefix(query);
+	}
+	
+	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
@@ -76,10 +83,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	protected IntSet getExpandedPrefix( Record query ) {
-		IntSet candTokenSet = query.getCandTokenSet();
 		IntSet expandedPrefix = new IntOpenHashSet();
 		PkduckDP pkduckdp = new PkduckDP(query, theta);
-		for ( int target : candTokenSet ) {
+		for ( int target : queryCandTokenSet ) {
 			statContainer.startWatch("Time_QS_Pkduck");
 			boolean isInSigU = pkduckdp.isInSigU(target);
 			statContainer.stopWatch("Time_QS_Pkduck");
@@ -319,7 +325,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.05: skip text-side if a pair is an answer
 		 * 4.06: fix bug in position filter
 		 * 4.07: fix bug in pkduckdp text-side
+		 * 4.08: fix bug
 		 */
-		return "4.07";
+		return "4.08";
 	}
 }
