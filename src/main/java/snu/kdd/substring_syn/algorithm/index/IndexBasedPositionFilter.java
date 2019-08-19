@@ -1,12 +1,8 @@
 package snu.kdd.substring_syn.algorithm.index;
 
-import java.util.Arrays;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntArrays;
-import it.unimi.dsi.fastutil.ints.IntCollections;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -69,11 +65,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
 				Record rec = entry.getKey();
+				if ( entry.getValue().size() < minCount ) continue;
 				IntList idxList = entry.getValue();
 				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
 				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				if ( idxList.size() < minCount ) continue;
 				ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
@@ -174,10 +170,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			Object2ObjectMap<Record, PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
 				Record rec = e.getKey();
+				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
-				if ( prefixIdxList.size() < minCount ) continue;
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
@@ -198,6 +194,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
+						rec2idxListMap.get(e.rec).nToken += 1;
 						rec2idxListMap.get(e.rec).prefixList.add(e.pos);
 						rec2idxListMap.get(e.rec).suffixList.add(e.pos);
 					}
@@ -207,6 +204,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
+						rec2idxListMap.get(e.rec).nToken += 1;
 						rec2idxListMap.get(e.rec).prefixList.add(e.left);
 						rec2idxListMap.get(e.rec).suffixList.add(e.right);
 					}
@@ -263,18 +261,14 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
 					IntList posList = new IntArrayList();
-					int count = 0;
 					for ( int pos : prefixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
-						++count;
 						posList.add(pos-range.min);
 					}
-					if ( count >= minCount ) {
-						SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
-						segment.setPrefixIdxList(new IntArrayList(posList));
-						segmentList.add(segment);
-					}
+					SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
+					segment.setPrefixIdxList(new IntArrayList(posList));
+					segmentList.add(segment);
 				}
 			}
 			return segmentList;
@@ -291,6 +285,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 		}
 
 		private class PosListPair {
+			int nToken = 0;
 			IntSet prefixList = new IntOpenHashSet();
 			IntSet suffixList = new IntOpenHashSet();
 		}
