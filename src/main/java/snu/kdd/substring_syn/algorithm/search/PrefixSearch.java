@@ -333,7 +333,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.07: fix bug in pkduckdp text-side
 		 * 4.08: fix bug
 		 * 4.09: PositionPrefixSearch
+		 * 4.10: use self rules in verification
 		 */
-		return "4.09";
+		return "4.10";
 	}
 }

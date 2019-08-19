@@ -38,7 +38,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			ObjectSet<PosRule> posRuleSet = new ObjectOpenHashSet<PosRule>();
 			for (int k=0; k<rules.length; ++k) {
 				for (Rule rule : rules[k]) {
-					if ( rule.isSelfRule ) continue;
+//					if ( rule.isSelfRule ) continue;
 					posRuleSet.add( new PosRule(rule, k) );
 				}
 			}
