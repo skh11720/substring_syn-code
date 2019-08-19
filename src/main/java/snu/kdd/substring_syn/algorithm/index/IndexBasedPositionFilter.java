@@ -261,14 +261,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
-//					int count = 0;
-//					for ( int pos : prefixIdxList ) {
-//						if ( range.min > pos ) continue;
-//						if ( pos > range.max ) break;
-//						++count;
-//					}
-//					if ( count >= minCount ) 
-						segmentList.add(new Subrecord(rec, range.min, range.max+1));
+					int count = 0;
+					for ( int pos : prefixIdxList ) {
+						if ( range.min > pos ) continue;
+						if ( pos > range.max ) break;
+						++count;
+					}
+					if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
 				}
 			}
 			return segmentList;
