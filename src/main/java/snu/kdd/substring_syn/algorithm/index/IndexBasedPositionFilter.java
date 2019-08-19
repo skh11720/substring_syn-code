@@ -1,8 +1,12 @@
 package snu.kdd.substring_syn.algorithm.index;
 
+import java.util.Arrays;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import it.unimi.dsi.fastutil.ints.IntCollections;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -166,15 +170,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
-			Object2ObjectMap<Record, TokenPosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
-			for ( Entry<Record, TokenPosListPair> e : rec2idxListMap.entrySet() ) {
+			Object2ObjectMap<Record, PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
+			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
 				Record rec = e.getKey();
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
-				ObjectList<PosToken> prefixIdxList = e.getValue().prefixList;
-				ObjectList<PosToken> suffixIdxList = e.getValue().suffixList;
+				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
+				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
 				if ( prefixIdxList.size() < minCount ) continue;
-				prefixIdxList.sort(PosToken::compareTo);
-				suffixIdxList.sort(PosToken::compareTo);
+				prefixIdxList.sort(Integer::compareTo);
+				suffixIdxList.sort(Integer::compareTo);
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, minCount);
@@ -184,26 +188,26 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return candRecordSet;
 		}
 		
-		private Object2ObjectMap<Record, TokenPosListPair> getCommonTokenIdxLists( Record query ) {
-			Object2ObjectMap<Record, TokenPosListPair> rec2idxListMap = new Object2ObjectOpenHashMap<>();
+		private Object2ObjectMap<Record, PosListPair> getCommonTokenIdxLists( Record query ) {
+			Object2ObjectMap<Record, PosListPair> rec2idxListMap = new Object2ObjectOpenHashMap<>();
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", token, invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
-						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new TokenPosListPair());
-						rec2idxListMap.get(e.rec).prefixList.add(new PosToken(token, e.pos));
-						rec2idxListMap.get(e.rec).suffixList.add(new PosToken(token, e.pos));
+						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
+						rec2idxListMap.get(e.rec).prefixList.add(e.pos);
+						rec2idxListMap.get(e.rec).suffixList.add(e.pos);
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
 				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", token, transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
-						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new TokenPosListPair());
-						rec2idxListMap.get(e.rec).prefixList.add(new PosToken(token, e.left));
-						rec2idxListMap.get(e.rec).suffixList.add(new PosToken(token, e.right));
+						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
+						rec2idxListMap.get(e.rec).prefixList.add(e.left);
+						rec2idxListMap.get(e.rec).suffixList.add(e.right);
 					}
 				}
 			}
@@ -211,28 +215,24 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return rec2idxListMap;
 		}
 
-		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, ObjectList<PosToken> prefixIdxList, ObjectList<PosToken> suffixIdxList, double theta ) {
+		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, double theta ) {
 			statContainer.startWatch("Time_TS_findSegmenRanges.boundCalculator");
 			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, theta);
 			statContainer.stopWatch("Time_TS_findSegmenRanges.boundCalculator");
-			int m = prefixIdxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
-			for ( int i=0, j0=0; i<m; ++i ) {
-				PosToken entL = prefixIdxList.get(i);
-				int sidx = entL.pos;
+			for ( int i=0; i<prefixIdxList.size(); ++i ) {
+				int sidx = prefixIdxList.get(i);
 				int num = 0;
-				for ( int j=j0; j<m; ++j ) {
-					PosToken entR = suffixIdxList.get(j);
-					int eidx1 = entR.pos;
-					if ( eidx1 < sidx ) {
-						++j0;
+				for ( int j=0; j<suffixIdxList.size(); ++j ) {
+					int eidx = suffixIdxList.get(j);
+					if ( eidx < sidx ) {
 						continue;
 					}
 					++num;
-					double score = (double)num/Math.max(query.size(), boundCalculator.getLB(sidx, eidx1));
+					double score = (double)num/Math.max(query.size(), boundCalculator.getLB(sidx, eidx));
 					if ( score >= theta ) {
-						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
-						else rangeList.add(new IntRange(sidx, eidx1));
+						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
+						else rangeList.add(new IntRange(sidx, eidx));
 					}
 				}
 			}
@@ -257,17 +257,18 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return mergedRangeList;
 		}
 
-		private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, ObjectList<PosToken> prefixIdxList, int minCount ) {
+		private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, int minCount ) {
 			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
-					int count = 0;
-					for ( PosToken e : prefixIdxList ) {
-						if ( range.min > e.pos ) continue;
-						if ( e.pos > range.max ) break;
-						++count;
-					}
-					if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
+//					int count = 0;
+//					for ( int pos : prefixIdxList ) {
+//						if ( range.min > pos ) continue;
+//						if ( pos > range.max ) break;
+//						++count;
+//					}
+//					if ( count >= minCount ) 
+						segmentList.add(new Subrecord(rec, range.min, range.max+1));
 				}
 			}
 			return segmentList;
@@ -283,36 +284,16 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return candRecordSet;
 		}
 
-		private class PosToken implements Comparable<PosToken> {
-			int pos;
-			int token;
-			
-			public PosToken( int token, int pos ) {
-				this.token = token;
-				this.pos = pos;
-			}
-
-			@Override
-			public int compareTo(PosToken o) {
-				return Integer.compare(pos, o.pos);
-			}
-			
-			@Override
-			public String toString() {
-				return String.format("(%d, %d)", token, pos);
-			}
-		}
-		
-		private class TokenPosListPair {
-			ObjectList<PosToken> prefixList = new ObjectArrayList<>();
-			ObjectList<PosToken> suffixList = new ObjectArrayList<>();
+		private class PosListPair {
+			IntSet prefixList = new IntOpenHashSet();
+			IntSet suffixList = new IntOpenHashSet();
 		}
 
-		private String visualizeCandRecord( Record rec, ObjectList<PosToken> idxList ) {
+		private String visualizeCandRecord( Record rec, IntList idxList ) {
 			StringBuilder strbld = new StringBuilder();
 			for ( int i=0, j=0; i<rec.size(); ++i ) {
 				int count = 0;
-				while ( j < idxList.size() && i == idxList.get(j).pos ) {
+				while ( j < idxList.size() && i == idxList.get(j) ) {
 					++j;
 					++count;
 				}
