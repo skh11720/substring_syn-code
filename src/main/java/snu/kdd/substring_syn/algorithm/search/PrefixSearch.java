@@ -334,7 +334,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.08: fix bug
 		 * 4.09: PositionPrefixSearch
 		 * 4.10: use self rules in verification
+		 * 4.11: fix bug in position filter
 		 */
-		return "4.10";
+		return "4.11";
 	}
 }
