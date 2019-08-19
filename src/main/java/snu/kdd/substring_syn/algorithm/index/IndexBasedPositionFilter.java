@@ -24,6 +24,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.SubrecordWithPos;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -261,13 +262,19 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
+					IntList posList = new IntArrayList();
 					int count = 0;
 					for ( int pos : prefixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
 						++count;
+						posList.add(pos-range.min);
 					}
-					if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
+					if ( count >= minCount ) {
+						SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
+						segment.setPrefixIdxList(new IntArrayList(posList));
+						segmentList.add(segment);
+					}
 				}
 			}
 			return segmentList;
