@@ -172,13 +172,14 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				Record rec = e.getKey();
 				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, minCount);
+				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, modifiedMinCount);
 				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
 				candRecordSet.addAll(segmentList);
 			}
@@ -260,15 +261,19 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
+					int count = 0;
 					IntList posList = new IntArrayList();
 					for ( int pos : prefixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
 						posList.add(pos-range.min);
+						++count;
 					}
-					SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
-					segment.setPrefixIdxList(new IntArrayList(posList));
-					segmentList.add(segment);
+					if ( count >= minCount ) {
+						SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
+						segment.setPrefixIdxList(new IntArrayList(posList));
+						segmentList.add(segment);
+					}
 				}
 			}
 			return segmentList;
