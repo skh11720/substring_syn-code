@@ -1,7 +1,10 @@
 package snu.kdd.substring_syn.algorithm.validator;
 
+import java.util.Arrays;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -36,6 +39,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(window, query);
 		state.findBestTransform();
 		int[] transformedText = state.getTransformedString(window);
+		Log.log.debug("query=%s, window=%s, findBestTransform=%s", query, window, Arrays.toString(transformedText));
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());
