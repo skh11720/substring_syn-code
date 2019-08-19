@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -301,6 +302,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		protected boolean isInSigU( int i, int v ) {
 			return b[i+1][v];
 		}
+	}
+
+	@Override
+	public String getOutputName( Dataset dataset ) {
+		return String.join( "_", getName(), getVersion(), indexChoice.toString(), bLF? "L":"", bPF? "P":"", String.format("%.2f", theta), dataset.name);
 	}
 	
 	@Override
