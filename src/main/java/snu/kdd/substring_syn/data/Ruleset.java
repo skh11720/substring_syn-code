@@ -10,12 +10,12 @@ public class Ruleset {
 	final String path;
 	final ObjectArrayList<Rule> ruleList;
 
-	public Ruleset( String rulePath, Iterable<Integer> distinctTokens, TokenIndex tokenIndex ) throws IOException {
+	public Ruleset( String rulePath, Iterable<Integer> distinctTokens ) throws IOException {
 		this.path = rulePath;
 		this.ruleList = new ObjectArrayList<>();
 		
 		createSelfRules(distinctTokens);
-		loadRulesFromFile(tokenIndex);
+		loadRulesFromFile();
 	}
 	
 	private void createSelfRules( Iterable<Integer> distinctTokens ) {
@@ -23,11 +23,11 @@ public class Ruleset {
 			ruleList.add( Rule.createRule(token, token) );
 	}
 
-	private void loadRulesFromFile( TokenIndex tokenIndex ) throws IOException {
+	private void loadRulesFromFile() throws IOException {
 		BufferedReader br = new BufferedReader( new FileReader( path ) );
 		String line;
 		while( ( line = br.readLine() ) != null ) {
-			this.ruleList.add( Rule.createRule( line, tokenIndex ) );
+			this.ruleList.add( Rule.createRule(line) );
 		}
 		br.close();
 	}

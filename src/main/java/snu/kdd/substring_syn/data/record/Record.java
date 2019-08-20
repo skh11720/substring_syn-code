@@ -19,7 +19,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	int id;
 	int[] tokens;
-	int num_dist_tokens;
 	int hash;
 
 	Rule[][] applicableRules = null;
@@ -30,23 +29,20 @@ public class Record implements RecordInterface, Comparable<Record> {
 	int maxRhsSize = 0;
 	int transSetLB = 0;
 	
-	public Record( int id, String str, TokenIndex tokenIndex ) {
+	public Record( int id, String str ) {
 		this.id = id;
 		String[] pstr = str.split( "( |\t)+" );
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
+			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
 		}
 		
-		num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		hash = getHash();
 	}
 	
 	public Record( int id, int[] tokens ) {
 		this.id = id;
 		this.tokens = tokens;
-		if ( tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
-		else num_dist_tokens = 0;
 		hash = getHash();
 	}
 
@@ -123,10 +119,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	public int size() {
 		return tokens.length;
-	}
-	
-	public int getDistinctTokenCount() {
-		return num_dist_tokens;
 	}
 	
 	public Record getSuperRecord() {

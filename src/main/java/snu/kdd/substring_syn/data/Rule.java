@@ -17,12 +17,12 @@ public class Rule implements Comparable<Rule> {
 
 	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
-	public static Rule createRule( String str, TokenIndex tokenIndex ) {
+	public static Rule createRule( String str ) {
 		String[] rstr = str.toLowerCase().split("\\|\\|\\|");
 		String[] lhsStr = rstr[0].trim().split(" ");
 		String[] rhsStr = rstr[1].trim().split(" ");
-		int[] lhs = getTokenIndexArray(lhsStr, tokenIndex);
-		int[] rhs = getTokenIndexArray(rhsStr, tokenIndex);
+		int[] lhs = getTokenIndexArray(lhsStr, Record.tokenIndex);
+		int[] rhs = getTokenIndexArray(rhsStr, Record.tokenIndex);
 		return new Rule(lhs, rhs);
 	}
 	
@@ -35,7 +35,7 @@ public class Rule implements Comparable<Rule> {
 	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
 		int[] indexArr = new int[tokenArr.length];
 		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
+			indexArr[i] = tokenIndex.getID(tokenArr[i]);
 		}
 		return indexArr;
 	}

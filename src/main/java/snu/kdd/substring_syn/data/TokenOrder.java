@@ -8,10 +8,9 @@ import java.util.stream.IntStream;
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class TokenOrder implements Comparator<Integer> {
+public class TokenOrder {
 	
 	Int2IntMap orderMap = null;
 	Int2IntOpenHashMap counter = null;
@@ -28,28 +27,13 @@ public class TokenOrder implements Comparator<Integer> {
 		return orderMap.get(id);
 	}
 	
-	public ObjectSet<Int2IntMap.Entry> entrySet() {
-		return orderMap.int2IntEntrySet();
-	}
-	
 	public TokenIndex getTokenIndex() {
 		TokenIndex tokenIndex = new TokenIndex();
 		for ( int idx : orderMap.keySet() ) {
 			String token = Record.tokenIndex.getToken(idx);
-			tokenIndex.getIDOrAdd(token);
+			tokenIndex.add(token);
 		}
 		return tokenIndex;
-	}
-	
-	public void reindex( Record rec ) {
-		for ( int i=0; i<rec.size(); ++i ) {
-			rec.setToken(getOrder(rec.getToken(i)), i);
-		}
-	}
-	
-	@Override
-	public int compare(Integer o1, Integer o2) {
-		return Integer.compare(orderMap.get(o1), orderMap.get(o2));
 	}
 	
 	public void writeToFile() throws FileNotFoundException {
