@@ -1,36 +1,35 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Comparator;
-import java.util.stream.IntStream;
+import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import snu.kdd.substring_syn.data.record.Record;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class TokenOrder {
 	
-	Int2IntMap orderMap = null;
-	Int2IntOpenHashMap counter = null;
+	final Dataset dataset;
+	Object2IntOpenHashMap<String> counter = null;
 	
 	public TokenOrder( Dataset dataset ) {
+		this.dataset = dataset;
 		initCounter();
-//		countTokens(dataset.searchedList);
-		countTokens(dataset.getIndexedList());
-		countTokens(dataset.ruleSet);
-		buildOrderMap(counter);
-	}
-	
-	public int getOrder( int id ) {
-		return orderMap.get(id);
+		countTokensFromRecords();
+		countTokensFromRules();
 	}
 	
 	public TokenIndex getTokenIndex() {
 		TokenIndex tokenIndex = new TokenIndex();
-		for ( int idx : orderMap.keySet() ) {
-			String token = Record.tokenIndex.getToken(idx);
+		Iterator<Entry<String>> iter = counter.object2IntEntrySet().stream().sorted( Comparator.comparing(Object2IntMap.Entry<String>::getIntValue) ).iterator();
+		while ( iter.hasNext() ) {
+			String token = iter.next().getKey();
 			tokenIndex.add(token);
 		}
 		return tokenIndex;
@@ -38,37 +37,46 @@ public class TokenOrder {
 	
 	public void writeToFile() throws FileNotFoundException {
 		PrintStream ps = new PrintStream("tmp/TokenOrder.txt");
-		for ( Int2IntMap.Entry entry : orderMap.int2IntEntrySet() ) {
-			int id = entry.getIntKey();
-			ps.println(id+"\t"+Record.tokenIndex.getToken(id)+"\t"+entry.getIntValue()+"\t"+counter.get(id));
+		Iterator<Entry<String>> iter = counter.object2IntEntrySet().stream().sorted( Comparator.comparing(Object2IntMap.Entry<String>::getIntValue) ).iterator();
+		for ( int i=0; iter.hasNext(); ++i ) {
+			String token = iter.next().getKey();
+			ps.println(i+"\t"+token+"\t"+counter.getInt(token));
 		}
 		ps.close();
 	}
 	
 	private void initCounter() {
-		counter = new Int2IntOpenHashMap();
+		counter = new Object2IntOpenHashMap<>();
 		counter.defaultReturnValue(0);
 	}
 	
-	private void countTokens( Iterable<Record> recordList ) {
-		for ( Record rec : recordList ) {
-			for ( int token : rec.getTokens() ) {
-				counter.addTo(token, 1);
-			}
+	private void countTokensFromRecords() {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(dataset.indexedPath));
+			br.lines().forEach(line -> {
+				String[] pstr = Records.tokenize(line);
+				for ( String token : pstr ) counter.addTo(token, 1);
+			});
+			br.close();
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
-
-	private void countTokens( Ruleset ruleSet ) {
-		for ( Rule rule : ruleSet.ruleList ) {
-			for ( int token : rule.getRhs() ) {
-				counter.addTo(token, 1);
-			}
+	
+	private void countTokensFromRules() {
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(dataset.rulePath));
+			br.lines().forEach(line -> {
+				String[][] rstr = Rule.tokenize(line);
+				for ( String token : rstr[1] ) counter.addTo(token, 1);
+			});
+			br.close();
 		}
-	}
-		
-	private void buildOrderMap( Int2IntMap counter ) {
-		orderMap = new Int2IntLinkedOpenHashMap(counter.size());
-		IntStream orderedKeyStream = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue)).mapToInt(e -> e.getIntKey());
-		orderedKeyStream.forEach(key -> orderMap.put(key, orderMap.size()));
+		catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

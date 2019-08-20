@@ -192,19 +192,25 @@ public class Subrecord implements RecordInterface {
 	public Record toRecord() {
 		Record newrec = new Record(getTokenList().toIntArray());
 		newrec.id = getID();
-		Rule[][] applicableRules = new Rule[this.size()][];
-		if ( rec.getApplicableRules() != null ) {
-			for ( int k=sidx; k<eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-				for ( Rule rule : rec.getApplicableRules(k) ) {
-					if ( rule.lhsSize() <= eidx-k ) ruleList.add(rule);
-				}
-				applicableRules[k-sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-sidx] );
-			}
-		}
-		newrec.applicableRules = applicableRules;
-		RecordPreprocess.preprocessSuffixApplicableRules(newrec);
+//		Rule[][] applicableRules;
+//		if ( rec.getApplicableRules() == null ) {
+//			applicableRules = null;
+//		}
+//		else {
+//			applicableRules = new Rule[this.size()][];
+//			if ( rec.getApplicableRules() != null ) {
+//				for ( int k=sidx; k<eidx; ++k ) {
+//					ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
+//					for ( Rule rule : rec.getApplicableRules(k) ) {
+//						if ( rule.lhsSize() <= eidx-k ) ruleList.add(rule);
+//					}
+//					applicableRules[k-sidx] = new Rule[ruleList.size()];
+//					ruleList.toArray( applicableRules[k-sidx] );
+//				}
+//			}
+//			newrec.applicableRules = applicableRules;
+//		}
+//		newrec.preprocessSuffixApplicableRules(newrec);
 		return newrec;
 	}
 	

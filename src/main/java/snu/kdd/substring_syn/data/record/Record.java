@@ -7,6 +7,8 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
@@ -31,7 +33,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public Record( int id, String str ) {
 		this.id = id;
-		String[] pstr = str.split( "( |\t)+" );
+		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
 			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
@@ -183,14 +185,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 			return Arrays.asList(Rule.EMPTY_RULE);
 		}
 	}
-	
-	public int[][] getTransLengthsAll() {
-		return transformLengths;
-	}
-
-	public int[] getTransLengths() {
-		return transformLengths[ tokens.length - 1 ];
-	}
 
 	public int getMaxTransLength() {
 		return transformLengths[ tokens.length - 1 ][ 1 ];
@@ -225,6 +219,85 @@ public class Record implements RecordInterface, Comparable<Record> {
 			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
 		}
 		return tokenSet;
+	}
+	
+	public Record getSubrecord( int sidx, int eidx ) {
+		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
+		newrec.id = getID();
+		return newrec;
+	}
+
+	public RecordWithPos getSubrecordWithPos( int sidx, int eidx, IntList prefixIdxList ) {
+		RecordWithPos newrec = new RecordWithPos(getTokenList().subList(sidx, eidx).toIntArray(), prefixIdxList);
+		newrec.id = getID();
+		return newrec;
+	}
+
+	public void preprocessAll() {
+		preprocessApplicableRules();
+		preprocessSuffixApplicableRules();
+		preprocessTransformLength();
+	}
+	
+	public void preprocessApplicableRules() {
+		if ( applicableRules != null ) return;
+		applicableRules = Rule.automata.applicableRules(tokens);
+	}
+
+	protected void preprocessSuffixApplicableRules() {
+		if ( suffixApplicableRules != null ) return;
+		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();
+
+		for( int i = 0; i < tokens.length; ++i ) {
+			tmplist.add( new ObjectArrayList<Rule>() );
+		}
+
+		for( int i = tokens.length - 1; i >= 0; --i ) {
+			for( Rule rule : applicableRules[ i ] ) {
+				int suffixidx = i + rule.getLhs().length - 1;
+				tmplist.get( suffixidx ).add( rule );
+			}
+		}
+
+		suffixApplicableRules = new Rule[ tokens.length ][];
+		for( int i = 0; i < tokens.length; ++i ) {
+			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
+		}
+	}
+
+	protected void preprocessTransformLength() {
+		if ( transformLengths != null ) return;
+		transformLengths = new int[ tokens.length ][ 2 ];
+		for( int i = 0; i < tokens.length; ++i )
+			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
+
+		for( Rule rule : applicableRules[ 0 ] ) {
+			int fromSize = rule.lhsSize();
+			int toSize = rule.rhsSize();
+			if( fromSize > toSize ) {
+				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
+			}
+			else if( fromSize < toSize ) {
+				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
+			}
+		}
+		for( int i = 1; i < tokens.length; ++i ) {
+			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
+			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
+			for( Rule rule : applicableRules[ i ] ) {
+				int fromSize = rule.lhsSize();
+				int toSize = rule.rhsSize();
+				if( fromSize > toSize ) {
+					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
+							transformLengths[ i - 1 ][ 0 ] + toSize );
+				}
+				else if( fromSize < toSize ) {
+					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
+							transformLengths[ i - 1 ][ 1 ] + toSize );
+				}
+
+			}
+		}
 	}
 	
 	public String toString() {

@@ -35,6 +35,7 @@ public class NaiveInvertedIndex {
 	private Int2ObjectMap<ObjectList<Record>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<Record>> transInvList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
 			for ( Rule rule : rec.getApplicableRuleIterable() ) {
 				if ( rule.isSelfRule ) continue;
 				for ( int token : rule.getRhs() ) {

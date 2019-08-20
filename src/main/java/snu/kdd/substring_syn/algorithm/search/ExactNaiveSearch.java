@@ -3,10 +3,8 @@ package snu.kdd.substring_syn.algorithm.search;
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
-import snu.kdd.substring_syn.utils.Util;
 
 public class ExactNaiveSearch extends AbstractSearch {
 	
@@ -19,7 +17,7 @@ public class ExactNaiveSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.startWatch(Stat.Time_Validation);
 		boolean isSim = validator.isOverThresholdQuerySide(query, rec); 
@@ -32,7 +30,7 @@ public class ExactNaiveSearch extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.startWatch(Stat.Time_Validation);
 		boolean isSim = validator.isOverThresholdTextSide(query, rec);
@@ -43,7 +41,7 @@ public class ExactNaiveSearch extends AbstractSearch {
 			return;
 		}
 	}
-	
+
 	@Override
 	public String getName() {
 		return "ExactNaiveSearch";

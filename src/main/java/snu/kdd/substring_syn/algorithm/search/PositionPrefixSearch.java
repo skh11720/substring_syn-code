@@ -6,9 +6,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.data.record.SubrecordWithPos;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -21,7 +20,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntList posList = getCommonTokenPosList(rec);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
@@ -57,7 +56,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 		}
 	}
 
-	protected IntList getCommonTokenPosList( RecordInterface rec ) {
+	protected IntList getCommonTokenPosList( Record rec ) {
 		IntList posList = new IntArrayList();
 		for ( int i=0; i<rec.size(); ++i ) {
 			if ( queryCandTokenSet.contains(rec.getToken(i)) ) posList.add(i);
@@ -72,7 +71,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 	
 
 	@Override
-	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
@@ -87,10 +86,10 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSideWithPrefixFilter( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
-		IntList posList = ((SubrecordWithPos)rec).getPrefixIdxList();
+		IntList posList = ((RecordWithPos)rec).getPrefixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
 		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", query.getID(), rec.getID(), candTokenList);
 		
@@ -126,8 +125,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSideWithoutPrefixFilter( Record query, RecordInterface rec ) {
-		IntList posList = ((SubrecordWithPos)rec).getPrefixIdxList();
+	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
+		IntList posList = ((RecordWithPos)rec).getPrefixIdxList();
 		for ( int widx : posList ) {
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
 				if ( bLF ) {

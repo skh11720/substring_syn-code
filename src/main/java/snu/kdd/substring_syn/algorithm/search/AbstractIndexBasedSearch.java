@@ -7,7 +7,6 @@ import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
 import snu.kdd.substring_syn.algorithm.index.IndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -62,37 +61,21 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchQuerySide( Record query, Dataset dataset ) {
-		Iterable<? extends RecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
-		for ( RecordInterface rec : candListQuerySide ) {
-			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
-			searchRecordQuerySide(query, rec);
-		}
-	}
-	
-	@Override
-	protected void searchTextSide( Record query, Dataset dataset ) {
-		Iterable<? extends RecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
-		for ( RecordInterface rec : candListTextSide ) {
-			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
-			searchRecordTextSide(query, rec);
-		}
-	}
-	
-	protected Iterable<? extends RecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
+	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_QS_IndexFilter);
-			ObjectSet<RecordInterface> candRecordSet = indexFilter.querySideFilter(query);
+			ObjectSet<Record> candRecordSet = indexFilter.querySideFilter(query);
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return candRecordSet;
 		}
 		else return dataset.getIndexedList();
 	}
 	
-	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
+	@Override
+	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
-			ObjectSet<RecordInterface> candRecordSet = indexFilter.textSideFilter(query);
+			ObjectSet<Record> candRecordSet = indexFilter.textSideFilter(query);
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return candRecordSet;
 		}

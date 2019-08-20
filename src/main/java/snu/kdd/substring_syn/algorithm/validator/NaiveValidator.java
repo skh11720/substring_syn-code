@@ -18,7 +18,7 @@ public class NaiveValidator extends AbstractValidator {
 		super(theta, statContainer);
 	}
 	
-	public boolean isOverThresholdQuerySide( Record query, RecordInterface rec ) {
+	public boolean isOverThresholdQuerySide( Record query, Record rec ) {
 		QuerySideIterator iter = new QuerySideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
@@ -28,7 +28,7 @@ public class NaiveValidator extends AbstractValidator {
 		return sim(iter);
 	}
 	
-	public boolean isOverThresholdTextSide( Record query, RecordInterface rec ) {
+	public boolean isOverThresholdTextSide( Record query, Record rec ) {
 		TextSideIterator iter = new TextSideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
@@ -105,7 +105,7 @@ public class NaiveValidator extends AbstractValidator {
 		int w = 1;
 		Subrecord window;
 		
-		public TextSideIterator( Record query, RecordInterface rec ) {
+		public TextSideIterator( Record query, Record rec ) {
 			this.query = query;
 			expList = Records.expandAll(rec);
 			witer = new SortedRecordSlidingWindowIterator(expList.get(eidx), w, theta);

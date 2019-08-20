@@ -35,6 +35,7 @@ public class PositionalInvertedIndex {
 	private Int2ObjectMap<ObjectList<TransInvListEntry>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList = new Int2ObjectOpenHashMap<>();
 		for ( Record rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.isSelfRule ) continue;

@@ -1,6 +1,5 @@
 package snu.kdd.substring_syn.utils;
 
-import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
@@ -21,7 +20,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
@@ -635,9 +633,9 @@ public class Util {
 		}
 	}
 
-	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-		return Dataset.createInstanceByName(name, size);
-	}
+//	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
+//		return Dataset.createInstanceByName(name, size);
+//	}
 
 	public static String getGroundTruthPath( String name ) {
 

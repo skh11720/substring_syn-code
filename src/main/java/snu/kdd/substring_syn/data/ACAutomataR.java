@@ -43,7 +43,7 @@ public class ACAutomataR {
 		// 2. Build Trie for rules
 		for( final Rule rule : rules ) {
 			State curr = root;
-			for( final int str : rule.lhs ) {
+			for( final int str : rule.getLhs() ) {
 				State next;
 				if( curr.split != null && ( next = curr.split.get( str ) ) != null ) {
 					curr = next;
@@ -165,7 +165,7 @@ public class ACAutomataR {
 
 				if( next.output != null ) {
 					for( final Rule rule : next.output ) {
-						tmprslt[ i - rule.lhs.length ].add( rule );
+						tmprslt[ i - rule.getLhs().length ].add( rule );
 					}
 				}
 			}

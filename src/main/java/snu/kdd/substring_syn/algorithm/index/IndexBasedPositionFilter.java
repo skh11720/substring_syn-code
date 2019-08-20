@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -18,9 +17,7 @@ import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.InvListEntr
 import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.TransInvListEntry;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
-import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.data.record.SubrecordWithPos;
+import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -50,16 +47,16 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
-	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
+	public ObjectSet<Record> querySideFilter( Record query ) {
 		QuerySideFilter filter = new QuerySideFilter();
 		return filter.run(query);
 	}
 	
 	private class QuerySideFilter {
 		
-		public ObjectSet<RecordInterface> run( Record query ) {
+		public ObjectSet<Record> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
-			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
+			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
@@ -70,8 +67,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
 				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				ObjectList<RecordInterface> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
-				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
+				ObjectList<Record> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;
@@ -93,10 +89,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return rec2idxListMap;
 		}
 		
-		private ObjectList<RecordInterface> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
+		private ObjectList<Record> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
 			ObjectList<IntRange> segmentRangeList = findSegments(query, rec, idxList, theta);
 			Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-			ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
+			ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
 			return segmentList;
 		}
 
@@ -139,15 +135,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return mergedRangeList;
 		}
 		
-		private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList idxList, int minCount ) {
-			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList idxList, int minCount ) {
+			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
 					int count = 0;
 					for ( int idx : idxList ) {
 						if ( range.min <= idx && idx <= range.max ) ++count;
 					}
-					if ( count >= minCount ) segmentList.add(new Subrecord(rec, range.min, range.max+1));
+					if ( count >= minCount ) segmentList.add(rec.getSubrecord(range.min, range.max+1));
 				}
 			}
 			return segmentList;
@@ -155,21 +151,22 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 	} // end class QuerySideFilter
 	
 	@Override
-	public ObjectSet<RecordInterface> textSideFilter( Record query ) {
+	public ObjectSet<Record> textSideFilter( Record query ) {
 		TextSideFilter filter = new TextSideFilter();
 		return filter.run(query);
 	}
 	
 	private class TextSideFilter {
 		
-		public ObjectSet<RecordInterface> run( Record query ) {
+		public ObjectSet<Record> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
-			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
+			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Object2ObjectMap<Record, PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
 				Record rec = e.getKey();
+				rec.preprocessAll();
 				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
@@ -179,8 +176,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 				suffixIdxList.sort(Integer::compareTo);
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-				ObjectList<RecordInterface> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, modifiedMinCount);
-				Log.log.trace("segmentList=%s", ()->strSegmentList(segmentList));
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, modifiedMinCount);
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;
@@ -257,8 +253,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return mergedRangeList;
 		}
 
-		private ObjectList<RecordInterface> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, int minCount ) {
-			ObjectList<RecordInterface> segmentList = new ObjectArrayList<>();
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, int minCount ) {
+			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
 					int count = 0;
@@ -270,23 +266,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 						++count;
 					}
 					if ( count >= minCount ) {
-						SubrecordWithPos segment = new SubrecordWithPos(rec, range.min, range.max+1);
-						segment.setPrefixIdxList(new IntArrayList(posList));
+						RecordWithPos segment = rec.getSubrecordWithPos(range.min, range.max+1, new IntArrayList(posList));
 						segmentList.add(segment);
 					}
 				}
 			}
 			return segmentList;
-		}
-
-		private ObjectSet<RecordInterface> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
-			ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
-			for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
-				Record rec = entry.getKey();
-				int count = entry.getIntValue();
-				if ( count >= minCount ) candRecordSet.add(rec);
-			}
-			return candRecordSet;
 		}
 
 		private class PosListPair {
@@ -295,6 +280,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			IntSet suffixList = new IntOpenHashSet();
 		}
 
+		@SuppressWarnings("unused")
 		private String visualizeCandRecord( Record rec, IntList idxList ) {
 			StringBuilder strbld = new StringBuilder();
 			for ( int i=0, j=0; i<rec.size(); ++i ) {
@@ -310,15 +296,4 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return strbld.toString();
 		}
 	} // end class TextSideFilter
-	
-	private String strSegmentList( ObjectList<RecordInterface> segmentRangeList ) {
-		StringBuilder strbld = new StringBuilder("[");
-		for ( int i=0; i<segmentRangeList.size(); ++i ) {
-			if ( i > 0 ) strbld.append(", ");
-			Subrecord subrec = (Subrecord)segmentRangeList.get(i);
-			strbld.append(String.format("(%d,%d)", subrec.sidx, subrec.eidx));
-		}
-		strbld.append("]");
-		return strbld.toString();
-	}
 }

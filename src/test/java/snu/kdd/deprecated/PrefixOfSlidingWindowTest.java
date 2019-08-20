@@ -3,7 +3,6 @@ package snu.kdd.deprecated;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -15,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;

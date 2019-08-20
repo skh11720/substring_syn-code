@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractIndexBasedFilter {
@@ -19,8 +18,8 @@ public abstract class AbstractIndexBasedFilter {
 
 	public abstract long invListSize();
 	public abstract long transInvListSize();
-	public abstract ObjectSet<RecordInterface> querySideFilter( Record query );
-	public abstract ObjectSet<RecordInterface> textSideFilter( Record query );
+	public abstract ObjectSet<Record> querySideFilter( Record query );
+	public abstract ObjectSet<Record> textSideFilter( Record query );
 
 	protected String visualizeCandRecord( Record rec, IntList idxList ) {
 		StringBuilder strbld = new StringBuilder();

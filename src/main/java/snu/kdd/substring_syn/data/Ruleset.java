@@ -5,31 +5,36 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.utils.Log;
 
 public class Ruleset {
-	final String path;
 	final ObjectArrayList<Rule> ruleList;
 
-	public Ruleset( String rulePath, Iterable<Integer> distinctTokens ) throws IOException {
-		this.path = rulePath;
+	public Ruleset( Dataset dataset ) {
 		this.ruleList = new ObjectArrayList<>();
-		
-		createSelfRules(distinctTokens);
-		loadRulesFromFile();
+		createSelfRules(dataset.getDistinctTokens());
+		loadRulesFromFile(dataset.rulePath);
+		Log.log.info("Ruleset created: %d rules", size());
 	}
 	
-	private void createSelfRules( Iterable<Integer> distinctTokens ) {
+	public void createSelfRules( Iterable<Integer> distinctTokens ) {
 		for ( int token : distinctTokens )
 			ruleList.add( Rule.createRule(token, token) );
 	}
 
-	private void loadRulesFromFile() throws IOException {
-		BufferedReader br = new BufferedReader( new FileReader( path ) );
-		String line;
-		while( ( line = br.readLine() ) != null ) {
-			this.ruleList.add( Rule.createRule(line) );
+	private void loadRulesFromFile( String path ) {
+		try {
+			BufferedReader br = new BufferedReader( new FileReader( path ) );
+			String line;
+			while( ( line = br.readLine() ) != null ) {
+				this.ruleList.add( Rule.createRule(line) );
+			}
+			br.close();
 		}
-		br.close();
+		catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 	public Iterable<Rule> get() {

@@ -13,7 +13,6 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
@@ -43,12 +42,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
+		super.prepareSearchGivenQuery(query);
 		queryCandTokenSet = query.getCandTokenSet();
 		expandedPrefix = getExpandedPrefix(query);
 	}
 	
 	@Override
-	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
@@ -95,7 +95,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
+	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
 		int min = (int)Math.max(1, Math.ceil(theta*query.getMinTransLength()));
 		int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
 		return new IntRange(min, max);
@@ -119,7 +119,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
@@ -133,13 +133,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		else searchRecordTextSideWithoutPrefixFilter(query, rec);;
 	}
 	
-	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
+	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 	
-	protected void searchRecordTextSideWithPrefixFilter( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
@@ -176,7 +176,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected void searchRecordTextSideWithoutPrefixFilter( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
 				if ( bLF ) {
@@ -196,14 +196,16 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected boolean verifyTextSideWrapper( Record query, Subrecord window ) {
+		Record rec = window.toRecord();
+		rec.preprocessAll();
 		statContainer.startWatch(Stat.Time_Validation);
-		boolean isSim = verifyTextSide(query, window);
+		boolean isSim = verifyTextSide(query, rec);
 		statContainer.stopWatch(Stat.Time_Validation);
 		return isSim;
 	}
 
-	protected boolean verifyTextSide( Record query, Subrecord window ) {
-		double sim = validator.simTextSide(query, window.toRecord());
+	protected boolean verifyTextSide( Record query, Record window ) {
+		double sim = validator.simTextSide(query, window);
 		if ( sim >= theta ) Log.log.debug("verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
@@ -233,13 +235,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		
 		protected final int maxTransLen;
 		protected final Record query;
-		protected final RecordInterface rec;
+		protected final Record rec;
 		protected final double theta;
 		protected final int[][][] g;
 		protected final boolean[][] b;
 		
 		
-		public PkduckDPExIncremental( Record query, RecordInterface rec, double theta ) {
+		public PkduckDPExIncremental( Record query, Record rec, double theta ) {
 			this.query = query;
 			this.rec = rec;
 			this.theta = theta;
@@ -336,7 +338,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.10: use self rules in verification
 		 * 4.11: fix bug in position filter
 		 * 4.12: fix bug in position filter, segment-wise count filter in text-side
+		 * 4.13: refactor
 		 */
-		return "4.12";
+		return "4.13";
 	}
 }

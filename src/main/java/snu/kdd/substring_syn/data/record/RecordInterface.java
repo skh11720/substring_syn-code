@@ -23,7 +23,7 @@ public interface RecordInterface {
 	Iterable<Rule> getApplicableRules( int i );
 	Iterable<Rule> getSuffixApplicableRules( int i );
 	Iterable<Rule> getIncompatibleRules( int k );
-
+	
 	String toString();
 	String toOriginalString();
 	String toStringDetails();

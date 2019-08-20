@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -64,7 +63,8 @@ public abstract class AbstractSearch {
 		}
 	}
 	
-	protected void searchGivenQuery( Record query, Dataset dataset ) {
+	protected final void searchGivenQuery( Record query, Dataset dataset ) {
+//		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QSTotal);
 		searchQuerySide(query, dataset);
@@ -75,19 +75,35 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void prepareSearchGivenQuery( Record query ) {
+		query.preprocessAll();
 	}
 	
-	protected void searchQuerySide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.getIndexedList() ) {
+	protected final void searchQuerySide( Record query, Dataset dataset ) {
+		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		for ( Record rec : candListQuerySide ) {
+			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
 		}
 	}
 	
-	protected void searchTextSide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.getIndexedList() ) {
-			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) )
+	protected final void searchTextSide( Record query, Dataset dataset ) {
+		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
+		for ( Record rec : candListTextSide ) {
+//			if ( rec.getID() != 29 ) continue;
+			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
+//			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) {
+				rec.preprocessAll();
 				searchRecordTextSide(query, rec);
+//			}
 		}
+	}
+	
+	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
+	}
+
+	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
 	}
 	
 	protected void putResultIntoStat() {
@@ -119,9 +135,9 @@ public abstract class AbstractSearch {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
+	protected abstract void searchRecordQuerySide( Record query, Record rec );
 	
-	protected abstract void searchRecordTextSide( Record query, RecordInterface rec ); 
+	protected abstract void searchRecordTextSide( Record query, Record rec ); 
 
 	public String getID() { return id; }
 	

@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
@@ -34,8 +33,8 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
-	public ObjectSet<RecordInterface> querySideFilter( Record query ) {
-		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
+	public ObjectSet<Record> querySideFilter( Record query ) {
+		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
 			ObjectList<Record> invList = index.getInvList(token);
@@ -45,8 +44,8 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	}
 	
 	@Override
-	public ObjectSet<RecordInterface> textSideFilter( Record query ) {
-		ObjectSet<RecordInterface> candRecordSet = new ObjectOpenHashSet<>();
+	public ObjectSet<Record> textSideFilter( Record query ) {
+		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 		for ( int token : query.getTokens() ) {
 			ObjectList<Record> invList = index.getInvList(token);
 			if ( invList != null ) candRecordSet.addAll(invList);
