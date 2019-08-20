@@ -24,7 +24,7 @@ public class SubrecordTest {
 		Dataset dataset = Dataset.createInstanceByName(dataName, size);
 		Random rn = new Random(0);
 		
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			if ( rec.getNumApplicableRules() < 5 ) continue;
 			System.out.println(rec.toStringDetails());
 			

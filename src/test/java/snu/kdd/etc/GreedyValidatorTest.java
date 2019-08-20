@@ -19,8 +19,8 @@ public class GreedyValidatorTest {
 		long[] tArr = new long[2];
 		GreedyPkduckValidator validator0 = new GreedyPkduckValidator(0.0, null);
 		
-		for ( Record recS : dataset.searchedList ) {
-			for ( Record recT : dataset.indexedList ) {
+		for ( Record recS : dataset.getSearchedList() ) {
+			for ( Record recT : dataset.getIndexedList() ) {
 				ts = System.nanoTime();
 				double sim0 = validator0.sim(recS, recT);
 				tArr[0] += System.nanoTime() - ts;

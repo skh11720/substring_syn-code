@@ -22,7 +22,7 @@ public class NaiveInvertedIndex {
 
 	private Int2ObjectMap<ObjectList<Record>> buildInvList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<Record>> invList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<Record>());
@@ -34,7 +34,7 @@ public class NaiveInvertedIndex {
 	
 	private Int2ObjectMap<ObjectList<Record>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<Record>> transInvList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			for ( Rule rule : rec.getApplicableRuleIterable() ) {
 				if ( rule.isSelfRule ) continue;
 				for ( int token : rule.getRhs() ) {

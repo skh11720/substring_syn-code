@@ -19,7 +19,7 @@ public class TokenOrder implements Comparator<Integer> {
 	public TokenOrder( Dataset dataset ) {
 		initCounter();
 //		countTokens(dataset.searchedList);
-		countTokens(dataset.indexedList);
+		countTokens(dataset.getIndexedList());
 		countTokens(dataset.ruleSet);
 		buildOrderMap(counter);
 	}

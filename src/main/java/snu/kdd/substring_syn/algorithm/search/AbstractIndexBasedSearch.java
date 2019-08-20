@@ -86,7 +86,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return candRecordSet;
 		}
-		else return dataset.indexedList;
+		else return dataset.getIndexedList();
 	}
 	
 	protected Iterable<? extends RecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
@@ -96,6 +96,6 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return candRecordSet;
 		}
-		else return dataset.indexedList;
+		else return dataset.getIndexedList();
 	}
 }

@@ -55,7 +55,7 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void searchBody( Dataset dataset ) {
-		for ( Record query : dataset.searchedList ) {
+		for ( Record query : dataset.getSearchedList() ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
 			double searchTime = (System.nanoTime()-ts)/1e6;
@@ -78,13 +78,13 @@ public abstract class AbstractSearch {
 	}
 	
 	protected void searchQuerySide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.indexedList ) {
+		for ( RecordInterface rec : dataset.getIndexedList() ) {
 			searchRecordQuerySide(query, rec);
 		}
 	}
 	
 	protected void searchTextSide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.indexedList ) {
+		for ( RecordInterface rec : dataset.getIndexedList() ) {
 			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) )
 				searchRecordTextSide(query, rec);
 		}

@@ -41,13 +41,13 @@ public class PrefixOfSlidingWindowTest {
 
 	@Test
 	public void testCorrectness() throws IOException {
-		getPrefixOfSlidingWindow(dataset.indexedList, w, theta);
+		getPrefixOfSlidingWindow(dataset.getIndexedList(), w, theta);
 	}
 	
 	@Test
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			SimpleSlidingWindow swindow1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 			for ( IntList window : swindow1 ) {
 				IntSet prefix0 = getPrefix(window, theta);
@@ -59,7 +59,7 @@ public class PrefixOfSlidingWindowTest {
 	@Test
 	public void testSortedSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			SortedSlidingWindowIterator window1 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();

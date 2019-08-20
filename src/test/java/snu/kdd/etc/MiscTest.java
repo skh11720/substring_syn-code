@@ -37,7 +37,7 @@ public class MiscTest {
 	public void testRecord() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			int n1 = 0;
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules()[k] ) ++n1;
@@ -53,7 +53,7 @@ public class MiscTest {
 	@Test
 	public void testTransformLength() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
-		for ( Record rec : dataset.searchedList ) {
+		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
 		}
 	}
@@ -61,44 +61,11 @@ public class MiscTest {
 	@Test
 	public void testQueryCandTokenSet() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("WIKI_3", "10000");
-		for ( Record rec : dataset.searchedList ) {
+		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
 		}
 	}
 	
-	@Ignore
-	public void testSearchWithLowTheta() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "100");
-		Record query = dataset.searchedList.get(41);
-		Record rec = dataset.indexedList.get(26);
-		double theta = 0.1;
-		NaivePkduckValidator validator = new NaivePkduckValidator(theta, null);
-		
-		System.out.println(query);
-		System.out.println(query.getDistinctTokenCount());
-		System.out.println(rec);
-		
-		double maxSim = 0;
-		IntSet expandedPrefix = getExpandedPrefix(query, theta);
-		for ( int widx=0; widx < rec.size(); ++ widx ) {
-			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
-			while ( witer.hasNext() ) {
-				Subrecord window = witer.next();
-				double sim = validator.simx2y(query, window.toRecord());
-				if ( sim > maxSim ) {
-					maxSim = Math.max(maxSim, sim);
-					System.out.println(widx+", "+window.size()+", "+sim);
-					IntCollection wprefix = witer.getPrefix();
-					System.out.println("expandedPrefix: "+expandedPrefix);
-					System.out.println("expandedPrefix2: "+getExpandedPrefix2(query, theta));
-					System.out.println("wprefix: "+wprefix);
-					System.out.println(Util.hasIntersection(expandedPrefix, wprefix));
-				}
-			}
-		}
-		System.out.println(maxSim);
-	}
-
 	protected IntSet getExpandedPrefix( Record query, double theta ) {
 		IntSet candTokenSet = query.getCandTokenSet();
 		IntSet expandedPrefix = new IntOpenHashSet();
@@ -123,7 +90,7 @@ public class MiscTest {
 	public void testWindowCount() throws IOException {
 		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT_long", "1000");
 		double theta = 0.6;
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			int nw0 = sumWindowSize(rec);
 			int nw1 = 0;
 			for ( int w=1; w<=rec.size(); ++w ) {

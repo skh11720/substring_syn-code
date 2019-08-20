@@ -29,7 +29,7 @@ public class PkduckDPTest {
 		long ts;
 		long[] tArr = new long[1];
 		for ( double theta : thetaList ) {
-			for ( Record rec : dataset.searchedList ) {
+			for ( Record rec : dataset.getSearchedList() ) {
 				PkduckDP pkduckDP0 = new PkduckDP(rec, theta);
 				IntOpenHashSet tokenSet = rec.getCandTokenSet();
 				IntOpenHashSet prefix = Util.getExpandedPrefix(rec, theta);
@@ -48,7 +48,7 @@ public class PkduckDPTest {
 	public void outputAnswer( Dataset dataset, double theta ) throws FileNotFoundException {
 		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.name, theta);
 		PrintStream ps = new PrintStream(path);
-		for ( Record rec : dataset.searchedList ) {
+		for ( Record rec : dataset.getSearchedList() ) {
 			PkduckDP pkduckDP = new PkduckDP(rec, theta);
 			IntOpenHashSet tokenSet = rec.getCandTokenSet();
 			

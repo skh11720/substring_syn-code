@@ -22,7 +22,7 @@ public class PositionalInvertedIndex {
 
 	private Int2ObjectMap<ObjectList<InvListEntry>> buildInvList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<InvListEntry>> invList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<InvListEntry>());
@@ -34,7 +34,7 @@ public class PositionalInvertedIndex {
 	
 	private Int2ObjectMap<ObjectList<TransInvListEntry>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.isSelfRule ) continue;

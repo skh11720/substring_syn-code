@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,10 @@ public class Dataset {
 	
 	public final String name;
 	public final Ruleset ruleSet;
-	public final List<Record> indexedList;
-	public final List<Record> searchedList;
+	private final List<Record> indexedList;
+	private final List<Record> searchedList;
+	private final BufferedReader brIndexed;
+	private final BufferedReader brSearched;
 	public final String outputPath;
 	public final StatContainer statContainer;
 	
@@ -65,6 +68,8 @@ public class Dataset {
 		statContainer = new StatContainer();
 		TokenIndex tokenIndex = new TokenIndex();
 
+		brIndexed = new BufferedReader( new FileReader(indexedPath) );
+		brSearched = new BufferedReader( new FileReader(searchedPath) );
 		indexedList = loadRecordList(indexedPath, tokenIndex);
 		searchedList = loadRecordList(searchedPath, tokenIndex);
 		Log.log.info("[MEM] after loading dataset: %.3f MB", Util.getMemoryUsage());
@@ -81,6 +86,26 @@ public class Dataset {
 		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
 		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
 		statContainer.finalize();
+	}
+	
+	public Iterable<Record> getSearchedList() {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return searchedList.iterator();
+			}
+		};
+	}
+
+	public Iterable<Record> getIndexedList() {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return indexedList.iterator();
+			}
+		};
 	}
 
 	private List<Record> loadRecordList( String dataPath, TokenIndex tokenIndex ) throws IOException {
