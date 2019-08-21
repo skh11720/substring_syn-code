@@ -4,19 +4,18 @@ import java.util.Arrays;
 
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkduckDPEx {
 	
 	protected final int maxTransLen;
 	protected final Record query;
-	protected final RecordInterface rec;
+	protected final Record rec;
 	protected final double theta;
 	protected final int[][][] g;
 	protected final boolean[][] b;
 	
 	
-	public PkduckDPEx( Record query, RecordInterface rec, double theta ) {
+	public PkduckDPEx( Record query, Record rec, double theta ) {
 		this.query = query;
 		this.rec = rec;
 		this.theta = theta;

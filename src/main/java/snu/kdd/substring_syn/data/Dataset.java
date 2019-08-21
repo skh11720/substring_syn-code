@@ -45,7 +45,7 @@ public abstract class Dataset {
 		final String searchedPath = DatasetInfo.getSearchedPath(name, size);
 		final String indexedPath = DatasetInfo.getIndexedPath(name, size);
 		final String outputPath = "output";
-		Dataset dataset = new InMemDataset( name+"_"+size, rulePath, searchedPath, indexedPath, outputPath );
+		Dataset dataset = new DiskBasedDataset( name+"_"+size, rulePath, searchedPath, indexedPath, outputPath );
 		dataset.createRuleSet();
 		dataset.initStat();
 		return dataset;

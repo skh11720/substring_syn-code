@@ -16,7 +16,6 @@ public interface RecordInterface {
 	IntList getTokenList();
 	IntSet getCandTokenSet();
 
-	int getMaxTransLength();
 	int getMaxRhsSize();
 
 	Iterable<Rule> getApplicableRuleIterable();

@@ -61,12 +61,6 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
-	public int getMaxTransLength() {
-		// TODO: return more tight (accurate) value
-		return rec.getMaxTransLength();
-	}
-
-	@Override
 	public int size() {
 		return eidx-sidx;
 	}
