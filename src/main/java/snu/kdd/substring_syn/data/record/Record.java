@@ -67,10 +67,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 			Record orec = (Record) o;
 			if( this == orec ) return true;
 			if( id == orec.id || id == -1 || orec.id == -1 ) {
-				if( id == -1 || orec.id == -1 ) {
-					return Records.compare( tokens, orec.tokens ) == 0;
-				}
-				return true;
+				return Records.compare( tokens, orec.tokens ) == 0;
 			}
 			return false;
 		}

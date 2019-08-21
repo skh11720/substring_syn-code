@@ -29,6 +29,31 @@ import vldb18.PkduckDP;
 public class MiscTest {
 	
 	@Test
+	public void testExactVerification() throws IOException {
+		int qidx = 23;
+		int sidx = 287;
+		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Record query = null;
+		Record text = null;
+		for ( Record rec : dataset.getSearchedList() ) {
+			if ( rec.getID() == qidx ) {
+				query = rec;
+				break;
+			}
+		}
+		
+		for ( Record rec : dataset.getIndexedList() ) {
+			if ( rec.getID() == sidx ) {
+				text = rec;
+				break;
+			}
+		}
+		
+		System.out.println(query.toOriginalString());
+		System.out.println(text.toOriginalString());
+	}
+	
+	@Test
 	public void testRecord() throws IOException {
 		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
