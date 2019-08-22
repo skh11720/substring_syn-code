@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.index;
+package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import java.util.Map.Entry;
 
@@ -13,8 +13,8 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.InvListEntry;
-import snu.kdd.substring_syn.algorithm.index.PositionalInvertedIndex.TransInvListEntry;
+import snu.kdd.substring_syn.algorithm.index.inmem.PositionalInvertedIndex.InvListEntry;
+import snu.kdd.substring_syn.algorithm.index.inmem.PositionalInvertedIndex.TransInvListEntry;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;

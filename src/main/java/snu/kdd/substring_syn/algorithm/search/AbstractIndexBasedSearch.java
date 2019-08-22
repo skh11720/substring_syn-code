@@ -1,10 +1,10 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.index.AbstractIndexBasedFilter;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedCountFilter;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedNaiveFilter;
-import snu.kdd.substring_syn.algorithm.index.IndexBasedPositionFilter;
+import snu.kdd.substring_syn.algorithm.index.inmem.AbstractIndexBasedFilter;
+import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedCountFilter;
+import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedNaiveFilter;
+import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;

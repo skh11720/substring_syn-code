@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.index;
+package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectList;
