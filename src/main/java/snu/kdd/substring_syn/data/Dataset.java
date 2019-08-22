@@ -65,8 +65,10 @@ public abstract class Dataset {
 		this.rulePath = rulePath;
 		this.outputPath = outputPath;
 		statContainer = new StatContainer();
+		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();
+		statContainer.stopWatch("Time_TokenOrder");
 	}
 	
 	protected void createRuleSet() {
