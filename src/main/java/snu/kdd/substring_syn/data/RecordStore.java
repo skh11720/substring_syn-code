@@ -60,9 +60,10 @@ public class RecordStore {
 	}
 	
 	public Record getRecord( int id ) throws IOException {
+		int len = posList.get(id+1) - posList.get(id);
 		raf.seek(posList.get(id));
-		raf.read(buffer);
-		int[] tokens = Snappy.uncompressIntArray(buffer, 0, posList.get(id+1)-posList.get(id));
+		raf.read(buffer, 0, len);
+		int[] tokens = Snappy.uncompressIntArray(buffer, 0, len);
 		return new Record(tokens);
 	}
 }
