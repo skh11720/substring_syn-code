@@ -1,0 +1,74 @@
+package snu.kdd.etc;
+
+import static org.junit.Assert.assertTrue;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.Collections;
+import java.util.Random;
+
+import org.junit.Test;
+import org.xerial.snappy.Snappy;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.RecordStore;
+import snu.kdd.substring_syn.data.record.Record;
+
+public class RecordStoreTest {
+	
+	@Test
+	public void storeAndGetRecords() throws IOException {
+		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
+		Collections.shuffle(recordList);
+		RecordStore store = new RecordStore(dataset.getIndexedList());
+		
+		for ( Record rec0 : recordList ) {
+			int idx = rec0.getID();
+			Record rec1 = store.getRecord(idx);
+			assertTrue( rec1.equals(rec0));
+		}
+	}
+
+	@Test
+	public void recordIOWithSnappy() throws IOException {
+		Random rn = new Random();
+		int maxlen = 0;
+		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		IntList posList = new IntArrayList();
+		int n = 0;
+		FileOutputStream fos = new FileOutputStream("./tmp/RecordStoreTest");
+		int cur = 0;
+		for ( Record rec : dataset.getIndexedList() ) {
+			posList.add(cur);
+			byte[] b = Snappy.compress(rec.getTokenArray());
+			cur += b.length;
+			maxlen = Math.max(maxlen, b.length);
+			fos.write(b);
+			++n;
+		}
+		posList.add(cur);
+		fos.close();
+		System.out.println("max(b.length)="+maxlen);
+		
+		long t;
+		int retries = 1000000;
+
+		t = System.nanoTime();
+		RandomAccessFile raf = new RandomAccessFile("./tmp/RecordStoreTest", "r");
+		byte[] b = new byte[378];
+		for ( int i=0; i<retries; ++i ) {
+			int id = rn.nextInt(n);
+			raf.seek(posList.get(id));
+			raf.read(b);
+			int[] tokens = Snappy.uncompressIntArray(b, 0, posList.get(id+1)-posList.get(id));
+		}
+		raf.close();
+		System.out.println("recordIOWithSnappy: "+(System.nanoTime()-t)/1e6);
+	}
+}
