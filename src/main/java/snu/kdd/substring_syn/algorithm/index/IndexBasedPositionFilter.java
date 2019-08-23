@@ -221,7 +221,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, double theta ) {
 			statContainer.startWatch("Time_TS_findSegmenRanges.boundCalculator");
-			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, theta);
+			int minPrefixIdx = prefixIdxList.getInt(0);
+			int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
+//			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
+			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, minPrefixIdx, maxSuffixIdx, theta);
 			statContainer.stopWatch("Time_TS_findSegmenRanges.boundCalculator");
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
