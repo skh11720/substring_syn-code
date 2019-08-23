@@ -72,9 +72,9 @@ public class StatContainer {
 			statMap.put(key+"_STD", String.format("%.3f", statBuffer.get(key).std()));
 		}
 		keyList = new ObjectArrayList<>( Stat.getList() );
-		for ( String key : statMap.keySet() ) {
+		statMap.keySet().stream().sorted().forEach(key->{
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
-		}
+		});
 	}
 	
 	private void setDefault() {

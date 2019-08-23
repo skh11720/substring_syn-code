@@ -167,7 +167,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
 				Record rec = e.getKey();
 				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
-				rec.preprocessAll();
+				rec.preprocessApplicableRules();
+				rec.preprocessSuffixApplicableRules();
 				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
 				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);

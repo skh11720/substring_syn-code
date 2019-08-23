@@ -241,7 +241,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		applicableRules = Rule.automata.applicableRules(tokens);
 	}
 
-	protected void preprocessSuffixApplicableRules() {
+	public void preprocessSuffixApplicableRules() {
 		if ( suffixApplicableRules != null ) return;
 		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();
 

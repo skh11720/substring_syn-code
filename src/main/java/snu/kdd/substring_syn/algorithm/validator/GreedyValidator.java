@@ -30,7 +30,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(query, window);
 		state.findBestTransform();
 		int[] transformedQuery = state.getTransformedString(query);
-		Log.log.debug("query=%s, window=%s, findBestTransform=%s", query.toOriginalString(), window.toOriginalString(), (new Record(transformedQuery)).toOriginalString());
+		Log.log.debug("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedQuery)).toOriginalString());
 		double sim = Util.jaccardM( transformedQuery, window.getTokenArray());
 		statContainer.increment(Stat.Num_QS_Verified);
 		statContainer.addCount(Stat.Len_QS_Verified, window.size());
@@ -41,7 +41,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(window, query);
 		state.findBestTransform();
 		int[] transformedText = state.getTransformedString(window);
-		Log.log.debug("query=%s, window=%s, findBestTransform=%s", query, window, Arrays.toString(transformedText));
+		Log.log.debug("query=%s, window=%s, findBestTransform=%s", ()->query, ()->window, ()->Arrays.toString(transformedText));
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());

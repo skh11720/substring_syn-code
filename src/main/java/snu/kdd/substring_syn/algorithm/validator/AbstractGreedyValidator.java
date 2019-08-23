@@ -73,9 +73,6 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			double score = 0;
 			for (int token : rule.getRhs()) {
 				if ( counter.get(token) > 0 ) ++score;
-				/*
-				 * If the RHS of a rule has duplicate tokens, this code will yield a false negative.
-				 */
 			}
 			score /= rule.rhsSize();
 			return score;
