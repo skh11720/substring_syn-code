@@ -1,4 +1,4 @@
-package snu.kdd.etc;
+package snu.kdd.substring_syn.index;
 
 import static org.junit.Assert.assertTrue;
 
