@@ -76,7 +76,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
@@ -113,7 +113,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		double sim = validator.simQuerySide(query, window.toRecord());
+		double sim = validator.simQuerySide(query, window);
 		if ( sim >= theta ) Log.log.debug("verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
@@ -167,7 +167,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 						if ( isSim ) {
 							rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 							Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 							return;
 						}
 					}
@@ -188,7 +188,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( isSim ) {
 					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+					Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
@@ -196,15 +196,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected boolean verifyTextSideWrapper( Record query, Subrecord window ) {
-		Record rec = window.toRecord();
-		rec.preprocessAll();
 		statContainer.startWatch(Stat.Time_Validation);
-		boolean isSim = verifyTextSide(query, rec);
+		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_Validation);
 		return isSim;
 	}
 
-	protected boolean verifyTextSide( Record query, Record window ) {
+	protected boolean verifyTextSide( Record query, Subrecord window ) {
 		double sim = validator.simTextSide(query, window);
 		if ( sim >= theta ) Log.log.debug("verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
@@ -341,7 +339,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 5.00: refactor and use disk-based dataset
 		 * 5.01: prune substrings by using prefix and suffix list
 		 * 5.02: reduce redundant computation in TransLenCalculator
+		 * 5.03: reduce redundant computation by Subrecord.toRecord()
 		 */
-		return "5.02";
+		return "5.03";
 	}
 }

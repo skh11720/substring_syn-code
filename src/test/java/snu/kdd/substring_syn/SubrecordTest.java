@@ -38,7 +38,7 @@ public class SubrecordTest {
 
 	public void testSubrec( Record rec, int sidx, int eidx ) {
 		Subrecord subrec0 = new Subrecord(rec, sidx, eidx);
-		Record subrec1 = subrec0.toRecord();
+		Record subrec1 = Subrecord.toRecord(subrec0);
 		System.out.println("[sidx, eidx] = ["+sidx+", "+eidx+"]");
 		System.out.println(subrec0.toStringDetails());
 		

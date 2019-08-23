@@ -16,14 +16,14 @@ public class Records {
 		return str.split( "( |\t)+" );
 	}
 
-	public static ObjectList<Record> expandAll( Record rec ) {
+	public static ObjectList<Record> expandAll( RecordInterface rec ) {
 		ObjectList<Record> rslt = new ObjectArrayList<Record>();
 		int[] tokens = rec.getTokenArray();
 		expandAll( rslt, rec, 0, tokens );
 		return rslt;
 	}
 
-	private static void expandAll( ObjectList<Record> rslt, Record rec, int idx, int[] t ) {
+	private static void expandAll( ObjectList<Record> rslt, RecordInterface rec, int idx, int[] t ) {
 
 		Iterable<Rule> rules = rec.getApplicableRules(idx);
 

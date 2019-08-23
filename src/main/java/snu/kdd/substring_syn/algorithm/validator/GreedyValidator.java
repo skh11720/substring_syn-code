@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -25,7 +26,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		super(theta, statContainer);
 	}
 
-	public double simQuerySide( Record query, Record window ) {
+	public double simQuerySide( Record query, RecordInterface window ) {
 		State state = new State(query, window);
 		state.findBestTransform();
 		int[] transformedQuery = state.getTransformedString(query);
@@ -36,7 +37,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		return sim;
 	}
 
-	public double simTextSide( Record query, Record window ) {
+	public double simTextSide( Record query, RecordInterface window ) {
 		State state = new State(window, query);
 		state.findBestTransform();
 		int[] transformedText = state.getTransformedString(window);

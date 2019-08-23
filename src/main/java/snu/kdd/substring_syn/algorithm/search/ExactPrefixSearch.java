@@ -16,11 +16,11 @@ public class ExactPrefixSearch extends PrefixSearch {
 
 	@Override
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		return validator.verifyQuerySide(query, window.toRecord(), theta);
+		return validator.verifyQuerySide(query, window, theta);
 	}
 
 	@Override
-	protected boolean verifyTextSide( Record query, Record window ) {
+	protected boolean verifyTextSide( Record query, Subrecord window ) {
 		return validator.verifyTextSide(query, window, theta);
 	}
 

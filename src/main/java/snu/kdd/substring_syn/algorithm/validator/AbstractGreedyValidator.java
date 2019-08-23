@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -26,18 +26,18 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 		Int2IntOpenHashMap counter;
 		ObjectSet<PosRule> appliedRuleSet;
 		
-		public State( Record x, Record y ) {
-			candRuleSet = createPosRuleList(x.getSuffixApplicableRules());	
+		public State( RecordInterface x, RecordInterface y ) {
+			candRuleSet = createPosRuleList(x);
 			bAvailable = new Boolean[x.size()];
 			Arrays.fill( bAvailable, true );
 			counter = Util.getCounter(y.getTokenArray());
 			appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 		}
 
-		private ObjectSet<PosRule> createPosRuleList( Rule[][] rules ) {
+		private ObjectSet<PosRule> createPosRuleList( RecordInterface rec ) {
 			ObjectSet<PosRule> posRuleSet = new ObjectOpenHashSet<PosRule>();
-			for (int k=0; k<rules.length; ++k) {
-				for (Rule rule : rules[k]) {
+			for (int k=0; k<rec.size(); ++k) {
+				for (Rule rule : rec.getApplicableRules(k)) {
 //					if ( rule.isSelfRule ) continue;
 					posRuleSet.add( new PosRule(rule, k) );
 				}
@@ -82,7 +82,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 		}
 		
 		private void applyBestRule( PosRule bestRule ) {
-			for (int j=0; j<bestRule.lhsSize(); ++j) bAvailable[bestRule.pos-j] = false;
+			for (int j=0; j<bestRule.lhsSize(); ++j) bAvailable[bestRule.pos+j] = false;
 			candRuleSet.remove( bestRule );
 			appliedRuleSet.add( bestRule );
 			for (Integer token : bestRule.getRhs()) counter.addTo(token, -1);
@@ -92,13 +92,13 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			ObjectSet<PosRule> invalidRuleSet = new ObjectOpenHashSet<>();
 			for ( PosRule rule : candRuleSet ) {
 				Boolean isValid = true;
-				for (int j=0; j<rule.lhsSize(); j++) isValid &= bAvailable[rule.pos-j];
+				for (int j=0; j<rule.lhsSize(); j++) isValid &= bAvailable[rule.pos+j];
 				if (!isValid) invalidRuleSet.add(rule);
 			}
 			candRuleSet.removeAll(invalidRuleSet);
 		}
 
-		public int[] getTransformedString( Record x ) {
+		public int[] getTransformedString( RecordInterface x ) {
 			int transformedSize = (int)(Arrays.stream(bAvailable).filter(b -> b).count());
 			for ( PosRule rule : appliedRuleSet ) transformedSize += rule.rhsSize();
 			int[] transformedString = new int[transformedSize];

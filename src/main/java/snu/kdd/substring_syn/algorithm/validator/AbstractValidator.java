@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.validator;
 
 import java.util.Arrays;
 
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractValidator {
@@ -16,7 +16,7 @@ public abstract class AbstractValidator {
 	}
 
 
-	protected boolean areSameString( Record x, Record y ) {
+	protected boolean areSameString( RecordInterface x, RecordInterface y ) {
 		return Arrays.equals(x.getTokenArray(), y.getTokenArray());
 	}
 

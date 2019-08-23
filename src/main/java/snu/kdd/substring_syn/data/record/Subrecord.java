@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 
 public class Subrecord implements RecordInterface {
@@ -109,14 +108,6 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( new ObjectArrayList<Rule>(getApplicableRules(k).iterator()) );
-		rules.addAll( new ObjectArrayList<Rule>(getSuffixApplicableRules(k).iterator()) );
-		return rules;
-	}
-	
-	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
@@ -180,32 +171,7 @@ public class Subrecord implements RecordInterface {
 	
 	@Override
 	public String toStringDetails() {
-		return toRecord().toStringDetails();
-	}
-	
-	public Record toRecord() {
-		Record newrec = new Record(getTokenList().toIntArray());
-		newrec.id = getID();
-//		Rule[][] applicableRules;
-//		if ( rec.getApplicableRules() == null ) {
-//			applicableRules = null;
-//		}
-//		else {
-//			applicableRules = new Rule[this.size()][];
-//			if ( rec.getApplicableRules() != null ) {
-//				for ( int k=sidx; k<eidx; ++k ) {
-//					ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-//					for ( Rule rule : rec.getApplicableRules(k) ) {
-//						if ( rule.lhsSize() <= eidx-k ) ruleList.add(rule);
-//					}
-//					applicableRules[k-sidx] = new Rule[ruleList.size()];
-//					ruleList.toArray( applicableRules[k-sidx] );
-//				}
-//			}
-//			newrec.applicableRules = applicableRules;
-//		}
-//		newrec.preprocessSuffixApplicableRules(newrec);
-		return newrec;
+		return toRecord(this).toStringDetails();
 	}
 	
 	public Record getSuperRecord() {
@@ -219,13 +185,16 @@ public class Subrecord implements RecordInterface {
 		Rule[][] rules;
 		
 		RuleIterator() {
-			k = sidx;
-			kMax = eidx;
+			this(sidx, eidx);
 		}
 
 		RuleIterator( int k ) {
-			this.k = sidx+k;
-			kMax = this.k+1;
+			this(sidx+k, sidx+k+1);
+		}
+		
+		RuleIterator( int k, int kMax ) {
+			this.k = k;
+			this.kMax = kMax;
 		}
 		
 		@Override
@@ -262,7 +231,8 @@ public class Subrecord implements RecordInterface {
 		}
 		
 		PrefixRuleIterator( int k ) {
-			this();
+			super(k);
+			rules = rec.applicableRules;
 			findNext();
 		}
 		
@@ -289,5 +259,24 @@ public class Subrecord implements RecordInterface {
 		boolean isValid(Rule rule) {
 			return k-rule.lhsSize()+1 >= sidx;
 		}
+	}
+	
+	public static Record toRecord( Subrecord subrec ) {
+		Record newrec = new Record(subrec.getTokenList().toIntArray());
+		newrec.id = subrec.getID();
+		Rule[][] applicableRules = null;
+		if ( subrec.rec.getApplicableRules() != null ) {
+			applicableRules = new Rule[subrec.size()][];
+			for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
+				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
+				for ( Rule rule : subrec.rec.getApplicableRules(k) ) {
+					if ( rule.lhsSize() <= subrec.eidx-k ) ruleList.add(rule);
+				}
+				applicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
+				ruleList.toArray( applicableRules[k-subrec.sidx] );
+			}
+		}
+		newrec.applicableRules = applicableRules;
+		return newrec;
 	}
 }
