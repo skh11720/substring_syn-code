@@ -89,13 +89,16 @@ public class PositionPrefixSearch extends PrefixSearch {
 	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
-		IntList posList = ((RecordWithPos)rec).getPrefixIdxList();
+		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
+		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
 		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", query.getID(), rec.getID(), candTokenList);
 		
 		for ( int target : candTokenList ) {
-			for ( int widx : posList ) {
+			for ( int widx : prefixIdxList ) {
 				pkduckdp.init();
+				int j = 0;
+				while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
 					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
 					if ( bLF ) {
@@ -106,7 +109,10 @@ public class PositionPrefixSearch extends PrefixSearch {
 					statContainer.startWatch("Time_TS_Pkduck");
 					pkduckdp.compute(target, widx+1, w);
 					statContainer.stopWatch("Time_TS_Pkduck");
-					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
+
+					if ( j >= suffixIdxList.size() ) break;
+					if ( suffixIdxList.get(j)+1 != widx+w ) continue;
+					++j;
 					
 					if ( pkduckdp.isInSigU(widx, w) ) {
 						statContainer.addCount(Stat.Len_TS_PF, w);
@@ -126,9 +132,15 @@ public class PositionPrefixSearch extends PrefixSearch {
 	
 	@Override
 	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
-		IntList posList = ((RecordWithPos)rec).getPrefixIdxList();
-		for ( int widx : posList ) {
+		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
+		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
+		for ( int widx : prefixIdxList ) {
+			int j = 0;
+			while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
+				if ( j >= suffixIdxList.size() ) break;
+				if ( suffixIdxList.get(j)+1 != widx+w ) continue;
+				++j;
 				if ( bLF ) {
 					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 					statContainer.addCount(Stat.Len_TS_LF, w);

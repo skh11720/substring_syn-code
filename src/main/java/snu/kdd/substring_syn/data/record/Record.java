@@ -224,8 +224,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return newrec;
 	}
 
-	public RecordWithPos getSubrecordWithPos( int sidx, int eidx, IntList prefixIdxList ) {
-		RecordWithPos newrec = new RecordWithPos(getTokenList().subList(sidx, eidx).toIntArray(), prefixIdxList);
+	public RecordWithPos getSubrecordWithPos( int sidx, int eidx, IntList prefixIdxList, IntList suffixIdxList ) {
+		RecordWithPos newrec = new RecordWithPos(getTokenList().subList(sidx, eidx).toIntArray(), prefixIdxList, suffixIdxList);
 		newrec.id = getID();
 		return newrec;
 	}

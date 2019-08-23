@@ -339,7 +339,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.11: fix bug in position filter
 		 * 4.12: fix bug in position filter, segment-wise count filter in text-side
 		 * 5.00: refactor and use disk-based dataset
+		 * 5.01: prune substrings by using prefix and suffix list
 		 */
-		return "5.00";
+		return "5.01";
 	}
 }

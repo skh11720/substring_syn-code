@@ -166,17 +166,25 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			Object2ObjectMap<Record, PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
 				Record rec = e.getKey();
+				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
 				rec.preprocessAll();
+				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
 				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
+				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
+				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
+				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
+				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, modifiedMinCount);
+				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, modifiedMinCount);
+				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;
@@ -253,20 +261,26 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 			return mergedRangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, int minCount ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
 					int count = 0;
-					IntList posList = new IntArrayList();
+					IntList prefixIdxSubList = new IntArrayList();
 					for ( int pos : prefixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
-						posList.add(pos-range.min);
+						prefixIdxSubList.add(pos-range.min);
 						++count;
 					}
+					IntList suffixIdxSubList = new IntArrayList();
+					for ( int pos : suffixIdxList ) {
+						if ( range.min > pos ) continue;
+						if ( pos > range.max ) break;
+						suffixIdxSubList.add(pos-range.min);
+					}
 					if ( count >= minCount ) {
-						RecordWithPos segment = rec.getSubrecordWithPos(range.min, range.max+1, new IntArrayList(posList));
+						RecordWithPos segment = rec.getSubrecordWithPos(range.min, range.max+1, prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
 					}
 				}
