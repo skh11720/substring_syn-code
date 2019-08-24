@@ -343,7 +343,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 5.04: ignore rules with score zero in GreedyValidator
 		 * 6.00: use DiskBasedNaiveInvertedIndex
 		 * 6.01: use DiskBasedNaiveInvertedIndex in CountFilter
+		 * 6.02: use DiskBasedPositionalInvertedIndex in PositionFilter
 		 */
-		return "6.01";
+		return "6.02";
 	}
 }

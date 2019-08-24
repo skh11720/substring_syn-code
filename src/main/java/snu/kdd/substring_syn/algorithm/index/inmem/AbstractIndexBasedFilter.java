@@ -21,6 +21,8 @@ public abstract class AbstractIndexBasedFilter {
 
 	public abstract long invListSize();
 	public abstract long transInvListSize();
+	public abstract int getNumInvFault();
+	public abstract int getNumTinvFault();
 	public abstract ObjectSet<Record> querySideFilter( Record query );
 	public abstract ObjectSet<Record> textSideFilter( Record query );
 

@@ -28,6 +28,12 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	public long transInvListSize() { return index.transInvListSize(); }
 	
 	@Override
+	public final int getNumInvFault() { return index.getNumInvFault(); }
+
+	@Override
+	public final int getNumTinvFault() { return index.getNumTinvFault(); }
+	
+	@Override
 	public ObjectSet<Record> querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());

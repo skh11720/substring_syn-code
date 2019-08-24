@@ -27,6 +27,12 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	public long transInvListSize() { return index.transInvListSize(); }
 	
 	@Override
+	public final int getNumInvFault() { return index.getNumInvFault(); }
+
+	@Override
+	public final int getNumTinvFault() { return index.getNumTinvFault(); }
+	
+	@Override
 	public ObjectSet<Record> querySideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
 		IntSet candTokenSet = query.getCandTokenSet();

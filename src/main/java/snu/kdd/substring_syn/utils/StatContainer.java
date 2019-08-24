@@ -19,6 +19,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 
 public class StatContainer {
+	
+	public static StatContainer global = null;
 
 	private AbstractSearch alg;
 	private final Object2ObjectMap<String, String> statMap;

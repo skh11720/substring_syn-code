@@ -36,6 +36,7 @@ public abstract class AbstractSearch {
 		this.rsltQuerySide = new ObjectOpenHashSet<>();
 		this.rsltTextSide = new ObjectOpenHashSet<>();
 		statContainer = new StatContainer();
+		StatContainer.global = statContainer;
 	}
 	
 	public void run( Dataset dataset ) {

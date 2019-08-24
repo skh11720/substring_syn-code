@@ -1,18 +1,18 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
-import java.util.Map.Entry;
-
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
+import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface;
+import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
@@ -21,28 +21,26 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implements PositionalIndexInterface {
+public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implements DiskBasedPositionalIndexInterface {
 
-	protected final PositionalInvertedIndex index;
+	protected final DiskBasedPositionalInvertedIndex index;
 	
 	public IndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(dataset, theta, statContainer);
-		index = new PositionalInvertedIndex(dataset);
+		index = new DiskBasedPositionalInvertedIndex(dataset.getIndexedList());
 	}
 
 	@Override
-	public long invListSize() {
-		long size = 0;
-		for ( ObjectList<InvListEntry> list : index.invList.values() ) size += list.size();
-		return size;
-	}
+	public long invListSize() { return index.invListSize(); }
 	
 	@Override
-	public long transInvListSize() {
-		long size = 0;
-		for ( ObjectList<TransInvListEntry> list : index.transInvList.values() ) size += list.size();
-		return size;
-	}
+	public long transInvListSize() { return index.transInvListSize(); }
+	
+	@Override
+	public final int getNumInvFault() { return index.getNumInvFault(); }
+
+	@Override
+	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
 	public ObjectSet<Record> querySideFilter( Record query ) {
@@ -57,10 +55,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("minCount=%d", ()->minCount);
-			Object2ObjectMap<Record, IntList> rec2idxListMap = getCommonTokenIdxLists(query);
-			for ( Entry<Record, IntList> entry : rec2idxListMap.entrySet() ) {
-				Record rec = entry.getKey();
+			Int2ObjectMap<IntList> rec2idxListMap = getCommonTokenIdxLists(query);
+			for ( Int2ObjectMap.Entry<IntList> entry : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( entry.getValue().size() < minCount ) continue;
+				int ridx = entry.getIntKey();
+				Record rec = dataset.getRecord(ridx);
 				IntList idxList = entry.getValue();
 				idxList.sort(Integer::compare);
 				Log.log.trace("idxList=%s", ()->idxList);
@@ -71,17 +70,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return candRecordSet;
 		}
 		
-		private Object2ObjectMap<Record, IntList> getCommonTokenIdxLists( Record query ) {
-			Object2ObjectMap<Record, IntList> rec2idxListMap = new Object2ObjectOpenHashMap<Record, IntList>();
+		private Int2ObjectMap<IntList> getCommonTokenIdxLists( Record query ) {
+			Int2ObjectMap<IntList> rec2idxListMap = new Int2ObjectOpenHashMap<IntList>();
 			IntSet candTokenSet = query.getCandTokenSet();
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				if ( invList == null ) continue; 
 				for ( InvListEntry e : invList ) {
-					Record rec = e.rec;
+					int ridx = e.ridx;
 					int pos = e.pos;
-					if ( !rec2idxListMap.containsKey(rec) ) rec2idxListMap.put(rec, new IntArrayList());
-					rec2idxListMap.get(rec).add(pos);
+					if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new IntArrayList());
+					rec2idxListMap.get(ridx).add(pos);
 				}
 			}
 			return rec2idxListMap;
@@ -161,14 +160,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
 			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
-			Object2ObjectMap<Record, PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
-			for ( Entry<Record, PosListPair> e : rec2idxListMap.entrySet() ) {
-				Record rec = e.getKey();
+			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
+			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
+				if ( e.getValue().nToken < minCount ) continue;
+				int ridx = e.getIntKey();
+				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
+				Record rec = dataset.getRecord(ridx);
+				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
 				rec.preprocessApplicableRules();
 				rec.preprocessSuffixApplicableRules();
 				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
-				if ( e.getValue().nToken < minCount ) continue;
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
@@ -189,28 +191,28 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return candRecordSet;
 		}
 		
-		private Object2ObjectMap<Record, PosListPair> getCommonTokenIdxLists( Record query ) {
-			Object2ObjectMap<Record, PosListPair> rec2idxListMap = new Object2ObjectOpenHashMap<>();
+		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists( Record query ) {
+			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<>();
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", token, invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
-						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
-						rec2idxListMap.get(e.rec).nToken += 1;
-						rec2idxListMap.get(e.rec).prefixList.add(e.pos);
-						rec2idxListMap.get(e.rec).suffixList.add(e.pos);
+						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
+						rec2idxListMap.get(e.ridx).nToken += 1;
+						rec2idxListMap.get(e.ridx).prefixList.add(e.pos);
+						rec2idxListMap.get(e.ridx).suffixList.add(e.pos);
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
 				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", token, transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
-						if ( !rec2idxListMap.containsKey(e.rec) ) rec2idxListMap.put(e.rec, new PosListPair());
-						rec2idxListMap.get(e.rec).nToken += 1;
-						rec2idxListMap.get(e.rec).prefixList.add(e.left);
-						rec2idxListMap.get(e.rec).suffixList.add(e.right);
+						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
+						rec2idxListMap.get(e.ridx).nToken += 1;
+						rec2idxListMap.get(e.ridx).prefixList.add(e.left);
+						rec2idxListMap.get(e.ridx).suffixList.add(e.right);
 					}
 				}
 			}

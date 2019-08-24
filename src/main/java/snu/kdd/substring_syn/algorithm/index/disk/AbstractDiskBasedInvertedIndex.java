@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractDiskBasedInvertedIndex<S, T> {
 
@@ -28,6 +29,7 @@ public abstract class AbstractDiskBasedInvertedIndex<S, T> {
 			return invPool.get(token);
 		else {
 			++nInvFault;
+			StatContainer.global.increment("Num_InvFault");
 			ObjectList<S> invList = getInvListFromStore(token);
 			if ( invList != null ) invPool.put(token, invList);
 			return invList;
@@ -39,6 +41,7 @@ public abstract class AbstractDiskBasedInvertedIndex<S, T> {
 			return tinvPool.get(token);
 		else {
 			++nTinvFault;
+			StatContainer.global.increment("Num_TinvFault");
 			ObjectList<T> tinvList = getTinvListFromStore(token);
 			if ( tinvList != null ) tinvPool.put(token, tinvList);
 			return tinvList;
