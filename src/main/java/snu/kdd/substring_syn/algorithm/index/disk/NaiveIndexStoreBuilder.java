@@ -42,27 +42,26 @@ public class NaiveIndexStoreBuilder {
 		return nFlush;
 	}
 	
+	@FunctionalInterface
+	interface ListSegmentBuilder {
+		Int2ObjectMap<ObjectList<SegmentInfo>> build(Iterable<Record> recordList) throws IOException;
+	}
+	
 	public IndexStoreAccessor buildInvList() {
-		offset = bufSize = nFlush = 0;
-		IndexStoreAccessor accessor = null;
-		try {
-			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = buildInvListSegment(recordList);
-			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(invPath, tok2segList);
-			accessor = new IndexStoreAccessor(invPath, tok2SegMap, bufSize);
-		} catch ( IOException e ) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return accessor;
+		return createIndexStoreAccessor(recordList, invPath, this::buildInvListSegment);
 	}
 
 	public IndexStoreAccessor buildTrInvList() {
+		return createIndexStoreAccessor(recordList, tinvPath, this::buildTrInvListSegment);
+	}
+
+	private IndexStoreAccessor createIndexStoreAccessor( Iterable<Record> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
 		offset = bufSize = nFlush = 0;
 		IndexStoreAccessor accessor = null;
 		try {
-			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = buildTrInvListSegment(recordList);
-			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(tinvPath, tok2segList);
-			accessor = new IndexStoreAccessor(tinvPath, tok2SegMap, bufSize);
+			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = listSegmentBuilder.build(recordList);
+			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(invPath, tok2segList);
+			accessor = new IndexStoreAccessor(invPath, tok2SegMap, bufSize);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
