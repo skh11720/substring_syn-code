@@ -1,11 +1,12 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
@@ -13,38 +14,29 @@ import snu.kdd.substring_syn.utils.StatContainer;
 
 public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 
-	protected final NaiveInvertedIndex index;
-	protected final boolean useCountFilter = true;
+	protected final DiskBasedNaiveInvertedIndex index;
 	
 	public IndexBasedCountFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(dataset, theta, statContainer);
-		index = new NaiveInvertedIndex(dataset);
+		index = new DiskBasedNaiveInvertedIndex(dataset.getIndexedList());
 	}
 
 	@Override
-	public long invListSize() {
-		long size = 0;
-		for ( ObjectList<Record> list : index.invList.values() ) size += list.size();
-		return size;
-	}
+	public long invListSize() { return index.invListSize(); }
 	
 	@Override
-	public long transInvListSize() {
-		long size = 0;
-		for ( ObjectList<Record> list : index.transInvList.values() ) size += list.size();
-		return size;
-	}
+	public long transInvListSize() { return index.transInvListSize(); }
 	
 	@Override
 	public ObjectSet<Record> querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
-		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
-			ObjectList<Record> invList = index.getInvList(token);
+			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( Record rec : invList ) counter.addTo(rec, 1);
+				for ( int ridx : invList ) counter.addTo(ridx, 1);
 			}
 		}
 		
@@ -57,15 +49,15 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	@Override
 	public ObjectSet<Record> textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
-		Object2IntOpenHashMap<Record> counter = new Object2IntOpenHashMap<>();
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 		for ( int token : query.getTokens() ) {
-			ObjectList<Record> invList = index.getInvList(token);
+			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( Record rec : invList ) counter.addTo(rec, 1);
+				for ( int ridx : invList ) counter.addTo(ridx, 1);
 			}
-			ObjectList<Record> transInvList = index.getTransInvList(token);
+			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
-				for ( Record rec : transInvList ) counter.addTo(rec, 1);
+				for ( int ridx : transInvList ) counter.addTo(ridx, 1);
 			}
 		}
 
@@ -73,13 +65,12 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		return candRecordSet;
 	}
 	
-	private ObjectSet<Record> pruneRecordsByCount( Object2IntMap<Record> counter, int minCount ) {
-		if ( !useCountFilter ) return new ObjectOpenHashSet<Record>(counter.keySet());
+	private ObjectSet<Record> pruneRecordsByCount( Int2IntMap counter, int minCount ) {
 		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
-		for ( Object2IntMap.Entry<Record> entry : counter.object2IntEntrySet() ) {
-			Record rec = entry.getKey();
+		for ( Int2IntMap.Entry entry : counter.int2IntEntrySet() ) {
+			int ridx = entry.getIntKey();
 			int count = entry.getIntValue();
-			if ( count >= minCount ) candRecordSet.add(rec);
+			if ( count >= minCount ) candRecordSet.add(dataset.getRecord(ridx));
 		}
 		return candRecordSet;
 	}

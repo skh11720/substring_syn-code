@@ -342,7 +342,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 5.03: reduce redundant computation by Subrecord.toRecord()
 		 * 5.04: ignore rules with score zero in GreedyValidator
 		 * 6.00: use DiskBasedNaiveInvertedIndex
+		 * 6.01: use DiskBasedNaiveInvertedIndex in CountFilter
 		 */
-		return "6.00";
+		return "6.01";
 	}
 }
