@@ -13,8 +13,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.algorithm.index.inmem.PositionalInvertedIndex.InvListEntry;
-import snu.kdd.substring_syn.algorithm.index.inmem.PositionalInvertedIndex.TransInvListEntry;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
@@ -23,7 +21,7 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
+public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implements PositionalIndexInterface {
 
 	protected final PositionalInvertedIndex index;
 	

@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class PositionalInvertedIndex {
+public class PositionalInvertedIndex implements PositionalIndexInterface {
 	
 	final Int2ObjectMap<ObjectList<InvListEntry>> invList;
 	final Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList;
@@ -62,37 +62,5 @@ public class PositionalInvertedIndex {
 	
 	public ObjectList<TransInvListEntry> getTransInvList( int token ) {
 		return transInvList.get(token);
-	}
-	
-	class InvListEntry {
-		final Record rec;
-		final int pos;
-		
-		public InvListEntry( Record rec, int pos ) {
-			this.rec = rec;
-			this.pos = pos;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("(%d, %d)", rec.getID(), pos);
-		}
-	}
-	
-	class TransInvListEntry {
-		final Record rec;
-		final int left;
-		final int right;
-		
-		public TransInvListEntry( Record rec, int left, int right ) {
-			this.rec = rec;
-			this.left = left;
-			this.right = right;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("(%d, %d, %d)", rec.getID(), left, right);
-		}
 	}
 }
