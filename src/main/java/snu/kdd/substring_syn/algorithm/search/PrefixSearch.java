@@ -341,7 +341,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 5.02: reduce redundant computation in TransLenCalculator
 		 * 5.03: reduce redundant computation by Subrecord.toRecord()
 		 * 5.04: ignore rules with score zero in GreedyValidator
+		 * 6.00: use DiskBasedNaiveInvertedIndex
 		 */
-		return "5.04";
+		return "6.00";
 	}
 }

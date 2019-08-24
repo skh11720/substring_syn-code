@@ -64,6 +64,6 @@ public class RecordStore {
 		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);
 		int[] tokens = Snappy.uncompressIntArray(buffer, 0, len);
-		return new Record(tokens);
+		return new Record(id, tokens);
 	}
 }

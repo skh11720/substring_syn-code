@@ -62,8 +62,8 @@ public class NaiveIndexStoreBuilder {
 		IndexStoreAccessor accessor = null;
 		try {
 			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = listSegmentBuilder.build(recordList);
-			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(invPath, tok2segList);
-			accessor = new IndexStoreAccessor(invPath, tok2SegMap, bufSize, size);
+			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(path, tok2segList);
+			accessor = new IndexStoreAccessor(path, tok2SegMap, bufSize, size);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -150,12 +150,12 @@ public class NaiveIndexStoreBuilder {
 				raf.read(buffer, 0, seg.len);
 				invList.addAll(IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, seg.len)));
 			}
-			size += invList.size();
 			byte[] b = Snappy.compress(invList.toIntArray());
 			bufSize = Math.max(bufSize, b.length);
 			tok2segMap.put(token, new SegmentInfo(cur, b.length));
 			fos.write(b);
 			cur += b.length;
+			size += invList.size();
 		}
 		raf.close();
 		fos.close();

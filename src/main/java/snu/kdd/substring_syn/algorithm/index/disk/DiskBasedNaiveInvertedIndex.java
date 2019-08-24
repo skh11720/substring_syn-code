@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
@@ -32,9 +33,13 @@ public class DiskBasedNaiveInvertedIndex {
 			return invPool.get(token);
 		else {
 			++nInvFault;
-			ObjectList<Integer> invList = new ObjectArrayList<>(store.getInvList(token));
-			invPool.put(token, invList);
-			return invList;
+			IntList rawInvList =store.getInvList(token);
+			if ( rawInvList == null ) return null;
+			else {
+				ObjectList<Integer> invList = new ObjectArrayList<>(rawInvList);
+				invPool.put(token, invList);
+				return invList;
+			}
 		}
 	}
 	
@@ -43,9 +48,13 @@ public class DiskBasedNaiveInvertedIndex {
 			return tinvPool.get(token);
 		else {
 			++nTinvFault;
-			ObjectList<Integer> tinvList = new ObjectArrayList<>(store.getTrInvList(token));
-			tinvPool.put(token, tinvList);
-			return tinvList;
+			IntList rawTrInvList =store.getTrInvList(token);
+			if ( rawTrInvList == null ) return null;
+			else {
+				ObjectList<Integer> tinvList = new ObjectArrayList<>(rawTrInvList);
+				tinvPool.put(token, tinvList);
+				return tinvList;
+			}
 		}
 	}
 }

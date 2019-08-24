@@ -5,6 +5,7 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -32,6 +33,8 @@ public class NaivePkduckValidator extends AbstractValidator {
 	}
 
 	public boolean verifyQuerySide( Record query, RecordInterface window, double theta ) {
+		statContainer.increment(Stat.Num_QS_Verified);
+		statContainer.addCount(Stat.Len_QS_Verified, window.size());
 		if ( areSameString(query, window) ) return true;
 		for ( Record exp : Records.expandAll(query) ) {
 			double sim = Util.subJaccardM(exp.getTokenList(), window.getTokenList());
@@ -44,6 +47,8 @@ public class NaivePkduckValidator extends AbstractValidator {
 	}
 
 	public boolean verifyTextSide( Record query, RecordInterface window, double theta ) {
+		statContainer.increment(Stat.Num_TS_Verified);
+		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		if ( areSameString(query, window) ) return true;
 		for ( Record exp : Records.expandAll(window) ) {
 			double sim = Util.subJaccardM(query.getTokenList(), exp.getTokenList());
