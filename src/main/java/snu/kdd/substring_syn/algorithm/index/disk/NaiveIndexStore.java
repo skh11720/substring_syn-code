@@ -10,7 +10,7 @@ public class NaiveIndexStore {
 	final IndexStoreAccessor tinvListAccessor;
 	
 	public NaiveIndexStore( Iterable<Record> recordList ) {
-		this(recordList, NaiveIndexStoreBuilder.INMEM_MAX_SIZE);
+		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE);
 	}
 
 	public NaiveIndexStore( Iterable<Record> recordList, int mem ) {
