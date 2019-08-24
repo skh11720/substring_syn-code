@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.Record;
 
@@ -20,10 +21,14 @@ public class NaiveIndexStore {
 	}
 
 	public IntList getInvList( int token ) {
-		return invListAccessor.getList(token);
+		int[] arr = invListAccessor.getList(token);
+		if ( arr == null ) return null;
+		else return IntArrayList.wrap(arr);
 	}
 
 	public IntList getTrInvList( int token ) {
-		return tinvListAccessor.getList(token);
+		int[] arr = tinvListAccessor.getList(token);
+		if ( arr == null ) return null;
+		else return IntArrayList.wrap(arr);
 	}
 }
