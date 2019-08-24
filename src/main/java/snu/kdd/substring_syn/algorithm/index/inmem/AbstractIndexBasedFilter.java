@@ -3,15 +3,18 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractIndexBasedFilter {
 
+	protected final Dataset dataset;
 	protected final double theta;
 	protected final StatContainer statContainer;
 
-	public AbstractIndexBasedFilter( double theta, StatContainer statContainer ) {
+	public AbstractIndexBasedFilter( Dataset dataset, double theta, StatContainer statContainer ) {
+		this.dataset = dataset;
 		this.theta = theta;
 		this.statContainer = statContainer;
 	}

@@ -9,10 +9,14 @@ import snu.kdd.substring_syn.data.record.Record;
 
 public class DiskBasedDataset extends Dataset {
 	
+	final RecordStore store;
+	
 	protected DiskBasedDataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
 		super(name, rulePath, searchedPath, indexedPath, outputPath);
+		store = new RecordStore(getIndexedList());
 	}
 	
+	@Override
 	public Iterable<Record> getSearchedList() {
 		return new Iterable<Record>() {
 			
@@ -23,6 +27,7 @@ public class DiskBasedDataset extends Dataset {
 		};
 	}
 
+	@Override
 	public Iterable<Record> getIndexedList() {
 		return new Iterable<Record>() {
 			
@@ -31,6 +36,11 @@ public class DiskBasedDataset extends Dataset {
 				return new DiskBasedRecordIterator(indexedPath);
 			}
 		};
+	}
+
+	@Override
+	public Record getRecord(int id) {
+		return store.getRecord(id);
 	}
 	
 	class DiskBasedRecordIterator implements Iterator<Record> {

@@ -91,6 +91,8 @@ public abstract class Dataset {
 	public abstract Iterable<Record> getSearchedList();
 
 	public abstract Iterable<Record> getIndexedList();
+	
+	public abstract Record getRecord(int id);
 
 	protected Iterable<Integer> getDistinctTokens() {
 		IntSet tokenSet = new IntOpenHashSet();

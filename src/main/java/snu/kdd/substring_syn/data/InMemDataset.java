@@ -20,12 +20,19 @@ public class InMemDataset extends Dataset {
 		indexedList = loadRecordList(indexedPath);
 	}
 	
+	@Override
 	public Iterable<Record> getSearchedList() {
 		return searchedList;
 	}
 
+	@Override
 	public Iterable<Record> getIndexedList() {
 		return indexedList;
+	}
+
+	@Override
+	public Record getRecord(int id) {
+		return indexedList.get(id);
 	}
 
 	private List<Record> loadRecordList( String dataPath ) throws IOException {

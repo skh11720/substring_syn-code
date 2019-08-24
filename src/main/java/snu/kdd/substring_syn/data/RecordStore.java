@@ -49,9 +49,9 @@ public class RecordStore {
 		return new byte[bufSize];
 	}
 	
-	public Record tryGetRecord( int id ) {
+	public Record getRecord( int id ) {
 		try {
-			return getRecord(id);
+			return tryGetRecord(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -59,7 +59,7 @@ public class RecordStore {
 		}
 	}
 	
-	public Record getRecord( int id ) throws IOException {
+	public Record tryGetRecord( int id ) throws IOException {
 		int len = posList.get(id+1) - posList.get(id);
 		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);

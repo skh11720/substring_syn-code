@@ -17,7 +17,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	protected final boolean useCountFilter = true;
 	
 	public IndexBasedCountFilter( Dataset dataset, double theta, StatContainer statContainer ) {
-		super(theta, statContainer);
+		super(dataset, theta, statContainer);
 		index = new NaiveInvertedIndex(dataset);
 	}
 

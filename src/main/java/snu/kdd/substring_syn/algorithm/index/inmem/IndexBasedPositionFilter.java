@@ -28,7 +28,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter {
 	protected final PositionalInvertedIndex index;
 	
 	public IndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
-		super(theta, statContainer);
+		super(dataset, theta, statContainer);
 		index = new PositionalInvertedIndex(dataset);
 	}
 
