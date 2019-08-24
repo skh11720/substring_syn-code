@@ -29,10 +29,6 @@ public class DiskBasedNaiveInvertedIndex extends AbstractDiskBasedInvertedIndex<
 	protected ObjectList<Integer> getTinvListFromStore(int token) {
         IntList rawTrInvList = store.getTrInvList(token);
         if ( rawTrInvList == null ) return null;
-        else {
-            ObjectList<Integer> tinvList = new ObjectArrayList<>(rawTrInvList);
-            tinvPool.put(token, tinvList);
-            return tinvList;
-        }
+        else return new ObjectArrayList<>(rawTrInvList);
 	}
 }

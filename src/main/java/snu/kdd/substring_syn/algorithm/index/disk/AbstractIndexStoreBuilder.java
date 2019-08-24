@@ -49,9 +49,9 @@ public abstract class AbstractIndexStoreBuilder {
 
 	public abstract IndexStoreAccessor buildTrInvList();
 	
-	protected abstract void addToInvList( IntList list, Record rec, int token, int pos );
+	protected abstract void addToInvList( IntList list, Record rec, int pos );
 
-	protected abstract void addToTrInvList( IntList list, Record rec, int token, Rule rule );
+	protected abstract void addToTrInvList( IntList list, Record rec, int pos, Rule rule );
 
 	protected abstract String getIndexStoreName();
 	
@@ -79,7 +79,7 @@ public abstract class AbstractIndexStoreBuilder {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invListMap.containsKey(token) ) invListMap.put(token, new IntArrayList());
-				addToInvList(invListMap.get(token), rec, token, i);
+				addToInvList(invListMap.get(token), rec, i);
 			}
 			size += rec.size();
 			if ( size >= inmem_max_size ) {
@@ -100,13 +100,15 @@ public abstract class AbstractIndexStoreBuilder {
 		int size = 0;
 		for ( Record rec : recordList ) {
 			rec.preprocessApplicableRules();
-			for ( Rule rule : rec.getApplicableRuleIterable() ) {
-				if ( rule.isSelfRule ) continue;
-				for ( int token : rule.getRhs() ) {
-					if ( !invListMap.containsKey(token) ) invListMap.put(token, new IntArrayList());
-					addToTrInvList(invListMap.get(token), rec, token, rule);
-				}
+			for ( int i=0; i<rec.size(); ++i ) {
+				for ( Rule rule : rec.getApplicableRules(i) ) {
+					if ( rule.isSelfRule ) continue;
+					for ( int token : rule.getRhs() ) {
+						if ( !invListMap.containsKey(token) ) invListMap.put(token, new IntArrayList());
+						addToTrInvList(invListMap.get(token), rec, i, rule);
+					}
 				size += rule.rhsSize();
+				}
 			}
 
 			if ( size >= inmem_max_size ) {
