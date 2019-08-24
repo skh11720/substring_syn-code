@@ -340,7 +340,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 5.01: prune substrings by using prefix and suffix list
 		 * 5.02: reduce redundant computation in TransLenCalculator
 		 * 5.03: reduce redundant computation by Subrecord.toRecord()
+		 * 5.04: ignore rules with score zero in GreedyValidator
 		 */
-		return "5.03";
+		return "5.04";
 	}
 }

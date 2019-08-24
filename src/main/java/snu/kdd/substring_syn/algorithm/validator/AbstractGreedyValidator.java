@@ -27,10 +27,10 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 		ObjectSet<PosRule> appliedRuleSet;
 		
 		public State( RecordInterface x, RecordInterface y ) {
+			counter = Util.getCounter(y.getTokenArray());
 			candRuleSet = createPosRuleList(x);
 			bAvailable = new Boolean[x.size()];
 			Arrays.fill( bAvailable, true );
-			counter = Util.getCounter(y.getTokenArray());
 			appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 		}
 
@@ -39,7 +39,12 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			for (int k=0; k<rec.size(); ++k) {
 				for (Rule rule : rec.getApplicableRules(k)) {
 //					if ( rule.isSelfRule ) continue;
-					posRuleSet.add( new PosRule(rule, k) );
+					for ( int token : rule.getRhs() ) {
+						if ( counter.containsKey(token) ) {
+							posRuleSet.add( new PosRule(rule, k) );
+							break;
+						}
+					}
 				}
 			}
 			return posRuleSet;
