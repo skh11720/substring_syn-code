@@ -27,6 +27,7 @@ public class NaiveIndexStoreBuilder {
 	int inmem_max_size;
 	int nFlush;
 	int bufSize;
+	long size;
 	
 
 	public NaiveIndexStoreBuilder( Iterable<Record> recordList ) {
@@ -57,11 +58,12 @@ public class NaiveIndexStoreBuilder {
 
 	private IndexStoreAccessor createIndexStoreAccessor( Iterable<Record> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
 		offset = bufSize = nFlush = 0;
+		size = 0;
 		IndexStoreAccessor accessor = null;
 		try {
 			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = listSegmentBuilder.build(recordList);
 			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(invPath, tok2segList);
-			accessor = new IndexStoreAccessor(invPath, tok2SegMap, bufSize);
+			accessor = new IndexStoreAccessor(invPath, tok2SegMap, bufSize, size);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -148,6 +150,7 @@ public class NaiveIndexStoreBuilder {
 				raf.read(buffer, 0, seg.len);
 				invList.addAll(IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, seg.len)));
 			}
+			size += invList.size();
 			byte[] b = Snappy.compress(invList.toIntArray());
 			bufSize = Math.max(bufSize, b.length);
 			tok2segMap.put(token, new SegmentInfo(cur, b.length));

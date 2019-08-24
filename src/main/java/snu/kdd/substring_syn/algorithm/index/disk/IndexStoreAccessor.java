@@ -15,11 +15,13 @@ public class IndexStoreAccessor {
 	private final Int2ObjectMap<SegmentInfo> tok2segMap;
 	private final byte[] buffer;
 	private final RandomAccessFile raf;
+	public final long size;
 	
-	public IndexStoreAccessor( String path, Int2ObjectMap<SegmentInfo> tok2segMap, int bufSize ) throws FileNotFoundException {
+	public IndexStoreAccessor( String path, Int2ObjectMap<SegmentInfo> tok2segMap, int bufSize, long size ) throws FileNotFoundException {
 		this.tok2segMap = tok2segMap;
 		buffer = new byte[bufSize];
 		raf = new RandomAccessFile(path, "r");
+		this.size = size;
 	}
 
 	public IntList getList( int token ) {
