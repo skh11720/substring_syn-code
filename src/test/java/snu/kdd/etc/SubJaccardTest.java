@@ -24,6 +24,28 @@ public class SubJaccardTest {
 	int lmin = 1;
 	int lmax = m;
 
+	@Test
+	public void testJaccardM() {
+		long[] t = new long[2];
+		long ts;
+		int retries = 1000000;
+		for ( int i=0; i<retries; ++i ) {
+			int[] x = genRandomArr();
+			int[] y = genRandomArr();
+			IntList xList = IntArrayList.wrap(x);
+			IntList yList = IntArrayList.wrap(y);
+
+			ts = System.nanoTime();
+			double sim0 = Util.jaccardM(x, y);
+			t[0] += (System.nanoTime() - ts);
+			ts = System.nanoTime();
+			double sim1 = Util.jaccardM(xList, yList);
+			t[1] += (System.nanoTime() - ts);
+			assertTrue(sim0 == sim1);
+		}
+		System.out.println("array version: "+t[0]);
+		System.out.println(" list version: "+t[1]);
+	}
 
 	@Test
 	public void testSubJaccard() {

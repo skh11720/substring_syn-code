@@ -14,6 +14,8 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -532,6 +534,47 @@ public class Util {
 		return (double)num/denum;
 	}
 
+	public static double jaccardM( IntList xList, IntList yList ) {
+		int num = 0;
+		int denum = 0;
+		IntIterator ix = IntIterators.asIntIterator(xList.stream().sorted().iterator());
+		IntIterator iy = IntIterators.asIntIterator(yList.stream().sorted().iterator());
+		int x = ix.nextInt();
+		int y = iy.nextInt();
+		while (true) {
+			++denum;
+			if ( x == y ) {
+				++num;
+				if ( !ix.hasNext() || !iy.hasNext() ) break;
+				x = ix.nextInt();
+				y = iy.nextInt();
+			}
+			else if ( x < y ) {
+				if ( !ix.hasNext() ) {
+					++denum;
+					break;
+				}
+				x = ix.nextInt();
+			}
+			else {
+				if ( !iy.hasNext() ) {
+					++denum;
+					break;
+				}
+				y = iy.nextInt();
+			}
+		}
+		while ( ix.hasNext() ) {
+			ix.nextInt();
+			++denum;
+		}
+		while ( iy.hasNext() ) {
+			iy.nextInt();
+			++denum;
+		}
+		return (double)num/denum;
+	}
+
 	public static double subJaccard0( int[] q, int[] t ) {
 		double simMax = 0;
 		for ( int i=0; i<t.length; ++i ) {
@@ -592,6 +635,40 @@ public class Util {
 	}
 
 	public static double subJaccardM( IntList q, IntList t ) {
+		double simMax = 0;
+		IntList idxList = new IntArrayList();
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		ObjectList<Int2IntOpenHashMap> counterList = new ObjectArrayList<>();
+		Int2IntOpenHashMap lastCounter = new Int2IntOpenHashMap();
+
+		for ( int i=0; i<t.size(); ++i ) {
+			int token = t.get(i);
+			if ( qCounter.keySet().contains(token) ) {
+				lastCounter.addTo(token, 1);
+				idxList.add(i);
+				counterList.add(lastCounter);
+				lastCounter = new Int2IntOpenHashMap();
+			}
+			else lastCounter.addTo(token, 1);
+		}
+		
+		if ( idxList.size() > 0 ) simMax = 1.0/q.size();
+
+		for ( int i=0; i<idxList.size(); ++i ) {
+			int sidx = idxList.get(i);
+			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
+			tCounter.addTo(t.get(sidx), 1);
+			for ( int j=i+1; j<idxList.size(); ++j ) {
+				sumCounters(tCounter, counterList.get(j));
+				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
+			}
+		}
+
+		return simMax;
+	}
+
+	public static double subJaccardM2( IntList q, IntList t ) {
 		double simMax = 0;
 		IntList idxList = new IntArrayList();
 		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
