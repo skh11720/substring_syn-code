@@ -179,12 +179,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
+				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+				int minPrefixIdx = prefixIdxList.getInt(0);
+				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
+				TransLenCalculator transLen = new TransLenCalculator(null, rec, minPrefixIdx, maxSuffixIdx, modifiedTheta);
+				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
-				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, modifiedTheta);
+				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, transLen, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, modifiedMinCount);
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, modifiedMinCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
@@ -222,13 +227,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rec2idxListMap;
 		}
 
-		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, double theta ) {
-			int minPrefixIdx = prefixIdxList.getInt(0);
-			int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
+		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, double theta ) {
 //			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
-			statContainer.startWatch("Time_TS_IndexFilter.boundCalculator");
-			TransLenCalculator boundCalculator = new TransLenCalculator(null, rec, minPrefixIdx, maxSuffixIdx, theta);
-			statContainer.stopWatch("Time_TS_IndexFilter.boundCalculator");
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
 				int sidx = prefixIdxList.get(i);
@@ -239,7 +239,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						continue;
 					}
 					++num;
-					double score = (double)num/Math.max(query.size(), boundCalculator.getLB(sidx, eidx));
+					double score = (double)num/Math.max(query.size(), transLen.getLB(sidx, eidx));
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
 						else rangeList.add(new IntRange(sidx, eidx));
@@ -267,7 +267,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return mergedRangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int minCount ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {

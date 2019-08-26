@@ -94,10 +94,10 @@ public abstract class AbstractSearch {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 //			if ( rec.getID() != 29 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
-//			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) {
-				rec.preprocessAll();
-				searchRecordTextSide(query, rec);
-//			}
+			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
+			rec.preprocessAll();
+			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
+			searchRecordTextSide(query, rec);
 		}
 	}
 	
