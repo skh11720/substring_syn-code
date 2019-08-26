@@ -2,7 +2,6 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -23,8 +22,8 @@ public abstract class AbstractIndexBasedFilter {
 	public abstract long transInvListSize();
 	public abstract int getNumInvFault();
 	public abstract int getNumTinvFault();
-	public abstract ObjectSet<Record> querySideFilter( Record query );
-	public abstract ObjectSet<Record> textSideFilter( Record query );
+	public abstract Iterable<Record> querySideFilter( Record query );
+	public abstract Iterable<Record> textSideFilter( Record query );
 
 	protected String visualizeCandRecord( Record rec, IntList idxList ) {
 		StringBuilder strbld = new StringBuilder();

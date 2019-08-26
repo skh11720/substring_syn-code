@@ -8,8 +8,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
@@ -43,16 +41,16 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectSet<Record> querySideFilter( Record query ) {
+	public ObjectList<Record> querySideFilter( Record query ) {
 		QuerySideFilter filter = new QuerySideFilter();
 		return filter.run(query);
 	}
 	
 	private class QuerySideFilter {
 		
-		public ObjectSet<Record> run( Record query ) {
+		public ObjectList<Record> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
-			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Int2ObjectMap<IntList> rec2idxListMap = getCommonTokenIdxLists(query);
@@ -148,16 +146,16 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	} // end class QuerySideFilter
 	
 	@Override
-	public ObjectSet<Record> textSideFilter( Record query ) {
+	public ObjectList<Record> textSideFilter( Record query ) {
 		TextSideFilter filter = new TextSideFilter();
 		return filter.run(query);
 	}
 	
 	private class TextSideFilter {
 		
-		public ObjectSet<Record> run( Record query ) {
+		public ObjectList<Record> run( Record query ) {
 			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
-			ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 			int minCount = (int)Math.ceil(theta*query.size());
 			Log.log.trace("minCount=%d", ()->minCount);
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
