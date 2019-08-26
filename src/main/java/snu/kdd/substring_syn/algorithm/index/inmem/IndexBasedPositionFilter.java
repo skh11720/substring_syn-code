@@ -173,8 +173,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
+				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
+				statContainer.stopWatch("Time_TS_IndexFilter.getIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
@@ -186,7 +188,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
 				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, modifiedMinCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
+				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
+				statContainer.stopWatch("Time_TS_IndexFilter.addAllCands");
 			}
 			return candRecordSet;
 		}
