@@ -3,9 +3,8 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
@@ -34,7 +33,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectSet<Record> querySideFilter( Record query ) {
+	public ObjectList<Record> querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
@@ -46,14 +45,14 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			}
 		}
 		
-		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>(pruneRecordsByCount(counter, minCount));
+		ObjectList<Record> candRecordSet = new ObjectArrayList<>(pruneRecordsByCount(counter, minCount));
 //		visualizeCandRecords(candTokenSet, candRecordSet, counter);
 
 		return candRecordSet;
 	}
 	
 	@Override
-	public ObjectSet<Record> textSideFilter( Record query ) {
+	public ObjectList<Record> textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 		for ( int token : query.getTokens() ) {
@@ -67,12 +66,12 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			}
 		}
 
-		ObjectSet<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
+		ObjectList<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
 		return candRecordSet;
 	}
 	
-	private ObjectSet<Record> pruneRecordsByCount( Int2IntMap counter, int minCount ) {
-		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+	private ObjectList<Record> pruneRecordsByCount( Int2IntMap counter, int minCount ) {
+		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 		for ( Int2IntMap.Entry entry : counter.int2IntEntrySet() ) {
 			int ridx = entry.getIntKey();
 			int count = entry.getIntValue();

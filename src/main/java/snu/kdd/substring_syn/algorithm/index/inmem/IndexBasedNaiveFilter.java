@@ -2,9 +2,8 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
@@ -33,20 +32,20 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectSet<Record> querySideFilter( Record query ) {
+	public ObjectList<Record> querySideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) candRidxSet.addAll(invList);
 		}
-		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 		candRidxSet.stream().forEach(id->candRecordSet.add(dataset.getRecord(id)));
 		return candRecordSet;
 	}
 	
 	@Override
-	public ObjectSet<Record> textSideFilter( Record query ) {
+	public ObjectList<Record> textSideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
 		for ( int token : query.getTokens() ) {
 			ObjectList<Integer> invList = index.getInvList(token);
@@ -54,7 +53,7 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) candRidxSet.addAll(transInvList);
 		}
-		ObjectSet<Record> candRecordSet = new ObjectOpenHashSet<>();
+		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 		candRidxSet.stream().forEach(id->candRecordSet.add(dataset.getRecord(id)));
 		return candRecordSet;
 	}

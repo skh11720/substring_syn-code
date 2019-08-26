@@ -82,6 +82,7 @@ public abstract class AbstractSearch {
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		for ( Record rec : candListQuerySide ) {
+			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
 		}
@@ -90,6 +91,7 @@ public abstract class AbstractSearch {
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( Record rec : candListTextSide ) {
+			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 //			if ( rec.getID() != 29 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
 //			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) {

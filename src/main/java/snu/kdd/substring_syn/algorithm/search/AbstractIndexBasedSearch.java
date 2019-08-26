@@ -1,6 +1,5 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.index.inmem.AbstractIndexBasedFilter;
 import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedCountFilter;
 import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedNaiveFilter;
