@@ -330,11 +330,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 	}
 
 	private int getHash() {
-		int hash = 0;
+		// djb2-like
+		int hash = Util.bigprime + id;
 		for( int token : tokens ) {
-			hash = ( hash << 32 ) + token;
+			hash = ( hash << 5 ) + Util.bigprime + token;
 //                tmp = 0x1f1f1f1f ^ tmp + token;
-			hash = hash % Util.bigprime;
+//			hash = hash % Util.bigprime;
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}

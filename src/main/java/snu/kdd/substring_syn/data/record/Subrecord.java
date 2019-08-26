@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.utils.Util;
 
 public class Subrecord implements RecordInterface {
 	
@@ -24,10 +25,15 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	protected int getHash() {
-		int hash = rec.hashCode();
-		hash = 0x1f1f1f1f ^ hash+ sidx;
-		hash = 0x1f1f1f1f ^ hash+ eidx;
-		return hash;
+		// djb2-like
+		int hash = Util.bigprime + rec.getID();
+		for( int i=sidx; i<eidx; ++i ) {
+			int token = rec.tokens[i];
+			hash = ( hash << 5 ) + Util.bigprime + token;
+//                tmp = 0x1f1f1f1f ^ tmp + token;
+//			hash = hash % Util.bigprime;
+		}
+		return (int) ( hash % Integer.MAX_VALUE );
 	}
 	
 	@Override

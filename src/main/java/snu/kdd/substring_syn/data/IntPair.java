@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.data;
 
+import snu.kdd.substring_syn.utils.Util;
+
 public class IntPair implements Comparable<IntPair> {
 	
 	public final int i1, i2;
@@ -12,9 +14,10 @@ public class IntPair implements Comparable<IntPair> {
 	}
 
 	private int getHash() {
-		int hash = 0;
-		hash = ( hash << 32 ) + i1;
-		hash = ( hash << 32 ) + i2;
+		// djb2-like
+		int hash = Util.bigprime;
+		hash = ( hash << 5 ) + Util.bigprime + i1;
+		hash = ( hash << 5 ) + Util.bigprime + i2;
 		return hash;
 	}
 	
