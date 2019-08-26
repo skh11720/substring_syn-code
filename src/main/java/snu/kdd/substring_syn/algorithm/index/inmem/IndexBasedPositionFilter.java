@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedInd
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -286,7 +287,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						suffixIdxSubList.add(pos-range.min);
 					}
 					if ( count >= minCount ) {
-						RecordWithPos segment = rec.getSubrecordWithPos(range.min, range.max+1, prefixIdxSubList, suffixIdxSubList);
+						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
+						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec, transLen), prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
 					}
 				}

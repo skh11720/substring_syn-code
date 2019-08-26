@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -275,14 +276,37 @@ public class Subrecord implements RecordInterface {
 			applicableRules = new Rule[subrec.size()][];
 			for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
 				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-				for ( Rule rule : subrec.rec.getApplicableRules(k) ) {
-					if ( rule.lhsSize() <= subrec.eidx-k ) ruleList.add(rule);
-				}
+                for ( Rule rule : subrec.getApplicableRules(k-subrec.sidx) ) ruleList.add(rule);
 				applicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
 				ruleList.toArray( applicableRules[k-subrec.sidx] );
 			}
 		}
+        Rule[][] suffixApplicableRules = null;
+        if ( subrec.rec.getSuffixApplicableRules() != null ) {
+            suffixApplicableRules = new Rule[subrec.size()][];
+            for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
+                ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
+                for ( Rule rule : subrec.getSuffixApplicableRules(k-subrec.sidx) ) ruleList.add(rule);
+                suffixApplicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
+                ruleList.toArray( suffixApplicableRules[k-subrec.sidx] );
+            }
+        }
 		newrec.applicableRules = applicableRules;
+        newrec.suffixApplicableRules = suffixApplicableRules;
 		return newrec;
 	}
+	
+    public static Record toRecord( Subrecord subrec, TransLenCalculator transLen ) {
+        Record newrec = toRecord(subrec);
+        int[][] transformLengths = null;
+        if ( transLen != null ) {
+            transformLengths = new int[subrec.size()][2];
+            for ( int i=0; i<subrec.size(); ++i ) {
+                transformLengths[i][0] = transLen.getLB(subrec.sidx, subrec.sidx+i);
+                transformLengths[i][1] = transLen.getUB(subrec.sidx, subrec.sidx+i);
+            }
+        }
+        newrec.transformLengths = transformLengths;
+        return newrec;
+    }
 }
