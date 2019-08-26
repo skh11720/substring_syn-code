@@ -288,7 +288,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 					if ( count >= minCount ) {
 						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
-						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec, transLen), prefixIdxSubList, suffixIdxSubList);
+						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec), prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
 					}
 				}
