@@ -39,7 +39,7 @@ public abstract class AbstractSearch {
 		StatContainer.global = statContainer;
 	}
 	
-	public void run( Dataset dataset ) {
+	public final void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
@@ -54,7 +54,7 @@ public abstract class AbstractSearch {
 	protected void prepareSearch( Dataset dataset ) {
 	}
 	
-	protected void searchBody( Dataset dataset ) {
+	protected final void searchBody( Dataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
@@ -109,19 +109,19 @@ public abstract class AbstractSearch {
 		return dataset.getIndexedList();
 	}
 	
-	protected void putResultIntoStat() {
+	protected final void putResultIntoStat() {
 		statContainer.addCount(Stat.Num_Result, countResult());
 		statContainer.addCount(Stat.Num_QS_Result, rsltQuerySide.size());
 		statContainer.addCount(Stat.Num_TS_Result, rsltTextSide.size());
 	}
 	
-	protected int countResult() {
+	protected final int countResult() {
 		Set<IntPair> rslt = new ObjectOpenHashSet<>(rsltQuerySide);
 		rslt.addAll(rsltTextSide);
 		return rslt.size();
 	}
 
-	protected void outputResult( Dataset dataset ) {
+	protected final void outputResult( Dataset dataset ) {
 		try {
 			PrintStream ps = new PrintStream(String.format(getOutputPath(dataset), theta));
 			getSortedResult(rsltQuerySide).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
@@ -134,7 +134,7 @@ public abstract class AbstractSearch {
 		}
 	}
 
-	protected List<IntPair> getSortedResult( Set<IntPair> rslt ) {
+	protected final List<IntPair> getSortedResult( Set<IntPair> rslt ) {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
@@ -142,13 +142,13 @@ public abstract class AbstractSearch {
 	
 	protected abstract void searchRecordTextSide( Record query, Record rec ); 
 
-	public String getID() { return id; }
+	public final String getID() { return id; }
 	
 	public abstract String getName();
 
 	public abstract String getVersion();
 	
-	public StatContainer getStatContainer() {
+	public final StatContainer getStatContainer() {
 		return statContainer;
 	}
 	
@@ -156,11 +156,11 @@ public abstract class AbstractSearch {
 		return String.join( "_", getName(), getVersion(), String.format("%.2f", theta), dataset.name);
 	}
 
-	public String getOutputPath( Dataset dataset ) {
+	public final String getOutputPath( Dataset dataset ) {
 		return "output/"+getOutputName(dataset)+".txt";
 	}
 	
-	public Param getParam() {
+	public final Param getParam() {
 		return param;
 	}
 }
