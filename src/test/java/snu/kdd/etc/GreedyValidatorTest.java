@@ -7,20 +7,20 @@ import org.junit.Test;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
-import snu.kdd.substring_syn.utils.Util;
 import vldb18.GreedyPkduckValidator;
 
 public class GreedyValidatorTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "1000");
+		Dataset dataset = Dataset.createInstanceByName("SPROT", "10000");
 		long ts;
 		long[] tArr = new long[2];
 		GreedyPkduckValidator validator0 = new GreedyPkduckValidator(0.0, null);
 		
-		for ( Record recS : dataset.searchedList ) {
-			for ( Record recT : dataset.indexedList ) {
+		for ( Record recS : dataset.getSearchedList() ) {
+			recS.preprocessApplicableRules();
+			for ( Record recT : dataset.getIndexedList() ) {
 				ts = System.nanoTime();
 				double sim0 = validator0.sim(recS, recT);
 				tArr[0] += System.nanoTime() - ts;

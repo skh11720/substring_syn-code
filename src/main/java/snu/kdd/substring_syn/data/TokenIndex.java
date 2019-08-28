@@ -13,21 +13,17 @@ public class TokenIndex {
 	private final ObjectArrayList<String> int2TokenList;
 
 	public TokenIndex() {
-		this(10);
-	}
-	
-	public TokenIndex( int size ) {
-		token2IntMap = new Object2IntOpenHashMap<String>(size);
+		token2IntMap = new Object2IntOpenHashMap<String>();
 		token2IntMap.defaultReturnValue(-1);
-		int2TokenList = new ObjectArrayList<String>(size);
+		int2TokenList = new ObjectArrayList<String>();
 	}
 	
-	public int getIDOrAdd( String token ) {
-		if ( !token2IntMap.containsKey(token) ) {
-			add(token);
-		}
-		return getID(token);
-	}
+//	public int getIDOrAdd( String token ) {
+//		if ( !token2IntMap.containsKey(token) ) {
+//			add(token);
+//		}
+//		return getID(token);
+//	}
 	
 	public void add( String token ) {
 		if ( !token2IntMap.containsKey(token) ) {
@@ -36,7 +32,7 @@ public class TokenIndex {
 		}
 	}
 
-	private int getID( String token ) {
+	public int getID( String token ) {
 		return token2IntMap.getInt( token );
 	}
 

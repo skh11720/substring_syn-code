@@ -18,7 +18,6 @@ import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Stat;
-import snu.kdd.substring_syn.utils.Util;
 
 public class PrefixSearchTest {
 
@@ -38,7 +37,7 @@ public class PrefixSearchTest {
 	public void testLengthFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
-		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		Dataset dataset = Dataset.createInstanceByName(name, size);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -60,7 +59,7 @@ public class PrefixSearchTest {
 	public void testIndexFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
-		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		Dataset dataset = Dataset.createInstanceByName(name, size);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -81,7 +80,7 @@ public class PrefixSearchTest {
 	}
 
 	public void test( String name, double theta, String size, String version ) throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		Dataset dataset = Dataset.createInstanceByName(name, size);
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
@@ -121,7 +120,7 @@ public class PrefixSearchTest {
 		String name = "SPROT_long";
 		String size = "102";
 		double theta = 0.6;
-		Dataset dataset = Util.getDatasetWithPreprocessing(name, size);
+		Dataset dataset = Dataset.createInstanceByName(name, size);
 		
 		AbstractSearch prefixSearch = null;
 		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.Count);

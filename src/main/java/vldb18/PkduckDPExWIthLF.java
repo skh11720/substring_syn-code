@@ -3,13 +3,12 @@ package vldb18;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkduckDPExWIthLF extends PkduckDPEx {
 	
 	protected final TransLenCalculator boundCalculator;
 	
-	public PkduckDPExWIthLF( Record query, RecordInterface rec, TransLenCalculator boundCalculator, double theta ) {
+	public PkduckDPExWIthLF( Record query, Record rec, TransLenCalculator boundCalculator, double theta ) {
 		super(query, rec, theta);
 		this.boundCalculator = boundCalculator;
 	}

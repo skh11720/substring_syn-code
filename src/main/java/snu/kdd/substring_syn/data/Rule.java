@@ -6,23 +6,22 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 
 public class Rule implements Comparable<Rule> {
-	final int[] lhs;
-	final int[] rhs;
-	public final int id;
+
+//	private static int count = 0;
+	public static ACAutomataR automata;
+	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
+	
+	private final int[] lhs;
+	private final int[] rhs;
+//	private final int id;
 	public final boolean isSelfRule;
 
 	private final int hash;
 
-	private static int count = 0;
-
-	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
-	
-	public static Rule createRule( String str, TokenIndex tokenIndex ) {
-		String[] rstr = str.toLowerCase().split("\\|\\|\\|");
-		String[] lhsStr = rstr[0].trim().split(" ");
-		String[] rhsStr = rstr[1].trim().split(" ");
-		int[] lhs = getTokenIndexArray(lhsStr, tokenIndex);
-		int[] rhs = getTokenIndexArray(rhsStr, tokenIndex);
+	public static Rule createRule( String str ) {
+		String[][] rstr = tokenize(str);
+		int[] lhs = getTokenIndexArray(rstr[0], Record.tokenIndex);
+		int[] rhs = getTokenIndexArray(rstr[1], Record.tokenIndex);
 		return new Rule(lhs, rhs);
 	}
 	
@@ -32,10 +31,18 @@ public class Rule implements Comparable<Rule> {
 		return new Rule(lhs, rhs);
 	}
 	
+	public static String[][] tokenize( String str ) {
+		String[][] rstr = new String[2][];
+		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
+		rstr[0] = tokens[0].trim().split(" ");
+		rstr[1] = tokens[1].trim().split(" ");
+		return rstr;
+	}
+	
 	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
 		int[] indexArr = new int[tokenArr.length];
 		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
+			indexArr[i] = tokenIndex.getID(tokenArr[i]);
 		}
 		return indexArr;
 	}
@@ -45,7 +52,7 @@ public class Rule implements Comparable<Rule> {
 		this.rhs = rhs;
 		this.hash = computeHash();
 		this.isSelfRule = Arrays.equals(lhs, rhs);
-		id = count++;
+//		id = count++;
 	}
 
 	private int computeHash() {
@@ -126,14 +133,5 @@ public class Rule implements Comparable<Rule> {
 		}
 
 		return bld.toString();
-	}
-
-	public void reindex( TokenOrder order ) {
-		for ( int i=0; i<lhs.length; ++i ) {
-			lhs[i] = order.getOrder(lhs[i]);
-		}
-		for ( int i=0; i<rhs.length; ++i ) {
-			rhs[i] = order.getOrder(rhs[i]);
-		}
 	}
 }

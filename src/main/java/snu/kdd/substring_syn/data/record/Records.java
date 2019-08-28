@@ -12,6 +12,10 @@ import snu.kdd.substring_syn.data.Rule;
 
 public class Records {
 
+	public static String[] tokenize( String str ) {
+		return str.split( "( |\t)+" );
+	}
+
 	public static ObjectList<Record> expandAll( RecordInterface rec ) {
 		ObjectList<Record> rslt = new ObjectArrayList<Record>();
 		int[] tokens = rec.getTokenArray();

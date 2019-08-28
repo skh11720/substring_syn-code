@@ -7,6 +7,8 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
@@ -19,7 +21,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	int id;
 	int[] tokens;
-	int num_dist_tokens;
 	int hash;
 
 	Rule[][] applicableRules = null;
@@ -30,23 +31,20 @@ public class Record implements RecordInterface, Comparable<Record> {
 	int maxRhsSize = 0;
 	int transSetLB = 0;
 	
-	public Record( int id, String str, TokenIndex tokenIndex ) {
+	public Record( int id, String str ) {
 		this.id = id;
-		String[] pstr = str.split( "( |\t)+" );
+		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
+			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
 		}
 		
-		num_dist_tokens = new IntOpenHashSet( tokens ).size();
 		hash = getHash();
 	}
 	
 	public Record( int id, int[] tokens ) {
 		this.id = id;
 		this.tokens = tokens;
-		if ( tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
-		else num_dist_tokens = 0;
 		hash = getHash();
 	}
 
@@ -69,10 +67,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 			Record orec = (Record) o;
 			if( this == orec ) return true;
 			if( id == orec.id || id == -1 || orec.id == -1 ) {
-				if( id == -1 || orec.id == -1 ) {
-					return Records.compare( tokens, orec.tokens ) == 0;
-				}
-				return true;
+				return Records.compare( tokens, orec.tokens ) == 0;
 			}
 			return false;
 		}
@@ -123,10 +118,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	public int size() {
 		return tokens.length;
-	}
-	
-	public int getDistinctTokenCount() {
-		return num_dist_tokens;
 	}
 	
 	public Record getSuperRecord() {
@@ -191,14 +182,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 			return Arrays.asList(Rule.EMPTY_RULE);
 		}
 	}
-	
-	public int[][] getTransLengthsAll() {
-		return transformLengths;
-	}
-
-	public int[] getTransLengths() {
-		return transformLengths[ tokens.length - 1 ];
-	}
 
 	public int getMaxTransLength() {
 		return transformLengths[ tokens.length - 1 ][ 1 ];
@@ -235,6 +218,79 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokenSet;
 	}
 	
+	public Record getSubrecord( int sidx, int eidx ) {
+		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
+		newrec.id = getID();
+		return newrec;
+	}
+
+	public void preprocessAll() {
+		preprocessApplicableRules();
+		preprocessSuffixApplicableRules();
+		preprocessTransformLength();
+	}
+	
+	public void preprocessApplicableRules() {
+		if ( applicableRules != null ) return;
+		applicableRules = Rule.automata.applicableRules(tokens);
+	}
+
+	public void preprocessSuffixApplicableRules() {
+		if ( suffixApplicableRules != null ) return;
+		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();
+
+		for( int i = 0; i < tokens.length; ++i ) {
+			tmplist.add( new ObjectArrayList<Rule>() );
+		}
+
+		for( int i = tokens.length - 1; i >= 0; --i ) {
+			for( Rule rule : applicableRules[ i ] ) {
+				int suffixidx = i + rule.getLhs().length - 1;
+				tmplist.get( suffixidx ).add( rule );
+			}
+		}
+
+		suffixApplicableRules = new Rule[ tokens.length ][];
+		for( int i = 0; i < tokens.length; ++i ) {
+			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
+		}
+	}
+
+	protected void preprocessTransformLength() {
+		if ( transformLengths != null ) return;
+		transformLengths = new int[ tokens.length ][ 2 ];
+		for( int i = 0; i < tokens.length; ++i )
+			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
+
+		for( Rule rule : applicableRules[ 0 ] ) {
+			int fromSize = rule.lhsSize();
+			int toSize = rule.rhsSize();
+			if( fromSize > toSize ) {
+				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
+			}
+			else if( fromSize < toSize ) {
+				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
+			}
+		}
+		for( int i = 1; i < tokens.length; ++i ) {
+			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
+			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
+			for( Rule rule : applicableRules[ i ] ) {
+				int fromSize = rule.lhsSize();
+				int toSize = rule.rhsSize();
+				if( fromSize > toSize ) {
+					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
+							transformLengths[ i - 1 ][ 0 ] + toSize );
+				}
+				else if( fromSize < toSize ) {
+					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
+							transformLengths[ i - 1 ][ 1 ] + toSize );
+				}
+
+			}
+		}
+	}
+	
 	public String toString() {
 		StringBuilder rslt = new StringBuilder();
 		for( int id : tokens ) {
@@ -268,11 +324,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 	}
 
 	private int getHash() {
-		int hash = 0;
+		// djb2-like
+		int hash = Util.bigprime + id;
 		for( int token : tokens ) {
-			hash = ( hash << 32 ) + token;
+			hash = ( hash << 5 ) + Util.bigprime + token;
 //                tmp = 0x1f1f1f1f ^ tmp + token;
-			hash = hash % Util.bigprime;
+//			hash = hash % Util.bigprime;
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}

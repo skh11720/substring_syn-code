@@ -18,6 +18,9 @@ public class Stat {
 //	public static final String Dataset_indexedPath = "Dataset_indexedPath";
 //	public static final String Dataset_rulePath = "Dataset_rulePath";
 	public static final String Dataset_Name = "Dataset_Name";
+	public static final String Dataset_nt= "Dataset_nt";
+	public static final String Dataset_nr= "Dataset_nr";
+	public static final String Dataset_qlen = "Dataset_qlen";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
 	public static final String Dataset_numRule= "Dataset_numRule";

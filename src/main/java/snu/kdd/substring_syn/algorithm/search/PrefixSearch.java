@@ -9,10 +9,10 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
@@ -23,6 +23,8 @@ import vldb18.PkduckDP;
 
 public class PrefixSearch extends AbstractIndexBasedSearch {
 
+	protected IntSet queryCandTokenSet;
+	protected IntSet expandedPrefix;
 	protected final boolean bLF, bPF;
 	protected final GreedyValidator validator;
 	protected TransLenCalculator transLenCalculator = null;
@@ -39,9 +41,15 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
+	protected void prepareSearchGivenQuery(Record query) {
+		super.prepareSearchGivenQuery(query);
+		queryCandTokenSet = query.getCandTokenSet();
+		expandedPrefix = getExpandedPrefix(query);
+	}
+	
+	@Override
+	protected void searchRecordQuerySide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
-		IntSet expandedPrefix = getExpandedPrefix(query);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
@@ -68,7 +76,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
@@ -76,10 +84,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	protected IntSet getExpandedPrefix( Record query ) {
-		IntSet candTokenSet = query.getCandTokenSet();
 		IntSet expandedPrefix = new IntOpenHashSet();
 		PkduckDP pkduckdp = new PkduckDP(query, theta);
-		for ( int target : candTokenSet ) {
+		for ( int target : queryCandTokenSet ) {
 			statContainer.startWatch("Time_QS_Pkduck");
 			boolean isInSigU = pkduckdp.isInSigU(target);
 			statContainer.stopWatch("Time_QS_Pkduck");
@@ -88,7 +95,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return expandedPrefix;
 	}
 	
-	protected IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
+	protected IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
 		int min = (int)Math.max(1, Math.ceil(theta*query.getMinTransLength()));
 		int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
 		return new IntRange(min, max);
@@ -106,13 +113,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		double sim = validator.simQuerySide(query, window.toRecord());
+		double sim = validator.simQuerySide(query, window);
 		if ( sim >= theta ) Log.log.debug("verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
@@ -126,28 +133,32 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		else searchRecordTextSideWithoutPrefixFilter(query, rec);;
 	}
 	
-	protected IntList getCandTokenList( Record query, RecordInterface rec, double theta ) {
+	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
 		IntSet tokenSet = rec.getCandTokenSet();
 		tokenSet.retainAll(Util.getPrefix(query, theta));
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 	
-	protected void searchRecordTextSideWithPrefixFilter( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
+		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", query.getID(), rec.getID(), candTokenList);
 		
 		for ( int target : candTokenList ) {
 			for ( int widx=0; widx<rec.size(); ++widx ) {
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
+					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
 					if ( bLF ) {
+						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
 						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
 					statContainer.startWatch("Time_TS_Pkduck");
 					pkduckdp.compute(target, widx+1, w);
 					statContainer.stopWatch("Time_TS_Pkduck");
+					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
 					
 					if ( pkduckdp.isInSigU(widx, w) ) {
 						statContainer.addCount(Stat.Len_TS_PF, w);
@@ -156,7 +167,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 						if ( isSim ) {
 							rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 							Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 							return;
 						}
 					}
@@ -165,7 +176,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected void searchRecordTextSideWithoutPrefixFilter( Record query, RecordInterface rec ) {
+	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
 				if ( bLF ) {
@@ -177,7 +188,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( isSim ) {
 					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 					Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toRecord().toOriginalString());
+					Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
@@ -192,7 +203,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 
 	protected boolean verifyTextSide( Record query, Subrecord window ) {
-		double sim = validator.simTextSide(query, window.toRecord());
+		double sim = validator.simTextSide(query, window);
 		if ( sim >= theta ) Log.log.debug("verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
@@ -222,13 +233,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		
 		protected final int maxTransLen;
 		protected final Record query;
-		protected final RecordInterface rec;
+		protected final Record rec;
 		protected final double theta;
 		protected final int[][][] g;
 		protected final boolean[][] b;
 		
 		
-		public PkduckDPExIncremental( Record query, RecordInterface rec, double theta ) {
+		public PkduckDPExIncremental( Record query, Record rec, double theta ) {
 			this.query = query;
 			this.rec = rec;
 			this.theta = theta;
@@ -267,11 +278,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					}
 				}
 				
-				if ( transLenCalculator.getLB(i-1, i+v-2) <= l && l <= transLenCalculator.getUB(i-1, i+v-2) ) {
-					if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
-						b[i][v] = true;
-						return;
-					}
+				if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
+					b[i][v] = true;
+					return;
 				}
 			}
 		}
@@ -294,6 +303,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			return b[i+1][v];
 		}
 	}
+
+	@Override
+	public String getOutputName( Dataset dataset ) {
+		return String.join( "_", getName(), getVersion(), indexChoice.toString(), bLF? "L":"", bPF? "P":"", String.format("%.2f", theta), dataset.name);
+	}
 	
 	@Override
 	public String getName() {
@@ -315,7 +329,25 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.03: filter option
 		 * 4.04: fit stat bug
 		 * 4.05: skip text-side if a pair is an answer
+		 * 4.06: fix bug in position filter
+		 * 4.07: fix bug in pkduckdp text-side
+		 * 4.08: fix bug
+		 * 4.09: PositionPrefixSearch
+		 * 4.10: use self rules in verification
+		 * 4.11: fix bug in position filter
+		 * 4.12: fix bug in position filter, segment-wise count filter in text-side
+		 * 5.00: refactor and use disk-based dataset
+		 * 5.01: prune substrings by using prefix and suffix list
+		 * 5.02: reduce redundant computation in TransLenCalculator
+		 * 5.03: reduce redundant computation by Subrecord.toRecord()
+		 * 5.04: ignore rules with score zero in GreedyValidator
+		 * 6.00: use DiskBasedNaiveInvertedIndex
+		 * 6.01: use DiskBasedNaiveInvertedIndex in CountFilter
+		 * 6.02: use DiskBasedPositionalInvertedIndex in PositionFilter
+		 * 6.03: do not use OjbectSet to improve speed
+		 * 6.04: eliminate duplicated record preprocessing
+		 * 6.05: modify dataset instantiation
 		 */
-		return "4.05";
+		return "6.05";
 	}
 }

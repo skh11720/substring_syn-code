@@ -69,7 +69,8 @@ public class AlgorithmFactory {
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		return new PrefixSearch(theta, bLF, bPF, indexChoice);
+		if ( indexChoice == IndexChoice.Position ) return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
+		else return new PrefixSearch(theta, bLF, bPF, indexChoice);
 	}
 	
 	

@@ -19,6 +19,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 
 public class StatContainer {
+	
+	public static StatContainer global = null;
 
 	private AbstractSearch alg;
 	private final Object2ObjectMap<String, String> statMap;
@@ -72,15 +74,15 @@ public class StatContainer {
 			statMap.put(key+"_STD", String.format("%.3f", statBuffer.get(key).std()));
 		}
 		keyList = new ObjectArrayList<>( Stat.getList() );
-		for ( String key : statMap.keySet() ) {
+		statMap.keySet().stream().sorted().forEach(key->{
 			if ( !Stat.getSet().contains(key) ) keyList.add(key);
-		}
+		});
 	}
 	
 	private void setDefault() {
 		for ( String key : keyList ) {
 			if ( !statMap.containsKey(key) ) {
-				if ( key.startsWith("Num") || key.startsWith("Len") ) statMap.put(key, "0");
+				if ( key.startsWith("Num") || key.startsWith("Len") || key.startsWith("Mem") ) statMap.put(key, "0");
 				else if ( key.startsWith("Time") ) statMap.put(key, "0.0");
 				else statMap.put(key, "null");
 			}

@@ -22,6 +22,8 @@ public class App {
 		argOptions.addOption("data", true, "");
 		argOptions.addOption("nq", true, "");
 		argOptions.addOption("nt", true, "");
+		argOptions.addOption("nr", true, "");
+		argOptions.addOption("ql", true, "");
 		argOptions.addOption("alg", true, "");
 		argOptions.addOption("param", true, "");
 	}

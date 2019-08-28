@@ -6,15 +6,16 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.utils.Util;
 
 public class Subrecord implements RecordInterface {
 	
-	private final Record rec;
+	protected final Record rec;
 	public final int sidx;
 	public final int eidx;
-	private final int hash;
+	protected final int hash;
 	protected int maxRhsSize = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
@@ -24,11 +25,16 @@ public class Subrecord implements RecordInterface {
 		hash = getHash();
 	}
 	
-	private int getHash() {
-		int hash = rec.hashCode();
-		hash = 0x1f1f1f1f ^ hash+ sidx;
-		hash = 0x1f1f1f1f ^ hash+ eidx;
-		return hash;
+	protected int getHash() {
+		// djb2-like
+		int hash = Util.bigprime + rec.getID();
+		for( int i=sidx; i<eidx; ++i ) {
+			int token = rec.tokens[i];
+			hash = ( hash << 5 ) + Util.bigprime + token;
+//                tmp = 0x1f1f1f1f ^ tmp + token;
+//			hash = hash % Util.bigprime;
+		}
+		return (int) ( hash % Integer.MAX_VALUE );
 	}
 	
 	@Override
@@ -58,12 +64,6 @@ public class Subrecord implements RecordInterface {
 	
 	public int[] getTokenArray() {
 		return getTokenList().toIntArray();
-	}
-
-	@Override
-	public int getMaxTransLength() {
-		// TODO: return more tight (accurate) value
-		return rec.getMaxTransLength();
 	}
 
 	@Override
@@ -114,14 +114,6 @@ public class Subrecord implements RecordInterface {
 		};
 	}
 
-	@Override
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( new ObjectArrayList<Rule>(getApplicableRules(k).iterator()) );
-		rules.addAll( new ObjectArrayList<Rule>(getSuffixApplicableRules(k).iterator()) );
-		return rules;
-	}
-	
 	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
@@ -186,26 +178,7 @@ public class Subrecord implements RecordInterface {
 	
 	@Override
 	public String toStringDetails() {
-		return toRecord().toStringDetails();
-	}
-	
-	public Record toRecord() {
-		Record newrec = new Record(getTokenList().toIntArray());
-		newrec.id = getID();
-		Rule[][] applicableRules = new Rule[this.size()][];
-		if ( rec.getApplicableRules() != null ) {
-			for ( int k=sidx; k<eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-				for ( Rule rule : rec.getApplicableRules(k) ) {
-					if ( rule.lhsSize() <= eidx-k ) ruleList.add(rule);
-				}
-				applicableRules[k-sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-sidx] );
-			}
-		}
-		newrec.applicableRules = applicableRules;
-		RecordPreprocess.preprocessSuffixApplicableRules(newrec);
-		return newrec;
+		return toRecord(this).toStringDetails();
 	}
 	
 	public Record getSuperRecord() {
@@ -219,13 +192,16 @@ public class Subrecord implements RecordInterface {
 		Rule[][] rules;
 		
 		RuleIterator() {
-			k = sidx;
-			kMax = eidx;
+			this(sidx, eidx);
 		}
 
 		RuleIterator( int k ) {
-			this.k = sidx+k;
-			kMax = this.k+1;
+			this(sidx+k, sidx+k+1);
+		}
+		
+		RuleIterator( int k, int kMax ) {
+			this.k = k;
+			this.kMax = kMax;
 		}
 		
 		@Override
@@ -262,7 +238,8 @@ public class Subrecord implements RecordInterface {
 		}
 		
 		PrefixRuleIterator( int k ) {
-			this();
+			super(k);
+			rules = rec.applicableRules;
 			findNext();
 		}
 		
@@ -290,4 +267,35 @@ public class Subrecord implements RecordInterface {
 			return k-rule.lhsSize()+1 >= sidx;
 		}
 	}
+	
+	public static Record toRecord( Subrecord subrec ) {
+		Record newrec = new Record(subrec.getTokenList().toIntArray());
+		newrec.id = subrec.getID();
+		Rule[][] applicableRules = null;
+		if ( subrec.rec.getApplicableRules() != null ) {
+			applicableRules = new Rule[subrec.size()][];
+			for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
+				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
+                for ( Rule rule : subrec.getApplicableRules(k-subrec.sidx) ) ruleList.add(rule);
+				applicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
+				ruleList.toArray( applicableRules[k-subrec.sidx] );
+			}
+        }
+		newrec.applicableRules = applicableRules;
+		return newrec;
+	}
+	
+//    public static Record toRecord( Subrecord subrec, TransLenCalculator transLen ) {
+//        Record newrec = toRecord(subrec);
+//        int[][] transformLengths = null;
+//        if ( transLen != null ) {
+//            transformLengths = new int[subrec.size()][2];
+//            for ( int i=0; i<subrec.size(); ++i ) {
+//                transformLengths[i][0] = transLen.getLB(subrec.sidx, subrec.sidx+i);
+//                transformLengths[i][1] = transLen.getUB(subrec.sidx, subrec.sidx+i);
+//            }
+//        }
+//        newrec.transformLengths = transformLengths;
+//        return newrec;
+//    }
 }

@@ -3,7 +3,6 @@ package snu.kdd.deprecated;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -15,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.TokenOrder;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
@@ -41,13 +39,13 @@ public class PrefixOfSlidingWindowTest {
 
 	@Test
 	public void testCorrectness() throws IOException {
-		getPrefixOfSlidingWindow(dataset.indexedList, w, theta);
+		getPrefixOfSlidingWindow(dataset.getIndexedList(), w, theta);
 	}
 	
 	@Test
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			SimpleSlidingWindow swindow1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 			for ( IntList window : swindow1 ) {
 				IntSet prefix0 = getPrefix(window, theta);
@@ -59,7 +57,7 @@ public class PrefixOfSlidingWindowTest {
 	@Test
 	public void testSortedSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			SortedSlidingWindowIterator window1 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();

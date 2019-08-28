@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -37,9 +36,10 @@ public abstract class AbstractSearch {
 		this.rsltQuerySide = new ObjectOpenHashSet<>();
 		this.rsltTextSide = new ObjectOpenHashSet<>();
 		statContainer = new StatContainer();
+		StatContainer.global = statContainer;
 	}
 	
-	public void run( Dataset dataset ) {
+	public final void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
@@ -54,8 +54,8 @@ public abstract class AbstractSearch {
 	protected void prepareSearch( Dataset dataset ) {
 	}
 	
-	protected void searchBody( Dataset dataset ) {
-		for ( Record query : dataset.searchedList ) {
+	protected final void searchBody( Dataset dataset ) {
+		for ( Record query : dataset.getSearchedList() ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
 			double searchTime = (System.nanoTime()-ts)/1e6;
@@ -64,7 +64,9 @@ public abstract class AbstractSearch {
 		}
 	}
 	
-	protected void searchGivenQuery( Record query, Dataset dataset ) {
+	protected final void searchGivenQuery( Record query, Dataset dataset ) {
+//		if ( query.getID() != 0 ) return;
+		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QSTotal);
 		searchQuerySide(query, dataset);
 		statContainer.stopWatch(Stat.Time_QSTotal);
@@ -73,32 +75,53 @@ public abstract class AbstractSearch {
 		statContainer.stopWatch(Stat.Time_TSTotal);
 	}
 	
-	protected void searchQuerySide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.indexedList ) {
+	protected void prepareSearchGivenQuery( Record query ) {
+		query.preprocessAll();
+	}
+	
+	protected final void searchQuerySide( Record query, Dataset dataset ) {
+		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		for ( Record rec : candListQuerySide ) {
+			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
 		}
 	}
 	
-	protected void searchTextSide( Record query, Dataset dataset ) {
-		for ( RecordInterface rec : dataset.indexedList ) {
-			if ( !rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) )
-				searchRecordTextSide(query, rec);
+	protected final void searchTextSide( Record query, Dataset dataset ) {
+		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
+		for ( Record rec : candListTextSide ) {
+			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+//			if ( rec.getID() != 29 ) continue;
+			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
+			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
+			rec.preprocessAll();
+			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
+			searchRecordTextSide(query, rec);
 		}
 	}
 	
-	protected void putResultIntoStat() {
+	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
+	}
+
+	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
+	}
+	
+	protected final void putResultIntoStat() {
 		statContainer.addCount(Stat.Num_Result, countResult());
 		statContainer.addCount(Stat.Num_QS_Result, rsltQuerySide.size());
 		statContainer.addCount(Stat.Num_TS_Result, rsltTextSide.size());
 	}
 	
-	protected int countResult() {
+	protected final int countResult() {
 		Set<IntPair> rslt = new ObjectOpenHashSet<>(rsltQuerySide);
 		rslt.addAll(rsltTextSide);
 		return rslt.size();
 	}
 
-	protected void outputResult( Dataset dataset ) {
+	protected final void outputResult( Dataset dataset ) {
 		try {
 			PrintStream ps = new PrintStream(String.format(getOutputPath(dataset), theta));
 			getSortedResult(rsltQuerySide).forEach(ip -> ps.println("FROM_QUERY\t"+ip));
@@ -111,21 +134,21 @@ public abstract class AbstractSearch {
 		}
 	}
 
-	protected List<IntPair> getSortedResult( Set<IntPair> rslt ) {
+	protected final List<IntPair> getSortedResult( Set<IntPair> rslt ) {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
+	protected abstract void searchRecordQuerySide( Record query, Record rec );
 	
-	protected abstract void searchRecordTextSide( Record query, RecordInterface rec ); 
+	protected abstract void searchRecordTextSide( Record query, Record rec ); 
 
-	public String getID() { return id; }
+	public final String getID() { return id; }
 	
 	public abstract String getName();
 
 	public abstract String getVersion();
 	
-	public StatContainer getStatContainer() {
+	public final StatContainer getStatContainer() {
 		return statContainer;
 	}
 	
@@ -133,11 +156,11 @@ public abstract class AbstractSearch {
 		return String.join( "_", getName(), getVersion(), String.format("%.2f", theta), dataset.name);
 	}
 
-	public String getOutputPath( Dataset dataset ) {
+	public final String getOutputPath( Dataset dataset ) {
 		return "output/"+getOutputName(dataset)+".txt";
 	}
 	
-	public Param getParam() {
+	public final Param getParam() {
 		return param;
 	}
 }

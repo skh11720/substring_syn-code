@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn.algorithm.index;
+package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class PositionalInvertedIndex {
+public class PositionalInvertedIndex implements PositionalIndexInterface {
 	
 	final Int2ObjectMap<ObjectList<InvListEntry>> invList;
 	final Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList;
@@ -22,7 +22,7 @@ public class PositionalInvertedIndex {
 
 	private Int2ObjectMap<ObjectList<InvListEntry>> buildInvList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<InvListEntry>> invList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<InvListEntry>());
@@ -34,7 +34,8 @@ public class PositionalInvertedIndex {
 	
 	private Int2ObjectMap<ObjectList<TransInvListEntry>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.indexedList ) {
+		for ( Record rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.isSelfRule ) continue;
@@ -61,37 +62,5 @@ public class PositionalInvertedIndex {
 	
 	public ObjectList<TransInvListEntry> getTransInvList( int token ) {
 		return transInvList.get(token);
-	}
-	
-	class InvListEntry {
-		final Record rec;
-		final int pos;
-		
-		public InvListEntry( Record rec, int pos ) {
-			this.rec = rec;
-			this.pos = pos;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("(%d, %d)", rec.getID(), pos);
-		}
-	}
-	
-	class TransInvListEntry {
-		final Record rec;
-		final int left;
-		final int right;
-		
-		public TransInvListEntry( Record rec, int left, int right ) {
-			this.rec = rec;
-			this.left = left;
-			this.right = right;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("(%d, %d, %d)", rec.getID(), left, right);
-		}
 	}
 }

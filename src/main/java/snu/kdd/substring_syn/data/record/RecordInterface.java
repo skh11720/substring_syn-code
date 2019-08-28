@@ -16,14 +16,12 @@ public interface RecordInterface {
 	IntList getTokenList();
 	IntSet getCandTokenSet();
 
-	int getMaxTransLength();
 	int getMaxRhsSize();
 
 	Iterable<Rule> getApplicableRuleIterable();
 	Iterable<Rule> getApplicableRules( int i );
 	Iterable<Rule> getSuffixApplicableRules( int i );
-	Iterable<Rule> getIncompatibleRules( int k );
-
+	
 	String toString();
 	String toOriginalString();
 	String toStringDetails();
