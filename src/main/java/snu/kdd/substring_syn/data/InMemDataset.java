@@ -14,8 +14,8 @@ public class InMemDataset extends Dataset {
 	private final List<Record> searchedList;
 	private final List<Record> indexedList;
 	
-	protected InMemDataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
-		super(name, rulePath, searchedPath, indexedPath, outputPath);
+	protected InMemDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
+		super(datasetName, size, nr, qlen);
 		searchedList = loadRecordList(searchedPath);
 		indexedList = loadRecordList(indexedPath);
 	}

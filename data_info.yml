@@ -5,94 +5,25 @@ SPROT_long:
     rulePath: 'sprot_long/rule.txt'
     nt: ['100', '101', '102', '103', '104', '105']
 
-# WIKI
-WIKI_1:
-    searchedPath: 'wiki/queries/queries_1.txt'
+WIKI:
+    searchedPath: 'wiki/queries/queries_%s.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
+    rulePath: 'wordnet/rules_%s.noun'
     nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_3:
-    searchedPath: 'wiki/queries/queries_3.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_5:
-    searchedPath: 'wiki/queries/queries_5.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_7:
-    searchedPath: 'wiki/queries/queries_7.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_9:
-    searchedPath: 'wiki/queries/queries_9.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_11:
-    searchedPath: 'wiki/queries/queries_11.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_13:
-    searchedPath: 'wiki/queries/queries_13.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+    nq: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
 
 # WIKI_FREQ: most frequent 100 queries are selected
-WIKI_FREQ_1:
-    searchedPath: 'wiki/queries/queries_freq_1.txt'
+WIKI-FREQ:
+    searchedPath: 'wiki/queries/queries_freq_%s.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
+    rulePath: 'wordnet/rules_%s.noun'
     nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_3:
-    searchedPath: 'wiki/queries/queries_freq_3.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_5:
-    searchedPath: 'wiki/queries/queries_freq_5.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_7:
-    searchedPath: 'wiki/queries/queries_freq_7.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_9:
-    searchedPath: 'wiki/queries/queries_freq_9.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_11:
-    searchedPath: 'wiki/queries/queries_freq_11.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
-
-WIKI_FREQ_13:
-    searchedPath: 'wiki/queries/queries_freq_13.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+    nq: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
 
 WIKI_0:
     searchedPath: 'wiki/queries/queries_0.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
+    rulePath: 'wordnet/rules_107836.noun'
     nt: ['0']

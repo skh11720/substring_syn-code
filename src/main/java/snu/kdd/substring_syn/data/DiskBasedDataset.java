@@ -11,8 +11,8 @@ public class DiskBasedDataset extends Dataset {
 	
 	final RecordStore store;
 	
-	protected DiskBasedDataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
-		super(name, rulePath, searchedPath, indexedPath, outputPath);
+	protected DiskBasedDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
+		super(datasetName, size, nr, qlen);
 		store = new RecordStore(getIndexedList());
 	}
 	

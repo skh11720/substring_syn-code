@@ -1,6 +1,5 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,46 +24,53 @@ public abstract class Dataset {
 	public Ruleset ruleSet;
 
 	public static Dataset createInstance( CommandLine cmd ) throws IOException {
-		String name = cmd.getOptionValue( "data" );
-		String size = cmd.getOptionValue( "nt" );
-		return createInstanceByName(name, size);
+		String name = getOptionValue(cmd, "data");
+		String size = getOptionValue(cmd, "nt");
+		String nr = getOptionValue(cmd, "nr");
+		String qlen = getOptionValue(cmd, "ql");
+		return createInstanceByName(name, size, nr, qlen);
 	}
-
-	@Deprecated
-	public static Dataset createInstanceByPath( CommandLine cmd ) throws IOException {
-		final String rulePath = cmd.getOptionValue( "rulePath" );
-		final String searchedPath = cmd.getOptionValue( "searchedPath" );
-		final String indexedPath = cmd.getOptionValue( "indexedPath" );
-		final String outputPath = cmd.getOptionValue( "outputPath" );
-		final String name = setName(searchedPath, indexedPath, rulePath);
-		return new InMemDataset( name, rulePath, searchedPath, indexedPath, outputPath );
+	
+	private static String getOptionValue( CommandLine cmd, String key ) {
+		String value = cmd.getOptionValue(key);
+		if ( value == null ) throw new RuntimeException("Invalid input argument: "+key+" = "+value);
+		return value;
 	}
 
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
-		final String rulePath = DatasetInfo.getRulePath(name);
-		final String searchedPath = DatasetInfo.getSearchedPath(name, size);
-		final String indexedPath = DatasetInfo.getIndexedPath(name, size);
-		final String outputPath = "output";
-		Dataset dataset = new DiskBasedDataset( name+"_"+size, rulePath, searchedPath, indexedPath, outputPath );
+		return createInstanceByName(name, size, null, null);
+	}
+
+	public static Dataset createInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
+		Dataset dataset = new DiskBasedDataset(datasetName, size, nr, qlen);
 		dataset.createRuleSet();
-		dataset.initStat();
+		dataset.addStat();
 		return dataset;
 	}
 
-	protected static String setName( String searchedPath, String indexedPath, String rulePath ) {
-		String searchedFileName = searchedPath.substring( searchedPath.lastIndexOf(File.separator) + 1 );
-		String indexedFileName = indexedPath.substring( indexedPath.lastIndexOf(File.separator) + 1 );
-		String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
-		return searchedFileName + "_" + indexedFileName + "_" + ruleFileName;
+	protected static String setName( String name, String size, String nr, String qlen ) {
+		StringBuilder strbld = new StringBuilder(name);
+		if ( size != null ) strbld.append("_n"+size);
+		if ( nr != null ) strbld.append("_r"+nr);
+		if ( qlen != null ) strbld.append("_q"+qlen);
+		return strbld.toString();
 	}
-
-	protected Dataset( String name, String rulePath, String searchedPath, String indexedPath, String outputPath ) throws IOException {
-		this.name = name;
-		this.searchedPath = searchedPath;
-		this.indexedPath = indexedPath;
-		this.rulePath = rulePath;
-		this.outputPath = outputPath;
+	
+	protected Dataset( String datasetName, String size, String nr, String qlen ) {
+		name = setName(datasetName, size, nr, qlen);
+		searchedPath = DatasetInfo.getSearchedPath(datasetName, qlen);
+		indexedPath = DatasetInfo.getIndexedPath(datasetName, size);
+		rulePath = DatasetInfo.getRulePath(datasetName, nr);
+		outputPath = "output";
 		statContainer = new StatContainer();
+		statContainer.setStat(Stat.Dataset_Name, name);
+		statContainer.setStat(Stat.Dataset_nt, size);
+		statContainer.setStat(Stat.Dataset_nr, nr);
+		statContainer.setStat(Stat.Dataset_qlen, qlen);
+		initTokenIndex();
+	}
+	
+	private void initTokenIndex() {
 		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();
@@ -76,10 +82,9 @@ public abstract class Dataset {
 		Rule.automata = new ACAutomataR(ruleSet.get());
 	}
 	
-	protected void initStat() {
+	protected void addStat() {
 		Iterable<Record> searchedList = getSearchedList();
 		Iterable<Record> indexedList = getIndexedList();
-		statContainer.setStat(Stat.Dataset_Name, name);
 		statContainer.setStat(Stat.Dataset_numSearched, Integer.toString(getSize(searchedList)));
 		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(getSize(indexedList)));
 		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleSet.size()));
