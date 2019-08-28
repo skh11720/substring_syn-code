@@ -346,7 +346,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.02: use DiskBasedPositionalInvertedIndex in PositionFilter
 		 * 6.03: do not use OjbectSet to improve speed
 		 * 6.04: eliminate duplicated record preprocessing
+		 * 6.05: modify dataset instantiation
 		 */
-		return "6.04";
+		return "6.05";
 	}
 }
