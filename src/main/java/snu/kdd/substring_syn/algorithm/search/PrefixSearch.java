@@ -302,6 +302,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		protected boolean isInSigU( int i, int v ) {
 			return b[i+1][v];
 		}
+		
+		public String toStringEntries(int flag) {
+			StringBuilder strbld = new StringBuilder();
+			for ( int i=0; i< g[flag].length; ++i ) strbld.append("\n"+Arrays.toString(g[flag][i]));
+			return strbld.toString();
+		}
 	}
 
 	@Override
@@ -347,7 +353,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.03: do not use OjbectSet to improve speed
 		 * 6.04: eliminate duplicated record preprocessing
 		 * 6.05: modify dataset instantiation
+		 * 6.06: fix a bug in transLen calculator
 		 */
-		return "6.05";
+		return "6.06";
 	}
 }
