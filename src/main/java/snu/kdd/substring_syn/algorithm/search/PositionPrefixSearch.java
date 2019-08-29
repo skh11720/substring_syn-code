@@ -88,7 +88,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 	@Override
 	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+		statContainer.startWatch("Time_TS_searchRecordPF.getCandTokenList");
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
+		statContainer.stopWatch("Time_TS_searchRecordPF.getCandTokenList");
 		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
 		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
@@ -96,13 +98,15 @@ public class PositionPrefixSearch extends PrefixSearch {
 		
 		for ( int target : candTokenList ) {
 			for ( int widx : prefixIdxList ) {
+				statContainer.startWatch("Time_TS_searchRecordPF.initPkduck");
 				pkduckdp.init();
+				statContainer.stopWatch("Time_TS_searchRecordPF.initPkduck");
 				int j = 0;
 				while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
-					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
+//					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
 					if ( bLF ) {
-						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
+//						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
 						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
