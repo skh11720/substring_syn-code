@@ -268,7 +268,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return mergedRangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int modifiedMinCount ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
@@ -278,15 +278,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
 						prefixIdxSubList.add(pos-range.min);
-						++count;
 					}
 					IntList suffixIdxSubList = new IntArrayList();
 					for ( int pos : suffixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
-						suffixIdxSubList.add(pos-range.min);
+						if ( suffixIdxSubList.size() == 0 || pos-range.min != suffixIdxSubList.get(suffixIdxSubList.size()-1) ) suffixIdxSubList.add(pos-range.min);
+						++count;
 					}
-					if ( count >= minCount ) {
+					if ( count >= modifiedMinCount ) {
 						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
 						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec), prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
@@ -299,7 +299,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		private class PosListPair {
 			int nToken = 0;
 			IntSet prefixList = new IntOpenHashSet();
-			IntSet suffixList = new IntOpenHashSet();
+			IntList suffixList = new IntArrayList();
 		}
 
 		@SuppressWarnings("unused")
