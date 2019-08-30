@@ -190,7 +190,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, modifiedMinCount);
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, minCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
@@ -268,7 +268,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return mergedRangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int modifiedMinCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int minCount ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
@@ -286,7 +286,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						if ( suffixIdxSubList.size() == 0 || pos-range.min != suffixIdxSubList.get(suffixIdxSubList.size()-1) ) suffixIdxSubList.add(pos-range.min);
 						++count;
 					}
-					if ( count >= modifiedMinCount ) {
+					if ( count >= minCount ) {
 						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
 						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec), prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
