@@ -354,7 +354,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.04: eliminate duplicated record preprocessing
 		 * 6.05: modify dataset instantiation
 		 * 6.06: fix a bug in transLen calculator
+		 * 6.07: fix a bug in position filter
 		 */
-		return "6.06";
+		return "6.07";
 	}
 }
