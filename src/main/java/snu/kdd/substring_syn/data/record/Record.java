@@ -25,6 +25,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
+	Rule[][] suffixNonselfApplicableRules = null;
 	int[][] transformLengths = null;
 //	long[] estTrans;
 
@@ -213,7 +214,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public IntOpenHashSet getCandTokenSet() {
 		IntOpenHashSet tokenSet = new IntOpenHashSet();
 		for ( Rule r : getApplicableRuleIterable() ) {
-			tokenSet.addAll(IntArrayList.wrap(r.getRhs()));
+			for ( int token : r.getRhs() ) tokenSet.add(token);
 		}
 		return tokenSet;
 	}

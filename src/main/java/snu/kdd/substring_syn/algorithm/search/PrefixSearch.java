@@ -134,8 +134,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected IntList getCandTokenList( Record query, Record rec, double theta ) {
-		IntSet tokenSet = rec.getCandTokenSet();
-		tokenSet.retainAll(Util.getPrefix(query, theta));
+		IntSet recTokenSet = rec.getCandTokenSet();
+		IntSet tokenSet = new IntOpenHashSet();
+		for ( int token : Util.getPrefix(query, theta) ) {
+			if ( recTokenSet.contains(token) ) tokenSet.add(token);
+		}
 		return new IntArrayList( tokenSet.stream().sorted().iterator() );
 	}
 	
