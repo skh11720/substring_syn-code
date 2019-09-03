@@ -163,15 +163,6 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
-				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record rec = dataset.getRecord(ridx);
-				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
-				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
-				rec.preprocessApplicableRules();
-				rec.preprocessSuffixApplicableRules();
-				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
-				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
-				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
@@ -179,11 +170,21 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
-				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
-				statContainer.startWatch("Time_TS_IndexFilter.transLen");
 				int minPrefixIdx = prefixIdxList.getInt(0);
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
-				TransLenCalculator transLen = new TransLenCalculator(null, rec, minPrefixIdx, maxSuffixIdx, modifiedTheta);
+				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
+				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
+				Record rec = dataset.getRecord(ridx).getSubrecord(minPrefixIdx, maxSuffixIdx+1);
+				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
+				addToIntList(prefixIdxList, -minPrefixIdx);
+				addToIntList(suffixIdxList, -minPrefixIdx);
+				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
+				rec.preprocessApplicableRules();
+				rec.preprocessSuffixApplicableRules();
+				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
+				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, transLen, modifiedTheta);
@@ -226,6 +227,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			}
 			
 			return rec2idxListMap;
+		}
+		
+		private void addToIntList( IntList list, int c ) {
+			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, double theta ) {

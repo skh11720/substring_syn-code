@@ -10,6 +10,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
@@ -28,6 +30,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	Rule[][] suffixNonselfApplicableRules = null;
 	int[][] transformLengths = null;
 //	long[] estTrans;
+	IntPair[][] suffixRuleLenPairs = null;
 
 	int maxRhsSize = 0;
 	int transSetLB = 0;
@@ -183,6 +186,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 			return Arrays.asList(Rule.EMPTY_RULE);
 		}
 	}
+	
+	public IntPair[] getSuffixRuleLens( int k ) {
+		if ( suffixRuleLenPairs == null ) {
+			return null;
+		}
+		else if ( k < suffixRuleLenPairs.length ) {
+			return suffixRuleLenPairs[k];
+		}
+		else return null;
+	}
 
 	public int getMaxTransLength() {
 		return transformLengths[ tokens.length - 1 ][ 1 ];
@@ -222,6 +235,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public Record getSubrecord( int sidx, int eidx ) {
 		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
 		newrec.id = getID();
+		newrec.applicableRules = null;
+		newrec.suffixApplicableRules = null;
+		newrec.transformLengths = null;
+		newrec.suffixRuleLenPairs = null;
 		return newrec;
 	}
 
@@ -239,21 +256,26 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public void preprocessSuffixApplicableRules() {
 		if ( suffixApplicableRules != null ) return;
 		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();
+		ObjectList<ObjectSet<IntPair>> pairList = new ObjectArrayList<>();
 
 		for( int i = 0; i < tokens.length; ++i ) {
 			tmplist.add( new ObjectArrayList<Rule>() );
+			pairList.add( new ObjectOpenHashSet<>() );
 		}
 
 		for( int i = tokens.length - 1; i >= 0; --i ) {
 			for( Rule rule : applicableRules[ i ] ) {
 				int suffixidx = i + rule.getLhs().length - 1;
 				tmplist.get( suffixidx ).add( rule );
+				pairList.get( suffixidx ).add( new IntPair(rule.lhsSize(), rule.rhsSize()) );
 			}
 		}
 
 		suffixApplicableRules = new Rule[ tokens.length ][];
+		suffixRuleLenPairs = new IntPair[ tokens.length ][];
 		for( int i = 0; i < tokens.length; ++i ) {
 			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
+			suffixRuleLenPairs[i] = pairList.get(i).toArray( new IntPair[0] );
 		}
 	}
 
