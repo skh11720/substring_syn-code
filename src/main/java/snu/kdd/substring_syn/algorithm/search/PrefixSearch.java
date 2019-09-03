@@ -7,6 +7,10 @@ import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -124,9 +128,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
 		if (bLF) {
-			statContainer.startWatch("Time_TransSetBoundCalculator");
+			statContainer.startWatch("Time_TS_searchRecord.transLen");
 			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
-			statContainer.stopWatch("Time_TransSetBoundCalculator");
+			statContainer.stopWatch("Time_TS_searchRecord.transLen");
 		}
 		
 		if (bPF) searchRecordTextSideWithPrefixFilter(query, rec);
@@ -149,6 +153,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		
 		for ( int target : candTokenList ) {
+			pkduckdp.setTarget(target);
 			for ( int widx=0; widx<rec.size(); ++widx ) {
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
@@ -158,9 +163,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
-					statContainer.startWatch("Time_TS_Pkduck");
-					pkduckdp.compute(target, widx+1, w);
-					statContainer.stopWatch("Time_TS_Pkduck");
+					statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
+					pkduckdp.compute(widx+1, w);
+					statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
 //					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
 					
 					if ( pkduckdp.isInSigU(widx, w) ) {
@@ -240,6 +245,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		protected final double theta;
 		protected final int[][][] g;
 		protected final boolean[][] b;
+		protected int target;
 		
 		
 		public PkduckDPExIncremental( Record query, Record rec, double theta ) {
@@ -252,7 +258,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			for (boolean[] bArr : b) Arrays.fill(bArr, false);
 		}
 		
-		public void compute( int target, int i, int v ) {
+		public void compute( int i, int v ) {
 			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
 				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 					if ( l - rule.rhsSize() < 0 ) continue;
@@ -297,6 +303,10 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			g[0][0][0] = 0;
 			for ( int v=0; v<=rec.size(); ++v ) Arrays.fill(b[v], false);
 		}
+		
+		protected void setTarget(int target ) {
+			this.target = target;
+		}
 
 		protected int getPrefixLen( int len ) {
 			return len - (int)(Math.ceil(theta*len)) + 1;
@@ -310,6 +320,82 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			StringBuilder strbld = new StringBuilder();
 			for ( int i=0; i< g[flag].length; ++i ) strbld.append("\n"+Arrays.toString(g[flag][i]));
 			return strbld.toString();
+		}
+	}
+
+	class PkduckDPExIncrementalOpt extends PkduckDPExIncremental {
+		
+		ObjectList<Object2IntMap<IntPair>> numSmallestThanTarget0 = null;
+		ObjectList<Object2IntMap<IntPair>> numSmallestThanTarget1 = null;
+
+		public PkduckDPExIncrementalOpt(Record query, Record rec, double theta) {
+			super(query, rec, theta);
+		}
+		
+		@Override
+		protected void setTarget(int target) {
+			super.setTarget(target);
+			numSmallestThanTarget0 = new ObjectArrayList<>();
+			numSmallestThanTarget1 = new ObjectArrayList<>();
+			for ( int k=0; k<rec.size(); ++k ) {
+				Object2IntMap<IntPair> map0 = new Object2IntOpenHashMap<>();
+				Object2IntMap<IntPair> map1 = new Object2IntOpenHashMap<>();
+				for ( Rule rule : rec.getSuffixApplicableRules(k) ) {
+					IntPair key = new IntPair(rule.lhsSize(), rule.rhsSize());
+					boolean containsTarget = false;
+					int numSmaller = 0;
+					for ( int tokenInRhs : rule.getRhs() ) {
+						containsTarget |= (tokenInRhs == target);
+						numSmaller += (tokenInRhs < target)?1:0;
+					}
+					if ( containsTarget ) {
+						if ( !map1.containsKey(key) || numSmaller < map1.get(key) ) map1.put(key, numSmaller);
+					}
+					else {
+						if ( !map0.containsKey(key) || numSmaller < map0.get(key) ) map0.put(key, numSmaller);
+					}
+				}
+				numSmallestThanTarget0.add(map0);
+				numSmallestThanTarget1.add(map1);
+			}
+		}
+		
+		@Override
+		public void compute(int i, int v) {
+			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
+				for ( Object2IntMap.Entry<IntPair> e : numSmallestThanTarget0.get(i+v-2).object2IntEntrySet() ) {
+					int lhsSize = e.getKey().i1;
+					int rhsSize = e.getKey().i2;
+					int num_smaller = e.getIntValue();
+					if ( v-lhsSize >= 0 && l-rhsSize >= 0 ) {
+						g[0][v][l] = Math.min( g[0][v][l], g[0][v-lhsSize][l-rhsSize]+num_smaller );
+					}
+				}
+
+				for ( Object2IntMap.Entry<IntPair> e : numSmallestThanTarget0.get(i+v-2).object2IntEntrySet() ) {
+					int lhsSize = e.getKey().i1;
+					int rhsSize = e.getKey().i2;
+					int num_smaller = e.getIntValue();
+					if ( v-lhsSize >= 0 && l-rhsSize >= 0 ) {
+						g[1][v][l] = Math.min( g[1][v][l], g[1][v-lhsSize][l-rhsSize]+num_smaller );
+					}
+				}
+
+				for ( Object2IntMap.Entry<IntPair> e : numSmallestThanTarget1.get(i+v-2).object2IntEntrySet() ) {
+					int lhsSize = e.getKey().i1;
+					int rhsSize = e.getKey().i2;
+					int num_smaller = e.getIntValue();
+					if ( v-lhsSize >= 0 && l-rhsSize >= 0 ) {
+						g[1][v][l] = Math.min( g[1][v][l], g[1][v-lhsSize][l-rhsSize]+num_smaller );
+						g[1][v][l] = Math.min( g[1][v][l], g[0][v-lhsSize][l-rhsSize]+num_smaller );
+					}
+				}
+				
+				if ( g[1][v][l] <= getPrefixLen(l)-1 ) {
+					b[i][v] = true;
+					return;
+				}
+			}
 		}
 	}
 
