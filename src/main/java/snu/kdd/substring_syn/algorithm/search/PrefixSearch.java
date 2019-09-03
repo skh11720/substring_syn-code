@@ -444,7 +444,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.05: modify dataset instantiation
 		 * 6.06: fix a bug in transLen calculator
 		 * 6.07: fix a bug in position filter
+		 * 6.08: optimization
 		 */
-		return "6.07";
+		return "6.08";
 	}
 }
