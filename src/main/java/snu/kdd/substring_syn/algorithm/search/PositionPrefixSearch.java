@@ -24,7 +24,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntList posList = getCommonTokenPosList(rec);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
-		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
+		Log.log.debug("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int i=0; i<posList.size(); ++i ) {
 			int sidx = posList.get(i);
 			for ( int j=i; j<posList.size(); ++j ) {
@@ -94,7 +94,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
 		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
-		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", query.getID(), rec.getID(), candTokenList);
+		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		
 		for ( int target : candTokenList ) {
 			for ( int widx : prefixIdxList ) {

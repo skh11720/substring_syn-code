@@ -51,7 +51,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void searchRecordQuerySide( Record query, Record rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
-		Log.log.debug("wRange=(%d,%d)", wRange.min, wRange.max);
+		Log.log.debug("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
@@ -146,22 +146,22 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncremental(query, rec, modifiedTheta);
-		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", query.getID(), rec.getID(), candTokenList);
+		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		
 		for ( int target : candTokenList ) {
 			for ( int widx=0; widx<rec.size(); ++widx ) {
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
-					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
+//					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
 					if ( bLF ) {
-						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
+//						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
 						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 						statContainer.addCount(Stat.Len_TS_LF, w);
 					}
 					statContainer.startWatch("Time_TS_Pkduck");
 					pkduckdp.compute(target, widx+1, w);
 					statContainer.stopWatch("Time_TS_Pkduck");
-					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
+//					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
 					
 					if ( pkduckdp.isInSigU(widx, w) ) {
 						statContainer.addCount(Stat.Len_TS_PF, w);

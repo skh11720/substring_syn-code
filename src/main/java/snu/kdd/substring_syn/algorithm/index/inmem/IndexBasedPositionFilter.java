@@ -205,7 +205,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", token, invList==null?0:invList.size());
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
@@ -215,7 +215,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", token, transInvList==null?0:transInvList.size());
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
