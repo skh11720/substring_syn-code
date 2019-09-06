@@ -11,6 +11,7 @@ public class AlgorithmFactory {
 		ExactNaiveSearch,
 		GreedyNaiveSearch,
 		PrefixSearch,
+		ExactPrefixSearch,
 	}
 	
 	private enum FilterOption {
@@ -21,6 +22,7 @@ public class AlgorithmFactory {
 		LF, // IPF+LF
 		PF, // IPF+LF+PF
 		NoIndex, // LF+PF
+		NaivePF, // IF+LF+PF
 	}
 	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
@@ -30,7 +32,8 @@ public class AlgorithmFactory {
 		switch ( algName ) {
 		case ExactNaiveSearch: return createExactNaiveSearch(param);
 		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
-		case PrefixSearch: return createPrefixSearch(param);
+		case PrefixSearch: return createPrefixSearch(param, false);
+		case ExactPrefixSearch: return createPrefixSearch(param, true);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -45,7 +48,7 @@ public class AlgorithmFactory {
 		return new GreedyNaiveSearch(theta);
 	}
 	
-	private static PrefixSearch createPrefixSearch( DictParam param ) {
+	private static PrefixSearch createPrefixSearch( DictParam param, boolean isExact ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		boolean bLF = false, bPF = false;
 		IndexChoice indexChoice;
@@ -60,6 +63,7 @@ public class AlgorithmFactory {
 			case ICF: indexChoice = IndexChoice.Count; break;
 			case IF: indexChoice = IndexChoice.Naive; break;
 			case NoFilter: break;
+			case NaivePF: indexChoice = indexChoice.Naive;
 			case NoIndex: bLF = bPF = true; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
@@ -69,8 +73,14 @@ public class AlgorithmFactory {
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		if ( indexChoice == IndexChoice.Position ) return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
-		else return new PrefixSearch(theta, bLF, bPF, indexChoice);
+		if ( indexChoice == IndexChoice.Position ) {
+			if ( isExact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
+			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
+		}
+		else {
+			if ( isExact ) return new ExactPrefixSearch(theta, bLF, bPF, indexChoice);
+			else return new PrefixSearch(theta, bLF, bPF, indexChoice);
+		}
 	}
 	
 	

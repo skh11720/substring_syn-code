@@ -163,15 +163,6 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
-				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record rec = dataset.getRecord(ridx);
-				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
-				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
-				rec.preprocessApplicableRules();
-				rec.preprocessSuffixApplicableRules();
-				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
-				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
-				int modifiedMinCount = (int)Math.ceil(modifiedTheta*query.size());
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
@@ -179,18 +170,28 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
 				prefixIdxList.sort(Integer::compareTo);
 				suffixIdxList.sort(Integer::compareTo);
-				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
-				statContainer.startWatch("Time_TS_IndexFilter.transLen");
 				int minPrefixIdx = prefixIdxList.getInt(0);
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
-				TransLenCalculator transLen = new TransLenCalculator(null, rec, minPrefixIdx, maxSuffixIdx, modifiedTheta);
+				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
+				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
+				Record rec = dataset.getRecord(ridx).getSubrecord(minPrefixIdx, maxSuffixIdx+1);
+				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
+				addToIntList(prefixIdxList, -minPrefixIdx);
+				addToIntList(suffixIdxList, -minPrefixIdx);
+				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
+				rec.preprocessApplicableRules();
+				rec.preprocessSuffixApplicableRules();
+				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
+				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, transLen, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, modifiedMinCount);
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, minCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
@@ -204,7 +205,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", token, invList==null?0:invList.size());
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
@@ -214,7 +215,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", token, transInvList==null?0:transInvList.size());
+				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
@@ -226,6 +227,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			}
 			
 			return rec2idxListMap;
+		}
+		
+		private void addToIntList( IntList list, int c ) {
+			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
 		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, double theta ) {
@@ -278,13 +283,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
 						prefixIdxSubList.add(pos-range.min);
-						++count;
 					}
 					IntList suffixIdxSubList = new IntArrayList();
 					for ( int pos : suffixIdxList ) {
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
-						suffixIdxSubList.add(pos-range.min);
+						if ( suffixIdxSubList.size() == 0 || pos-range.min != suffixIdxSubList.get(suffixIdxSubList.size()-1) ) suffixIdxSubList.add(pos-range.min);
+						++count;
 					}
 					if ( count >= minCount ) {
 						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
@@ -299,7 +304,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		private class PosListPair {
 			int nToken = 0;
 			IntSet prefixList = new IntOpenHashSet();
-			IntSet suffixList = new IntOpenHashSet();
+			IntList suffixList = new IntArrayList();
 		}
 
 		@SuppressWarnings("unused")
