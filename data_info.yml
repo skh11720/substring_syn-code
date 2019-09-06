@@ -27,3 +27,11 @@ WIKI_0:
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules_107836.noun'
     nt: ['0']
+
+PUBMED:
+    searchedPath: 'PubMed/queries/queries_%s.txt'
+    indexedPath: 'PubMed/splitted/sentences_%s.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '40004703']
+    nq: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
