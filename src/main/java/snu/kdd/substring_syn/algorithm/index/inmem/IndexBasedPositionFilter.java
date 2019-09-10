@@ -50,10 +50,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	private class QuerySideFilter {
 		
 		public ObjectList<Record> run( Record query ) {
-			Log.log.debug("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
+//			Log.log.trace("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
-			Log.log.trace("minCount=%d", ()->minCount);
+//			Log.log.trace("minCount=%d", ()->minCount);
 			Int2ObjectMap<IntList> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Int2ObjectMap.Entry<IntList> entry : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( entry.getValue().size() < minCount ) continue;
@@ -61,8 +61,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				Record rec = dataset.getRecord(ridx);
 				IntList idxList = entry.getValue();
 				idxList.sort(Integer::compare);
-				Log.log.trace("idxList=%s", ()->idxList);
-				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
+//				Log.log.trace("idxList=%s", ()->idxList);
+//				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 				ObjectList<Record> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
 				candRecordSet.addAll(segmentList);
 			}
@@ -87,7 +87,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		
 		private ObjectList<Record> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
 			ObjectList<IntRange> segmentRangeList = findSegments(query, rec, idxList, theta);
-			Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
+//			Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 			ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
 			return segmentList;
 		}
@@ -106,11 +106,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
 						else rangeList.add(new IntRange(sidx, eidx1));
-						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
+//						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
 					}
 				}
 			}
-			Log.log.trace("rangeList=%s", ()->rangeList);
+//			Log.log.trace("rangeList=%s", ()->rangeList);
 			if ( rangeList.size() == 0 ) return null;
 			
 			// merge
@@ -155,10 +155,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	private class TextSideFilter {
 		
 		public ObjectList<Record> run( Record query ) {
-			Log.log.debug("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
+//			Log.log.trace("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 			int minCount = (int)Math.ceil(theta*query.size());
-			Log.log.trace("minCount=%d", ()->minCount);
+//			Log.log.trace("minCount=%d", ()->minCount);
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
@@ -189,7 +189,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
 				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, transLen, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
-				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
+//				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
 				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, minCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
@@ -205,7 +205,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			for ( int token : candTokenSet ) {
 				ObjectList<InvListEntry> invList = index.getInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
+//				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
@@ -215,7 +215,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
-				Log.log.debug("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
+//				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
@@ -252,7 +252,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 				}
 			}
-			Log.log.trace("rangeList=%s", ()->rangeList);
+//			Log.log.trace("rangeList=%s", ()->rangeList);
 			if ( rangeList.size() == 0 ) return null;
 			
 			// merge
