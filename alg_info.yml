@@ -8,4 +8,4 @@ GreedyNaiveSearch:
  
 PrefixSearch:
   theta: *theta_list
-  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'NoIndex']
+  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'NoIndex', 'NaivePF']

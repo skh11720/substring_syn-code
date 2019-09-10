@@ -16,7 +16,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 //		double simMax = 0;
 //		for ( Record queryExp : query.expandAll() ) {
 //			double sim = Util.jaccard(queryExp.getTokenArray(), text.getTokenArray());
-//			if ( sim > simMax ) log.debug("GreedyValidator.simQuerySide: sim=%.3f, queryExp=%s", sim, queryExp);
+//			if ( sim > simMax ) log.trace("GreedyValidator.simQuerySide: sim=%.3f, queryExp=%s", sim, queryExp);
 //			simMax = Math.max(simMax, sim);
 //		}
 //		return simMax;
@@ -30,7 +30,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		State state = new State(query, window);
 		state.findBestTransform();
 		int[] transformedQuery = state.getTransformedString(query);
-		Log.log.debug("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedQuery)).toOriginalString());
+//		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedQuery)).toOriginalString());
 		double sim = Util.jaccardM( transformedQuery, window.getTokenArray());
 		statContainer.increment(Stat.Num_QS_Verified);
 		statContainer.addCount(Stat.Len_QS_Verified, window.size());
@@ -47,9 +47,10 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		statContainer.startWatch("Time_TS_GreedyValidator.getTransformedString");
 		int[] transformedText = state.getTransformedString(window);
 		statContainer.stopWatch("Time_TS_GreedyValidator.getTransformedString");
-		Log.log.debug("query=%s, window=%s, findBestTransform=%s", ()->query, ()->window, ()->Arrays.toString(transformedText));
+//		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedText)).toOriginalString());
 		statContainer.startWatch("Time_TS_GreedyValidator.subJaccardM");
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
+//		Log.log.trace("sim=%.3f", sim);
 		statContainer.stopWatch("Time_TS_GreedyValidator.subJaccardM");
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());

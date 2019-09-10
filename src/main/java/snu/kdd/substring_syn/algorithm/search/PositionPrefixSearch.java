@@ -21,10 +21,10 @@ public class PositionPrefixSearch extends PrefixSearch {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+//		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntList posList = getCommonTokenPosList(rec);
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
-		Log.log.debug("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
+//		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int i=0; i<posList.size(); ++i ) {
 			int sidx = posList.get(i);
 			for ( int j=i; j<posList.size(); ++j ) {
@@ -48,8 +48,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 				statContainer.stopWatch(Stat.Time_Validation);
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-					Log.log.debug("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
+//					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+//					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
@@ -72,7 +72,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+//		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
 		if (bLF) {
@@ -94,7 +94,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
 		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
-		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
+//		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		
 		for ( int target : candTokenList ) {
 			statContainer.startWatch("Time_TS_searchRecordPF.setTarget");
@@ -127,8 +127,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 						boolean isSim = verifyTextSideWrapper(query, window);
 						if ( isSim ) {
 							rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-							Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-							Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
+//							Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+//							Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 							return;
 						}
 					}
@@ -141,6 +141,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
 		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
 		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
+//		Log.log.trace("rec =\n%s", rec.toStringDetails());
+//		Log.log.trace("prefixIdxList=%s", prefixIdxList);
+//		Log.log.trace("suffixIdxList=%s", suffixIdxList);
 		for ( int widx : prefixIdxList ) {
 			int j = 0;
 			while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
@@ -148,7 +151,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 				if ( j >= suffixIdxList.size() ) break;
 				if ( suffixIdxList.get(j)+1 != widx+w ) continue;
 				++j;
+//				Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
 				if ( bLF ) {
+//					Log.log.trace("searchRecordTextSideWithoutPrefixFilter.transLenCalculator\tLFLB=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
 					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
 					statContainer.addCount(Stat.Len_TS_LF, w);
 				}
@@ -156,8 +161,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 				boolean isSim = verifyTextSideWrapper(query, window);
 				if ( isSim ) {
 					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-					Log.log.debug("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-					Log.log.debug("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
+//					Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+//					Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 					return;
 				}
 			}
