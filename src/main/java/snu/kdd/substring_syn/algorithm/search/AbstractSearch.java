@@ -81,15 +81,23 @@ public abstract class AbstractSearch {
 	
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		int nCand = 0;
+		int sumLen = 0;
 		for ( Record rec : candListQuerySide ) {
 			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
+			++nCand;
+			sumLen += rec.size();
 		}
+		Log.log.debug("SearchQuerySide.nCand=%d", nCand);
+		Log.log.debug("SearchQuerySide.sumLen=%d", sumLen);
 	}
 	
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
+		int nCand = 0;
+		int sumLen = 0;
 		for ( Record rec : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 //			if ( rec.getID() != 29 ) continue;
@@ -98,7 +106,11 @@ public abstract class AbstractSearch {
 			rec.preprocessAll();
 			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
 			searchRecordTextSide(query, rec);
+			++nCand;
+			sumLen += rec.size();
 		}
+		Log.log.debug("SearchTextSide.nCand=%d", nCand);
+		Log.log.debug("SearchTextSide.sumLen=%d", sumLen);
 	}
 	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
