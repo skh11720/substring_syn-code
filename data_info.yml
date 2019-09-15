@@ -13,8 +13,8 @@ WIKI:
     ql: ['1', '3', '5', '7', '9']
     nr: ['1000', '3162', '10000', '31622', '107836']
 
-# WIKI_FREQ: most frequent 100 queries are selected
-WIKI-FREQ:
+# WIKI_F: most frequent 100 queries are selected
+WIKI-F:
     searchedPath: 'wiki/queries/queries_freq_%s.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
     rulePath: 'wordnet/rules_%s.noun'
@@ -22,11 +22,13 @@ WIKI-FREQ:
     ql: ['1', '3', '5', '7', '9']
     nr: ['1000', '3162', '10000', '31622', '107836']
 
-WIKI_0:
-    searchedPath: 'wiki/queries/queries_0.txt'
+WIKI-P:
+    searchedPath: 'wiki/queries/queries_prac_%s.txt'
     indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules_107836.noun'
-    nt: ['0']
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '55940485']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
 
 PUBMED:
     searchedPath: 'PubMed/queries/queries_%s.txt'
@@ -35,6 +37,36 @@ PUBMED:
     nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '40004703']
     ql: ['1', '3', '5', '7', '9']
     nr: ['1000', '3162', '10000', '31622', '79011']
+
+PUBMED-P:
+    searchedPath: 'PubMed/queries/queries_prac_%s.txt'
+    indexedPath: 'PubMed/splitted/sentences_%s.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '40004703']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+
+AMAZON:
+   searchedPath: 'Amazon/queries/queries_%s.txt'
+   indexedPath: 'Amazon/splitted/sentences_%s.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '56067732']
+   ql: ['1', '3', '5', '7', '9']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+
+AMAZON-P:
+   searchedPath: 'Amazon/queries/queries_prac_%s.txt'
+   indexedPath: 'Amazon/splitted/sentences_%s.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '56067732']
+   ql: ['1', '3', '5', '7', '9']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+
+WIKI_0:
+    searchedPath: 'wiki/queries/queries_0.txt'
+    indexedPath: 'wiki/splitted/sentences_%s.txt'
+    rulePath: 'wordnet/rules_107836.noun'
+    nt: ['0']
     
 USPS:
     searchedPath: 'USPS/queries/queries_%s.txt'
