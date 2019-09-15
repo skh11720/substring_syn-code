@@ -63,7 +63,7 @@ public class AlgorithmFactory {
 			case ICF: indexChoice = IndexChoice.Count; break;
 			case IF: indexChoice = IndexChoice.Naive; break;
 			case NoFilter: break;
-			case NaivePF: indexChoice = indexChoice.Naive;
+			case NaivePF: indexChoice = IndexChoice.Naive;
 			case NoIndex: bLF = bPF = true; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
