@@ -31,17 +31,11 @@ public class DataStatCalculator {
 		String[] targetList = {
 				"USPS,10000,142",
 				"WIKI,1000000,107836",
-				"WIKI-P,1000000,107836",
 				"WIKI,55940485,107836",
-				"WIKI-P,55940485,107836",
 				"PUBMED,1000000,79011",
-				"PUBMED-P,1000000,79011",
 				"PUBMED,40004703,79011",
-				"PUBMED-P,40004703,79011",
 				"AMAZON,1000000,107836",
-				"AMAZON-P,1000000,107836",
 				"AMAZON,56067732,107836",
-				"AMAZON-P,56067732,107836",
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
