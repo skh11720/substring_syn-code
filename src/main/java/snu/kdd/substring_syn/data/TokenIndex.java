@@ -18,12 +18,12 @@ public class TokenIndex {
 		int2TokenList = new ObjectArrayList<String>();
 	}
 	
-//	public int getIDOrAdd( String token ) {
-//		if ( !token2IntMap.containsKey(token) ) {
-//			add(token);
-//		}
-//		return getID(token);
-//	}
+	public int getIDOrAdd( String token ) {
+		if ( !token2IntMap.containsKey(token) ) {
+			add(token);
+		}
+		return getID(token);
+	}
 	
 	public void add( String token ) {
 		if ( !token2IntMap.containsKey(token) ) {

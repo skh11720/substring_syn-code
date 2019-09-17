@@ -40,7 +40,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
+			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
 		}
 		
 		hash = getHash();
