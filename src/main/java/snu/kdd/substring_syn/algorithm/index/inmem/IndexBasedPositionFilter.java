@@ -101,7 +101,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				for ( int j=i; j<m; ++j ) {
 					int eidx1 = idxList.get(j);
 					++num;
-					double score = (double)num/(query.getMinTransLength() + eidx1-sidx+1 - num);
+					double score = (double)num/(query.getMinTransLength() + eidx1-sidx+1 - num) + 1e5; // add eps to resolve precision problem
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
@@ -245,8 +245,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						continue;
 					}
 					++num;
-					double score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num);
 					Log.log.trace("findSegmentRanges: rec.id=%d, sidx=%d, eidx=%d, score=%.3f, theta=%.3f", ()->rec.getID(), ()->sidx, ()->eidx, ()->score, ()->theta);
+					double score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + 1e5; // add eps to resolve precision problem
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
 						else rangeList.add(new IntRange(sidx, eidx));
