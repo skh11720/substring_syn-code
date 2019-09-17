@@ -246,6 +246,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					}
 					++num;
 					double score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num);
+					Log.log.trace("findSegmentRanges: sidx=%d, eidx=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
 						else rangeList.add(new IntRange(sidx, eidx));
