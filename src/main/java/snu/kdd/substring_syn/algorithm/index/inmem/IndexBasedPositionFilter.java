@@ -23,6 +23,7 @@ import snu.kdd.substring_syn.utils.Util;
 public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implements DiskBasedPositionalIndexInterface {
 
 	protected final DiskBasedPositionalInvertedIndex index;
+	private static final double EPS = 1e-5;
 	
 	public IndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
 		super(dataset, theta, statContainer);
@@ -101,7 +102,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				for ( int j=i; j<m; ++j ) {
 					int eidx1 = idxList.get(j);
 					++num;
-					double score = (double)num/(query.getMinTransLength() + eidx1-sidx+1 - num) + 1e-5; // add eps to resolve precision problem
+					final double score;
+					if ( Math.min(query.getMinTransLength(), eidx1-sidx+1) >= num )  score = (double)num/(query.getMinTransLength() + eidx1-sidx+1 - num) + EPS;
+					else score = (double)num/Math.max(query.getMinTransLength(), eidx1-sidx+1) + EPS;
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
@@ -245,8 +248,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						continue;
 					}
 					++num;
-					double score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + 1e-5; // add eps to resolve precision problem
-//					Log.log.trace("findSegmentRanges: rec.id=%d, sidx=%d, eidx=%d, score=%.3f, theta=%.3f, comp=%s", ()->rec.getID(), ()->sidx, ()->eidx, ()->score, ()->theta, ()->(score>=theta));
+					final double score;
+					if ( Math.min(query.size(), transLen.getLB(sidx, eidx)) >= num ) score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
+					else score = (double)num/Math.max(query.size(), transLen.getLB(sidx, eidx)) + EPS;
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
 						else rangeList.add(new IntRange(sidx, eidx));
