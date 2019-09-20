@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -779,6 +780,12 @@ public class Util {
 	public static Int2IntOpenHashMap getCounter( int[] arr ) {
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 		for ( int token : arr ) counter.addTo(token, 1);
+		return counter;
+	}
+
+	public static Int2IntOpenHashMap getCounter( IntIterable iter ) {
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		for ( int token : iter ) counter.addTo(token, 1);
 		return counter;
 	}
 	

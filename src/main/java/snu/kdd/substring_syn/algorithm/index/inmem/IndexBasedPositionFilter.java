@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -55,12 +57,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 //			Log.log.trace("minCount=%d", ()->minCount);
-			Int2ObjectMap<IntList> rec2idxListMap = getCommonTokenIdxLists(query);
-			for ( Int2ObjectMap.Entry<IntList> entry : rec2idxListMap.int2ObjectEntrySet() ) {
-				if ( entry.getValue().size() < minCount ) continue;
+			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
+			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
+				if ( entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
 				Record rec = dataset.getRecord(ridx);
-				IntList idxList = entry.getValue();
+				IntList idxList = entry.getValue().idxList;
 				idxList.sort(Integer::compare);
 //				Log.log.trace("idxList=%s", ()->idxList);
 //				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
@@ -70,17 +72,25 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return candRecordSet;
 		}
 		
-		private Int2ObjectMap<IntList> getCommonTokenIdxLists( Record query ) {
-			Int2ObjectMap<IntList> rec2idxListMap = new Int2ObjectOpenHashMap<IntList>();
+		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists( Record query ) {
+			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<PosListPair>();
 			IntSet candTokenSet = query.getCandTokenSet();
+			Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenSet);
 			for ( int token : candTokenSet ) {
+				int nMax= tokenMaxCountMap.get(token);
+				Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				if ( invList == null ) continue; 
 				for ( InvListEntry e : invList ) {
 					int ridx = e.ridx;
 					int pos = e.pos;
-					if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new IntArrayList());
-					rec2idxListMap.get(ridx).add(pos);
+					if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
+					PosListPair pair = rec2idxListMap.get(ridx);
+					if ( counter.get(ridx) < nMax ) {
+						counter.addTo(ridx, 1);
+						pair.nToken += 1;
+					}
+					pair.idxList.add(pos);
 				}
 			}
 			return rec2idxListMap;
@@ -147,6 +157,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			}
 			return segmentList;
 		}
+
+		private class PosListPair {
+			int nToken = 0;
+			IntList idxList = new IntArrayList();
+		}
 	} // end class QuerySideFilter
 	
 	@Override
@@ -206,13 +221,19 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists( Record query ) {
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<>();
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
+			Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenSet);
 			for ( int token : candTokenSet ) {
+				int nMax = tokenMaxCountMap.get(token);
+				Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
-						rec2idxListMap.get(e.ridx).nToken += 1;
+						if ( counter.get(e.ridx) < nMax ) {
+							counter.addTo(e.ridx, 1);
+							rec2idxListMap.get(e.ridx).nToken += 1;
+						}
 						rec2idxListMap.get(e.ridx).prefixList.add(e.pos);
 						rec2idxListMap.get(e.ridx).suffixList.add(e.pos);
 					}
@@ -222,9 +243,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
-						rec2idxListMap.get(e.ridx).nToken += 1;
-						rec2idxListMap.get(e.ridx).prefixList.add(e.left);
-						rec2idxListMap.get(e.ridx).suffixList.add(e.right);
+						counter.addTo(e.ridx, 1);
+						PosListPair pair = rec2idxListMap.get(e.ridx);
+						if ( counter.get(e.ridx) <= nMax ) pair.nToken += 1;
+						pair.prefixList.add(e.left);
+						pair.suffixList.add(e.right);
 					}
 				}
 			}
