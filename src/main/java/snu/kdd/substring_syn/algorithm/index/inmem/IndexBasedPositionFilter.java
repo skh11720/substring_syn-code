@@ -1,6 +1,5 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -14,11 +13,13 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -46,18 +47,29 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	
 	@Override
 	public ObjectList<Record> querySideFilter( Record query ) {
-		QuerySideFilter filter = new QuerySideFilter();
-		return filter.run(query);
+		QuerySideFilter filter = new QuerySideFilter(query);
+		return filter.run();
 	}
 	
 	private class QuerySideFilter {
+
+		final Record query;
+		final IntSet candTokenSet;
+		final MaxBoundTokenCounter tokenCounter;
+		final int minCount;
 		
-		public ObjectList<Record> run( Record query ) {
+		public QuerySideFilter( Record query ) {
+			this.query = query;
+			candTokenSet = query.getCandTokenSet();
+			tokenCounter = new MaxBoundTokenCounter(candTokenSet);
+			minCount = (int)Math.ceil(theta*query.getMinTransLength());
+		}
+		
+		public ObjectList<Record> run() {
 //			Log.log.trace("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
-			int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 //			Log.log.trace("minCount=%d", ()->minCount);
-			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
+			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
@@ -66,19 +78,18 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				idxList.sort(Integer::compare);
 //				Log.log.trace("idxList=%s", ()->idxList);
 //				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				ObjectList<Record> segmentList =  pruneSingleRecord(query, rec, idxList, minCount);
+				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList, minCount);
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;
 		}
 		
-		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists( Record query ) {
+		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<PosListPair>();
-			IntSet candTokenSet = query.getCandTokenSet();
-			Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenSet);
 			for ( int token : candTokenSet ) {
-				int nMax= tokenMaxCountMap.get(token);
+				int nMax = tokenCounter.getMax(token);
 				Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+				tokenCounter.clear();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				if ( invList == null ) continue; 
 				for ( InvListEntry e : invList ) {
@@ -96,29 +107,31 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rec2idxListMap;
 		}
 		
-		private ObjectList<Record> pruneSingleRecord( Record query, Record rec, IntList idxList, int minCount ) {
-			ObjectList<IntRange> segmentRangeList = findSegments(query, rec, idxList, theta);
+		private ObjectList<Record> pruneSingleRecord( Record rec, IntList idxList, int minCount ) {
+			ObjectList<IntRange> segmentRangeList = findSegments(rec, idxList, theta);
 //			Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 			ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
 			return segmentList;
 		}
 
-		private ObjectList<IntRange> findSegments( Record query, Record rec, IntList idxList, double theta ) {
+		private ObjectList<IntRange> findSegments( Record rec, IntList idxList, double theta ) {
 			int m = idxList.size();
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
-				int num = 0;
+				tokenCounter.clear();
 				for ( int j=i; j<m; ++j ) {
-					int eidx1 = idxList.get(j);
-					++num;
+					int eidx = idxList.get(j);
+					int token = rec.getToken(eidx);
+					tokenCounter.tryIncrement(token);
+					int num = tokenCounter.sum();
 					final double score;
-					if ( Math.min(query.getMinTransLength(), eidx1-sidx+1) >= num )  score = (double)num/(query.getMinTransLength() + eidx1-sidx+1 - num) + EPS;
-					else score = (double)num/Math.max(query.getMinTransLength(), eidx1-sidx+1) + EPS;
+					if ( Math.min(query.getMinTransLength(), eidx-sidx+1) >= num )  score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
+					else score = (double)num/Math.max(query.getMinTransLength(), eidx-sidx+1) + EPS;
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
-						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx1;
-						else rangeList.add(new IntRange(sidx, eidx1));
+						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
+						else rangeList.add(new IntRange(sidx, eidx));
 //						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
 					}
 				}
@@ -148,11 +161,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
-					int count = 0;
+					tokenCounter.clear();
 					for ( int idx : idxList ) {
-						if ( range.min <= idx && idx <= range.max ) ++count;
+						if ( range.min <= idx && idx <= range.max ) tokenCounter.tryIncrement(rec.getToken(idx));
 					}
-					if ( count >= minCount ) segmentList.add(rec.getSubrecord(range.min, range.max+1));
+					if ( tokenCounter.sum() >= minCount ) segmentList.add(rec.getSubrecord(range.min, range.max+1));
 				}
 			}
 			return segmentList;
@@ -166,28 +179,44 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	
 	@Override
 	public ObjectList<Record> textSideFilter( Record query ) {
-		TextSideFilter filter = new TextSideFilter();
-		return filter.run(query);
+		TextSideFilter filter = new TextSideFilter(query);
+		return filter.run();
 	}
 	
 	private class TextSideFilter {
+
+		final Record query;
+		final IntSet candTokenSet;
+		final MaxBoundTokenCounter tokenCounter;
+		final int minCount;
 		
-		public ObjectList<Record> run( Record query ) {
+		public TextSideFilter( Record query ) {
+			this.query = query;;
+			candTokenSet = new IntOpenHashSet(query.getTokens());
+			tokenCounter = new MaxBoundTokenCounter(candTokenSet);
+			minCount = (int)Math.ceil(theta*query.size());
+		}
+		
+		public ObjectList<Record> run() {
 //			Log.log.trace("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
-			int minCount = (int)Math.ceil(theta*query.size());
 //			Log.log.trace("minCount=%d", ()->minCount);
-			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists(query);
+			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
-				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
+				ObjectList<IntPair> suffixTokenList = e.getValue().suffixTokenList;
+//				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
 				statContainer.stopWatch("Time_TS_IndexFilter.getIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
 				prefixIdxList.sort(Integer::compareTo);
-				suffixIdxList.sort(Integer::compareTo);
+				suffixTokenList.sort((x,y)->Integer.compare(x.i1, y.i1));
+				IntList suffixIdxList = new IntArrayList();
+				IntList tokenList = new IntArrayList();
+				Util.unzip(suffixTokenList, suffixIdxList, tokenList);
+//				suffixIdxList.sort(Integer::compareTo);
 				int minPrefixIdx = prefixIdxList.getInt(0);
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
@@ -205,11 +234,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
-				ObjectList<IntRange> segmentRangeList = findSegmentRanges(query, rec, prefixIdxList, suffixIdxList, transLen, modifiedTheta);
+				ObjectList<IntRange> segmentRangeList = findSegmentRanges(rec, prefixIdxList, suffixIdxList, tokenList, transLen, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 //				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, transLen, minCount);
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, tokenList, transLen, minCount);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
@@ -218,24 +247,23 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return candRecordSet;
 		}
 		
-		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists( Record query ) {
+		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<>();
-			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
-			Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenSet);
 			for ( int token : candTokenSet ) {
-				int nMax = tokenMaxCountMap.get(token);
+				int nMax = tokenCounter.getMax(token);
 				Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
+						PosListPair pair = rec2idxListMap.get(e.ridx);
 						if ( counter.get(e.ridx) < nMax ) {
 							counter.addTo(e.ridx, 1);
-							rec2idxListMap.get(e.ridx).nToken += 1;
+							pair.nToken += 1;
 						}
-						rec2idxListMap.get(e.ridx).prefixList.add(e.pos);
-						rec2idxListMap.get(e.ridx).suffixList.add(e.pos);
+						pair.prefixList.add(e.pos);
+						pair.suffixTokenList.add(new IntPair(e.pos, token));
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
@@ -243,11 +271,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
-						counter.addTo(e.ridx, 1);
 						PosListPair pair = rec2idxListMap.get(e.ridx);
-						if ( counter.get(e.ridx) <= nMax ) pair.nToken += 1;
+						if ( counter.get(e.ridx) < nMax ) {
+							counter.addTo(e.ridx, 1);
+							pair.nToken += 1;
+						}
 						pair.prefixList.add(e.left);
-						pair.suffixList.add(e.right);
+						pair.suffixTokenList.add(new IntPair(e.right, token));
 					}
 				}
 			}
@@ -259,18 +289,18 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
-		private ObjectList<IntRange> findSegmentRanges( Record query, Record rec, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, double theta ) {
+		private ObjectList<IntRange> findSegmentRanges( Record rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, TransLenCalculator transLen, double theta ) {
 //			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
 			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
 				int sidx = prefixIdxList.get(i);
-				int num = 0;
+				tokenCounter.clear();
 				for ( int j=0; j<suffixIdxList.size(); ++j ) {
 					int eidx = suffixIdxList.get(j);
-					if ( eidx < sidx ) {
-						continue;
-					}
-					++num;
+					if ( eidx < sidx ) continue;
+					int token = tokenList.get(j);
+					tokenCounter.tryIncrement(token);
+					int num = tokenCounter.sum();
 					final double score;
 					if ( Math.min(query.size(), transLen.getLB(sidx, eidx)) >= num ) score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
 					else score = (double)num/Math.max(query.size(), transLen.getLB(sidx, eidx)) + EPS;
@@ -301,11 +331,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return mergedRangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, TransLenCalculator transLen, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, TransLenCalculator transLen, int minCount ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( IntRange range : segmentRangeList ) {
-					int count = 0;
+					tokenCounter.clear();
 					IntList prefixIdxSubList = new IntArrayList();
 					for ( int pos : prefixIdxList ) {
 						if ( range.min > pos ) continue;
@@ -313,13 +343,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						prefixIdxSubList.add(pos-range.min);
 					}
 					IntList suffixIdxSubList = new IntArrayList();
-					for ( int pos : suffixIdxList ) {
+					for ( int j=0; j<suffixIdxList.size(); ++j ) {
+						int pos = suffixIdxList.get(j);
+						int token = tokenList.get(j);
 						if ( range.min > pos ) continue;
 						if ( pos > range.max ) break;
 						if ( suffixIdxSubList.size() == 0 || pos-range.min != suffixIdxSubList.get(suffixIdxSubList.size()-1) ) suffixIdxSubList.add(pos-range.min);
-						++count;
+						tokenCounter.tryIncrement(token);
 					}
-					if ( count >= minCount ) {
+					if ( tokenCounter.sum() >= minCount ) {
 						Subrecord subrec = new Subrecord(rec, range.min, range.max+1);
 						RecordWithPos segment = new RecordWithPos(Subrecord.toRecord(subrec), prefixIdxSubList, suffixIdxSubList);
 						segmentList.add(segment);
@@ -332,7 +364,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		private class PosListPair {
 			int nToken = 0;
 			IntSet prefixList = new IntOpenHashSet();
-			IntList suffixList = new IntArrayList();
+			ObjectList<IntPair> suffixTokenList = new ObjectArrayList<IntPair>();
 		}
 
 		@SuppressWarnings("unused")

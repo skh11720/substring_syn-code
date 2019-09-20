@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
@@ -793,5 +794,12 @@ public class Util {
 		// return in MB
 		Runtime inst = Runtime.getRuntime();
 		return (inst.totalMemory()-inst.freeMemory())/1e6;
+	}
+	
+	public static void unzip( ObjectList<IntPair> pairList, IntList list1, IntList list2 ) {
+		for ( IntPair pair : pairList ) {
+			list1.add(pair.i1);
+			list2.add(pair.i2);
+		}
 	}
 }
