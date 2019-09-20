@@ -47,7 +47,7 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	@Override
 	public ObjectList<Record> textSideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
-		for ( int token : query.getTokens() ) {
+		for ( int token : query.getDistinctTokens() ) {
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) candRidxSet.addAll(invList);
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
