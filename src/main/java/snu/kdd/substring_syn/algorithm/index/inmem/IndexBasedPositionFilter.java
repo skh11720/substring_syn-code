@@ -135,8 +135,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					tokenCounter.tryIncrement(token);
 					int num = tokenCounter.sum();
 					final double score;
-					if ( Math.min(query.getMinTransLength(), eidx-sidx+1) >= num )  score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
-					else score = (double)num/Math.max(query.getMinTransLength(), eidx-sidx+1) + EPS;
+					if ( query.getMinTransLength() < num ) score = (double)num/(eidx-sidx+1) + EPS;
+					else score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
@@ -317,8 +317,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					tokenCounter.tryIncrement(token);
 					int num = tokenCounter.sum();
 					final double score;
-					if ( Math.min(query.size(), transLen.getLB(sidx, eidx)) >= num ) score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
-					else score = (double)num/Math.max(query.size(), transLen.getLB(sidx, eidx)) + EPS;
+					if ( query.size() > transLen.getLB(sidx, eidx) ) score = (double)num/query.size() + EPS;
+					else score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
 						else rangeList.add(new IntRange(sidx, eidx));
