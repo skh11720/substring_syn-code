@@ -317,7 +317,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					tokenCounter.tryIncrement(token);
 					int num = tokenCounter.sum();
 					final double score;
-					if ( query.size() > transLen.getLB(sidx, eidx) ) score = (double)num/query.size() + EPS;
+					if ( transLen.getLB(sidx, eidx) < num ) score = (double)num/query.size() + EPS;
 					else score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
 					if ( score >= theta ) {
 						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
