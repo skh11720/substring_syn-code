@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterf
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -55,13 +56,21 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		final Record query;
 		final IntSet candTokenSet;
+		final IntList candTokenList;
 		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
 		
 		public QuerySideFilter( Record query ) {
 			this.query = query;
-			candTokenSet = query.getCandTokenSet();
-			tokenCounter = new MaxBoundTokenCounter(candTokenSet);
+			candTokenSet = new IntOpenHashSet();
+			candTokenList = new IntArrayList();
+			for ( Rule r : query.getApplicableRuleIterable() ) {
+				for ( int token : r.getRhs() ) {
+					candTokenSet.add(token);
+					candTokenList.add(token);
+				}
+			}
+			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.getMinTransLength());
 		}
 		
@@ -187,13 +196,19 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		final Record query;
 		final IntSet candTokenSet;
+		final IntList candTokenList;
 		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
 		
 		public TextSideFilter( Record query ) {
 			this.query = query;;
-			candTokenSet = new IntOpenHashSet(query.getTokens());
-			tokenCounter = new MaxBoundTokenCounter(candTokenSet);
+			candTokenSet = new IntOpenHashSet();
+			candTokenList = new IntArrayList();
+			for ( int token : query.getTokens() ) {
+				candTokenSet.add(token);
+				candTokenList.add(token);
+			}
+			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.size());
 		}
 		

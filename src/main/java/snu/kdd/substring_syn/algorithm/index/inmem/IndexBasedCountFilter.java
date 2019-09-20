@@ -2,11 +2,14 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -39,7 +42,14 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		IntSet candTokenSet = query.getCandTokenSet();
-		Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenSet);
+		IntList candTokenList = new IntArrayList();
+		for ( Rule r : query.getApplicableRuleIterable() ) {
+			for ( int token : r.getRhs() ) {
+				candTokenSet.add(token);
+				candTokenList.add(token);
+			}
+		}
+		Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenList);
 		for ( int token : candTokenSet ) {
 			int nMax = tokenMaxCountMap.get(token);
 			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
@@ -65,7 +75,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		Int2IntMap tokenMaxCountMap = Util.getCounter(query.getTokenArray());
-		for ( int token : query.getTokens() ) {
+		for ( int token : query.getDistinctTokens() ) {
 			int nMax = tokenMaxCountMap.get(token);
 			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 			ObjectList<Integer> invList = index.getInvList(token);

@@ -82,6 +82,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return IntArrayList.wrap(tokens);
 	}
 
+	public Collection<Integer> getDistinctTokens() {
+		return new IntOpenHashSet(tokens);
+	}
+
 	public int[] getTokenArray() {
 		return tokens;
 	}
