@@ -448,8 +448,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.09: improve position filter
 		 * 6.10: fix a bug
 		 * 6.11: update score function in position filter
-		 * 6.12: fix bugs in position filter
+		 * 6.12: fix bugs in position filter (ERROR)
+		 * 6.13: fix bugs in count and position filter
 		 */
-		return "6.12";
+		return "6.13";
 	}
 }
