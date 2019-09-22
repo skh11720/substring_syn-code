@@ -90,8 +90,8 @@ public abstract class AbstractSearch {
 			++nCand;
 			sumLen += rec.size();
 		}
-		Log.log.debug("SearchQuerySide.nCand=%d", nCand);
-		Log.log.debug("SearchQuerySide.sumLen=%d", sumLen);
+//		Log.log.trace("SearchQuerySide.nCand=%d", nCand);
+//		Log.log.trace("SearchQuerySide.sumLen=%d", sumLen);
 	}
 	
 	protected final void searchTextSide( Record query, Dataset dataset ) {
@@ -109,8 +109,8 @@ public abstract class AbstractSearch {
 			++nCand;
 			sumLen += rec.size();
 		}
-		Log.log.debug("SearchTextSide.nCand=%d", nCand);
-		Log.log.debug("SearchTextSide.sumLen=%d", sumLen);
+//		Log.log.trace("SearchTextSide.nCand=%d", nCand);
+//		Log.log.trace("SearchTextSide.sumLen=%d", sumLen);
 	}
 	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
