@@ -63,7 +63,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_QS_IndexFilter);
-			Iterable<Record> candRecordSet = indexFilter.querySideFilter(query);
+			Iterable<Record> candRecordSet = indexFilter.getCandRecordsQuerySide(query);
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return candRecordSet;
 		}
@@ -74,7 +74,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
-			Iterable<Record> candRecordSet = indexFilter.textSideFilter(query);
+			Iterable<Record> candRecordSet = indexFilter.getCandRecordsTextSide(query);
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return candRecordSet;
 		}

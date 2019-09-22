@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -19,7 +20,6 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -47,7 +47,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectList<Record> querySideFilter( Record query ) {
+	protected IntIterable querySideFilter(Record query) { return null; }
+	
+	@Override
+	protected IntIterable textSideFilter(Record query) { return null; }
+	
+	@Override
+	public ObjectList<Record> getCandRecordsQuerySide( Record query ) {
 		QuerySideFilter filter = new QuerySideFilter(query);
 		return filter.run();
 	}
@@ -187,7 +193,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	} // end class QuerySideFilter
 	
 	@Override
-	public ObjectList<Record> textSideFilter( Record query ) {
+	public ObjectList<Record> getCandRecordsTextSide( Record query ) {
 		TextSideFilter filter = new TextSideFilter(query);
 		return filter.run();
 	}

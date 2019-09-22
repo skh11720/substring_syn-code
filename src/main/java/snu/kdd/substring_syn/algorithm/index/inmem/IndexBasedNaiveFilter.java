@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -32,20 +33,18 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectList<Record> querySideFilter( Record query ) {
+	public IntIterable querySideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) candRidxSet.addAll(invList);
 		}
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
-		candRidxSet.stream().forEach(id->candRecordSet.add(dataset.getRecord(id)));
-		return candRecordSet;
+		return candRidxSet;
 	}
 	
 	@Override
-	public ObjectList<Record> textSideFilter( Record query ) {
+	public IntIterable textSideFilter( Record query ) {
 		IntSet candRidxSet = new IntOpenHashSet();
 		for ( int token : query.getDistinctTokens() ) {
 			ObjectList<Integer> invList = index.getInvList(token);
@@ -53,8 +52,6 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) candRidxSet.addAll(transInvList);
 		}
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
-		candRidxSet.stream().forEach(id->candRecordSet.add(dataset.getRecord(id)));
-		return candRecordSet;
+		return candRidxSet;
 	}
 }

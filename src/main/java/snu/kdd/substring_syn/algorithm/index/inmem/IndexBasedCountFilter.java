@@ -3,9 +3,10 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
@@ -37,7 +38,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectList<Record> querySideFilter( Record query ) {
+	public IntIterable querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
@@ -64,14 +65,12 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			}
 		}
 		
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>(pruneRecordsByCount(commonTokenCounter, minCount));
-//		visualizeCandRecords(candTokenSet, candRecordSet, counter);
-
-		return candRecordSet;
+		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		return candRidxSet;
 	}
 	
 	@Override
-	public ObjectList<Record> textSideFilter( Record query ) {
+	public IntIterable textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		Int2IntMap tokenMaxCountMap = Util.getCounter(query.getTokenArray());
@@ -98,17 +97,17 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			}
 		}
 
-		ObjectList<Record> candRecordSet = pruneRecordsByCount(commonTokenCounter, minCount);
-		return candRecordSet;
+		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		return candRidxSet;
 	}
 	
-	private ObjectList<Record> pruneRecordsByCount( Int2IntMap counter, int minCount ) {
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
+	private IntIterable pruneRecordsByCount( Int2IntMap counter, int minCount ) {
+		IntSet candRidxSet = new IntOpenHashSet();
 		for ( Int2IntMap.Entry entry : counter.int2IntEntrySet() ) {
 			int ridx = entry.getIntKey();
 			int count = entry.getIntValue();
-			if ( count >= minCount ) candRecordSet.add(dataset.getRecord(ridx));
+			if ( count >= minCount ) candRidxSet.add(ridx);
 		}
-		return candRecordSet;
+		return candRidxSet;
 	}
 }
