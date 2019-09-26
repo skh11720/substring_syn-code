@@ -97,7 +97,6 @@ public class PositionPrefixSearch extends PrefixSearch {
 		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
-		
 		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {

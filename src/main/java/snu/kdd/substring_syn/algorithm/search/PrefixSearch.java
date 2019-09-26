@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -19,7 +21,6 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
@@ -151,6 +152,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
+		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {
 			pkduckdp.setTarget(target);
@@ -168,7 +170,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
 //					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
 					
+					if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
 					if ( pkduckdp.isInSigU(widx, w) ) {
+						verifiedWindowSet.add(new IntPair(widx, w));
 						statContainer.addCount(Stat.Len_TS_PF, w);
 						Subrecord window = new Subrecord(rec, widx, widx+w);
 						boolean isSim = verifyTextSideWrapper(query, window);
