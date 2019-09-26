@@ -45,11 +45,11 @@ public class PrefixSearchTest {
 			AbstractSearch prefixSearch = new PrefixSearch(theta, bLF, false, IndexChoice.Naive);
 			prefixSearch.run(dataset);
 			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
-			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
-			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
+			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_Total);
+			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_Total);
 			results[i++] = String.format("%s\t%s\t%s\t%s", bLF, time_0, time_1, time_2);
 		}
-		System.out.println(String.format("%s\t%s\t%s\t%s\t%s", "lf_query", "lf_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal));
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s", "lf_query", "lf_text", Stat.Time_Total, Stat.Time_QS_Total, Stat.Time_TS_Total));
 		for ( String result : results ) {
 			System.out.println(result);
 		}
@@ -67,13 +67,13 @@ public class PrefixSearchTest {
 			AbstractSearch prefixSearch = new PrefixSearch(theta, true, true, indexChoice);
 			prefixSearch.run(dataset);
 			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
-			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QSTotal);
-			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TSTotal);
+			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_Total);
+			String time_2 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_Total);
 			String time_5 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_IndexFilter);
 			String time_6 = prefixSearch.getStatContainer().getStat(Stat.Time_TS_IndexFilter);
 			results[i++] = String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", indexChoice.toString(), time_0, time_1, time_2, time_5, time_6);
 		}
-		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QSTotal, Stat.Time_TSTotal, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter));
+		System.out.println(String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", "idxFilter_query", "idxFilter_text", Stat.Time_Total, Stat.Time_QS_Total, Stat.Time_TS_Total, Stat.Time_QS_IndexFilter, Stat.Time_TS_IndexFilter));
 		for ( String result : results ) {
 			System.out.println(result);
 		}

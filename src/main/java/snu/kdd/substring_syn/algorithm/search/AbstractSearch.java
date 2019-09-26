@@ -67,12 +67,12 @@ public abstract class AbstractSearch {
 	protected final void searchGivenQuery( Record query, Dataset dataset ) {
 //		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
-		statContainer.startWatch(Stat.Time_QSTotal);
+		statContainer.startWatch(Stat.Time_QS_Total);
 		searchQuerySide(query, dataset);
-		statContainer.stopWatch(Stat.Time_QSTotal);
-		statContainer.startWatch(Stat.Time_TSTotal);
+		statContainer.stopWatch(Stat.Time_QS_Total);
+		statContainer.startWatch(Stat.Time_TS_Total);
 		searchTextSide(query, dataset);
-		statContainer.stopWatch(Stat.Time_TSTotal);
+		statContainer.stopWatch(Stat.Time_TS_Total);
 	}
 	
 	protected void prepareSearchGivenQuery( Record query ) {

@@ -43,9 +43,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 				if ( bPF && isFilteredByPrefixFilteringQuerySide(window) ) continue;
 
 				statContainer.addCount(Stat.Len_QS_PF, w); 
-				statContainer.startWatch(Stat.Time_Validation);
+				statContainer.startWatch(Stat.Time_QS_Validation);
 				boolean isSim = verifyQuerySide(query, window);
-				statContainer.stopWatch(Stat.Time_Validation);
+				statContainer.stopWatch(Stat.Time_QS_Validation);
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 //					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
