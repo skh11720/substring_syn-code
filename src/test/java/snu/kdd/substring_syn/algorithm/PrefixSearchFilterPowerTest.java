@@ -36,11 +36,11 @@ public class PrefixSearchFilterPowerTest {
 		final boolean bPF;
 		final IndexChoice index_impl;
 		
-		public Param( double theta, String name, String size, boolean bLF, boolean bPF, IndexChoice index_impl ) {
+		public Param( double theta, String name, String size, String ql, boolean bLF, boolean bPF, IndexChoice index_impl ) {
 			this.theta = theta;
 			this.name = name;
 			this.size = size;
-			this.ql = "3";
+			this.ql = ql;
 			if ( this.name.equals("PUBMED") ) this.nr = "79011";
 			else this.nr = "107836";
 			this.bLF = bLF;
@@ -62,23 +62,26 @@ public class PrefixSearchFilterPowerTest {
 	@Parameters
 	public static Collection<Param> provideParams() {
 		ObjectList<Param> paramList = new ObjectArrayList<>();
-		double[] thetaList = {1.0};
+		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 		String[] nameList = {"WIKI", "PUBMED", "AMAZON"};
-		String[] sizeList = {"10000"};
+		String[] sizeList = {"100000"};
+		String[] qlList = {"3", "5"};
 		int[][] optionList = {
-//				{0, 0, 0}, // NoFilter
-//				{0, 0, 1}, // IF
-//				{1, 1, 1}, // NaivePF
-//				{0, 0, 2}, // ICF
-//				{0, 0, 3}, // IPF
+				{0, 0, 0}, // NoFilter
+				{0, 0, 1}, // IF
+				{1, 1, 1}, // NaivePF
+				{0, 0, 2}, // ICF
+				{0, 0, 3}, // IPF
 				{1, 0, 3}, // LF
 				{1, 1, 3}, // PF
 				};
-		for ( double theta : thetaList ) {
-			for (String name : nameList ) {
-				for ( String size : sizeList ) {
-					for ( int[] option : optionList ) {
-						paramList.add( new Param(theta, name, size, option[0]==1?true:false, option[1]==1?true:false, IndexChoice.values()[option[2]]) );
+		for ( String ql : qlList ) {
+			for ( double theta : thetaList ) {
+				for (String name : nameList ) {
+					for ( String size : sizeList ) {
+						for ( int[] option : optionList ) {
+							paramList.add( new Param(theta, name, size, ql, option[0]==1?true:false, option[1]==1?true:false, IndexChoice.values()[option[2]]) );
+						}
 					}
 				}
 			}
