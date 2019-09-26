@@ -3,6 +3,8 @@ package snu.kdd.substring_syn.algorithm.search;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
@@ -96,6 +98,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		
+		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
+		
 		for ( int target : candTokenList ) {
 			statContainer.startWatch("Time_TS_searchRecordPF.setTarget");
 			pkduckdp.setTarget(target);
@@ -121,7 +125,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 					if ( suffixIdxList.get(j)+1 != widx+w ) continue;
 					++j;
 					
+					if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
 					if ( pkduckdp.isInSigU(widx, w) ) {
+						verifiedWindowSet.add(new IntPair(widx, w));
 						statContainer.addCount(Stat.Len_TS_PF, w);
 						Subrecord window = new Subrecord(rec, widx, widx+w);
 						boolean isSim = verifyTextSideWrapper(query, window);
