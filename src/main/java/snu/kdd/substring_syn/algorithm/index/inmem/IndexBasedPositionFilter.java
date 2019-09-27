@@ -222,7 +222,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //			Log.log.trace("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 //			Log.log.trace("minCount=%d", ()->minCount);
+			statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
+			statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
@@ -277,28 +279,49 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
 					for ( InvListEntry e : invList ) {
+						
+						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap1");
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
+						//statContainer.stopWatch("Time_TS_getCommon.rec2idxListMap1");
 						PosListPair pair = rec2idxListMap.get(e.ridx);
+						//statContainer.startWatch("Time_TS_getCommon.counter_getAndAdd1");
 						if ( counter.get(e.ridx) < nMax ) {
+							//statContainer.startWatch("Time_TS_getCommon.counter_addTo1");
 							counter.addTo(e.ridx, 1);
+							//statContainer.stopWatch("Time_TS_getCommon.counter_addTo1");
 							pair.nToken += 1;
 						}
+						//statContainer.stopWatch("Time_TS_getCommon.counter_getAndAdd1");
+						//statContainer.startWatch("Time_TS_getCommon.prefixListAdd1");
 						pair.prefixList.add(e.pos);
+						//statContainer.stopWatch("Time_TS_getCommon.prefixListAdd1");
+						//statContainer.startWatch("Time_TS_getCommon.suffixTokenListAdd1");
 						pair.suffixTokenList.add(new IntPair(e.pos, token));
+						//statContainer.stopWatch("Time_TS_getCommon.suffixTokenListAdd1");
 					}
 				}
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
 					for ( TransInvListEntry e : transInvList ) {
+						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap2");
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
+						//statContainer.stopWatch("Time_TS_getCommon.rec2idxListMap2");
 						PosListPair pair = rec2idxListMap.get(e.ridx);
+						//statContainer.startWatch("Time_TS_getCommon.counter_getAndAdd2");
 						if ( counter.get(e.ridx) < nMax ) {
+							//statContainer.startWatch("Time_TS_getCommon.counter_addTo2");
 							counter.addTo(e.ridx, 1);
+							//statContainer.stopWatch("Time_TS_getCommon.counter_addTo2");
 							pair.nToken += 1;
 						}
+						//statContainer.stopWatch("Time_TS_getCommon.counter_getAndAdd2");
+						//statContainer.startWatch("Time_TS_getCommon.prefixListAdd2");
 						pair.prefixList.add(e.left);
+						//statContainer.stopWatch("Time_TS_getCommon.prefixListAdd2");
+						//statContainer.startWatch("Time_TS_getCommon.suffixTokenListAdd2");
 						pair.suffixTokenList.add(new IntPair(e.right, token));
+						//statContainer.stopWatch("Time_TS_getCommon.suffixTokenListAdd2");
 					}
 				}
 			}
