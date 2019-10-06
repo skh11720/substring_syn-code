@@ -460,7 +460,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.17: modify verification
 		 * 6.18: improve index filter memory efficiency
 		 * 6.19: prevent repeated verification in PF 
+		 * 6.20: improve pos filter, without split
 		 */
-		return "6.19.2";
+		return "6.20";
 	}
 }
