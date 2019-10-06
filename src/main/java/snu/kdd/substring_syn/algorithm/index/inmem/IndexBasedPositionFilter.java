@@ -18,9 +18,8 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
-import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.IntRange;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -210,6 +209,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
+//				Log.log.trace("ridx=%d", ridx);
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 				ObjectList<IntPair> suffixTokenList = e.getValue().suffixTokenList;
@@ -332,7 +332,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( transLen.getLB(sidx, eidx) < num ) score = (double)num/query.size() + EPS;
 					else score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
 					if ( score >= theta && num >= minCount ) {
-						mrange.eidxList.add(eidx+1);
+						if ( mrange.eidxList.size() == 0 || mrange.eidxList.getInt(mrange.eidxList.size()-1) < eidx+1 ) mrange.eidxList.add(eidx+1);
 					}
 				}
 				if ( mrange.eidxList.size() > 0 ) rangeList.add(mrange);
@@ -384,6 +384,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		
 		public MergedRange( int sidx ) {
 			this.sidx = sidx;
+		}
+		
+		@Override
+		public String toString() {
+			return "("+sidx+"\t"+eidxList+")";
 		}
 	}
 }
