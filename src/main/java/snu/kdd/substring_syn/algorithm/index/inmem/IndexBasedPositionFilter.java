@@ -17,6 +17,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
@@ -93,7 +94,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				idxList.sort(Integer::compare);
 //				Log.log.trace("idxList=%s", ()->idxList);
 //				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList, minCount);
+				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList);
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;
@@ -122,19 +123,20 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rec2idxListMap;
 		}
 		
-		private ObjectList<Record> pruneSingleRecord( Record rec, IntList idxList, int minCount ) {
-			ObjectList<IntRange> segmentRangeList = findSegments(rec, idxList, theta);
+		private ObjectList<Record> pruneSingleRecord( Record rec, IntList idxList ) {
+			ObjectList<MergedRange> segmentRangeList = findSegments(rec, idxList, theta);
 //			Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-			ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, idxList, minCount );
+			ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, idxList );
 			return segmentList;
 		}
 
-		private ObjectList<IntRange> findSegments( Record rec, IntList idxList, double theta ) {
+		private ObjectList<MergedRange> findSegments( Record rec, IntList idxList, double theta ) {
 			int m = idxList.size();
-			ObjectList<IntRange> rangeList = new ObjectArrayList<>();
+			ObjectList<MergedRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
 				tokenCounter.clear();
+				MergedRange mrange = new MergedRange(sidx);
 				for ( int j=i; j<m; ++j ) {
 					int eidx = idxList.get(j);
 					int token = rec.getToken(eidx);
@@ -144,43 +146,23 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( query.getMinTransLength() < num ) score = (double)num/(eidx-sidx+1) + EPS;
 					else score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
-					if ( score >= theta ) {
-						if ( rangeList.size() > 0 && rangeList.get(rangeList.size()-1).min == sidx ) rangeList.get(rangeList.size()-1).max = eidx;
-						else rangeList.add(new IntRange(sidx, eidx));
+					if ( score >= theta && num >= minCount ) {
+						mrange.eidxList.add(eidx+1);
 //						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
 					}
 				}
+				if ( mrange.eidxList.size() > 0 ) rangeList.add(mrange);
 			}
 //			Log.log.trace("rangeList=%s", ()->rangeList);
 			if ( rangeList.size() == 0 ) return null;
-			
-			// merge
-			ObjectList<IntRange> mergedRangeList = new ObjectArrayList<>();
-			IntRange mergedRange = rangeList.get(0);
-			for ( int i=1; i<rangeList.size(); ++i ) {
-				IntRange thisRange = rangeList.get(i);
-				if ( mergedRange.min == thisRange.min ) mergedRange.max = thisRange.max;
-				else {
-					if ( thisRange.min <= mergedRange.max ) mergedRange.max = Math.max(mergedRange.max, thisRange.max);
-					else {
-						mergedRangeList.add(mergedRange);
-						mergedRange = thisRange;
-					}
-				}
-			}
-			mergedRangeList.add(mergedRange);
-			return mergedRangeList;
+			return rangeList;
 		}
 		
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<IntRange> segmentRangeList, IntList idxList, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<MergedRange> segmentRangeList, IntList idxList ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
-				for ( IntRange range : segmentRangeList ) {
-					tokenCounter.clear();
-					for ( int idx : idxList ) {
-						if ( range.min <= idx && idx <= range.max ) tokenCounter.tryIncrement(rec.getToken(idx));
-					}
-					if ( tokenCounter.sum() >= minCount ) segmentList.add(rec.getSubrecord(range.min, range.max+1));
+				for ( MergedRange mrange : segmentRangeList ) {
+					segmentList.add(new RecordWithEndpoints(rec, mrange.sidx, mrange.eidxList));
 				}
 			}
 			return segmentList;
