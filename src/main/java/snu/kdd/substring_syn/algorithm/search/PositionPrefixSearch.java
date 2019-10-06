@@ -83,8 +83,8 @@ public class PositionPrefixSearch extends PrefixSearch {
 		statContainer.startWatch("Time_TS_searchRecordPF.getCandTokenList");
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		statContainer.stopWatch("Time_TS_searchRecordPF.getCandTokenList");
-		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
-		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
+		int widx = ((RecordWithEndpoints)rec).getStartPoint();
+		IntList eidxList = ((RecordWithEndpoints)rec).getEndpoints();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
 		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
@@ -93,74 +93,69 @@ public class PositionPrefixSearch extends PrefixSearch {
 			statContainer.startWatch("Time_TS_searchRecordPF.setTarget");
 			pkduckdp.setTarget(target);
 			statContainer.stopWatch("Time_TS_searchRecordPF.setTarget");
-			int widx = prefixIdxList.getInt(0);
-//			for ( int widx : prefixIdxList ) {
-				statContainer.startWatch("Time_TS_searchRecordPF.initPkduck");
-				pkduckdp.init();
-				statContainer.stopWatch("Time_TS_searchRecordPF.initPkduck");
-				int j = 0;
-				while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
-				for ( int w=1; w<=rec.size()-widx; ++w ) {
+			statContainer.startWatch("Time_TS_searchRecordPF.initPkduck");
+			pkduckdp.init();
+			statContainer.stopWatch("Time_TS_searchRecordPF.initPkduck");
+			int j = 0;
+			while ( j < eidxList.size() && eidxList.get(j) <= widx ) ++j;
+			for ( int w=1; w<=rec.size()-widx; ++w ) {
 //					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
-					if ( bLF ) {
+				if ( bLF ) {
 //						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
-						if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
-						statContainer.addCount(Stat.Len_TS_LF, w);
-					}
-					statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
-					pkduckdp.compute(widx+1, w);
-					statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
+					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
+					statContainer.addCount(Stat.Len_TS_LF, w);
+				}
+				statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
+				pkduckdp.compute(widx+1, w);
+				statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
 
-					if ( j >= suffixIdxList.size() ) break;
-					if ( suffixIdxList.get(j)+1 != widx+w ) continue;
-					++j;
-					
-					if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
-					if ( pkduckdp.isInSigU(widx, w) ) {
-						verifiedWindowSet.add(new IntPair(widx, w));
-						statContainer.addCount(Stat.Len_TS_PF, w);
-						Subrecord window = new Subrecord(rec, widx, widx+w);
-						boolean isSim = verifyTextSideWrapper(query, window);
-						if ( isSim ) {
-							rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+				if ( j >= eidxList.size() ) break;
+				if ( eidxList.get(j) != widx+w ) continue;
+				++j;
+				
+				if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
+				if ( pkduckdp.isInSigU(widx, w) ) {
+					verifiedWindowSet.add(new IntPair(widx, w));
+					statContainer.addCount(Stat.Len_TS_PF, w);
+					Subrecord window = new Subrecord(rec, widx, widx+w);
+					boolean isSim = verifyTextSideWrapper(query, window);
+					if ( isSim ) {
+						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 //							Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 //							Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-							return;
-						}
+						return;
 					}
 				}
-//			}
+			}
 		}
 	}
 	
 	@Override
 	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
-		IntList prefixIdxList = ((RecordWithPos)rec).getPrefixIdxList();
-		IntList suffixIdxList = ((RecordWithPos)rec).getSuffixIdxList();
+		int widx = ((RecordWithEndpoints)rec).getStartPoint();
+		IntList eidxList = ((RecordWithEndpoints)rec).getEndpoints();
 //		Log.log.trace("rec =\n%s", rec.toStringDetails());
 //		Log.log.trace("prefixIdxList=%s", prefixIdxList);
 //		Log.log.trace("suffixIdxList=%s", suffixIdxList);
-		for ( int widx : prefixIdxList ) {
-			int j = 0;
-			while ( j < suffixIdxList.size() && suffixIdxList.get(j) < widx ) ++j;
-			for ( int w=1; w<=rec.size()-widx; ++w ) {
-				if ( j >= suffixIdxList.size() ) break;
-				if ( suffixIdxList.get(j)+1 != widx+w ) continue;
-				++j;
+		int j = 0;
+		while ( j < eidxList.size() && eidxList.get(j) <= widx ) ++j;
+		for ( int w=1; w<=rec.size()-widx; ++w ) {
+			if ( j >= eidxList.size() ) break;
+			if ( eidxList.get(j) != widx+w ) continue;
+			++j;
 //				Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
-				if ( bLF ) {
+			if ( bLF ) {
 //					Log.log.trace("searchRecordTextSideWithoutPrefixFilter.transLenCalculator\tLFLB=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
-					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
-					statContainer.addCount(Stat.Len_TS_LF, w);
-				}
-				Subrecord window = new Subrecord(rec, widx, widx+w);
-				boolean isSim = verifyTextSideWrapper(query, window);
-				if ( isSim ) {
-					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+				if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
+				statContainer.addCount(Stat.Len_TS_LF, w);
+			}
+			Subrecord window = new Subrecord(rec, widx, widx+w);
+			boolean isSim = verifyTextSideWrapper(query, window);
+			if ( isSim ) {
+				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 //					Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 //					Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-					return;
-				}
+				return;
 			}
 		}
 	}

@@ -802,4 +802,8 @@ public class Util {
 			list2.add(pair.i2);
 		}
 	}
+	
+	public static void addToIntList( IntList list, int c ) {
+		for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
+	}
 }
