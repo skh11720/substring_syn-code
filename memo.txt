@@ -1,0 +1,36 @@
+1. disk-based search
+
+1.1. data store
+- serialize record
+- store records in multiple chunks
+- build an in-mem map from id to record location (chunck idx, in-chunk position)
+- retrieving n records takes O(n) disk access
+- consts:
+    CHUNK_SIZE
+
+1.2. index store
+- scan records and build an in-mem index
+- periodically flush the index to the disk
+- while scanning build a map from token to the fragmented inv list
+- after scanning merge the fragmented lists
+- update the map from token to the inv list
+- consts:
+    INMEM_MAX_SIZE
+
+1.3. buffer manager
+- build an in-mem map from token to the inv list
+- for a query token load the inv list from disk if necessary
+- use LRU policy
+- consts:
+    BUFFER_SIZE
+
+1.4. vs using DB
+- fast, specialized
+
+
+
+2. improvement
+
+2.1. use overlap threshold > 1 in the prefix search
+
+2.2. segment texts given a maximum query length
