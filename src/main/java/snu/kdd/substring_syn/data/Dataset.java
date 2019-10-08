@@ -67,10 +67,9 @@ public abstract class Dataset {
 		statContainer.setStat(Stat.Dataset_nt, size);
 		statContainer.setStat(Stat.Dataset_nr, nr);
 		statContainer.setStat(Stat.Dataset_qlen, qlen);
-		initTokenIndex();
 	}
 	
-	private void initTokenIndex() {
+	protected void initTokenIndex() {
 		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();

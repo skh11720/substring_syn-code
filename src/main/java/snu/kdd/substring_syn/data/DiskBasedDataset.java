@@ -13,6 +13,7 @@ public class DiskBasedDataset extends Dataset {
 	
 	protected DiskBasedDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
 		super(datasetName, size, nr, qlen);
+		initTokenIndex();
 		store = new RecordStore(getIndexedList());
 	}
 	
