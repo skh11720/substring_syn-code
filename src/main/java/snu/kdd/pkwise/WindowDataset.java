@@ -8,17 +8,24 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 
 public class WindowDataset extends Dataset {
 
+	private final int w;
 	private final List<Record> searchedList;
 
 	public WindowDataset(String datasetName, String size, String nr, String qlen) {
 		super(datasetName, size, nr, qlen);
+		Record.tokenIndex = new TokenIndex();
+		w = Integer.parseInt(qlen);
 		searchedList = loadRecordList(searchedPath);
 	}
+	
+	public final int getW() { return w; }
 
 	@Override
 	public Iterable<Record> getSearchedList() {
@@ -32,6 +39,16 @@ public class WindowDataset extends Dataset {
 			@Override
 			public Iterator<Record> iterator() {
 				return new DiskBasedRecordIterator(indexedPath);
+			}
+		};
+	}
+	
+	public Iterable<Subrecord> getWindowList() {
+		return new Iterable<Subrecord>() {
+			
+			@Override
+			public Iterator<Subrecord> iterator() {
+				return new WindowIterator();
 			}
 		};
 	}
@@ -86,6 +103,47 @@ public class WindowDataset extends Dataset {
 			String line = iter.next();
 			return new Record(i++, line);
 		}
+	}
+	
+	class WindowIterator implements Iterator<Subrecord> {
+
+		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
+		Record rec = null;
+		Record recNext = null;
+		int widx = -1;
 		
+		public WindowIterator() {
+			while ( rIter.hasNext() ) {
+				rec = rIter.next();
+				if ( rec.size() >= w ) break;
+				else rec = null;
+			}
+			while ( rIter.hasNext() ) {
+				recNext = rIter.next();
+				if ( recNext.size() >= w ) break;
+				else recNext = null;
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			return (recNext != null || widx +w < rec.size());
+		}
+
+		@Override
+		public Subrecord next() {
+			widx += 1;
+			if ( widx+w > rec.size() ) {
+				rec = recNext;
+				recNext = null;
+				while ( rIter.hasNext() ) {
+					recNext = rIter.next();
+					if ( recNext.size() >= w ) break;
+					else recNext = null;
+				}
+				widx = 0;
+			}
+			return new Subrecord(rec, widx, widx+w);
+		}
 	}
 }
