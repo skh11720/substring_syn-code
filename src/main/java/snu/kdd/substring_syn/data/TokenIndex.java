@@ -40,6 +40,10 @@ public class TokenIndex {
 		return int2TokenList.get( index );
 	}
 	
+	public int getMaxID() {
+		return int2TokenList.size()-1;
+	}
+	
 	public String toString( int[] arr ) {
 		StringBuilder bld = new StringBuilder();
 		for ( int idx : arr ) bld.append( getToken(idx)+' ' );
