@@ -8,6 +8,7 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -15,6 +16,7 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class WindowDataset extends Dataset {
 
+	private RecordStore store = null;
 	private final int w;
 	private final List<Record> searchedList;
 
@@ -26,6 +28,10 @@ public class WindowDataset extends Dataset {
 	}
 	
 	public final int getW() { return w; }
+	
+	public final void buildRecordStore() {
+		store = new RecordStore(getIndexedList());
+	}
 
 	@Override
 	public Iterable<Record> getSearchedList() {
@@ -55,7 +61,7 @@ public class WindowDataset extends Dataset {
 	
 	@Override
 	public Record getRecord(int id) {
-		return null;
+		return store.getRecord(id);
 	}
 
 	private List<Record> loadRecordList( String dataPath ) {

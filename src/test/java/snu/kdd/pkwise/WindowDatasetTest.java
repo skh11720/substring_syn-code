@@ -58,4 +58,17 @@ public class WindowDatasetTest {
 		
 		assertEquals(n0, n1);
 	}
+	
+	@Test
+	public void getRecordTest() throws IOException {
+		WindowDataset dataset = TestUtils.getTestDataset();
+		int n = 10;
+		int i = 0;
+		for ( Record rec : dataset.getIndexedList() ) {
+			System.out.println(rec);
+			System.out.println(dataset.getRecord(i));
+			i += 1;
+			if ( i >= n ) break;
+		}
+	}
 }

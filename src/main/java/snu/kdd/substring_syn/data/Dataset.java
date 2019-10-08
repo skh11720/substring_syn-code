@@ -54,6 +54,7 @@ public abstract class Dataset {
 		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
 		PkwiseTokenOrder.run(dataset);
 		dataset.createRuleSet();
+		dataset.buildRecordStore();
 		dataset.addStat();
 		return dataset;
 	}
