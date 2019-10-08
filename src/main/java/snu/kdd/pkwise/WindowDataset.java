@@ -11,11 +11,11 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 
-public class WindowedDataset extends Dataset {
+public class WindowDataset extends Dataset {
 
 	private final List<Record> searchedList;
 
-	public WindowedDataset(String datasetName, String size, String nr, String qlen) {
+	public WindowDataset(String datasetName, String size, String nr, String qlen) {
 		super(datasetName, size, nr, qlen);
 		searchedList = loadRecordList(searchedPath);
 	}
