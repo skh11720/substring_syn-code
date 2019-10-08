@@ -10,6 +10,10 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class PkwiseTokenOrder {
+	
+	public static void run( WindowDataset dataset ) {
+		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset);
+	}
 
 	public PkwiseTokenOrder( WindowDataset dataset ) {
 		Int2IntOpenHashMap counter = countTokensFromWindows(dataset);

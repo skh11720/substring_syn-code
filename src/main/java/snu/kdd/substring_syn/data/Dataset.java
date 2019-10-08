@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import snu.kdd.pkwise.PkwiseTokenOrder;
 import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Stat;
@@ -51,6 +52,7 @@ public abstract class Dataset {
 	
 	public static WindowDataset createWindowedInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
 		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
+		PkwiseTokenOrder.run(dataset);
 		dataset.createRuleSet();
 		dataset.addStat();
 		return dataset;

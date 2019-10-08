@@ -49,7 +49,7 @@
 
 3.2. plan
 (1) indexing
-(2) token ordering
+(*) token ordering
 (3) token partitioning
 (4) sig gen
 (5) search

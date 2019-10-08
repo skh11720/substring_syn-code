@@ -16,7 +16,7 @@ public class PkwiseTokenOrderTest {
 
 	@Test
 	public void test() throws IOException {
-		WindowDataset dataset = TestUtils.getTestDataset();
+		WindowDataset dataset = TestUtils.getTestRawDataset();
 		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset);
 		
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();

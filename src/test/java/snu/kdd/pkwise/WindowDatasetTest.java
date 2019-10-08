@@ -13,7 +13,7 @@ public class WindowDatasetTest {
 
 	@Test
 	public void visualize() throws IOException {
-		WindowDataset dataset = TestUtils.getTestDataset();
+		WindowDataset dataset = TestUtils.getTestRawDataset();
 		int n = 10000;
 		Record[] recList = new Record[n];
 		int ridx = 0;
@@ -43,7 +43,7 @@ public class WindowDatasetTest {
 	@Test
 	@SuppressWarnings("unused")
 	public void checkCount() throws IOException {
-		WindowDataset dataset = TestUtils.getTestDataset();
+		WindowDataset dataset = TestUtils.getTestRawDataset();
 		final int w = dataset.getW();
 		long n0 = 0;
 		long n1 = 0;
