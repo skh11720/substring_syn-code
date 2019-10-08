@@ -48,9 +48,9 @@
   of transforomed data strings, then search for the query itself
 
 3.2. plan
-(*) token ordering
-(2) token partitioning
-(3) sig gen
-(4) indexing
+(1) indexing
+(2) token ordering
+(3) token partitioning
+(4) sig gen
 (5) search
 (6) optimization
