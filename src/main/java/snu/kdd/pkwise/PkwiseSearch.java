@@ -1,8 +1,8 @@
 package snu.kdd.pkwise;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.Log;
 
 public class PkwiseSearch extends AbstractSearch {
 	
@@ -15,6 +15,16 @@ public class PkwiseSearch extends AbstractSearch {
 		this.kmax = kmax;
 		param.put("qlen", Integer.toString(qlen));
 		param.put("kmax", Integer.toString(kmax));
+	}
+
+	@Override
+	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
+	}
+
+	@Override
+	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
+		return dataset.getIndexedList();
 	}
 
 	@Override
