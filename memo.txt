@@ -34,3 +34,23 @@
 2.1. use overlap threshold > 1 in the prefix search
 
 2.2. segment texts given a maximum query length
+
+
+
+
+3. pkwise implementation
+
+3.1. overview
+- given qlen and theta, compute the range of window size
+- enumerate all windows of valid size
+- query-side: transform query and search for each transformed query
+- data-side: build index with windows of the valid size which are substrings
+  of transforomed data strings, then search for the query itself
+
+3.2. plan
+(*) token ordering
+(2) token partitioning
+(3) sig gen
+(4) indexing
+(5) search
+(6) optimization
