@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import snu.kdd.pkwise.WindowedDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -47,6 +48,14 @@ public abstract class Dataset {
 		dataset.addStat();
 		return dataset;
 	}
+	
+	public static Dataset createWindowedInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
+		Dataset dataset = new WindowedDataset(datasetName, size, nr, qlen);
+		dataset.createRuleSet();
+		dataset.addStat();
+		return dataset;
+	}
+
 
 	protected static String setName( String name, String size, String nr, String qlen ) {
 		StringBuilder strbld = new StringBuilder(name);
