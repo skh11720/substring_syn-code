@@ -17,17 +17,13 @@ import snu.kdd.substring_syn.utils.Log;
 public class WindowDataset extends Dataset {
 
 	private RecordStore store = null;
-	private final int w;
 	private final List<Record> searchedList;
 
 	public WindowDataset(String datasetName, String size, String nr, String qlen) {
 		super(datasetName, size, nr, qlen);
 		Record.tokenIndex = new TokenIndex();
-		w = Integer.parseInt(qlen);
 		searchedList = loadRecordList(searchedPath);
 	}
-	
-	public final int getW() { return w; }
 	
 	public final void buildRecordStore() {
 		store = new RecordStore(getIndexedList());
@@ -49,12 +45,12 @@ public class WindowDataset extends Dataset {
 		};
 	}
 	
-	public Iterable<Subrecord> getWindowList() {
+	public Iterable<Subrecord> getWindowList( int w ) {
 		return new Iterable<Subrecord>() {
 			
 			@Override
 			public Iterator<Subrecord> iterator() {
-				return new WindowIterator();
+				return new WindowIterator(w);
 			}
 		};
 	}
@@ -117,8 +113,10 @@ public class WindowDataset extends Dataset {
 		Record rec = null;
 		Record recNext = null;
 		int widx = -1;
+		final int w;
 		
-		public WindowIterator() {
+		public WindowIterator( int w ) {
+			this.w = w;
 			while ( rIter.hasNext() ) {
 				rec = rIter.next();
 				if ( rec.size() >= w ) break;

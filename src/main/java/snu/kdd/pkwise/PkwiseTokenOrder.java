@@ -11,18 +11,22 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class PkwiseTokenOrder {
 	
-	public static void run( WindowDataset dataset ) {
-		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset);
+	private final int w;
+	
+	@SuppressWarnings("unused")
+	public static void run( WindowDataset dataset, int w ) {
+		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset, w);
 	}
 
-	public PkwiseTokenOrder( WindowDataset dataset ) {
+	public PkwiseTokenOrder( WindowDataset dataset, int w ) {
+		this.w = w;
 		Int2IntOpenHashMap counter = countTokensFromWindows(dataset);
 		Record.tokenIndex = getNewTokenIndex(counter);
 	}
 
 	private Int2IntOpenHashMap countTokensFromWindows( WindowDataset dataset ) {
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
-		for ( Subrecord window : dataset.getWindowList() ) {
+		for ( Subrecord window : dataset.getWindowList(w) ) {
 			for ( int token : window.getTokenArray() ) {
 				counter.addTo(token, 1);
 			}
@@ -30,6 +34,7 @@ public class PkwiseTokenOrder {
 		return counter;
 	}
 	
+	@SuppressWarnings("unused")
 	private TokenIndex getNewTokenIndex( Int2IntOpenHashMap counter ) {
 		TokenIndex tokenIndex = new TokenIndex();
 		Iterator<Int2IntMap.Entry> iter = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue) ).iterator();

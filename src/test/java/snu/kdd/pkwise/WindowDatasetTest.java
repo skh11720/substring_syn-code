@@ -14,6 +14,7 @@ public class WindowDatasetTest {
 	@Test
 	public void visualize() throws IOException {
 		WindowDataset dataset = TestUtils.getTestRawDataset();
+		int w = 5;
 		int n = 10000;
 		Record[] recList = new Record[n];
 		int ridx = 0;
@@ -29,7 +30,7 @@ public class WindowDatasetTest {
 		}
 		
 		ridx = 0;
-		for ( Subrecord window : dataset.getWindowList() ) {
+		for ( Subrecord window : dataset.getWindowList(w) ) {
 			if ( window.getID() == ridx ) {
 				if ( window.getID() >= n ) break;
 				System.out.println(String.format("\nrec[%d]: "+recList[ridx], ridx));
@@ -44,7 +45,7 @@ public class WindowDatasetTest {
 	@SuppressWarnings("unused")
 	public void checkCount() throws IOException {
 		WindowDataset dataset = TestUtils.getTestRawDataset();
-		final int w = dataset.getW();
+		int w = 5;
 		long n0 = 0;
 		long n1 = 0;
 		
@@ -52,7 +53,7 @@ public class WindowDatasetTest {
 			n0 += Math.max(0, rec.size()-w+1);
 		}
 		
-		for ( Subrecord window : dataset.getWindowList() ) {
+		for ( Subrecord window : dataset.getWindowList(w) ) {
 			n1 += 1;
 		}
 		

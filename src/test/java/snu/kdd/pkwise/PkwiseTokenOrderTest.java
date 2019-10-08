@@ -17,10 +17,11 @@ public class PkwiseTokenOrderTest {
 	@Test
 	public void test() throws IOException {
 		WindowDataset dataset = TestUtils.getTestRawDataset();
-		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset);
+		int w = 5;
+		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset, w);
 		
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
-		for ( Subrecord window : dataset.getWindowList() ) {
+		for ( Subrecord window : dataset.getWindowList(w) ) {
 			for ( int token : window.getTokenArray() ) {
 				counter.addTo(token, 1);
 			}

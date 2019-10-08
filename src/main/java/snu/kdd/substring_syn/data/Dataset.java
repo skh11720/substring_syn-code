@@ -52,7 +52,7 @@ public abstract class Dataset {
 	
 	public static WindowDataset createWindowedInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
 		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
-		PkwiseTokenOrder.run(dataset);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
 		dataset.createRuleSet();
 		dataset.buildRecordStore();
 		dataset.addStat();
