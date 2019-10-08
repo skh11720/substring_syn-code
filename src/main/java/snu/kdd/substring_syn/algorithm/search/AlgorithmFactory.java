@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.search;
 import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.pkwise.PkwiseSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 
 public class AlgorithmFactory {
@@ -12,6 +13,7 @@ public class AlgorithmFactory {
 		GreedyNaiveSearch,
 		PrefixSearch,
 		ExactPrefixSearch,
+		PkwiseSearch,
 	}
 	
 	private enum FilterOption {
@@ -34,6 +36,7 @@ public class AlgorithmFactory {
 		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param, false);
 		case ExactPrefixSearch: return createPrefixSearch(param, true);
+		case PkwiseSearch: return createPkwiseSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -81,6 +84,13 @@ public class AlgorithmFactory {
 			if ( isExact ) return new ExactPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PrefixSearch(theta, bLF, bPF, indexChoice);
 		}
+	}
+	
+	private static PkwiseSearch createPkwiseSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		int qlen = Integer.parseInt(param.get("qlen"));
+		int kmax = Integer.parseInt(param.get("kmax"));
+		return new PkwiseSearch(theta, qlen, kmax);
 	}
 	
 	
