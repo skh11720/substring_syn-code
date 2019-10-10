@@ -92,7 +92,9 @@ public class PkwiseSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-		return dataset.getWindowList(qlen);
+		IterableConcatenator<Subrecord> iconcat = new IterableConcatenator<>();
+		for ( int w=getLB(qlen); w<=getUB(qlen); ++w ) iconcat.addIterable(dataset.getWindowList(w));
+		return iconcat.iterable();
 	}
 	
 	protected Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
@@ -101,8 +103,8 @@ public class PkwiseSearch extends AbstractSearch {
 	
 	protected void searchWindowQuerySide(Record query, Subrecord window) {
 		statContainer.startWatch(Stat.Time_QS_Validation);
-//		double sim = validator.simQuerySide(query, window);
-		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
+		double sim = validator.simQuerySide(query, window);
+//		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
 		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
@@ -116,8 +118,8 @@ public class PkwiseSearch extends AbstractSearch {
 	
 	protected void searchWindowTextSide(Record query, Subrecord window) {
 		statContainer.startWatch(Stat.Time_TS_Validation);
-//		double sim = validator.simTextSide(query, window);
-		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
+		double sim = validator.simTextSide(query, window);
+//		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
 			rsltTextSide.add(new IntPair(query.getID(), window.getID()));
