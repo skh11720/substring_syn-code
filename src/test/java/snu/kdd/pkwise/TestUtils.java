@@ -23,4 +23,9 @@ public class TestUtils {
 		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
 		return dataset;
 	}
+
+	public static WindowDataset getTestDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
+		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
+		return dataset;
+	}
 }

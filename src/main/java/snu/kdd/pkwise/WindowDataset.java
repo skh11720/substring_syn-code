@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.TokenIndex;
@@ -52,6 +53,16 @@ public class WindowDataset extends Dataset {
 			@Override
 			public Iterator<Subrecord> iterator() {
 				return new WindowIterator(w);
+			}
+		};
+	}
+	
+	public Iterable<Subrecord> getTransWindowList( int qlen, double theta ) {
+		return new Iterable<Subrecord>() {
+			
+			@Override
+			public Iterator<Subrecord> iterator() {
+				return new TransWindowIterator(qlen, theta);
 			}
 		};
 	}
@@ -149,6 +160,72 @@ public class WindowDataset extends Dataset {
 				widx = 0;
 			}
 			return new Subrecord(rec, widx, widx+w);
+		}
+	}
+
+	class TransWindowIterator implements Iterator<Subrecord> {
+
+		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
+		Record rec = null;
+		TransLenCalculator transLen;
+		int sidx, eidx;
+		final int qlen;
+		final double theta;
+		
+		public TransWindowIterator( int qlen, double theta ) {
+			this.qlen = qlen;
+			this.theta = theta;
+			sidx = 0;
+			eidx = -1;
+			findNextWindow();
+		}
+		
+		private void preprocessRecord() {
+			rec.preprocessAll();
+			transLen = new TransLenCalculator(null, rec, theta);
+		}
+		
+		private void findNextWindow() {
+			if ( rec != null && findNextWindowInRecord() ) return;
+			rec = null;
+			while ( rIter.hasNext() ) {
+				rec = rIter.next();
+				sidx = 0;
+				eidx = -1;
+				preprocessRecord();
+				if ( findNextWindowInRecord() ) break;
+				else rec = null;
+			}
+		}
+		
+		private boolean findNextWindowInRecord() {
+			eidx += 1;
+			for ( ; sidx<rec.size(); ++sidx ) {
+				for ( ; eidx<rec.size(); ++eidx ) {
+					if ( transLen.getLFLB(sidx, eidx) <= qlen && qlen <= transLen.getLFUB(sidx, eidx) ) {
+					System.out.println( "len: "+(eidx-sidx+1) +"\t"+ "range: "+sidx+", "+eidx +"\t"+ "bound: "+transLen.getLFLB(sidx, eidx)+"\t"+transLen.getLFUB(sidx, eidx) );
+//						System.out.println("TRUE");
+						return true;
+					}
+				}
+				eidx = sidx+1;
+			}
+			return false;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return rec != null;
+		}
+
+		@Override
+		public Subrecord next() {
+			int sidx0 = sidx;
+			int eidx0 = eidx;
+			Record rec0 = rec;
+			findNextWindow();
+//			System.out.println(rec0.getID()+"\t"+sidx0+"\t"+eidx0+"\t"+(eidx0-sidx0+1));
+			return new Subrecord(rec0, sidx0, eidx0);
 		}
 	}
 }

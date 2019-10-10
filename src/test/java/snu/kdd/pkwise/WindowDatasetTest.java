@@ -72,4 +72,18 @@ public class WindowDatasetTest {
 			if ( i >= n ) break;
 		}
 	}
+	
+	@Test
+	public void getTransWindowIteratorTest() throws IOException {
+		WindowDataset dataset = TestUtils.getTestDataset("WIKI", "10000", "107836", "5");
+		System.out.println(dataset.ruleSet.size());
+		int n = 100;
+		int i = 0;
+		int qlen = 5;
+		double theta = 0.6;
+		for ( Subrecord window : dataset.getTransWindowList(qlen, theta) ) {
+//			i += 1;
+//			if ( i >= n ) break;
+		}
+	}
 }
