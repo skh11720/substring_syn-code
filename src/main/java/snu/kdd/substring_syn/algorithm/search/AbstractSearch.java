@@ -39,7 +39,7 @@ public abstract class AbstractSearch {
 		StatContainer.global = statContainer;
 	}
 	
-	public final void run( Dataset dataset ) {
+	public void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);

@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.pkwise.PkwiseTokenOrder;
 import snu.kdd.pkwise.WindowDataset;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -30,7 +31,11 @@ public abstract class Dataset {
 		String size = getOptionValue(cmd, "nt");
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
-		return createInstanceByName(name, size, nr, qlen);
+		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
+		if ( algName == AlgorithmName.PkwiseSearch )
+			return createWindowInstanceByName(name, size, nr, qlen);
+		else
+			return createInstanceByName(name, size, nr, qlen);
 	}
 	
 	private static String getOptionValue( CommandLine cmd, String key ) {
@@ -50,7 +55,7 @@ public abstract class Dataset {
 		return dataset;
 	}
 	
-	public static WindowDataset createWindowedInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
+	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
 		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
 		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
 		dataset.createRuleSet();

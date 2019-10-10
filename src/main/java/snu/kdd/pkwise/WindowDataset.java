@@ -17,7 +17,7 @@ import snu.kdd.substring_syn.utils.Log;
 public class WindowDataset extends Dataset {
 
 	private RecordStore store = null;
-	private final List<Record> searchedList;
+	private List<Record> searchedList;
 
 	public WindowDataset(String datasetName, String size, String nr, String qlen) {
 		super(datasetName, size, nr, qlen);
@@ -26,6 +26,7 @@ public class WindowDataset extends Dataset {
 	}
 	
 	public final void buildRecordStore() {
+		searchedList = loadRecordList(searchedPath);
 		store = new RecordStore(getIndexedList());
 	}
 

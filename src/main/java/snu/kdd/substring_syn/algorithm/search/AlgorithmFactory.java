@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoi
 
 public class AlgorithmFactory {
 
-	private enum AlgorithmName {
+	public enum AlgorithmName {
 		ExactNaiveSearch,
 		GreedyNaiveSearch,
 		PrefixSearch,
