@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Util;
 
 public class WindowDataset extends Dataset {
 
@@ -182,7 +183,8 @@ public class WindowDataset extends Dataset {
 		
 		private void preprocessRecord() {
 			rec.preprocessAll();
-			transLen = new TransLenCalculator(null, rec, theta);
+			double modifiedTheta = Util.getModifiedTheta(qlen, rec, theta);
+			transLen = new TransLenCalculator(null, rec, modifiedTheta);
 		}
 		
 		private void findNextWindow() {
@@ -202,9 +204,8 @@ public class WindowDataset extends Dataset {
 			eidx += 1;
 			for ( ; sidx<rec.size(); ++sidx ) {
 				for ( ; eidx<rec.size(); ++eidx ) {
+//					Log.log.trace("id: "+rec.getID()+"\t"+ "len: "+(eidx-sidx+1) +"\t"+ "range: "+sidx+", "+(eidx+1) +"\t"+ "bound: "+transLen.getLFLB(sidx, eidx)+"\t"+transLen.getLFUB(sidx, eidx) );
 					if ( transLen.getLFLB(sidx, eidx) <= qlen && qlen <= transLen.getLFUB(sidx, eidx) ) {
-					System.out.println( "len: "+(eidx-sidx+1) +"\t"+ "range: "+sidx+", "+eidx +"\t"+ "bound: "+transLen.getLFLB(sidx, eidx)+"\t"+transLen.getLFUB(sidx, eidx) );
-//						System.out.println("TRUE");
 						return true;
 					}
 				}
@@ -225,7 +226,7 @@ public class WindowDataset extends Dataset {
 			Record rec0 = rec;
 			findNextWindow();
 //			System.out.println(rec0.getID()+"\t"+sidx0+"\t"+eidx0+"\t"+(eidx0-sidx0+1));
-			return new Subrecord(rec0, sidx0, eidx0);
+			return new Subrecord(rec0, sidx0, eidx0+1);
 		}
 	}
 }

@@ -8,7 +8,6 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
-import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSearch extends AbstractSearch {
 	
@@ -82,7 +81,7 @@ public class PkwiseSearch extends AbstractSearch {
 		Iterable<Subrecord> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( Subrecord window : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
-//			if ( window.getID() != 29 ) continue;
+//			if ( window.getID() != 946 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
 			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
 			window.getSuperRecord().preprocessAll();
@@ -98,28 +97,28 @@ public class PkwiseSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
-		return dataset.getWindowList(qlen);
+		return dataset.getTransWindowList(qlen, theta);
+//		return dataset.getWindowList(qlen);
 	}
 	
 	protected void searchWindowQuerySide(Record query, Subrecord window) {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		double sim = validator.simQuerySide(query, window);
-//		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
 		statContainer.stopWatch(Stat.Time_QS_Validation);
-		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
-		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
-		Log.log.trace("sim=%.3f", sim);
+//		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
+//		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
+//		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
 			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
-			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
+//			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}
 	}
 	
 	protected void searchWindowTextSide(Record query, Subrecord window) {
+//		Log.log.trace("searchWindowTextSide: query=%d, window=[%d,%d,%d]", query.getID(), window.getID(), window.sidx, window.eidx);
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		double sim = validator.simTextSide(query, window);
-//		double sim = Util.jaccard(query.getTokenList(), window.getTokenList());
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
 			rsltTextSide.add(new IntPair(query.getID(), window.getID()));
@@ -129,22 +128,13 @@ public class PkwiseSearch extends AbstractSearch {
 	
 	
 	@Override
-	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
-		return null;
-	}
-
+	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) { return null; }
 	@Override
-	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
-		return null;
-	}
-
+	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) { return null; }
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
-	}
-
+	protected void searchRecordQuerySide(Record query, Record rec) { } 
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
-	}
+	protected void searchRecordTextSide(Record query, Record rec) { } 
 
 	private int getLB( int size ) {
 		return (int)Math.ceil(1.0*size*theta);
@@ -161,7 +151,7 @@ public class PkwiseSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.00";
+		return "0.01";
 	}
 
 }

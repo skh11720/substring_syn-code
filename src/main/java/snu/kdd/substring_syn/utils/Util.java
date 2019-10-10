@@ -745,6 +745,10 @@ public class Util {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 	
+	public static double getModifiedTheta( int qlen, RecordInterface rec, double theta ) {
+		return theta * qlen / (qlen + 2*(rec.getMaxRhsSize()-1));
+	}
+	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
 		for ( Record exp : Records.expandAll(rec) ) {
