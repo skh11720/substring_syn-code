@@ -46,7 +46,7 @@ public class PkwiseSearch extends AbstractSearch {
 		query.preprocessAll();
 	}
 	
-	protected void pkwiseSearch( WindowDataset dataset ) {
+	protected final void pkwiseSearch( WindowDataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 			long ts = System.nanoTime();
 			pkwiseSearchGivenQuery(query, dataset);
@@ -56,7 +56,7 @@ public class PkwiseSearch extends AbstractSearch {
 		}
 	}
 
-	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
+	protected final void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
 //		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QS_Total);
@@ -90,18 +90,17 @@ public class PkwiseSearch extends AbstractSearch {
 		}
 	}
 	
-	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-		IterableConcatenator<Subrecord> iconcat = new IterableConcatenator<>();
-		for ( int w=getLB(qlen); w<=getUB(qlen); ++w ) iconcat.addIterable(dataset.getWindowList(w));
-		return iconcat.iterable();
+	protected final Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
+		int wMin = getLFLB(qlen);
+		int wMax = getLFUB(qlen);
+		return dataset.getWindowList(wMin, wMax);
 	}
 	
-	protected Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
+	protected final Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
 		return dataset.getTransWindowList(qlen, theta);
-//		return dataset.getWindowList(qlen);
 	}
 	
-	protected void searchWindowQuerySide(Record query, Subrecord window) {
+	protected final void searchWindowQuerySide(Record query, Subrecord window) {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		double sim = validator.simQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
@@ -115,7 +114,7 @@ public class PkwiseSearch extends AbstractSearch {
 		}
 	}
 	
-	protected void searchWindowTextSide(Record query, Subrecord window) {
+	protected final void searchWindowTextSide(Record query, Subrecord window) {
 //		Log.log.trace("searchWindowTextSide: query=%d, window=[%d,%d,%d]", query.getID(), window.getID(), window.sidx, window.eidx);
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		double sim = validator.simTextSide(query, window);
@@ -126,7 +125,6 @@ public class PkwiseSearch extends AbstractSearch {
 		}
 	}
 	
-	
 	@Override
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) { return null; }
 	@Override
@@ -136,16 +134,16 @@ public class PkwiseSearch extends AbstractSearch {
 	@Override
 	protected void searchRecordTextSide(Record query, Record rec) { } 
 
-	private int getLB( int size ) {
+	public final int getLFLB( int size ) {
 		return (int)Math.ceil(1.0*size*theta);
 	}
 	
-	private int getUB( int size ) {
+	public final int getLFUB( int size ) {
 		return (int)(1.0*size/theta);
 	}
 	
 	@Override
-	public String getName() {
+	public final String getName() {
 		return "PkwiseSearch";
 	}
 

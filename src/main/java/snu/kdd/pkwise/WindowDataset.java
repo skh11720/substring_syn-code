@@ -57,6 +57,12 @@ public class WindowDataset extends Dataset {
 			}
 		};
 	}
+
+	public Iterable<Subrecord> getWindowList( int wMin, int wMax ) {
+		IterableConcatenator<Subrecord> iconcat = new IterableConcatenator<>();
+		for ( int w=wMin; w<=wMax; ++w ) iconcat.addIterable(getWindowList(w));
+		return iconcat.iterable();
+	}
 	
 	public Iterable<Subrecord> getTransWindowList( int qlen, double theta ) {
 		return new Iterable<Subrecord>() {
@@ -67,7 +73,7 @@ public class WindowDataset extends Dataset {
 			}
 		};
 	}
-	
+
 	@Override
 	public Record getRecord(int id) {
 		return store.getRecord(id);
