@@ -79,7 +79,7 @@ public class WindowDataset extends Dataset {
 		return store.getRecord(id);
 	}
 
-	private List<Record> loadRecordList( String dataPath ) {
+	public List<Record> loadRecordList( String dataPath ) {
 		List<Record> recordList = new ObjectArrayList<>();
 		try {
 			BufferedReader br = new BufferedReader( new FileReader( dataPath ) );
