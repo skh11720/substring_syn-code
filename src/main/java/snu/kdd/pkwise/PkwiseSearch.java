@@ -4,7 +4,6 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
@@ -15,6 +14,7 @@ public class PkwiseSearch extends AbstractSearch {
 	protected final int qlen;
 	protected final int kmax;
 	protected final GreedyValidator validator;
+	protected PkwiseIndex index;
 
 	public PkwiseSearch( double theta, int qlen, int kmax ) {
 		super(theta);
@@ -40,19 +40,13 @@ public class PkwiseSearch extends AbstractSearch {
 	@Override
 	protected void prepareSearch(Dataset dataset) {
 		super.prepareSearch(dataset);
+        index = new PkwiseIndex(this, ((WindowDataset)dataset), qlen, theta);
+        index.writeToFile();
 	}
 
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
-		System.out.println("preprocess query "+query.getID());
 		query.preprocessAll();
-		System.out.println(query);
-		for ( int k=0; k<query.size(); ++k ) {
-			int n = 0;
-			for ( Rule rule : query.getApplicableRules(k) ) ++n;
-			System.out.println("nAppRules: "+ k+"\t"+n);
-		}
-		System.out.println(query.toStringDetails());
 	}
 	
 	protected final void pkwiseSearch( WindowDataset dataset ) {
@@ -102,11 +96,13 @@ public class PkwiseSearch extends AbstractSearch {
 	protected final Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
 		int wMin = getLFLB(qlen);
 		int wMax = getLFUB(qlen);
-		return dataset.getWindowList(wMin, wMax);
+//		return dataset.getWindowList(wMin, wMax);
+		return index.getCandWindowQuerySide(query);
 	}
 	
 	protected final Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
-		return dataset.getTransWindowList(qlen, theta);
+//		return dataset.getTransWindowList(qlen, theta);
+		return index.getCandWindowTextSide(query);
 	}
 	
 	protected final void searchWindowQuerySide(Record query, Subrecord window) {
@@ -158,7 +154,6 @@ public class PkwiseSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.01";
+		return "0.02";
 	}
-
 }

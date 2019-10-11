@@ -38,11 +38,11 @@ public class IterableConcatenator<T> {
 	
 	class IterableListIterator implements Iterator<T> {
 		
-		Iterator<T>	curr;
-		int i = 0;
+		Iterator<T>	curr = null;
+		int i = -1;
 		
 		public IterableListIterator() {
-			curr = iteratorList.get(0);
+			findNext();
 		}
 
 		@Override
@@ -52,11 +52,17 @@ public class IterableConcatenator<T> {
 
 		@Override
 		public T next() {
-			while ( !curr.hasNext() ) {
+			T item = curr.next();
+			findNext();
+			return item;
+		}
+		
+		private void findNext() {
+			while ( curr == null || !curr.hasNext() ) {
 				i += 1;
+				if ( i >= n ) break;
 				curr = iteratorList.get(i);
 			}
-			return curr.next();
 		}
 	}
 }

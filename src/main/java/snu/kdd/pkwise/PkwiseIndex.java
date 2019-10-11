@@ -1,6 +1,9 @@
 package snu.kdd.pkwise;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -21,8 +24,6 @@ public class PkwiseIndex {
 	
 	public final Iterable<Subrecord> getCandWindowQuerySide( Record query ) {
 		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
-		System.out.println(query.toStringDetails());
-		System.out.println(query.getCandTokenSet());
 		for ( int token : query.getCandTokenSet() ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
@@ -69,9 +70,26 @@ public class PkwiseIndex {
 		return twitvMap;
 	}
 	
+	public final void writeToFile() {
+		try {
+			PrintStream ps = null;
+			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
+			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+			ps.close();
+			ps = new PrintStream("tmp/PkwiseIndex.twitvMap.txt");
+			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+			ps.close();
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
 	
 	class AbstractWitvIterator implements Iterator<Subrecord> {
 		
+		final int token;
 		ObjectList<WindowInterval> list;
 		int iidx = -1;
 		int widx = -1;
@@ -79,6 +97,7 @@ public class PkwiseIndex {
 		Record rec = null;
 		
 		public AbstractWitvIterator( int token ) {
+			this.token = token;
 		}
 
 		@Override

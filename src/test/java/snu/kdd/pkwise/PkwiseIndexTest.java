@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -34,17 +36,28 @@ public class PkwiseIndexTest {
 			}
 		}
 	}
-	
-	@Test
-	public void textWitvMapCorrectness() throws IOException {
+
+	@Ignore
+	public void testBuildIndex() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;
 		int kmax = 3;
 		WindowDataset dataset = TestUtils.getTestDataset();
 		PkwiseSearch alg = new PkwiseSearch(theta, qlen, kmax);
 		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
+		index.writeToFile();
+	}
+	
+	@Test
+	public void testWitvMapCorrectness() throws IOException {
+		double theta = 0.6;
+		int qlen = 5;
+		int kmax = 3;
+		WindowDataset dataset = TestUtils.getTestDataset();
+		PkwiseSearch alg = new PkwiseSearch(theta, qlen, kmax);
+		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen);
 		
-		for ( Entry<Integer, ObjectList<WindowInterval>> e : index.getWitvMap().entrySet() ) {
+		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) {
 			int token = e.getKey();
 			ObjectList<WindowInterval> list = e.getValue();
 			for ( WindowInterval witv : list ) {
@@ -63,44 +76,29 @@ public class PkwiseIndexTest {
 	}
 
 	@Test
-	public void testWitvIterator() throws IOException {
+	public void testTwitvMapCorrectness() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;
 		int kmax = 3;
 		WindowDataset dataset = TestUtils.getTestDataset();
-		PkwiseSearch alg = new PkwiseSearch(theta, qlen, kmax);
-		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
+		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
 		
-		for ( int token=0; token<20; ++token ) {
-			System.out.println(token+"\t"+Record.tokenIndex.getToken(token));
-			System.out.println(index.getWitvMap().get(token));
-			Iterator<Subrecord> iter = index.getWitvIterator(token);
-			while ( iter.hasNext() ) {
-				Subrecord window = iter.next();
-				System.out.println(window.getID()+"\t"+window.getSidx()+"\t"+window.size());
-			}
-			System.out.println();
-		}
-	}
+		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) {
+			int token = e.getKey();
+			ObjectList<WindowInterval> list = e.getValue();
+			for ( WindowInterval twitv : list ) {
+				int rid = twitv.rid;
+				int w = twitv.w;
+				int sidx = twitv.sidx;
+				int eidx = twitv.eidx;
 
-	@Test
-	public void testTwitvIterator() throws IOException {
-		double theta = 0.6;
-		int qlen = 5;
-		int kmax = 3;
-		WindowDataset dataset = TestUtils.getTestDataset();
-		PkwiseSearch alg = new PkwiseSearch(theta, qlen, kmax);
-		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
-		
-		for ( int token=0; token<20; ++token ) {
-			System.out.println(token+"\t"+Record.tokenIndex.getToken(token));
-			System.out.println(index.getTwitvMap().get(token));
-			Iterator<Subrecord> iter = index.getTwitvIterator(token);
-			while ( iter.hasNext() ) {
-				Subrecord window = iter.next();
-				System.out.println(window.getID()+"\t"+window.getSidx()+"\t"+window.size());
+//				System.out.println(Record.tokenIndex.getToken(token)+"\t"+token+"\t"+rid+"\t"+sidx+"\t"+eidx+"\t"+w);
+				Record rec = dataset.getRecord(rid);
+				for ( int idx=sidx; idx<eidx; ++idx ) {
+					Subrecord window = new Subrecord(rec, idx, idx+w);
+					assertTrue(window.getTokenList().contains(token));
+				}
 			}
-			System.out.println();
 		}
 	}
 }
