@@ -37,7 +37,7 @@ public class PkwiseIndexTest {
 		}
 	}
 
-	@Ignore
+	@Test
 	public void testBuildIndex() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;

@@ -1,13 +1,19 @@
 package snu.kdd.pkwise;
 
+import java.util.Map.Entry;
+
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.IntTriple;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Log;
 
 public class PkwiseIndexBuilder {
 
@@ -53,14 +59,40 @@ public class PkwiseIndexBuilder {
 		map = new Int2ObjectOpenHashMap<>();
 		counter = new Int2IntOpenHashMap();
 		sidxMap = new Int2IntOpenHashMap();
-		int head = -1;
-		int tail = -1;
-		Subrecord windowPrev = null;
+		Object2ObjectMap<IntTriple, IntList> tmpMap = new Object2ObjectOpenHashMap<>();
+		int rid = -1;
 		
 		for ( Subrecord window : dataset.getTransWindowList(qlen, theta) ) {
+			if ( rid != window.getID() ) {
+				rid = window.getID();
+				for ( Entry<IntTriple, IntList> e : tmpMap.entrySet() ) {
+					IntTriple key = e.getKey();
+					int token = key.i1;
+					if ( !map.containsKey(token) ) map.put(token, new ObjectArrayList<>());
+					int recId = key.i2;
+					int w = key.i3;
+					IntList list = e.getValue(); 
+					int sidx = list.get(0);
+					int eidx = sidx+1;
+					for ( int i=1; i<list.size(); ++i ) {
+						if ( list.get(i) == sidx+1 ) eidx = list.get(i)+1;
+						else {
+							map.get(token).add(new WindowInterval(recId, w, sidx, eidx));
+							sidx = list.get(i);
+							eidx = sidx+1;
+						}
+					}
+					map.get(token).add(new WindowInterval(recId, w, sidx, eidx));
+					
+				}
+				tmpMap.clear();
+			}
 			for ( int token : window.getTokenArray() ) {
 				openInterval(token, window);
-				closeInterval(token, window.getID(), window.size(), window.getSidx()+1, false);
+//				closeInterval(token, window.getID(), window.size(), window.getSidx()+1, false);
+				IntTriple key = new IntTriple(token, window.getID(), window.size());
+				if ( !tmpMap.containsKey(key) ) tmpMap.put(key, new IntArrayList());
+				tmpMap.get(key).add(window.getSidx());
 			}
 		}
 		

@@ -154,6 +154,6 @@ public class PkwiseSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.02";
+		return "0.03";
 	}
 }
