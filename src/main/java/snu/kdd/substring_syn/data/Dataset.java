@@ -61,6 +61,7 @@ public abstract class Dataset {
 		dataset.createRuleSet();
 		dataset.buildRecordStore();
 		dataset.addStat();
+//		dataset.ruleSet.writeToFile();
 		return dataset;
 	}
 
