@@ -52,7 +52,7 @@ public class IterableConcatenator<T> {
 
 		@Override
 		public T next() {
-			if ( !curr.hasNext() ) {
+			while ( !curr.hasNext() ) {
 				i += 1;
 				curr = iteratorList.get(i);
 			}
