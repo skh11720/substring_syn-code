@@ -4,6 +4,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
@@ -43,7 +44,15 @@ public class PkwiseSearch extends AbstractSearch {
 
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
+		System.out.println("preprocess query "+query.getID());
 		query.preprocessAll();
+		System.out.println(query);
+		for ( int k=0; k<query.size(); ++k ) {
+			int n = 0;
+			for ( Rule rule : query.getApplicableRules(k) ) ++n;
+			System.out.println("nAppRules: "+ k+"\t"+n);
+		}
+		System.out.println(query.toStringDetails());
 	}
 	
 	protected final void pkwiseSearch( WindowDataset dataset ) {
