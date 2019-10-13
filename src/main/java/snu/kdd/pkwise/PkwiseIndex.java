@@ -18,7 +18,7 @@ public class PkwiseIndex {
 
 	public PkwiseIndex( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		this.dataset = dataset;
-		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen);
+		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
 		twitvMap = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
 	}
 	

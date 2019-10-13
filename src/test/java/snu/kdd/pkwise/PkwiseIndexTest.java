@@ -3,6 +3,7 @@ package snu.kdd.pkwise;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -55,12 +56,17 @@ public class PkwiseIndexTest {
 		int kmax = 3;
 		WindowDataset dataset = TestUtils.getTestDataset();
 		PkwiseSearch alg = new PkwiseSearch(theta, qlen, kmax);
-		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen);
+		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
+		PrintStream ps = null;
+		ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
+		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+		ps.close();
 		
 		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) {
 			int token = e.getKey();
 			ObjectList<WindowInterval> list = e.getValue();
 			for ( WindowInterval witv : list ) {
+//				System.out.println(witv);
 				int rid = witv.rid;
 				int w = witv.w;
 				int sidx = witv.sidx;
@@ -69,7 +75,18 @@ public class PkwiseIndexTest {
 				Record rec = dataset.getRecord(rid);
 				for ( int idx=sidx; idx<eidx; ++idx ) {
 					Subrecord window = new Subrecord(rec, idx, idx+w);
-					assertTrue(window.getTokenList().contains(token));
+					try {
+						assertTrue(window.getTokenList().contains(token));
+					}
+					catch ( AssertionError error ) {
+						System.err.println("sidx="+sidx);
+						System.err.println("eidx="+eidx);
+						System.err.println("token="+token+"\t"+Record.tokenIndex.getToken(token));
+						System.err.println("window="+window);
+						System.err.println("rid="+window.getID());
+						System.err.println("range="+window.getSidx()+", "+(window.getSidx()+window.size()));
+						System.exit(1);
+					}
 				}
 			}
 		}

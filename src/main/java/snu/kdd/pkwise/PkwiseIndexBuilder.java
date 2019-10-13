@@ -1,5 +1,6 @@
 package snu.kdd.pkwise;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -16,14 +17,17 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.IntTriple;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndexBuilder {
 
 	static Int2ObjectMap<ObjectList<WindowInterval>> map;
 	static Int2IntOpenHashMap counter;
 	static Int2IntOpenHashMap sidxMap;
+	static double theta;
 	
-	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen ) {
+	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
+		PkwiseIndexBuilder.theta = theta;
 		WitvMapBuilder builder = new WitvMapBuilder(alg, dataset, qlen);
 		return builder.build();
 	}
@@ -144,6 +148,8 @@ public class PkwiseIndexBuilder {
 		Subrecord x;
 		int l;
 		IntArrayList sig;
+		int cov;
+		boolean debug = true;
 		
 		public WitvMapBuilder( PkwiseSearch alg, WindowDataset dataset, int qlen ) {
 			int wMin = alg.getLFLB(qlen);
@@ -167,6 +173,7 @@ public class PkwiseIndexBuilder {
 		
 		public void maintainPrefix() {
 			if ( isLastWindow(x) ) {
+//				Log.log.trace("Last window");
 				for ( int token : sig ) {
 					closeInterval(token, x, true);
 				}
@@ -177,36 +184,105 @@ public class PkwiseIndexBuilder {
 			}
 			
 			Subrecord x1 = windowList.next();
+//			Log.log.trace("window: rid="+x1.getID()+"\tsidx="+x1.getSidx()+"\tsize="+x1.size()+"\twindow="+x1.getTokenList());
+			int maxDiff = Util.getPrefixLength(x1, theta);
 			IntArrayList sig1;
 			
 			if ( x == null ) { // x1 is the first window
-				sig1 = new IntArrayList(x1.getTokenList());
-				sig1.sort(Integer::compare);
+//				Log.log.trace("First window");
+				sig1 = getSig(x1);
 				for ( int token : sig1 ) {
 					openInterval(token, x1);
 				}
 			}
 
 			else {
+//				Log.log.trace("Intermediate window");
 				int t1 = x.getToken(0);
 				int t2 = x1.getToken(x1.size()-1);
+//				Log.log.trace("t1="+t1+"\tt2="+t2);
 				sig1 = new IntArrayList(sig);
-				removeFromSig(sig1, t1);
-				if ( true ) {
-					addToSig(sig1, t2);
-				}
+				if ( sig.contains(t1) ) removeFromSig(sig1, t1);
+				if ( t2 < sig1.getInt(sig1.size()-1) ) addToSig(sig1, t2);
+				int cov = getCov(sig, -1);
+				int cov1 = getCov(sig1, -1);
+
+//				System.out.println("rid="+x1.getID());
+//				System.out.println("t1="+t1+"\tt2="+t2);
+//				System.out.println("sig="+sig);
+//				System.out.println("sig1="+sig1);
+//				System.out.println("cov1="+cov1);
+//				System.out.println("sig1.size="+sig1.size()+"\tcov="+cov+"\tmaxDiff="+maxDiff);
 				
-				if ( t1 != t2 ) {
-					openInterval(t2, x1);
-					closeInterval(t1, x1, false);
+				if ( getCov(sig, t1) < maxDiff ) {
+//					Log.log.trace("case1");
+					if ( cov1 == maxDiff ) {
+//						Log.log.trace("case1.1");
+//						while ( sig1.getInt(sig1.size()-1) ) {
+//						}
+						// while tail(P') are ...
+						if ( t1 != t2 ) {
+//							Log.log.trace("case1.1.1");
+							openInterval(t2, x1);
+							closeInterval(t1, x1, false);
+						}
+					}
+					else {
+//						Log.log.trace("case1.2");
+//						throw new RuntimeException("NOT AVAILABLE NOW1");
+						Iterator<Integer> iter = x1.getTokenList().stream().sorted().iterator();
+						for ( int i=0; i<sig1.size(); ++i ) iter.next();
+						int dl = 0;
+						int cov2 = 0;
+						while ( cov2 < 1 ) {
+							dl += 1;
+							cov2 += 1;
+						}
+						assert (dl == 1);
+						t2 = iter.next();
+//						Log.log.trace("t2="+t2);
+						addToSig(sig1, t2);
+						if ( t1 != t2 ) {
+//							Log.log.trace("case1.2.1");
+							openInterval(t2, x1);
+							closeInterval(t1, x1, false);
+						}
+					}
+					
+				}
+				else {
+//					Log.log.trace("case2");
+//					throw new RuntimeException("NOT AVAILABLE NOW2");
+					if ( cov1 > maxDiff ) {
+//						Log.log.trace("case2.1");
+						Iterator<Integer> iter = sig1.stream().sorted((x,y)->Integer.compare(y, x)).iterator();
+						int dl = 0;
+						int cov2 = 0;
+						while ( cov2 < 1 ) {
+							dl += 1;
+							cov2 += 1;
+						}
+						int t3 = iter.next();
+//						Log.log.trace("t3="+t3);
+						removeFromSig(sig1, t3);
+//						Log.log.trace("sig1="+sig1);
+						// while tail(P') are ...
+						if ( t3 != t2 ) {
+//							Log.log.trace("case2.1.1");
+							openInterval(t2, x1);
+							closeInterval(t3, x1, false);
+						}
+					}
 				}
 			}
+//			Log.log.trace("sig1="+sig1);
 			
 			x = x1;
 			sig = sig1;
 		}
 		
 		private void openInterval( int token, Subrecord window ) {
+//			Log.log.trace(String.format("openInterval: token=%d\trid=%d\tsidx=%d\tsize=%d\tcount=%d", token, window.getID(), window.getSidx(), window.size(), counter.get(token)));
 			if ( counter.get(token) == 0 ) {
 				sidxMap.put(token, window.getSidx());
 			}
@@ -214,6 +290,8 @@ public class PkwiseIndexBuilder {
 		}
 
 		private void closeInterval( int token, Subrecord window, boolean isLast ) {
+//			Log.log.trace(String.format("closeInterval: token=%d\trid=%d\tsidx=%d\tsize=%d\tcount=%d", token, window.getID(), window.getSidx(), window.size(), counter.get(token)));
+			
 			if ( counter.get(token) == 1 ) {
 				if ( !map.containsKey(token) ) map.put(token, new ObjectArrayList<>());
 				int sidx0 = sidxMap.get(token);
@@ -224,20 +302,37 @@ public class PkwiseIndexBuilder {
 		}
 		
 		private void removeFromSig( IntArrayList sig, int token ) {
-			int pos = IntArrays.binarySearch(sig.elements(), token);
+			int pos = Collections.binarySearch(sig, token);
+//			Log.log.trace("sig.elements="+Arrays.toString(sig.elements()));
+//			Log.log.trace("pos="+pos);
 			if ( pos >= 0 ) {
 				sig.removeInt(pos);
 			}
+//			Log.log.trace("sig="+sig);
 		}
 		
 		private void addToSig( IntArrayList sig, int token ) {
-			int pos = IntArrays.binarySearch(sig.elements(), token);
+			int pos = Collections.binarySearch(sig, token);
 			if ( pos >= 0 ) sig.add(pos, token);
 			else {
 				pos = -pos-1;
 				if ( pos >= sig.size() ) sig.add(token);
 				else sig.add(pos, token);
 			}
+		}
+		
+		private IntArrayList getSig( Subrecord window ) {
+			IntArrayList sig = new IntArrayList( window.getTokenList().stream().sorted().limit(Util.getPrefixLength(window, theta)).iterator() );
+			return sig;
+		}
+		
+		private int getCov( IntArrayList sig, int ignored ) {
+			int cov = 0;
+			for ( int token : sig ) {
+				if ( token == ignored ) continue;
+				cov += 1;
+			}
+			return cov;
 		}
 	} // end class WitvMapBuilder
 }
