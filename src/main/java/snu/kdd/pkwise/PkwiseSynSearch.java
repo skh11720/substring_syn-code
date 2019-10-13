@@ -9,14 +9,14 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class PkwiseSearch extends AbstractSearch {
+public class PkwiseSynSearch extends AbstractSearch {
 	
 	protected final int qlen;
 	protected final int kmax;
 	protected final GreedyValidator validator;
 	protected PkwiseIndex index;
 
-	public PkwiseSearch( double theta, int qlen, int kmax ) {
+	public PkwiseSynSearch( double theta, int qlen, int kmax ) {
 		super(theta);
 		this.qlen = qlen;
 		this.kmax = kmax;
@@ -149,7 +149,7 @@ public class PkwiseSearch extends AbstractSearch {
 	
 	@Override
 	public final String getName() {
-		return "PkwiseSearch";
+		return "PkwiseSynSearch";
 	}
 
 	@Override

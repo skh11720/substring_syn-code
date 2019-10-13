@@ -26,7 +26,7 @@ public class PkwiseIndexBuilder {
 	static Int2IntOpenHashMap sidxMap;
 	static double theta;
 	
-	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
+	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		PkwiseIndexBuilder.theta = theta;
 		WitvMapBuilder builder = new WitvMapBuilder(alg, dataset, qlen);
 		return builder.build();
@@ -151,7 +151,7 @@ public class PkwiseIndexBuilder {
 		int cov;
 		boolean debug = true;
 		
-		public WitvMapBuilder( PkwiseSearch alg, WindowDataset dataset, int qlen ) {
+		public WitvMapBuilder( PkwiseSynSearch alg, WindowDataset dataset, int qlen ) {
 			int wMin = alg.getLFLB(qlen);
 			int wMax = alg.getLFUB(qlen);
 			windowList = dataset.getWindowList(wMin, wMax).iterator();

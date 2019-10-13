@@ -16,7 +16,7 @@ public class PkwiseIndex {
 	private final Int2ObjectMap<ObjectList<WindowInterval>> witvMap;
 	private final Int2ObjectMap<ObjectList<WindowInterval>> twitvMap;
 
-	public PkwiseIndex( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
+	public PkwiseIndex( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		this.dataset = dataset;
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
 		twitvMap = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);

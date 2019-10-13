@@ -32,7 +32,7 @@ public abstract class Dataset {
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
-		if ( algName == AlgorithmName.PkwiseSearch )
+		if ( algName == AlgorithmName.PkwiseSynSearch )
 			return createWindowInstanceByName(name, size, nr, qlen);
 		else
 			return createInstanceByName(name, size, nr, qlen);
