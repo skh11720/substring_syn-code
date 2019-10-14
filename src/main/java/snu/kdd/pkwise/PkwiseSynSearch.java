@@ -56,8 +56,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	@Override
 	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-//		int wMin = getLFLB(qlen);
-//		int wMax = getLFUB(qlen);
 //		return dataset.getWindowList(wMin, wMax);
 		return index.getCandWindowQuerySide(query);
 	}
