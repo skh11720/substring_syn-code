@@ -10,6 +10,10 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class Ruleset {
 	final ObjectArrayList<Rule> ruleList;
+	
+	public Ruleset() {
+		this.ruleList = new ObjectArrayList<>();
+	}
 
 	public Ruleset( Dataset dataset ) {
 		this.ruleList = new ObjectArrayList<>();

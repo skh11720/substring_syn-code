@@ -9,27 +9,31 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Util;
 
-public class PkwiseIndex {
+public class PkwiseSynIndex {
 	
-	private final double theta;
 	private final WindowDataset dataset;
 	private final Int2ObjectMap<ObjectList<WindowInterval>> witvMap;
+	private final Int2ObjectMap<ObjectList<WindowInterval>> twitvMap;
 
-	public PkwiseIndex( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
-		this.theta = theta;
+	public PkwiseSynIndex( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		this.dataset = dataset;
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
+		twitvMap = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
 	}
 	
 	public final Iterable<Subrecord> getCandWindowQuerySide( Record query ) {
 		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
-		for ( int token : Util.getPrefix(query, theta) ) iterableList.addIterable(getWitvIterable(token));
-//		for ( int token : query.getTokenArray() ) iterableList.addIterable(getWitvIterable(token));
+		for ( int token : query.getCandTokenSet() ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
 
+	public final Iterable<Subrecord> getCandWindowTextSide( Record query ) {
+		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
+		for ( int token : query.getDistinctTokens() )  iterableList.addIterable(getTwitvIterable(token));
+		return iterableList.iterable();
+	}
+	
 	public final Iterable<Subrecord> getWitvIterable( int token ) {
 		return new Iterable<Subrecord>() {
 			
@@ -40,23 +44,41 @@ public class PkwiseIndex {
 		};
 	}
 	
+	public final Iterable<Subrecord> getTwitvIterable( int token ) {
+		return new Iterable<Subrecord>() {
+			
+			@Override
+			public Iterator<Subrecord> iterator() {
+				return getTwitvIterator(token);
+			}
+		};
+	}
+	
 	public final Iterator<Subrecord> getWitvIterator( int token ) {
 		return new WitvIterator(token);
+	}
+
+	public final Iterator<Subrecord> getTwitvIterator( int token ) {
+		return new TwitvIterator(token);
 	}
 	
 	public final Int2ObjectMap<ObjectList<WindowInterval>> getWitvMap() {
 		return witvMap;
 	}
 	
+	public final Int2ObjectMap<ObjectList<WindowInterval>> getTwitvMap() {
+		return twitvMap;
+	}
+	
 	public final void writeToFile() {
 		try {
 			PrintStream ps = null;
-			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
+			ps = new PrintStream("tmp/PkwiseSynIndex.witvMap.txt");
 			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
 			ps.close();
-//			ps = new PrintStream("tmp/PkwiseIndex.twitvMap.txt");
-//			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
-//			ps.close();
+			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
+			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+			ps.close();
 		}
 		catch ( IOException e ) {
 			e.printStackTrace();
@@ -65,7 +87,7 @@ public class PkwiseIndex {
 	}
 	
 	
-	protected class AbstractWitvIterator implements Iterator<Subrecord> {
+	class AbstractWitvIterator implements Iterator<Subrecord> {
 		
 		final int token;
 		ObjectList<WindowInterval> list;
@@ -111,6 +133,14 @@ public class PkwiseIndex {
 		public WitvIterator( int token ) {
 			super(token);
 			list = witvMap.get(token);
+			if ( list != null ) findNext();
+		}
+	}
+	
+	class TwitvIterator extends AbstractWitvIterator {
+		public TwitvIterator( int token ) {
+			super(token);
+			list = twitvMap.get(token);
 			if ( list != null ) findNext();
 		}
 	}

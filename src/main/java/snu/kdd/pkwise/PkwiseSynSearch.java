@@ -1,46 +1,26 @@
 package snu.kdd.pkwise;
 
-import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class PkwiseSynSearch extends AbstractSearch {
-	
-	protected final int qlen;
-	protected final int kmax;
-	protected final GreedyValidator validator;
-	protected PkwiseIndex index;
+public class PkwiseSynSearch extends PkwiseSearch {
 
+	private GreedyValidator validator;
+	private PkwiseSynIndex index;
+	
 	public PkwiseSynSearch( double theta, int qlen, int kmax ) {
-		super(theta);
-		this.qlen = qlen;
-		this.kmax = kmax;
-		param.put("qlen", Integer.toString(qlen));
-		param.put("kmax", Integer.toString(kmax));
+		super(theta, qlen, kmax);
 		validator = new GreedyValidator(theta, statContainer);
 	}
 
-	public void run( Dataset dataset ) {
-		statContainer.setAlgorithm(this);
-		statContainer.mergeStatContainer(dataset.statContainer);
-		statContainer.startWatch(Stat.Time_Total);
-		prepareSearch(dataset);
-		pkwiseSearch((WindowDataset)dataset);
-		statContainer.stopWatch(Stat.Time_Total);
-		putResultIntoStat();
-		statContainer.finalizeAndOutput();
-		outputResult(dataset);
-	}
-	
 	@Override
 	protected void prepareSearch(Dataset dataset) {
 		super.prepareSearch(dataset);
-        index = new PkwiseIndex(this, ((WindowDataset)dataset), qlen, theta);
+        index = new PkwiseSynIndex(this, ((WindowDataset)dataset), qlen, theta);
         index.writeToFile();
 	}
 
@@ -49,17 +29,8 @@ public class PkwiseSynSearch extends AbstractSearch {
 		query.preprocessAll();
 	}
 	
-	protected final void pkwiseSearch( WindowDataset dataset ) {
-		for ( Record query : dataset.getSearchedList() ) {
-			long ts = System.nanoTime();
-			pkwiseSearchGivenQuery(query, dataset);
-			double searchTime = (System.nanoTime()-ts)/1e6;
-			statContainer.addSampleValue("Time_SearchPerQuery", searchTime);
-			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->searchTime);
-		}
-	}
-
-	protected final void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
+	@Override
+	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
 //		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QS_Total);
@@ -70,16 +41,6 @@ public class PkwiseSynSearch extends AbstractSearch {
 		statContainer.stopWatch(Stat.Time_TS_Total);
 	}
 
-	protected final void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
-		Iterable<Subrecord> candListQuerySide = getCandWindowListQuerySide(query, dataset);
-		for ( Subrecord window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
-//			if ( window.getID() != 7677 ) continue;
-			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
-			searchWindowQuerySide(query, window);
-		}
-	}
-	
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<Subrecord> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( Subrecord window : candListTextSide ) {
@@ -93,30 +54,22 @@ public class PkwiseSynSearch extends AbstractSearch {
 		}
 	}
 	
-	protected final Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-		int wMin = getLFLB(qlen);
-		int wMax = getLFUB(qlen);
+	@Override
+	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
+//		int wMin = getLFLB(qlen);
+//		int wMax = getLFUB(qlen);
 //		return dataset.getWindowList(wMin, wMax);
 		return index.getCandWindowQuerySide(query);
 	}
 	
-	protected final Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
+	protected Iterable<Subrecord> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
 //		return dataset.getTransWindowList(qlen, theta);
 		return index.getCandWindowTextSide(query);
 	}
-	
-	protected final void searchWindowQuerySide(Record query, Subrecord window) {
-		statContainer.startWatch(Stat.Time_QS_Validation);
-		double sim = validator.simQuerySide(query, window);
-		statContainer.stopWatch(Stat.Time_QS_Validation);
-//		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
-//		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
-//		Log.log.trace("sim=%.3f", sim);
-		if ( sim >= theta ) {
-			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
-//			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
-			return;
-		}
+
+	@Override
+	protected double verifyQuerySide( Record query, Subrecord window ) {
+		return validator.simQuerySide(query, window);
 	}
 	
 	protected final void searchWindowTextSide(Record query, Subrecord window) {

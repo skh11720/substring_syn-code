@@ -32,8 +32,10 @@ public abstract class Dataset {
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
+		if ( algName == AlgorithmName.PkwiseSearch )
+			return createWindowInstanceByName(name, size, nr, qlen, false);
 		if ( algName == AlgorithmName.PkwiseSynSearch )
-			return createWindowInstanceByName(name, size, nr, qlen);
+			return createWindowInstanceByName(name, size, nr, qlen, true);
 		else
 			return createInstanceByName(name, size, nr, qlen);
 	}
@@ -55,12 +57,13 @@ public abstract class Dataset {
 		return dataset;
 	}
 	
-	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
+	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen, boolean useRule ) throws IOException {
 		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
 		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
 		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
-		dataset.createRuleSet();
+		if ( useRule ) dataset.createRuleSet();
+		else dataset.ruleSet = new Ruleset();
 		dataset.addStat();
 //		dataset.ruleSet.writeToFile();
 		return dataset;

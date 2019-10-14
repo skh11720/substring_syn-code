@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -25,10 +24,18 @@ public class PkwiseIndexBuilder {
 	static Int2IntOpenHashMap counter;
 	static Int2IntOpenHashMap sidxMap;
 	static double theta;
+
+	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
+		PkwiseIndexBuilder.theta = theta;
+		WitvMapBuilder builder = new WitvMapBuilder(dataset, qlen, qlen);
+		return builder.build();
+	}
 	
 	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		PkwiseIndexBuilder.theta = theta;
-		WitvMapBuilder builder = new WitvMapBuilder(alg, dataset, qlen);
+		int wMin = alg.getLFLB(qlen);
+		int wMax = alg.getLFUB(qlen);
+		WitvMapBuilder builder = new WitvMapBuilder(dataset, wMin, wMax);
 		return builder.build();
 	}
 //		int wMin = alg.getLFLB(qlen);
@@ -151,9 +158,7 @@ public class PkwiseIndexBuilder {
 		int cov;
 		boolean debug = true;
 		
-		public WitvMapBuilder( PkwiseSynSearch alg, WindowDataset dataset, int qlen ) {
-			int wMin = alg.getLFLB(qlen);
-			int wMax = alg.getLFUB(qlen);
+		public WitvMapBuilder( WindowDataset dataset, int wMin, int wMax ) {
 			windowList = dataset.getWindowList(wMin, wMax).iterator();
 			map = new Int2ObjectOpenHashMap<>();
 			counter = new Int2IntOpenHashMap();
