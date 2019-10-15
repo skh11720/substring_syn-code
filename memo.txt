@@ -50,8 +50,8 @@
 3.2. plan
 (*) indexing
 (*) token ordering
-(3) token partitioning
-(4) sig gen
+(*) token partitioning
+(*) sig gen
 (5) search
 (6) optimization
 

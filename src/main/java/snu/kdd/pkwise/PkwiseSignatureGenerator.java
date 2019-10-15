@@ -1,0 +1,89 @@
+package snu.kdd.pkwise;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.utils.Util;
+
+public class PkwiseSignatureGenerator {
+
+	private final TokenPartitioner partitioner;
+	private final KwiseSignatureMap sigMap;
+	private final int kmax;
+	private final int[] nClassToken;
+	
+	public PkwiseSignatureGenerator( TokenPartitioner partitioner, KwiseSignatureMap sigMap, int kmax ) {
+		this.partitioner = partitioner;
+		this.sigMap = sigMap;
+		this.kmax = kmax;
+		nClassToken = new int[kmax];
+	}
+	
+	public IntArrayList genSignature( RecordInterface rec, int maxDiff, boolean indexing ) {
+		IntArrayList sig = new IntArrayList();
+		int l = getPrefixLength(rec, maxDiff);
+		IntList prefix = new IntArrayList( rec.getTokenList().stream().sorted().limit(l).iterator() );
+//		System.out.println("prefix="+prefix);
+		int sidx = 0;
+		int eidx = 0;
+		for ( int cidx=0; cidx<kmax; ++cidx ) {
+			while ( eidx < l && partitioner.getTokenClass(prefix.get(eidx)) == cidx ) eidx += 1;
+//			System.out.println("tokens of class "+(cidx+1)+"="+prefix.subList(sidx, eidx).toString());
+			IntCollection ksig;
+			if ( cidx == 0 ) ksig = prefix.subList(sidx, eidx);
+			else ksig = genKwiseSignature(prefix.subList(sidx, eidx), cidx, indexing);
+//			System.out.println("sig of class "+(cidx+1)+"="+ksig);
+			if ( ksig != null ) sig.addAll(ksig);
+			sidx = eidx;
+		}
+		return sig;
+	}
+	
+	public IntList genKwiseSignature( IntList list, int cidx, boolean indexing ) {
+		/*
+		 * CAUTION: 
+		 *   - perfix must be sorted
+		 *   - cidx is zero-based
+		 */
+		if ( list.size() < cidx+1 ) return null;
+		int[] arr = new int[cidx+1];
+		IntList sig = new IntArrayList();
+		List<IntArrayList> combList = Util.getCombinations(list.size(), cidx+1);
+		for ( IntArrayList comb : combList ) {
+			for ( int i=0; i<cidx+1; ++i ) {
+				arr[i] = list.get(comb.getInt(i));
+			}
+			int key;
+			if (indexing) key = sigMap.getIfExistsOrPut(arr);
+			else key = sigMap.get(arr);
+//			System.out.println("key="+key+"\tarr="+Arrays.toString(arr));
+			sig.add(key);
+		}
+		return sig;
+	}
+	
+	public int getPrefixLength( RecordInterface rec, int maxDiff ) {
+		int cov = 0;
+		int l = -1;
+		Arrays.fill(nClassToken, 0);
+		Iterator<Integer> iter = rec.getTokenList().stream().sorted().iterator();
+		while ( iter.hasNext() ) {
+			l += 1;
+			int token = iter.next();
+			int cid = partitioner.getTokenClass(token);
+			nClassToken[cid] += 1;
+			if ( nClassToken[cid] >= cid+1 ) {
+				cov += 1;
+				if ( cov == maxDiff ) break;
+			}
+		}
+		return l;
+	}
+}
