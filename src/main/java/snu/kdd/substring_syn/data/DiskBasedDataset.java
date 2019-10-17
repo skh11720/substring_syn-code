@@ -44,6 +44,10 @@ public class DiskBasedDataset extends Dataset {
 		return store.getRecord(id);
 	}
 	
+	public Iterable<Record> getRecords() {
+		return store.getRecords();
+	}
+	
 	class DiskBasedRecordIterator implements Iterator<Record> {
 		
 		BufferedReader br;

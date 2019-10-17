@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DiskBasedDataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
 
@@ -23,7 +24,7 @@ public class RecordStoreTest {
 	
 	@Test
 	public void storeAndGetRecords() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = Dataset.createInstanceByName("WIKI", "10000", "107836", "3");
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
 		Collections.shuffle(recordList);
 		RecordStore store = new RecordStore(dataset.getIndexedList());
@@ -35,11 +36,12 @@ public class RecordStoreTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void recordIOWithSnappy() throws IOException {
 		Random rn = new Random();
 		int maxlen = 0;
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = Dataset.createInstanceByName("WIKI", "10000", "107836", "3");
 		IntList posList = new IntArrayList();
 		int n = 0;
 		FileOutputStream fos = new FileOutputStream("./tmp/RecordStoreTest");
@@ -70,5 +72,20 @@ public class RecordStoreTest {
 		}
 		raf.close();
 		System.out.println("recordIOWithSnappy: "+(System.nanoTime()-t)/1e6);
+	}
+	
+	@Test
+	public void iterableTest() throws IOException {
+		DiskBasedDataset dataset = (DiskBasedDataset)Dataset.createInstanceByName("WIKI", "10000", "107836", "3");
+		for ( int i=0; i<10; ++i ) {
+			System.out.println(dataset.getRecord(i));
+		}
+		
+		int i=0;
+		for ( Record rec : dataset.getRecords() ) {
+			System.out.println(rec);
+			i += 1;
+			if ( i >= 10 ) break;
+		}
 	}
 }
