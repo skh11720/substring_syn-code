@@ -2,7 +2,7 @@ package snu.kdd.pkwise;
 
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkwiseSearch extends PkwiseNaiveSearch {
 	
@@ -32,7 +32,7 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	}
 	
 	@Override
-	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
+	protected Iterable<RecordInterface> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
 		return index.getCandWindowQuerySide(query, siggen);
 	}
 	

@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class PkwiseSynIndex {
@@ -22,43 +23,43 @@ public class PkwiseSynIndex {
 		twitvMap = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
 	}
 	
-	public final Iterable<Subrecord> getCandWindowQuerySide( Record query ) {
-		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
+	public final Iterable<RecordInterface> getCandWindowQuerySide( Record query ) {
+		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
 		for ( int token : query.getCandTokenSet() ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
 
-	public final Iterable<Subrecord> getCandWindowTextSide( Record query ) {
-		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
+	public final Iterable<RecordInterface> getCandWindowTextSide( Record query ) {
+		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
 		for ( int token : query.getDistinctTokens() )  iterableList.addIterable(getTwitvIterable(token));
 		return iterableList.iterable();
 	}
 	
-	public final Iterable<Subrecord> getWitvIterable( int token ) {
-		return new Iterable<Subrecord>() {
+	public final Iterable<RecordInterface> getWitvIterable( int token ) {
+		return new Iterable<RecordInterface>() {
 			
 			@Override
-			public Iterator<Subrecord> iterator() {
+			public Iterator<RecordInterface> iterator() {
 				return getWitvIterator(token);
 			}
 		};
 	}
 	
-	public final Iterable<Subrecord> getTwitvIterable( int token ) {
-		return new Iterable<Subrecord>() {
+	public final Iterable<RecordInterface> getTwitvIterable( int token ) {
+		return new Iterable<RecordInterface>() {
 			
 			@Override
-			public Iterator<Subrecord> iterator() {
+			public Iterator<RecordInterface> iterator() {
 				return getTwitvIterator(token);
 			}
 		};
 	}
 	
-	public final Iterator<Subrecord> getWitvIterator( int token ) {
+	public final Iterator<RecordInterface> getWitvIterator( int token ) {
 		return new WitvIterator(token);
 	}
 
-	public final Iterator<Subrecord> getTwitvIterator( int token ) {
+	public final Iterator<RecordInterface> getTwitvIterator( int token ) {
 		return new TwitvIterator(token);
 	}
 	
@@ -87,7 +88,7 @@ public class PkwiseSynIndex {
 	}
 	
 	
-	class AbstractWitvIterator implements Iterator<Subrecord> {
+	class AbstractWitvIterator implements Iterator<RecordInterface> {
 		
 		final int token;
 		ObjectList<WindowInterval> list;

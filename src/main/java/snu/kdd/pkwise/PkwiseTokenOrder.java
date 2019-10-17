@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkwiseTokenOrder {
 	
@@ -37,7 +37,7 @@ public class PkwiseTokenOrder {
 			}
 		}
 
-		for ( Subrecord window : dataset.getWindowList(w) ) {
+		for ( RecordInterface window : dataset.getWindowList(w) ) {
 			for ( int token : window.getTokenArray() ) {
 				counter.addTo(token, 1);
 			}

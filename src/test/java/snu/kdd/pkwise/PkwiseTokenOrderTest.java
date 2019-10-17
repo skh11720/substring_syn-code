@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkwiseTokenOrderTest {
 
@@ -21,7 +21,7 @@ public class PkwiseTokenOrderTest {
 		PkwiseTokenOrder order = new PkwiseTokenOrder(dataset, w);
 		
 		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
-		for ( Subrecord window : dataset.getWindowList(w) ) {
+		for ( RecordInterface window : dataset.getWindowList(w) ) {
 			for ( int token : window.getTokenArray() ) {
 				counter.addTo(token, 1);
 			}

@@ -4,7 +4,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -57,8 +57,8 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	}
 
 	protected final void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
-		Iterable<Subrecord> candListQuerySide = getCandWindowListQuerySide(query, dataset);
-		for ( Subrecord window : candListQuerySide ) {
+		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
+		for ( RecordInterface window : candListQuerySide ) {
 			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
 //			if ( window.getID() != 7677 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
@@ -66,11 +66,11 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		}
 	}
 	
-	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
+	protected Iterable<RecordInterface> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
 		return dataset.getWindowList(qlen, qlen);
 	}
 	
-	protected final void searchWindowQuerySide(Record query, Subrecord window) {
+	protected final void searchWindowQuerySide(Record query, RecordInterface window) {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		double sim = verifyQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
@@ -84,7 +84,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		}
 	}
 	
-	protected double verifyQuerySide( Record query, Subrecord window ) {
+	protected double verifyQuerySide( Record query, RecordInterface window ) {
 		statContainer.addCount(Stat.Num_QS_Verified, 1);
 		return Util.jaccardM(query.getTokenList(), window.getTokenList());
 	}

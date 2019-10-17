@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.RecordInterface;
-import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSignatureGenerator {
@@ -141,7 +140,7 @@ public class PkwiseSignatureGenerator {
 		else return true;
 	}
 	
-	public IntArrayList expandPrefix( PrefixWrapper wprefix, Subrecord window ) {
+	public IntArrayList expandPrefix( PrefixWrapper wprefix, RecordInterface window ) {
 		Iterator<Integer> iter = window.getTokenList().stream().sorted().skip(wprefix.size()).iterator();
 		IntArrayList diffPrefix = new IntArrayList();
 		int cov0 = wprefix.cov;

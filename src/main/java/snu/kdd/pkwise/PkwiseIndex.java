@@ -9,8 +9,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndex {
@@ -25,8 +25,8 @@ public class PkwiseIndex {
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
 	}
 	
-	public final Iterable<Subrecord> getCandWindowQuerySide( Record query, PkwiseSignatureGenerator siggen ) {
-		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
+	public final Iterable<RecordInterface> getCandWindowQuerySide( Record query, PkwiseSignatureGenerator siggen ) {
+		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
 		int maxDiff = Util.getPrefixLength(query, theta);
 		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
 //		Log.log.trace("query="+query);
@@ -40,17 +40,17 @@ public class PkwiseIndex {
 		return iterableList.iterable();
 	}
 
-	public final Iterable<Subrecord> getWitvIterable( int token ) {
-		return new Iterable<Subrecord>() {
+	public final Iterable<RecordInterface> getWitvIterable( int token ) {
+		return new Iterable<RecordInterface>() {
 			
 			@Override
-			public Iterator<Subrecord> iterator() {
+			public Iterator<RecordInterface> iterator() {
 				return getWitvIterator(token);
 			}
 		};
 	}
 	
-	public final Iterator<Subrecord> getWitvIterator( int token ) {
+	public final Iterator<RecordInterface> getWitvIterator( int token ) {
 		return new WitvIterator(token);
 	}
 	
@@ -81,7 +81,7 @@ public class PkwiseIndex {
 	}
 	
 	
-	protected class AbstractWitvIterator implements Iterator<Subrecord> {
+	protected class AbstractWitvIterator implements Iterator<RecordInterface> {
 		
 		final int token;
 		ObjectList<WindowInterval> list;

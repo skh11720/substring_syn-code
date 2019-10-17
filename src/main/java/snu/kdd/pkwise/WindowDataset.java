@@ -12,6 +12,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
@@ -48,27 +49,27 @@ public class WindowDataset extends Dataset {
 		};
 	}
 	
-	public Iterable<Subrecord> getWindowList( int w ) {
-		return new Iterable<Subrecord>() {
+	public Iterable<RecordInterface> getWindowList( int w ) {
+		return new Iterable<RecordInterface>() {
 			
 			@Override
-			public Iterator<Subrecord> iterator() {
+			public Iterator<RecordInterface> iterator() {
 				return new WindowIterator(w);
 			}
 		};
 	}
 
-	public Iterable<Subrecord> getWindowList( int wMin, int wMax ) {
-		IterableConcatenator<Subrecord> iconcat = new IterableConcatenator<>();
+	public Iterable<RecordInterface> getWindowList( int wMin, int wMax ) {
+		IterableConcatenator<RecordInterface> iconcat = new IterableConcatenator<>();
 		for ( int w=wMin; w<=wMax; ++w ) iconcat.addIterable(getWindowList(w));
 		return iconcat.iterable();
 	}
 	
-	public Iterable<Subrecord> getTransWindowList( int qlen, double theta ) {
-		return new Iterable<Subrecord>() {
+	public Iterable<RecordInterface> getTransWindowList( int qlen, double theta ) {
+		return new Iterable<RecordInterface>() {
 			
 			@Override
-			public Iterator<Subrecord> iterator() {
+			public Iterator<RecordInterface> iterator() {
 				return new TransWindowIterator(qlen, theta);
 			}
 		};
@@ -126,7 +127,7 @@ public class WindowDataset extends Dataset {
 		}
 	}
 	
-	class WindowIterator implements Iterator<Subrecord> {
+	class WindowIterator implements Iterator<RecordInterface> {
 
 		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
 		Record rec = null;
@@ -170,7 +171,7 @@ public class WindowDataset extends Dataset {
 		}
 	}
 
-	class TransWindowIterator implements Iterator<Subrecord> {
+	class TransWindowIterator implements Iterator<RecordInterface> {
 
 		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
 		Record rec = null;

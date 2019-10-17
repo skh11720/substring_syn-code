@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class WindowDatasetTest {
 
@@ -30,7 +30,7 @@ public class WindowDatasetTest {
 		}
 		
 		ridx = 0;
-		for ( Subrecord window : dataset.getWindowList(w) ) {
+		for ( RecordInterface window : dataset.getWindowList(w) ) {
 			if ( window.getID() == ridx ) {
 				if ( window.getID() >= n ) break;
 				System.out.println(String.format("\nrec[%d]: "+recList[ridx], ridx));
@@ -53,7 +53,7 @@ public class WindowDatasetTest {
 			n0 += Math.max(0, rec.size()-w+1);
 		}
 		
-		for ( Subrecord window : dataset.getWindowList(w) ) {
+		for ( RecordInterface window : dataset.getWindowList(w) ) {
 			n1 += 1;
 		}
 		
@@ -81,7 +81,7 @@ public class WindowDatasetTest {
 		int i = 0;
 		int qlen = 5;
 		double theta = 0.6;
-		for ( Subrecord window : dataset.getTransWindowList(qlen, theta) ) {
+		for ( RecordInterface window : dataset.getTransWindowList(qlen, theta) ) {
 //			i += 1;
 //			if ( i >= n ) break;
 		}
