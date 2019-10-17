@@ -27,7 +27,7 @@ public class PkwiseIndexBuilder {
 
 	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		PkwiseIndexBuilder.theta = theta;
-		WitvMapBuilder builder = new WitvMapBuilder(dataset, qlen, qlen);
+		WitvMapBuilder builder = new WitvMapBuilder(dataset, alg.getSiggen(), qlen, qlen, true);
 		return builder.build();
 	}
 	
@@ -35,7 +35,7 @@ public class PkwiseIndexBuilder {
 		PkwiseIndexBuilder.theta = theta;
 		int wMin = alg.getLFLB(qlen);
 		int wMax = alg.getLFUB(qlen);
-		WitvMapBuilder builder = new WitvMapBuilder(dataset, wMin, wMax);
+		WitvMapBuilder builder = new WitvMapBuilder(dataset, alg.getSiggen(), wMin, wMax, true);
 		return builder.build();
 	}
 //		int wMin = alg.getLFLB(qlen);
@@ -148,24 +148,28 @@ public class PkwiseIndexBuilder {
 	}
 	
 	public static class WitvMapBuilder {
-		Iterator<Subrecord> windowList;
-		Int2ObjectMap<ObjectList<WindowInterval>> map;
-		Int2IntOpenHashMap counter;
-		Int2IntOpenHashMap sidxMap;
+		final Iterator<Subrecord> windowList;
+		final PkwiseSignatureGenerator siggen;
+		final Int2ObjectMap<ObjectList<WindowInterval>> map;
+		final Int2IntOpenHashMap counter;
+		final Int2IntOpenHashMap sidxMap;
 		Subrecord x;
 		int l;
 		IntArrayList sig;
 		int cov;
+		final boolean indexing;
 		boolean debug = true;
 		
-		public WitvMapBuilder( WindowDataset dataset, int wMin, int wMax ) {
+		public WitvMapBuilder( WindowDataset dataset, PkwiseSignatureGenerator siggen, int wMin, int wMax, boolean indexing ) {
 			windowList = dataset.getWindowList(wMin, wMax).iterator();
+			this.siggen = siggen;
 			map = new Int2ObjectOpenHashMap<>();
 			counter = new Int2IntOpenHashMap();
 			sidxMap = new Int2IntOpenHashMap();
 			x = null;
 			l = 0;
 			sig = null;
+			this.indexing = indexing;
 		}
 		
 		public Int2ObjectMap<ObjectList<WindowInterval>> build() {
@@ -209,7 +213,6 @@ public class PkwiseIndexBuilder {
 				sig1 = new IntArrayList(sig);
 				if ( sig.contains(t1) ) removeFromSig(sig1, t1);
 				if ( t2 < sig1.getInt(sig1.size()-1) ) addToSig(sig1, t2);
-				int cov = getCov(sig, -1);
 				int cov1 = getCov(sig1, -1);
 
 //				System.out.println("rid="+x1.getID());
