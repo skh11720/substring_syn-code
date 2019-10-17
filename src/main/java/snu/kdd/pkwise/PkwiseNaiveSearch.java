@@ -86,7 +86,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	
 	protected double verifyQuerySide( Record query, Subrecord window ) {
 		statContainer.addCount(Stat.Num_QS_Verified, 1);
-		return Util.jaccard(query.getTokenList(), window.getTokenList());
+		return Util.jaccardM(query.getTokenList(), window.getTokenList());
 	}
 	
 	@Override
@@ -105,6 +105,6 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.01";
+		return "0.02";
 	}
 }

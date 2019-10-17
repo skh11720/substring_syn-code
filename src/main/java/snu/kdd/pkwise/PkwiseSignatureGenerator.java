@@ -27,6 +27,8 @@ public class PkwiseSignatureGenerator {
 	}
 	
 	public final KwiseSignatureMap getSigMap() { return sigMap; }
+
+	public final TokenPartitioner getPartitioner() { return partitioner; }
 	
 	public IntArrayList genSignature( RecordInterface rec, int maxDiff, boolean indexing ) {
 		int l = getPrefixLength(rec, maxDiff);
