@@ -79,7 +79,7 @@ public class PkwiseSignatureGenerator {
 	
 	public int getPrefixLength( RecordInterface rec, int maxDiff ) {
 		int cov = 0;
-		int l = -1;
+		int l = 0;
 		Arrays.fill(nClassToken, 0);
 		Iterator<Integer> iter = rec.getTokenList().stream().sorted().iterator();
 		while ( iter.hasNext() ) {
@@ -143,7 +143,7 @@ public class PkwiseSignatureGenerator {
 		Iterator<Integer> iter = window.getTokenList().stream().sorted().skip(wprefix.size()).iterator();
 		IntArrayList diffPrefix = new IntArrayList();
 		int cov0 = wprefix.cov;
-		while ( cov0 == wprefix.cov ) {
+		while ( cov0 == wprefix.cov && iter.hasNext() ) {
 			int token = iter.next();
 			wprefix.addToPrefix(token);
 			diffPrefix.add(token);

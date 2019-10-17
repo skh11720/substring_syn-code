@@ -47,7 +47,7 @@ public class IterableConcatenator<T> {
 
 		@Override
 		public boolean hasNext() {
-			return ( i < n-1 || curr.hasNext() );
+			return ( i < n-1 || (curr != null && curr.hasNext()) );
 		}
 
 		@Override

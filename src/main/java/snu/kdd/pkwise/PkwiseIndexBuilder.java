@@ -205,7 +205,8 @@ public class PkwiseIndexBuilder {
 			
 			if ( x == null ) { // x1 is the first window
 //				Log.log.trace("First window");
-				prefix1 = new IntArrayList( x1.getTokenList().stream().sorted().limit(maxDiff).iterator() );
+				int l = siggen.getPrefixLength(x1, maxDiff);
+				prefix1 = new IntArrayList( x1.getTokenList().stream().sorted().limit(l).iterator() );
 				sig1 = siggen.genSignature(prefix1, indexing);
 				for ( int token : sig1 ) {
 					openInterval(token, x1);
