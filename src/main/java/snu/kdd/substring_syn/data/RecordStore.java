@@ -96,7 +96,7 @@ public class RecordStore {
 
 		@Override
 		public boolean hasNext() {
-			return (i < posList.size());
+			return (i < posList.size()-1);
 		}
 
 		@Override
