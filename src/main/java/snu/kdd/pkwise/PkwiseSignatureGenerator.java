@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSignatureGenerator {
@@ -19,6 +20,7 @@ public class PkwiseSignatureGenerator {
 	
 	public PkwiseSignatureGenerator( TokenPartitioner partitioner, KwiseSignatureMap sigMap, int kmax ) {
 		this.partitioner = partitioner;
+		PrefixWrapper.partitioner = partitioner;
 		this.sigMap = sigMap;
 		this.kmax = kmax;
 		nClassToken = new int[kmax];
@@ -46,6 +48,7 @@ public class PkwiseSignatureGenerator {
 			if ( ksig != null ) sig.addAll(ksig);
 			sidx = eidx;
 		}
+		sig.sort(Integer::compare);
 		return sig;
 	}
 	
@@ -89,6 +92,14 @@ public class PkwiseSignatureGenerator {
 		}
 		return l;
 	}
+	
+	public PrefixWrapper wrapPrefix( IntArrayList prefix ) {
+		PrefixWrapper wprefix = new PrefixWrapper();
+		wprefix.prefix = prefix;
+		wprefix.cov = getCov(prefix);
+		wprefix.nClassToken = Arrays.copyOf(nClassToken, kmax);
+		return wprefix;
+	}
 
 	public int getCov( IntArrayList prefix ) {
 		int cov = 0;
@@ -111,5 +122,41 @@ public class PkwiseSignatureGenerator {
 			if ( nClassToken[cid] >= cid+1 ) cov += 1;
 		}
 		return cov;
+	}
+	
+	public void removeTrailingNonCoveringTokens( PrefixWrapper wprefix ) {
+		for ( int i=wprefix.size()-1; i>=0; --i ) {
+			int token = wprefix.prefix.getInt(i);
+			if ( isNonCoveringToken(wprefix, token) ) wprefix.prefix.removeInt(i);
+		}
+	}
+	
+	public boolean isNonCoveringToken( PrefixWrapper wprefix, int token ) {
+		int cid = partitioner.getTokenClass(token);
+		if ( wprefix.nClassToken[cid] >= cid+1 ) return false;
+		else return true;
+	}
+	
+	public IntArrayList expandPrefix( PrefixWrapper wprefix, Subrecord window ) {
+		Iterator<Integer> iter = window.getTokenList().stream().sorted().skip(wprefix.size()).iterator();
+		IntArrayList diffPrefix = new IntArrayList();
+		int cov0 = wprefix.cov;
+		while ( cov0 == wprefix.cov ) {
+			int token = iter.next();
+			wprefix.addToPrefix(token);
+			diffPrefix.add(token);
+		}
+		return diffPrefix;
+	}
+
+	public IntArrayList shrinkPrefix( PrefixWrapper wprefix ) {
+		IntArrayList diffPrefix = new IntArrayList();
+		int cov0 = wprefix.cov;
+		for ( int i=wprefix.size()-1; cov0 == wprefix.cov; --i ) {
+			int token = wprefix.prefix.getInt(i);
+			wprefix.removeFromPrefix(token);
+			diffPrefix.add(token);
+		}
+		return diffPrefix;
 	}
 }

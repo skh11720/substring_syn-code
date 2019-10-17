@@ -33,7 +33,7 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	
 	@Override
 	protected Iterable<Subrecord> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-		return index.getCandWindowQuerySide(query);
+		return index.getCandWindowQuerySide(query, siggen);
 	}
 	
 	@Override
@@ -43,6 +43,6 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.01";
+		return "0.03";
 	}
 }

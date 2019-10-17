@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -23,9 +24,11 @@ public class PkwiseIndex {
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
 	}
 	
-	public final Iterable<Subrecord> getCandWindowQuerySide( Record query ) {
+	public final Iterable<Subrecord> getCandWindowQuerySide( Record query, PkwiseSignatureGenerator siggen ) {
 		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
-		for ( int token : Util.getPrefix(query, theta) ) iterableList.addIterable(getWitvIterable(token));
+		int maxDiff = Util.getPrefixLength(query, theta);
+		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
+		for ( int token : sig ) iterableList.addIterable(getWitvIterable(token));
 //		for ( int token : query.getTokenArray() ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
@@ -52,7 +55,10 @@ public class PkwiseIndex {
 		try {
 			PrintStream ps = null;
 			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
-			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) {
+				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+				else ps.println(e.getKey()+"\t"+e);
+			}
 			ps.close();
 //			ps = new PrintStream("tmp/PkwiseIndex.twitvMap.txt");
 //			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
