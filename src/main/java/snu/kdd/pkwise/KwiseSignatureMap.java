@@ -2,19 +2,30 @@ package snu.kdd.pkwise;
 
 import java.util.Map.Entry;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class KwiseSignatureMap {
 
+	private final int sidx;
 	private int idx;
 	private final Object2IntMap<KwiseSignature> sig2keyMap;
+	private final Int2ObjectMap<KwiseSignature> key2sigMap;
 
-	public KwiseSignatureMap( int startIdx ) {
-		this.idx = startIdx;
+	public KwiseSignatureMap() {
+		sidx = Record.tokenIndex.getMaxID()+1;
+		idx = sidx;
 		sig2keyMap = new Object2IntOpenHashMap<>();
 		sig2keyMap.defaultReturnValue(-1);
+		key2sigMap = new Int2ObjectOpenHashMap<>();
+		key2sigMap.defaultReturnValue(null);
+	}
+	
+	public KwiseSignature get( int key ) {
+		return key2sigMap.get(key);
 	}
 	
 	public void put( int[] arr ) {
@@ -24,6 +35,7 @@ public class KwiseSignatureMap {
 	
 	private void putKey( KwiseSignature key ) {
 		sig2keyMap.put(key, idx);
+		key2sigMap.put(idx, key);
 		idx += 1;
 	}
 	

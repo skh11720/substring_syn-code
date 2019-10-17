@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterable;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
 public class KwiseSignature {
@@ -41,6 +42,13 @@ public class KwiseSignature {
 	@Override
 	public String toString() {
 		return Arrays.toString(values);
+	}
+
+	public String toOriginalString() {
+		StringBuilder bld = new StringBuilder("["+Record.tokenIndex.getToken(values[0]));
+		for ( int i=1; i<values.length; ++i ) bld.append(","+Record.tokenIndex.getToken(values[i]));
+		bld.append("]");
+		return bld.toString();
 	}
 
 	private int setHash() {

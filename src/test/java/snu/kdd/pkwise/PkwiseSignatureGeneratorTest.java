@@ -17,7 +17,7 @@ public class PkwiseSignatureGeneratorTest {
 		int qlen = 5;
 		int kmax = 3;
 		WindowDataset dataset = TestUtils.getTestDataset();
-		KwiseSignatureMap sigMap = new KwiseSignatureMap(Record.tokenIndex.getMaxID());
+		KwiseSignatureMap sigMap = new KwiseSignatureMap();
 		TokenPartitioner partitioner = new TokenPartitioner(kmax);
 		PkwiseSignatureGenerator pksiggen = new PkwiseSignatureGenerator(partitioner, sigMap, kmax);
 		

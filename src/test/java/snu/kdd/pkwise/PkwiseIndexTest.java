@@ -46,7 +46,7 @@ public class PkwiseIndexTest {
 		WindowDataset dataset = TestUtils.getTestDataset();
 		PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
-		index.writeToFile();
+		index.writeToFile(alg.sigMap);
 	}
 	
 	@Test

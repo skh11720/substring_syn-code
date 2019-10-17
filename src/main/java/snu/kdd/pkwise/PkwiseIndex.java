@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndex {
@@ -28,6 +29,12 @@ public class PkwiseIndex {
 		IterableConcatenator<Subrecord> iterableList = new IterableConcatenator<>();
 		int maxDiff = Util.getPrefixLength(query, theta);
 		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
+//		Log.log.trace("query="+query);
+//		Log.log.trace("query="+query.toOriginalString());
+//		Log.log.trace("query sig="+sig);
+//		for ( int token : sig )
+//			if ( token <= Record.tokenIndex.getMaxID() ) Log.log.trace(token+"\t"+Record.tokenIndex.getToken(token));
+//			else Log.log.trace(token+"\t"+siggen.getSigMap().get(token).toOriginalString());
 		for ( int token : sig ) iterableList.addIterable(getWitvIterable(token));
 //		for ( int token : query.getTokenArray() ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
@@ -51,13 +58,16 @@ public class PkwiseIndex {
 		return witvMap;
 	}
 	
-	public final void writeToFile() {
+	public final void writeToFile( KwiseSignatureMap sigMap ) {
 		try {
 			PrintStream ps = null;
 			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
 			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) {
 				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
-				else ps.println(e.getKey()+"\t"+e);
+				else {
+					KwiseSignature ksig = sigMap.get(e.getKey());
+					ps.println(ksig.toOriginalString()+"\t"+ksig+"\t"+e);
+				}
 			}
 			ps.close();
 //			ps = new PrintStream("tmp/PkwiseIndex.twitvMap.txt");

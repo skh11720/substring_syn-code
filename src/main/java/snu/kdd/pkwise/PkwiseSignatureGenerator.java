@@ -26,6 +26,8 @@ public class PkwiseSignatureGenerator {
 		nClassToken = new int[kmax];
 	}
 	
+	public final KwiseSignatureMap getSigMap() { return sigMap; }
+	
 	public IntArrayList genSignature( RecordInterface rec, int maxDiff, boolean indexing ) {
 		int l = getPrefixLength(rec, maxDiff);
 		IntList prefix = new IntArrayList( rec.getTokenList().stream().sorted().limit(l).iterator() );

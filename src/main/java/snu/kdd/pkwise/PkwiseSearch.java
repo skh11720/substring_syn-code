@@ -14,7 +14,7 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	public PkwiseSearch( double theta, int qlen, int kmax ) {
 		super(theta, qlen, kmax);
 		partitioner = new TokenPartitioner(kmax);
-		sigMap = new KwiseSignatureMap(Record.tokenIndex.getMaxID());
+		sigMap = new KwiseSignatureMap();
 		siggen = new PkwiseSignatureGenerator(partitioner, sigMap, kmax);
 	}
 	
@@ -24,7 +24,7 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	protected void prepareSearch(Dataset dataset) {
 		super.prepareSearch(dataset);
         index = new PkwiseIndex(this, ((WindowDataset)dataset), qlen, theta);
-        index.writeToFile();
+        index.writeToFile(sigMap);
 	}
 
 	@Override
