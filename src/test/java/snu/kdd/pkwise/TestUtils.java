@@ -20,12 +20,12 @@ public class TestUtils {
 		String size = "10000";
 		String nr = "1000";
 		String qlen = "5";
-		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen, true);
+		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
 		return dataset;
 	}
 
 	public static WindowDataset getTestDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
-		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen, true);
+		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
 		return dataset;
 	}
 }
