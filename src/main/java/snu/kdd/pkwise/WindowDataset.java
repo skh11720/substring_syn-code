@@ -19,8 +19,8 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class WindowDataset extends Dataset {
 
-	private RecordStore store = null;
-	private List<Record> searchedList;
+	protected RecordStore recordStore = null;
+	protected List<Record> searchedList;
 
 	public WindowDataset(String datasetName, String size, String nr, String qlen) {
 		super(datasetName, size, nr, qlen);
@@ -30,7 +30,7 @@ public class WindowDataset extends Dataset {
 	
 	public final void buildRecordStore() {
 		searchedList = loadRecordList(searchedPath);
-		store = new RecordStore(getIndexedList());
+		recordStore = new RecordStore(getIndexedList());
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class WindowDataset extends Dataset {
 
 	@Override
 	public Record getRecord(int id) {
-		return store.getRecord(id);
+		return recordStore.getRecord(id);
 	}
 
 	public List<Record> loadRecordList( String dataPath ) {
@@ -188,13 +188,13 @@ public class WindowDataset extends Dataset {
 			findNextWindow();
 		}
 		
-		private void preprocessRecord() {
+		protected void preprocessRecord() {
 			rec.preprocessAll();
 			double modifiedTheta = Util.getModifiedTheta(qlen, rec, theta);
 			transLen = new TransLenCalculator(null, rec, modifiedTheta);
 		}
 		
-		private void findNextWindow() {
+		protected void findNextWindow() {
 			if ( rec != null && findNextWindowInRecord() ) return;
 			rec = null;
 			while ( rIter.hasNext() ) {
@@ -207,7 +207,7 @@ public class WindowDataset extends Dataset {
 			}
 		}
 		
-		private boolean findNextWindowInRecord() {
+		protected boolean findNextWindowInRecord() {
 			eidx += 1;
 			for ( ; sidx<rec.size(); ++sidx ) {
 				for ( ; eidx<rec.size(); ++eidx ) {
