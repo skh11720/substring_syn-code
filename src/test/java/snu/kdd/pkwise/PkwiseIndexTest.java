@@ -4,10 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -92,30 +90,30 @@ public class PkwiseIndexTest {
 		}
 	}
 
-	@Test
-	public void testTwitvMapCorrectness() throws IOException {
-		double theta = 0.6;
-		int qlen = 5;
-		int kmax = 3;
-		WindowDataset dataset = TestUtils.getTestDataset();
-		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
-		
-		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) {
-			int token = e.getKey();
-			ObjectList<WindowInterval> list = e.getValue();
-			for ( WindowInterval twitv : list ) {
-				int rid = twitv.rid;
-				int w = twitv.w;
-				int sidx = twitv.sidx;
-				int eidx = twitv.eidx;
-
-//				System.out.println(Record.tokenIndex.getToken(token)+"\t"+token+"\t"+rid+"\t"+sidx+"\t"+eidx+"\t"+w);
-				Record rec = dataset.getRecord(rid);
-				for ( int idx=sidx; idx<eidx; ++idx ) {
-					Subrecord window = new Subrecord(rec, idx, idx+w);
-					assertTrue(window.getTokenList().contains(token));
-				}
-			}
-		}
-	}
+//	@Test
+//	public void testTwitvMapCorrectness() throws IOException {
+//		double theta = 0.6;
+//		int qlen = 5;
+//		int kmax = 3;
+//		WindowDataset dataset = TestUtils.getTestDataset();
+//		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
+//		
+//		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) {
+//			int token = e.getKey();
+//			ObjectList<WindowInterval> list = e.getValue();
+//			for ( WindowInterval twitv : list ) {
+//				int rid = twitv.rid;
+//				int w = twitv.w;
+//				int sidx = twitv.sidx;
+//				int eidx = twitv.eidx;
+//
+////				System.out.println(Record.tokenIndex.getToken(token)+"\t"+token+"\t"+rid+"\t"+sidx+"\t"+eidx+"\t"+w);
+//				Record rec = dataset.getRecord(rid);
+//				for ( int idx=sidx; idx<eidx; ++idx ) {
+//					Subrecord window = new Subrecord(rec, idx, idx+w);
+//					assertTrue(window.getTokenList().contains(token));
+//				}
+//			}
+//		}
+//	}
 }
