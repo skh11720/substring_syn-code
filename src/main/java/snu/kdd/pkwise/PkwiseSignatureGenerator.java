@@ -7,8 +7,6 @@ import java.util.List;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -27,12 +25,17 @@ public class PkwiseSignatureGenerator {
 	}
 	
 	public IntArrayList genSignature( RecordInterface rec, int maxDiff, boolean indexing ) {
-		IntArrayList sig = new IntArrayList();
 		int l = getPrefixLength(rec, maxDiff);
 		IntList prefix = new IntArrayList( rec.getTokenList().stream().sorted().limit(l).iterator() );
-//		System.out.println("prefix="+prefix);
+		return genSignature(prefix, indexing);
+	}
+	
+	public IntArrayList genSignature ( IntList prefix, boolean indexing ) {
+		IntArrayList sig = new IntArrayList();
+		int l = prefix.size();
 		int sidx = 0;
 		int eidx = 0;
+//		System.out.println("prefix="+prefix);
 		for ( int cidx=0; cidx<kmax; ++cidx ) {
 			while ( eidx < l && partitioner.getTokenClass(prefix.get(eidx)) == cidx ) eidx += 1;
 //			System.out.println("tokens of class "+(cidx+1)+"="+prefix.subList(sidx, eidx).toString());
@@ -85,5 +88,28 @@ public class PkwiseSignatureGenerator {
 			}
 		}
 		return l;
+	}
+
+	public int getCov( IntArrayList prefix ) {
+		int cov = 0;
+		Arrays.fill(nClassToken, 0);
+		for ( int token : prefix ) {
+			int cid = partitioner.getTokenClass(token);
+			nClassToken[cid] += 1;
+			if ( nClassToken[cid] >= cid+1 ) cov += 1;
+		}
+		return cov;
+	}
+	
+	public int getCov( IntArrayList prefix, int ignored ) {
+		int cov = 0;
+		Arrays.fill(nClassToken, 0);
+		for ( int token : prefix ) {
+			if ( token == ignored ) continue;
+			int cid = partitioner.getTokenClass(token);
+			nClassToken[cid] += 1;
+			if ( nClassToken[cid] >= cid+1 ) cov += 1;
+		}
+		return cov;
 	}
 }
