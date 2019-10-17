@@ -9,6 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.pkwise.PkwiseTokenOrder;
+import snu.kdd.pkwise.TransWindowDataset;
 import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
@@ -34,8 +35,10 @@ public abstract class Dataset {
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(name, size, nr, qlen);
-		if ( algName == AlgorithmName.PkwiseSynSearch )
-			return createWindowInstanceByName(name, size, nr, qlen, true);
+		if ( algName == AlgorithmName.PkwiseSynSearch ) {
+			String theta = getOptionValue(cmd, "theta");
+			return createTransWindowInstanceByName(name, size, nr, qlen, theta);
+		}
 		else
 			return createInstanceByName(name, size, nr, qlen);
 	}
@@ -62,6 +65,18 @@ public abstract class Dataset {
 		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
 		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
+		dataset.ruleSet = new Ruleset();
+		dataset.addStat();
+//		dataset.ruleSet.writeToFile();
+		return dataset;
+	}
+
+	public static TransWindowDataset createTransWindowInstanceByName( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
+		TransWindowDataset dataset = new TransWindowDataset(datasetName, size, nr, qlen, theta);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
+		dataset.loadRecordList(dataset.searchedPath);
+		dataset.buildRecordStore();
+		dataset.createRuleSet();
 		dataset.addStat();
 //		dataset.ruleSet.writeToFile();
 		return dataset;

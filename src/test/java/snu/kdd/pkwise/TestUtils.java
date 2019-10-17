@@ -28,4 +28,9 @@ public class TestUtils {
 		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
 		return dataset;
 	}
+
+	public static TransWindowDataset getTestDataset( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
+		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(datasetName, size, nr, qlen, theta);
+		return dataset;
+	}
 }
