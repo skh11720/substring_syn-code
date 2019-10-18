@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
 public class IntQGram {
@@ -17,6 +18,14 @@ public class IntQGram {
 	public IntQGram( int arr[] ) {
 		this.arr = arr;
 		hash = getHash();
+	}
+	
+	public final int size() {
+		return arr.length-1; 
+	}
+	
+	public Record toRecord() {
+		return new Record(arr[0], IntArrayList.wrap(arr).subList(1, arr.length).toIntArray());
 	}
 	
 	@Override

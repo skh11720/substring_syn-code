@@ -6,32 +6,67 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.IntQGram;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSynIndex {
 	
-	private final WindowDataset dataset;
+	private final double theta;
+	private final TransWindowDataset dataset;
 	private final Int2ObjectMap<ObjectList<WindowInterval>> witvMap;
-	private final Int2ObjectMap<ObjectList<WindowInterval>> twitvMap;
+	private final Int2ObjectMap<IntList> twitvMap;
+	private final PkwiseSignatureGenerator siggen;
 
-	public PkwiseSynIndex( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
+	public PkwiseSynIndex( PkwiseSynSearch alg, TransWindowDataset dataset, int qlen, double theta ) {
+		this.theta = theta;
 		this.dataset = dataset;
+		siggen = alg.getSiggen();
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
-		twitvMap = PkwiseIndexBuilder.buildTok2TwitvMap(dataset, qlen, theta);
+		twitvMap = buildTok2iqgramsMap(dataset, qlen, theta);
+	}
+	
+	private Int2ObjectMap<IntList> buildTok2iqgramsMap( TransWindowDataset dataset, int qlen, double theta ) {
+		Int2ObjectMap<IntList> tok2iqgramsMap = new Int2ObjectOpenHashMap<>();
+		int maxDiff = -1;
+		int q = -1;
+		int idx = 0;
+		for ( IntQGram iqgram : dataset.getIntQGrams() ) {
+			if ( q != iqgram.size() ) {
+				q = iqgram.size();
+				maxDiff = Util.getPrefixLength(q, theta);
+			}
+			Record rec = iqgram.toRecord();
+			IntArrayList sig = siggen.genSignature(rec, maxDiff, true);
+			for ( int token : sig ) {
+				if ( !tok2iqgramsMap.containsKey(token) ) tok2iqgramsMap.put(token, new IntArrayList());
+				tok2iqgramsMap.get(token).add(idx);
+			}
+			idx += 1;
+		}
+		return tok2iqgramsMap;
 	}
 	
 	public final Iterable<RecordInterface> getCandWindowQuerySide( Record query ) {
 		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
-		for ( int token : query.getCandTokenSet() ) iterableList.addIterable(getWitvIterable(token));
+		int maxDiff = Util.getPrefixLength(query, theta);
+		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
+		for ( int token : sig ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
 
 	public final Iterable<RecordInterface> getCandWindowTextSide( Record query ) {
 		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
-		for ( int token : query.getDistinctTokens() )  iterableList.addIterable(getTwitvIterable(token));
+		int maxDiff = Util.getPrefixLength(query, theta);
+		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
+		for ( int token : sig )  iterableList.addIterable(getTwitvIterable(token));
 		return iterableList.iterable();
 	}
 	
@@ -67,19 +102,25 @@ public class PkwiseSynIndex {
 		return witvMap;
 	}
 	
-	public final Int2ObjectMap<ObjectList<WindowInterval>> getTwitvMap() {
-		return twitvMap;
-	}
+//	public final Int2ObjectMap<ObjectList<WindowInterval>> getTwitvMap() {
+//		return twitvMap;
+//	}
 	
-	public final void writeToFile() {
+	public final void writeToFile( KwiseSignatureMap sigMap ) {
 		try {
 			PrintStream ps = null;
-			ps = new PrintStream("tmp/PkwiseSynIndex.witvMap.txt");
-			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
+			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) {
+				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+				else {
+					KwiseSignature ksig = sigMap.get(e.getKey());
+					ps.println(ksig.toOriginalString()+"\t"+ksig+"\t"+e);
+				}
+			}
 			ps.close();
-			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
-			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
-			ps.close();
+//			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
+//			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+//			ps.close();
 		}
 		catch ( IOException e ) {
 			e.printStackTrace();
@@ -88,7 +129,7 @@ public class PkwiseSynIndex {
 	}
 	
 	
-	class AbstractWitvIterator implements Iterator<RecordInterface> {
+	class WitvIterator implements Iterator<RecordInterface> {
 		
 		final int token;
 		ObjectList<WindowInterval> list;
@@ -97,8 +138,10 @@ public class PkwiseSynIndex {
 		int w;
 		Record rec = null;
 		
-		public AbstractWitvIterator( int token ) {
+		public WitvIterator( int token ) {
 			this.token = token;
+			list = witvMap.get(token);
+			if ( list != null ) findNext();
 		}
 
 		@Override
@@ -130,19 +173,25 @@ public class PkwiseSynIndex {
 		}
 	}
 	
-	class WitvIterator extends AbstractWitvIterator {
-		public WitvIterator( int token ) {
-			super(token);
-			list = witvMap.get(token);
-			if ( list != null ) findNext();
-		}
-	}
-	
-	class TwitvIterator extends AbstractWitvIterator {
+	class TwitvIterator implements Iterator<RecordInterface> {
+
+		IntListIterator iter;
+
 		public TwitvIterator( int token ) {
-			super(token);
-			list = twitvMap.get(token);
-			if ( list != null ) findNext();
+			IntList list = twitvMap.get(token);
+			if ( list == null ) iter = null;
+			else iter = twitvMap.get(token).iterator();
 		}
+
+		@Override
+		public boolean hasNext() {
+			return iter != null && iter.hasNext();
+		}
+
+		@Override
+		public RecordInterface next() {
+			return dataset.getIntQGram(iter.next()).toRecord();
+		}
+		
 	}
 }

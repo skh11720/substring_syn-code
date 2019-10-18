@@ -732,6 +732,10 @@ public class Util {
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 	
+	public static int getPrefixLength( int len, double theta ) {
+		return len - (int)(Math.ceil(theta*len)) + 1;
+	}
+
 	public static int getPrefixLength( RecordInterface rec, double theta ) {
 		return rec.size() - (int)(Math.ceil(theta*rec.size())) + 1;
 	}

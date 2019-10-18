@@ -24,7 +24,7 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	protected void prepareSearch(Dataset dataset) {
 		super.prepareSearch(dataset);
         index = new PkwiseIndex(this, ((WindowDataset)dataset), qlen, theta);
-        index.writeToFile(sigMap);
+//        index.writeToFile(sigMap);
 	}
 
 	@Override

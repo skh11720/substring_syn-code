@@ -99,6 +99,7 @@ public abstract class Dataset {
 		rulePath = DatasetInfo.getRulePath(datasetName, nr);
 		outputPath = "output";
 		statContainer = new StatContainer();
+		statContainer.startWatch(Stat.Time_Prepare_Data);
 		statContainer.setStat(Stat.Dataset_Name, name);
 		statContainer.setStat(Stat.Dataset_nt, size);
 		statContainer.setStat(Stat.Dataset_nr, nr);
@@ -125,6 +126,7 @@ public abstract class Dataset {
 		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleSet.size()));
 		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
 		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
+		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		statContainer.finalize();
 	}
 	

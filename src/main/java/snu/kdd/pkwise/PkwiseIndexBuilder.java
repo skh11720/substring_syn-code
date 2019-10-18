@@ -33,7 +33,7 @@ public class PkwiseIndexBuilder {
 		return builder.build();
 	}
 
-	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2TwitvMap( WindowDataset dataset, int qlen, double theta ) {
+	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2TwitvMap( TransWindowDataset dataset, int qlen, double theta ) {
 		return null;
 	}
 //		int wMin = alg.getLFLB(qlen);

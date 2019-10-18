@@ -22,7 +22,8 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		param.put("kmax", Integer.toString(kmax));
 	}
 
-	public void run( Dataset dataset ) {
+	@Override
+	public final void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
