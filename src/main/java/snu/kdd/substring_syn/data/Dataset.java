@@ -77,6 +77,7 @@ public abstract class Dataset {
 		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
+		dataset.buildIntQGramStore();
 		dataset.addStat();
 //		dataset.ruleSet.writeToFile();
 		return dataset;

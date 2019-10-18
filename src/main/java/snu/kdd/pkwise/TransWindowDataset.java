@@ -2,16 +2,15 @@ package snu.kdd.pkwise;
 
 import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import snu.kdd.substring_syn.data.IntQGram;
+import snu.kdd.substring_syn.data.IntQGramStore;
 import snu.kdd.substring_syn.data.QGram;
-import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 
 public class TransWindowDataset extends WindowDataset {
 	
-	protected final RecordStore qgramStore = null;
-	protected final Int2IntMap qid2ridMap = null;
+	protected IntQGramStore iqgramStore;
 	final int qlen;
 	final double theta;
 
@@ -21,11 +20,45 @@ public class TransWindowDataset extends WindowDataset {
 		this.theta = Double.parseDouble(theta);
 	}
 	
-	public Iterator<QGram> getIterator() {
-		return new QGramIterator(qlen);
+	public final void buildIntQGramStore() {
+		iqgramStore = new IntQGramStore(getIntQGramsIterable());
 	}
 	
-	class QGramIterator implements Iterator<QGram> {
+	public final Iterable<IntQGram> getIntQGrams() {
+		return iqgramStore.getIntQGrams();
+	}
+	
+	public final IntQGram getIntQGram( int id ) {
+		return iqgramStore.getIntQGram(id);
+	}
+	
+	public Iterable<IntQGram> getIntQGramsIterable() {
+		int wMin = (int)Math.ceil(qlen*theta);
+		int wMax = (int)Math.floor(qlen/theta);
+		IterableConcatenator<IntQGram> iterableList = new IterableConcatenator<>();
+		for ( int w=wMin; w<=wMax; ++w ) iterableList.addIterable(getIntQGramIterable(w));
+		return iterableList.iterable();
+	}
+	
+	public Iterable<IntQGram> getIntQGramIterable( int q ) {
+		return new Iterable<IntQGram>() {
+			
+			@Override
+			public Iterator<IntQGram> iterator() {
+				return getIntQGramIterator(q);
+			}
+		};
+	}
+	
+	public Iterator<IntQGram> getIntQGramIterator( int q ) {
+		return new IntQGramIterator(q);
+	}
+	
+	
+
+
+	
+	class IntQGramIterator implements Iterator<IntQGram> {
 
 		final Iterator<Record> riter;
 		final int q;
@@ -33,7 +66,7 @@ public class TransWindowDataset extends WindowDataset {
 		Record rec;
 		QGramGenerator qgen;
 		
-		public QGramIterator( int q ) {
+		public IntQGramIterator( int q ) {
 			riter = recordStore.getRecords().iterator();
 			this.q = q;
 			findNext();
@@ -45,10 +78,11 @@ public class TransWindowDataset extends WindowDataset {
 		}
 
 		@Override
-		public QGram next() {
+		public IntQGram next() {
 			QGram qgram = qiter.next();
+			IntQGram iqgram = new IntQGram(rec.getID(), qgram); 
 			findNext();
-			return qgram;
+			return iqgram;
 		}
 		
 		private void findNext() {
