@@ -9,3 +9,7 @@ GreedyNaiveSearch:
 PrefixSearch:
   theta: *theta_list
   filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'NoIndex', 'NaivePF']
+
+PkwiseSynSearch:
+  theta: *theta_list
+  kmax: ['1', '2', '3']
