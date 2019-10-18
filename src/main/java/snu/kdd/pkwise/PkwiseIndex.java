@@ -22,7 +22,7 @@ public class PkwiseIndex {
 	public PkwiseIndex( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
 		this.theta = theta;
 		this.dataset = dataset;
-		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
+		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, qlen, theta);
 	}
 	
 	public final Iterable<RecordInterface> getCandWindowQuerySide( Record query, PkwiseSignatureGenerator siggen ) {

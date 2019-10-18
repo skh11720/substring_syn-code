@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndexBuilder {
@@ -19,19 +20,19 @@ public class PkwiseIndexBuilder {
 	static Int2IntOpenHashMap sidxMap;
 	static double theta;
 
-	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int qlen, double theta ) {
+	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSearch alg, WindowDataset dataset, int wMin, int wMax, double theta ) {
 		PkwiseIndexBuilder.theta = theta;
-		WitvMapBuilder builder = new WitvMapBuilder(dataset, alg.getSiggen(), qlen, qlen, true);
-		return builder.build();
-	}
-	
-	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSynSearch alg, WindowDataset dataset, int qlen, double theta ) {
-		PkwiseIndexBuilder.theta = theta;
-		int wMin = alg.getLFLB(qlen);
-		int wMax = alg.getLFUB(qlen);
 		WitvMapBuilder builder = new WitvMapBuilder(dataset, alg.getSiggen(), wMin, wMax, true);
 		return builder.build();
 	}
+	
+//	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2WitvMap( PkwiseSynSearch alg, WindowDataset dataset, int wMin, int wMax ) {
+//		PkwiseIndexBuilder.theta = theta;
+//		int wMin = alg.getLFLB(qlen);
+//		int wMax = alg.getLFUB(qlen);
+//		WitvMapBuilder builder = new WitvMapBuilder(dataset, alg.getSiggen(), wMin, wMax, true);
+//		return builder.build();
+//	}
 
 	public static Int2ObjectMap<ObjectList<WindowInterval>> buildTok2TwitvMap( TransWindowDataset dataset, int qlen, double theta ) {
 		return null;
@@ -206,6 +207,11 @@ public class PkwiseIndexBuilder {
 				int l = siggen.getPrefixLength(x1, maxDiff);
 				prefix1 = new IntArrayList( x1.getTokenList().stream().sorted().limit(l).iterator() );
 				sig1 = siggen.genSignature(prefix1, indexing);
+				if ( x1.getID() == 7324 && x1.size() == 2 ) {
+					Log.log.trace("First window");
+					Log.log.trace("prefix1=%s", prefix1);
+					Log.log.trace("sig1=%s", sig1);
+				}
 				for ( int token : sig1 ) {
 					openInterval(token, x1);
 				}
@@ -218,7 +224,7 @@ public class PkwiseIndexBuilder {
 //				Log.log.trace("t1="+t1+"\tt2="+t2);
 				prefix1 = new IntArrayList(prefix);
 				removeFromSig(prefix1, t1);
-				if ( t2 < prefix1.getInt(prefix1.size()-1) ) addToPrefix(prefix1, t2);
+				if ( prefix1.size() >0 && t2 < prefix1.getInt(prefix1.size()-1) ) addToPrefix(prefix1, t2);
 				PrefixWrapper wprefix1 = siggen.wrapPrefix(prefix1);
 				int cov1 = wprefix1.cov;
 
@@ -228,6 +234,11 @@ public class PkwiseIndexBuilder {
 //				System.out.println("sig1="+sig1);
 //				System.out.println("cov1="+cov1);
 //				System.out.println("sig1.size="+sig1.size()+"\tcov="+cov+"\tmaxDiff="+maxDiff);
+				if ( x1.getID() == 7324 && x1.size() == 2 ) {
+					Log.log.trace("Intermediate window");
+					Log.log.trace("prefix1=%s", prefix1);
+					Log.log.trace("sig1=%s", sig1);
+				}
 				
 				if ( siggen.getCov(prefix, t1) < maxDiff ) {
 //					Log.log.trace("case1");
@@ -238,6 +249,11 @@ public class PkwiseIndexBuilder {
 						if ( t1 != t2 ) {
 //							Log.log.trace("case1.1.1");
 							openAndCloseIntervals(sig, sig1, x1);
+							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+								Log.log.trace("case1.1.1");
+								Log.log.trace("prefix1=%s", prefix1);
+								Log.log.trace("sig1=%s", sig1);
+							}
 						}
 					}
 					else {
@@ -247,6 +263,11 @@ public class PkwiseIndexBuilder {
 						if ( diffPrefix.size() != 1 || diffPrefix.getInt(0) != t1 ) {
 //							Log.log.trace("case1.2.1");
 							openAndCloseIntervals(sig, sig1, x1);
+							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+								Log.log.trace("case1.2.1");
+								Log.log.trace("prefix1=%s", prefix1);
+								Log.log.trace("sig1=%s", sig1);
+							}
 						}
 					}
 					
@@ -261,6 +282,11 @@ public class PkwiseIndexBuilder {
 						if ( diffPrefix.size() != 1 || diffPrefix.getInt(0) != t2 ) {
 //							Log.log.trace("case2.1.1");
 							openAndCloseIntervals(sig, sig1, x1);
+							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+								Log.log.trace("case2.1.1");
+								Log.log.trace("prefix1=%s", prefix1);
+								Log.log.trace("sig1=%s", sig1);
+							}
 						}
 					}
 				}

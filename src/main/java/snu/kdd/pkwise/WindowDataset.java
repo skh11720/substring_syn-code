@@ -167,6 +167,7 @@ public class WindowDataset extends Dataset {
 				}
 				widx = 0;
 			}
+			if ( rec.getID() == 7324 && w == 2 ) Log.log.trace("window: "+(new Subrecord(rec, widx, widx+w))+"\t"+(new Subrecord(rec, widx, widx+w)).toOriginalString());
 			return new Subrecord(rec, widx, widx+w);
 		}
 	}

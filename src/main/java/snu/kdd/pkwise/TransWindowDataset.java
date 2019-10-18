@@ -20,6 +20,24 @@ public class TransWindowDataset extends WindowDataset {
 		this.theta = Double.parseDouble(theta);
 	}
 	
+	public final int getMaxQueryTransformLength() {
+		int l = 0;
+		for ( Record query : getSearchedList() ) {
+			query.preprocessAll();
+			l = Math.max(l, query.getMaxTransLength());
+		}
+		return l;
+	}
+
+	public final int getMinQueryTransformLength() {
+		int l = Integer.MAX_VALUE;
+		for ( Record query : getSearchedList() ) {
+			query.preprocessAll();
+			l = Math.min(l, query.getMinTransLength());
+		}
+		return l;
+	}
+	
 	public final void buildIntQGramStore() {
 		iqgramStore = new IntQGramStore(getIntQGramsIterable());
 	}

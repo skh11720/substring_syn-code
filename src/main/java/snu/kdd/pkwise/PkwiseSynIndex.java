@@ -29,7 +29,11 @@ public class PkwiseSynIndex {
 		this.theta = theta;
 		this.dataset = dataset;
 		siggen = alg.getSiggen();
-		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
+		int wMin = (int)Math.ceil(dataset.getMinQueryTransformLength()*theta);
+		int wMax = (int)Math.floor(dataset.getMaxQueryTransformLength()/theta);
+//		Log.log.trace("PkwiseSynIndex: wMin=%d", wMin);
+//		Log.log.trace("PkwiseSynIndex: wMax=%d", wMax);
+		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, wMin, wMax, theta);
 		twitvMap = buildTok2iqgramsMap(dataset, qlen, theta);
 	}
 	
@@ -58,6 +62,7 @@ public class PkwiseSynIndex {
 		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
 		int maxDiff = Util.getPrefixLength(query, theta);
 		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
+//		Log.log.trace("sig=%s", sig);
 		for ( int token : sig ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
@@ -102,14 +107,14 @@ public class PkwiseSynIndex {
 		return witvMap;
 	}
 	
-//	public final Int2ObjectMap<ObjectList<WindowInterval>> getTwitvMap() {
-//		return twitvMap;
-//	}
+	public final Int2ObjectMap<IntList> getTwitvMap() {
+		return twitvMap;
+	}
 	
 	public final void writeToFile( KwiseSignatureMap sigMap ) {
 		try {
 			PrintStream ps = null;
-			ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
+			ps = new PrintStream("tmp/PkwiseSynIndex.witvMap.txt");
 			for ( Entry<Integer, ObjectList<WindowInterval>> e : getWitvMap().entrySet() ) {
 				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
 				else {
@@ -118,9 +123,15 @@ public class PkwiseSynIndex {
 				}
 			}
 			ps.close();
-//			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
-//			for ( Entry<Integer, ObjectList<WindowInterval>> e : getTwitvMap().entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
-//			ps.close();
+			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
+			for (  Entry<Integer, IntList> e : getTwitvMap().entrySet() ) {
+				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
+				else {
+					KwiseSignature ksig = sigMap.get(e.getKey());
+					ps.println(ksig.toOriginalString()+"\t"+ksig+"\t"+e);
+				}
+			}
+			ps.close();
 		}
 		catch ( IOException e ) {
 			e.printStackTrace();
@@ -155,6 +166,7 @@ public class PkwiseSynIndex {
 			int sidx0 = widx;
 			int eidx0 = widx+w;
 			findNext();
+//			Log.log.trace("PkwiseSynIndex.WitvIterator\t"+(new Subrecord(rec0, sidx0, eidx0))+"\t"+(new Subrecord(rec0, sidx0, eidx0)).toOriginalString());
 			return new Subrecord(rec0, sidx0, eidx0);
 		}
 		

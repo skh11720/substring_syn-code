@@ -54,7 +54,7 @@ public class PkwiseIndexTest {
 		int kmax = 3;
 		WindowDataset dataset = TestUtils.getTestDataset();
 		PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
-		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, theta);
+		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, qlen, theta);
 		PrintStream ps = null;
 		ps = new PrintStream("tmp/PkwiseIndex.witvMap.txt");
 		for ( Entry<Integer, ObjectList<WindowInterval>> e : map.entrySet() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);

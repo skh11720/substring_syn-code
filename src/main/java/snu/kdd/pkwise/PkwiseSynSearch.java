@@ -5,6 +5,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -21,7 +22,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		statContainer.startWatch(Stat.Time_BuildIndex);
         index = new PkwiseSynIndex(this, ((TransWindowDataset)dataset), qlen, theta);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
-//        index.writeToFile(sigMap);
+        index.writeToFile(sigMap);
 	}
 
 	@Override
@@ -31,12 +32,13 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	@Override
 	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
-//		if ( query.getID() != 0 ) return;
+//		if ( query.getID() != 16 ) return;
 		statContainer.startWatch(Stat.Time_Preprocess);
 		prepareSearchGivenQuery(query);
 		statContainer.stopWatch(Stat.Time_Preprocess);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		for ( Record queryExp : Records.expands(query) ) {
+			Log.log.trace("queryExp=%s\t%s", queryExp, queryExp.toOriginalString());
 			pkwiseSearchQuerySide(queryExp, dataset);
 		}
 		statContainer.stopWatch(Stat.Time_QS_Total);
@@ -45,11 +47,21 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		statContainer.stopWatch(Stat.Time_TS_Total);
 	}
 
+	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
+		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
+		for ( RecordInterface window : candListQuerySide ) {
+			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+//			if ( window.getID() >= 0 ) continue;
+			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
+			searchWindowQuerySide(query, window);
+		}
+	}
+
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
-//			if ( window.getID() != 946 ) continue;
+//			if ( window.getID() != 6116 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
 			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
 			window.getSuperRecord().preprocessAll();
@@ -70,7 +82,8 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	}
 
 	protected final void searchWindowTextSide(Record query, RecordInterface window) {
-//		Log.log.trace("searchWindowTextSide: query=%d, window=[%d,%d,%d]", query.getID(), window.getID(), window.sidx, window.eidx);
+//		Log.log.trace("searchWindowTextSide: query=%s\t%s", query, query.toOriginalString());
+//		Log.log.trace("searchWindowTextSide: window=%s\t%s", window, window.toOriginalString());
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		statContainer.addCount(Stat.Num_TS_Verified, 1);
 		double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());

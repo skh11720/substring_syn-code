@@ -57,11 +57,11 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		statContainer.stopWatch(Stat.Time_QS_Total);
 	}
 
-	protected final void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
+	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
 			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
-//			if ( window.getID() != 7677 ) continue;
+//			if ( window.getID() != 7324 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
 		}
@@ -75,12 +75,12 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		double sim = verifyQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
-//		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
-//		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
-//		Log.log.trace("sim=%.3f", sim);
+		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
+		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
+		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
 			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
-//			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
+			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}
 	}
