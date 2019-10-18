@@ -7,6 +7,7 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -40,7 +41,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
+			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
 		}
 		
 		hash = getHash();
@@ -80,6 +81,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	public Collection<Integer> getTokens() {
 		return IntArrayList.wrap(tokens);
+	}
+
+	public IntSet getDistinctTokens() {
+		return new IntOpenHashSet(tokens);
 	}
 
 	public int[] getTokenArray() {

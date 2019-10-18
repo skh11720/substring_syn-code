@@ -13,6 +13,7 @@ public class DiskBasedDataset extends Dataset {
 	
 	protected DiskBasedDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
 		super(datasetName, size, nr, qlen);
+		initTokenIndex();
 		store = new RecordStore(getIndexedList());
 	}
 	
@@ -41,6 +42,10 @@ public class DiskBasedDataset extends Dataset {
 	@Override
 	public Record getRecord(int id) {
 		return store.getRecord(id);
+	}
+	
+	public Iterable<Record> getRecords() {
+		return store.getRecords();
 	}
 	
 	class DiskBasedRecordIterator implements Iterator<Record> {

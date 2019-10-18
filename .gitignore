@@ -6,3 +6,4 @@ tmp/*
 log/*
 output/*
 json/*
+.pydevproject

@@ -8,6 +8,10 @@ import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import snu.kdd.pkwise.PkwiseTokenOrder;
+import snu.kdd.pkwise.TransWindowDataset;
+import snu.kdd.pkwise.WindowDataset;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -28,7 +32,16 @@ public abstract class Dataset {
 		String size = getOptionValue(cmd, "nt");
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
-		return createInstanceByName(name, size, nr, qlen);
+		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
+		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
+			return createWindowInstanceByName(name, size, nr, qlen);
+		if ( algName == AlgorithmName.PkwiseSynSearch ) {
+			String param = getOptionValue(cmd, "param");
+			String theta = param.split(",")[0].split(":")[1];
+			return createTransWindowInstanceByName(name, size, nr, qlen, theta);
+		}
+		else
+			return createInstanceByName(name, size, nr, qlen);
 	}
 	
 	private static String getOptionValue( CommandLine cmd, String key ) {
@@ -47,6 +60,30 @@ public abstract class Dataset {
 		dataset.addStat();
 		return dataset;
 	}
+	
+	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
+		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
+		dataset.loadRecordList(dataset.searchedPath);
+		dataset.buildRecordStore();
+		dataset.ruleSet = new Ruleset();
+		dataset.addStat();
+//		dataset.ruleSet.writeToFile();
+		return dataset;
+	}
+
+	public static TransWindowDataset createTransWindowInstanceByName( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
+		TransWindowDataset dataset = new TransWindowDataset(datasetName, size, nr, qlen, theta);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
+		dataset.loadRecordList(dataset.searchedPath);
+		dataset.buildRecordStore();
+		dataset.createRuleSet();
+		dataset.buildIntQGramStore();
+		dataset.addStat();
+//		dataset.ruleSet.writeToFile();
+		return dataset;
+	}
+
 
 	protected static String setName( String name, String size, String nr, String qlen ) {
 		StringBuilder strbld = new StringBuilder(name);
@@ -63,14 +100,14 @@ public abstract class Dataset {
 		rulePath = DatasetInfo.getRulePath(datasetName, nr);
 		outputPath = "output";
 		statContainer = new StatContainer();
+		statContainer.startWatch(Stat.Time_Prepare_Data);
 		statContainer.setStat(Stat.Dataset_Name, name);
 		statContainer.setStat(Stat.Dataset_nt, size);
 		statContainer.setStat(Stat.Dataset_nr, nr);
 		statContainer.setStat(Stat.Dataset_qlen, qlen);
-		initTokenIndex();
 	}
 	
-	private void initTokenIndex() {
+	protected void initTokenIndex() {
 		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();
@@ -90,6 +127,7 @@ public abstract class Dataset {
 		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleSet.size()));
 		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
 		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
+		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		statContainer.finalize();
 	}
 	

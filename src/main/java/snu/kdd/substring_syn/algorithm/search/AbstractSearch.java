@@ -39,7 +39,7 @@ public abstract class AbstractSearch {
 		StatContainer.global = statContainer;
 	}
 	
-	public final void run( Dataset dataset ) {
+	public void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
@@ -67,12 +67,12 @@ public abstract class AbstractSearch {
 	protected final void searchGivenQuery( Record query, Dataset dataset ) {
 //		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
-		statContainer.startWatch(Stat.Time_QSTotal);
+		statContainer.startWatch(Stat.Time_QS_Total);
 		searchQuerySide(query, dataset);
-		statContainer.stopWatch(Stat.Time_QSTotal);
-		statContainer.startWatch(Stat.Time_TSTotal);
+		statContainer.stopWatch(Stat.Time_QS_Total);
+		statContainer.startWatch(Stat.Time_TS_Total);
 		searchTextSide(query, dataset);
-		statContainer.stopWatch(Stat.Time_TSTotal);
+		statContainer.stopWatch(Stat.Time_TS_Total);
 	}
 	
 	protected void prepareSearchGivenQuery( Record query ) {
@@ -90,8 +90,8 @@ public abstract class AbstractSearch {
 			++nCand;
 			sumLen += rec.size();
 		}
-		Log.log.debug("SearchQuerySide.nCand=%d", nCand);
-		Log.log.debug("SearchQuerySide.sumLen=%d", sumLen);
+//		Log.log.trace("SearchQuerySide.nCand=%d", nCand);
+//		Log.log.trace("SearchQuerySide.sumLen=%d", sumLen);
 	}
 	
 	protected final void searchTextSide( Record query, Dataset dataset ) {
@@ -109,8 +109,8 @@ public abstract class AbstractSearch {
 			++nCand;
 			sumLen += rec.size();
 		}
-		Log.log.debug("SearchTextSide.nCand=%d", nCand);
-		Log.log.debug("SearchTextSide.sumLen=%d", sumLen);
+//		Log.log.trace("SearchTextSide.nCand=%d", nCand);
+//		Log.log.trace("SearchTextSide.sumLen=%d", sumLen);
 	}
 	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {

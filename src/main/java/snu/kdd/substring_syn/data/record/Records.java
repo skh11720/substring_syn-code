@@ -1,10 +1,12 @@
 package snu.kdd.substring_syn.data.record;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -64,6 +66,113 @@ public class Records {
 				else {
 					expandAll( rslt, rec, new_idx, new_rec );
 				}
+			}
+		}
+	}
+	
+	public static Iterable<Record> expands( Record rec ) {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new ExpandIterator(rec);
+			}
+		};
+	}
+	
+	private static class ExpandIterator implements Iterator<Record> {
+		
+		final State state;
+		boolean hasNext = true;
+		
+		public ExpandIterator( Record rec ) {
+			state = new State(rec);
+			findNext();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		@Override
+		public Record next() {
+			Record exp = state.getRecord();
+			findNext();
+			return exp;
+		}
+		
+		private void findNext() {
+			hasNext = state.transit();
+		}
+
+		private class State {
+			Record rec;
+			Rule[][] rules;
+			Rule[] ruleList;
+			int[] ridxList;
+			int[] expand;
+			int nRule;
+			int lhsSize;
+			int rhsSize;
+			
+			public State( Record rec ) {
+				this.rec = rec;
+				rules = rec.getApplicableRules();
+				ruleList = new Rule[rec.size()];
+				ridxList = new int[rec.size()];
+				expand = new int[rec.getMaxTransLength()];
+				nRule = 0;
+				lhsSize = 0;
+				rhsSize = 0;
+			}
+			
+			public boolean transit() {
+				while ( lhsSize >= rec.size() || ridxList[lhsSize] >= rules[lhsSize].length ) {
+					if ( lhsSize < rec.size() ) {
+						ridxList[lhsSize] = 0;
+					}
+					if ( nRule > 0 ) removeRule();
+					else return false;
+				}
+				while ( lhsSize < rec.size() ) {
+					int ridx = ridxList[lhsSize];
+					if ( ridx < rules[lhsSize].length ) {
+						Rule r = rules[lhsSize][ridx];
+						ridxList[lhsSize] += 1;
+						if ( lhsSize + r.lhsSize() <= rec.size() ) addRule(r);
+					}
+				}
+				return true;
+			}
+			
+			public void addRule( Rule r ) {
+				ruleList[nRule] = r;
+				nRule += 1;
+				for ( int i=0; i<r.rhsSize(); ++i  ) expand[i+rhsSize] = r.getRhs()[i];
+				lhsSize += r.lhsSize();
+				rhsSize += r.rhsSize();
+			}
+			
+			public void removeRule() {
+				nRule -= 1;
+				Rule r = ruleList[nRule];
+				lhsSize -= r.lhsSize();
+				rhsSize -= r.rhsSize();
+			}
+			
+			public Record getRecord() {
+				return new Record(rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray());
+			}
+			
+			public String getExpandString() {
+				if (nRule == 0 ) return "";
+				else return getRecord().toOriginalString();
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("%s, %d, %d, %d, %s", Arrays.toString(ridxList), nRule, lhsSize, rhsSize, getExpandString());
 			}
 		}
 	}

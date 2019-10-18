@@ -3,12 +3,17 @@ package snu.kdd.substring_syn.data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.utils.Log;
 
 public class Ruleset {
 	final ObjectArrayList<Rule> ruleList;
+	
+	public Ruleset() {
+		this.ruleList = new ObjectArrayList<>();
+	}
 
 	public Ruleset( Dataset dataset ) {
 		this.ruleList = new ObjectArrayList<>();
@@ -43,5 +48,19 @@ public class Ruleset {
 
 	public int size() {
 		return this.ruleList.size();
+	}
+	
+	public void writeToFile() {
+		try {
+			PrintStream ps = new PrintStream("tmp/Ruleset.txt");
+			for ( Rule rule : ruleList ) {
+				ps.println(rule.toString() +"\t\t" + rule.toOriginalString());
+			}
+			ps.close();
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

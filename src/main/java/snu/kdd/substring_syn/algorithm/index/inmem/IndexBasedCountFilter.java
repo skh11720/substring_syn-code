@@ -2,14 +2,19 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterable;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.Util;
 
 public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 
@@ -33,50 +38,76 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	public final int getNumTinvFault() { return index.getNumTinvFault(); }
 	
 	@Override
-	public ObjectList<Record> querySideFilter( Record query ) {
+	public IntIterable querySideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
 		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
-		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		IntSet candTokenSet = query.getCandTokenSet();
+		IntList candTokenList = new IntArrayList();
+		for ( Rule r : query.getApplicableRuleIterable() ) {
+			for ( int token : r.getRhs() ) {
+				candTokenSet.add(token);
+				candTokenList.add(token);
+			}
+		}
+		Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenList);
 		for ( int token : candTokenSet ) {
+			int nMax = tokenMaxCountMap.get(token);
+			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( int ridx : invList ) counter.addTo(ridx, 1);
+				for ( int ridx : invList ) {
+					if ( counter.get(ridx) < nMax ) {
+						counter.addTo(ridx, 1);
+						commonTokenCounter.addTo(ridx, 1);
+					}
+				}
 			}
 		}
 		
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>(pruneRecordsByCount(counter, minCount));
-//		visualizeCandRecords(candTokenSet, candRecordSet, counter);
-
-		return candRecordSet;
+		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		return candRidxSet;
 	}
 	
 	@Override
-	public ObjectList<Record> textSideFilter( Record query ) {
+	public IntIterable textSideFilter( Record query ) {
 		int minCount = (int)Math.ceil(theta*query.size());
-		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
-		for ( int token : query.getTokens() ) {
+		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
+		Int2IntMap tokenMaxCountMap = Util.getCounter(query.getTokenArray());
+		for ( int token : query.getDistinctTokens() ) {
+			int nMax = tokenMaxCountMap.get(token);
+			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( int ridx : invList ) counter.addTo(ridx, 1);
+				for ( int ridx : invList ) {
+					if ( counter.get(ridx) < nMax ) {
+						counter.addTo(ridx, 1);
+						commonTokenCounter.addTo(ridx, 1);
+					}
+				}
 			}
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
-				for ( int ridx : transInvList ) counter.addTo(ridx, 1);
+				for ( int ridx : transInvList ) {
+					if ( counter.get(ridx) < nMax ) {
+						counter.addTo(ridx, 1);
+						commonTokenCounter.addTo(ridx, 1);
+					}
+				}
 			}
 		}
 
-		ObjectList<Record> candRecordSet = pruneRecordsByCount(counter, minCount);
-		return candRecordSet;
+		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		return candRidxSet;
 	}
 	
-	private ObjectList<Record> pruneRecordsByCount( Int2IntMap counter, int minCount ) {
-		ObjectList<Record> candRecordSet = new ObjectArrayList<>();
+	private IntIterable pruneRecordsByCount( Int2IntMap counter, int minCount ) {
+		IntSet candRidxSet = new IntOpenHashSet();
 		for ( Int2IntMap.Entry entry : counter.int2IntEntrySet() ) {
 			int ridx = entry.getIntKey();
 			int count = entry.getIntValue();
-			if ( count >= minCount ) candRecordSet.add(dataset.getRecord(ridx));
+			if ( count >= minCount ) candRidxSet.add(ridx);
 		}
-		return candRecordSet;
+		return candRidxSet;
 	}
 }

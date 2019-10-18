@@ -26,10 +26,12 @@ public class Stat {
 	public static final String Dataset_numRule= "Dataset_numRule";
 	
 	public static final String Time_Total = "Time_Total";
-	public static final String Time_QSTotal = "Time_QSTotal";
-	public static final String Time_TSTotal = "Time_TSTotal";
+	public static final String Time_QS_Total = "Time_QS_Total";
+	public static final String Time_TS_Total = "Time_TS_Total";
+	public static final String Time_Prepare_Data = "Time_Prepare_Data";
 	public static final String Time_Preprocess= "Time_Preprocess";
-	public static final String Time_Validation = "Time_Validation";
+	public static final String Time_QS_Validation = "Time_QS_Validation";
+	public static final String Time_TS_Validation = "Time_TS_Validation";
 	public static final String Time_BuildIndex = "Time_BuildIndex";
 	public static final String Time_QS_IndexFilter = "Time_QS_IndexFilter";
 	public static final String Time_TS_IndexFilter = "Time_TS_IndexFilter";

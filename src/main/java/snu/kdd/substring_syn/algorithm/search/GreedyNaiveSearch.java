@@ -24,9 +24,9 @@ public class GreedyNaiveSearch extends AbstractSearch {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-				statContainer.startWatch(Stat.Time_Validation);
+				statContainer.startWatch(Stat.Time_QS_Validation);
 				double sim = validator.simQuerySide(query, window);
-				statContainer.stopWatch(Stat.Time_Validation);
+				statContainer.stopWatch(Stat.Time_QS_Validation);
 				if ( sim >= theta ) {
 					Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
@@ -43,9 +43,9 @@ public class GreedyNaiveSearch extends AbstractSearch {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-				statContainer.startWatch(Stat.Time_Validation);
+				statContainer.startWatch(Stat.Time_TS_Validation);
 				double sim = validator.simTextSide(query, window);
-				statContainer.stopWatch(Stat.Time_Validation);
+				statContainer.stopWatch(Stat.Time_TS_Validation);
 				if ( sim >= theta ) {
 					Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));

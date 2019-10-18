@@ -3,15 +3,21 @@ package snu.kdd.substring_syn.algorithm.search;
 import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.pkwise.PkwiseNaiveSearch;
+import snu.kdd.pkwise.PkwiseSearch;
+import snu.kdd.pkwise.PkwiseSynSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 
 public class AlgorithmFactory {
 
-	private enum AlgorithmName {
+	public enum AlgorithmName {
 		ExactNaiveSearch,
 		GreedyNaiveSearch,
 		PrefixSearch,
 		ExactPrefixSearch,
+		PkwiseNaiveSearch,
+		PkwiseSearch,
+		PkwiseSynSearch,
 	}
 	
 	private enum FilterOption {
@@ -34,6 +40,9 @@ public class AlgorithmFactory {
 		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param, false);
 		case ExactPrefixSearch: return createPrefixSearch(param, true);
+		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
+		case PkwiseSearch: return createPkwiseSearch(param);
+		case PkwiseSynSearch: return createPkwiseSynSearch(param, cmd);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -63,7 +72,7 @@ public class AlgorithmFactory {
 			case ICF: indexChoice = IndexChoice.Count; break;
 			case IF: indexChoice = IndexChoice.Naive; break;
 			case NoFilter: break;
-			case NaivePF: indexChoice = indexChoice.Naive;
+			case NaivePF: indexChoice = IndexChoice.Naive;
 			case NoIndex: bLF = bPF = true; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
@@ -81,6 +90,27 @@ public class AlgorithmFactory {
 			if ( isExact ) return new ExactPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PrefixSearch(theta, bLF, bPF, indexChoice);
 		}
+	}
+
+	private static PkwiseNaiveSearch createPkwiseNaiveSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		int qlen = Integer.parseInt(param.get("qlen"));
+		int kmax = Integer.parseInt(param.get("kmax"));
+		return new PkwiseNaiveSearch(theta, qlen, kmax);
+	}
+	
+	private static PkwiseSearch createPkwiseSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		int qlen = Integer.parseInt(param.get("qlen"));
+		int kmax = Integer.parseInt(param.get("kmax"));
+		return new PkwiseSearch(theta, qlen, kmax);
+	}
+	
+	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, CommandLine cmd ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		int qlen = Integer.parseInt(cmd.getOptionValue("ql"));
+		int kmax = Integer.parseInt(param.get("kmax"));
+		return new PkwiseSynSearch(theta, qlen, kmax);
 	}
 	
 	

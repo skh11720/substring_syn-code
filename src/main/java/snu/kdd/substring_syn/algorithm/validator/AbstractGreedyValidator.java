@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.utils.Util;
 public abstract class AbstractGreedyValidator extends AbstractValidator {
 	
 	protected final StatContainer statContainer;
+	public static int optScore = 0;
 
 	public AbstractGreedyValidator(double theta, StatContainer statContainer) {
 		super(theta, statContainer);
@@ -28,6 +29,9 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 		
 		public State( RecordInterface x, RecordInterface y ) {
 			counter = Util.getCounter(y.getTokenArray());
+			for ( int token : x.getTokenArray() ) {
+				if ( counter.get(token) > 0 )  counter.addTo(token, -1);
+			}
 			candRuleSet = createPosRuleList(x);
 			bAvailable = new Boolean[x.size()];
 			Arrays.fill( bAvailable, true );
@@ -63,23 +67,126 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			double bestScore = 0;
 			PosRule bestRule = null;
 			for ( PosRule rule : candRuleSet ) {
-				double score = score(rule.rule);
+				final double score;
+				switch (optScore) {
+				case 0: score = score0(rule.rule); break;
+				case 1: score = score1(rule.rule); break;
+				case 2: score = score2(rule.rule); break;
+				case 3: score = score3(rule.rule); break;
+				case 4: score = score4(rule.rule); break;
+				case 5: score = score5(rule.rule); break;
+				case 6: score = score6(rule.rule); break;
+				case 7: score = score7(rule.rule); break;
+				case 8: score = score8(rule.rule); break;
+				default: throw new RuntimeException("Invalid optScore value: "+optScore);
+				}
 				if (score > bestScore) {
 					bestScore = score;
 					bestRule = rule;
 				}
-				if (bestScore == 1) break;
+//				if (bestScore == 1) break;
 			}
-			if ( bestScore == 0) return null;
+			if ( bestScore <= 0) return null;
 			else return bestRule;
 		}
 
-		private double score( Rule rule ) {
+		private double score0( Rule rule ) {
 			double score = 0;
 			for (int token : rule.getRhs()) {
 				if ( counter.get(token) > 0 ) ++score;
 			}
 			score /= rule.rhsSize();
+			return score;
+		}
+
+		private double score1( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			return score;
+		}
+
+		private double score2( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			score /= rule.lhsSize();
+			return score;
+		}
+
+		private double score3( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) --score;
+			}
+			score /= rule.rhsSize();
+			return score;
+		}
+
+		private double score4( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) --score;
+			}
+			return score;
+		}
+
+		private double score5( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) --score;
+			}
+			score /= rule.lhsSize();
+			return score;
+		}
+
+		private double score6( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			score /= rule.rhsSize();
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) --score;
+			}
+			return score;
+		}
+
+		private double score7( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			score /= rule.rhsSize();
+			double penalty = 0;
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) ++penalty;
+			}
+			score -= penalty/rule.lhsSize();
+			return score;
+		}
+
+		private double score8( Rule rule ) {
+			double score = 0;
+			for (int token : rule.getRhs()) {
+				if ( counter.get(token) > 0 ) ++score;
+			}
+			double penalty = 0;
+			for (int token : rule.getLhs()) {
+				if ( counter.get(token) > 0 ) ++penalty;
+			}
+			score -= penalty/rule.lhsSize();
 			return score;
 		}
 		

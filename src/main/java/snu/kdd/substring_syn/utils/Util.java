@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -22,6 +23,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
@@ -730,6 +732,10 @@ public class Util {
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 	
+	public static int getPrefixLength( int len, double theta ) {
+		return len - (int)(Math.ceil(theta*len)) + 1;
+	}
+
 	public static int getPrefixLength( RecordInterface rec, double theta ) {
 		return rec.size() - (int)(Math.ceil(theta*rec.size())) + 1;
 	}
@@ -741,6 +747,10 @@ public class Util {
 
 	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
+	
+	public static double getModifiedTheta( int qlen, RecordInterface rec, double theta ) {
+		return theta * qlen / (qlen + 2*(rec.getMaxRhsSize()-1));
 	}
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
@@ -781,10 +791,27 @@ public class Util {
 		for ( int token : arr ) counter.addTo(token, 1);
 		return counter;
 	}
+
+	public static Int2IntOpenHashMap getCounter( IntIterable iter ) {
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		for ( int token : iter ) counter.addTo(token, 1);
+		return counter;
+	}
 	
 	public static double getMemoryUsage() {
 		// return in MB
 		Runtime inst = Runtime.getRuntime();
 		return (inst.totalMemory()-inst.freeMemory())/1e6;
+	}
+	
+	public static void unzip( ObjectList<IntPair> pairList, IntList list1, IntList list2 ) {
+		for ( IntPair pair : pairList ) {
+			list1.add(pair.i1);
+			list2.add(pair.i2);
+		}
+	}
+	
+	public static void addToIntList( IntList list, int c ) {
+		for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 	}
 }

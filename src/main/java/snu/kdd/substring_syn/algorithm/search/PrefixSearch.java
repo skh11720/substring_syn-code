@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -19,7 +21,6 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
@@ -74,9 +75,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				if ( bPF && isFilteredByPrefixFilteringQuerySide(witer, expandedPrefix)) continue;
 
 				statContainer.addCount(Stat.Len_QS_PF, w); 
-				statContainer.startWatch(Stat.Time_Validation);
+				statContainer.startWatch(Stat.Time_QS_Validation);
 				boolean isSim = verifyQuerySide(query, window);
-				statContainer.stopWatch(Stat.Time_Validation);
+				statContainer.stopWatch(Stat.Time_QS_Validation);
 				if ( isSim ) {
 					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 //					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
@@ -151,6 +152,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
+		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {
 			pkduckdp.setTarget(target);
@@ -168,7 +170,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 					statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
 //					Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
 					
+					if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
 					if ( pkduckdp.isInSigU(widx, w) ) {
+						verifiedWindowSet.add(new IntPair(widx, w));
 						statContainer.addCount(Stat.Len_TS_PF, w);
 						Subrecord window = new Subrecord(rec, widx, widx+w);
 						boolean isSim = verifyTextSideWrapper(query, window);
@@ -204,9 +208,9 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected boolean verifyTextSideWrapper( Record query, Subrecord window ) {
-		statContainer.startWatch(Stat.Time_Validation);
+		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = verifyTextSide(query, window);
-		statContainer.stopWatch(Stat.Time_Validation);
+		statContainer.stopWatch(Stat.Time_TS_Validation);
 		return isSim;
 	}
 
@@ -445,7 +449,19 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.06: fix a bug in transLen calculator
 		 * 6.07: fix a bug in position filter
 		 * 6.08: optimization
+		 * 6.09: improve position filter
+		 * 6.10: fix a bug
+		 * 6.11: update score function in position filter
+		 * 6.12: fix bugs in position filter (ERROR)
+		 * 6.13: fix bugs in count and position filter
+		 * 6.14: fix bugs in IndexNaiveFilter
+		 * 6.15: update score functions
+		 * 6.16: fix bug in score function
+		 * 6.17: modify verification
+		 * 6.18: improve index filter memory efficiency
+		 * 6.19: prevent repeated verification in PF 
+		 * 6.20: improve pos filter, without split
 		 */
-		return "6.08";
+		return "6.20";
 	}
 }

@@ -39,7 +39,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 		for ( Record exp : Records.expandAll(query) ) {
 			double sim = Util.subJaccardM(exp.getTokenList(), window.getTokenList());
 			if ( sim >= theta ) {
-				Log.log.debug("NaivePkduckValidator.verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
+//				Log.log.trace("NaivePkduckValidator.verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
 				return true;
 			}
 		}
@@ -53,7 +53,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 		for ( Record exp : Records.expandAll(window) ) {
 			double sim = Util.subJaccardM(query.getTokenList(), exp.getTokenList());
 			if ( sim >= theta ) {
-				Log.log.debug("NaivePkduckValidator.verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
+//				Log.log.trace("NaivePkduckValidator.verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
 				return true;
 			}
 		}
