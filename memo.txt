@@ -52,10 +52,11 @@
 (*) token ordering
 (*) token partitioning
 (*) sig gen
-(5) search
-(6) optimization
+(*) search
+(-) optimization
 
 3.3. Misthinkings
 - enumerating only the maximum-sized windows may fail, since even though
   signatures do not have an overlap, a substring of a window can be similar to
   the query.
+- cost estimation is not straightforward, since problem definition changed
