@@ -118,6 +118,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.06";
+		/*
+		 * 1.00: initial version
+		 */
+		return "1.00";
 	}
 }

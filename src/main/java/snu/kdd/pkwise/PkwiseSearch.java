@@ -43,6 +43,9 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.03";
+		/*
+		 * 1.00: initial version
+		 */
+		return "1.00";
 	}
 }

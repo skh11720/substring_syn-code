@@ -106,6 +106,9 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		return "0.02";
+		/*
+		 * 1.00: initial version
+		 */
+		return "1.00";
 	}
 }
