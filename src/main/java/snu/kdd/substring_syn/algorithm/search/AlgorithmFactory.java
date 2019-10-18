@@ -42,7 +42,7 @@ public class AlgorithmFactory {
 		case ExactPrefixSearch: return createPrefixSearch(param, true);
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
-		case PkwiseSynSearch: return createPkwiseSynSearch(param);
+		case PkwiseSynSearch: return createPkwiseSynSearch(param, cmd);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -106,9 +106,9 @@ public class AlgorithmFactory {
 		return new PkwiseSearch(theta, qlen, kmax);
 	}
 	
-	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param ) {
+	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, CommandLine cmd ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		int qlen = Integer.parseInt(param.get("qlen"));
+		int qlen = Integer.parseInt(cmd.getOptionValue("ql"));
 		int kmax = Integer.parseInt(param.get("kmax"));
 		return new PkwiseSynSearch(theta, qlen, kmax);
 	}

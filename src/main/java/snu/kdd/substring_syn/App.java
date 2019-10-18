@@ -26,7 +26,6 @@ public class App {
 		argOptions.addOption("ql", true, "");
 		argOptions.addOption("alg", true, "");
 		argOptions.addOption("param", true, "");
-		argOptions.addOption("theta", true, "");
 	}
 
 	private static CommandLine parseInput( String args[] ) throws ParseException {

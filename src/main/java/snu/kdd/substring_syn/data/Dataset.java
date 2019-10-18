@@ -36,7 +36,8 @@ public abstract class Dataset {
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(name, size, nr, qlen);
 		if ( algName == AlgorithmName.PkwiseSynSearch ) {
-			String theta = getOptionValue(cmd, "theta");
+			String param = getOptionValue(cmd, "param");
+			String theta = param.split(",")[0].split(":")[1];
 			return createTransWindowInstanceByName(name, size, nr, qlen, theta);
 		}
 		else
