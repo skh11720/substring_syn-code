@@ -85,6 +85,10 @@ public class IntQGramStore {
 		};
 	}
 	
+	public final int getNumIntQGrams() {
+		return posList.size();
+	}
+	
 	class IntQGramIterator implements Iterator<IntQGram> {
 		
 		int i = 0;
