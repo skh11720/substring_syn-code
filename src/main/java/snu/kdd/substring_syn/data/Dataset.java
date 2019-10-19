@@ -1,10 +1,12 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.io.FileUtils;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -128,6 +130,10 @@ public abstract class Dataset {
 		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
 		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
+		try { statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString()); }
+		catch ( Exception e ) {}
+		try { statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString()); }
+		catch ( Exception e ) {}
 		statContainer.finalize();
 	}
 	

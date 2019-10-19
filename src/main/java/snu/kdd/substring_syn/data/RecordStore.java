@@ -1,23 +1,20 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
 
-import org.apache.commons.io.FileUtils;
 import org.xerial.snappy.Snappy;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordStore {
 
-	private static final String path = "./tmp/RecordStore";
+	public static final String path = "./tmp/RecordStore";
 	private final IntList posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
@@ -46,7 +43,6 @@ public class RecordStore {
 		}
 		fos.close();
 		posList.add(cur);
-		StatContainer.global.setStat("Size_RecordStore", FileUtils.sizeOfAsBigInteger(new File(path)).toString());
 	}
 	
 	private byte[] setBuffer() {

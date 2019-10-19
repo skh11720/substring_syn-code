@@ -1,6 +1,5 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,18 +8,16 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.Iterator;
 
-import org.apache.commons.io.FileUtils;
 import org.xerial.snappy.Snappy;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.utils.Log;
-import snu.kdd.substring_syn.utils.StatContainer;
 
 public class IntQGramStore {
 
+	public static final String path = "./tmp/IntQGramStore";
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
-	private static final String path = "./tmp/IntQGramStore";
 	private final ObjectList<BigInteger> posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
@@ -52,7 +49,6 @@ public class IntQGramStore {
 		}
 		fos.close();
 		posList.add(cur);
-		StatContainer.global.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(path)).toString());
 	}
 	
 	private byte[] setBuffer() {
