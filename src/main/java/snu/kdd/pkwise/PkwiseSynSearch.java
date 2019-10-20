@@ -121,6 +121,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		/*
 		 * 1.00: initial version
 		 * 1.01: modify IntQGramStore
+		 * 1.02: use disk-based qgram index
 		 */
 		return "1.02";
 	}
