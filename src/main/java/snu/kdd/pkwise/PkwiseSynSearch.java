@@ -122,6 +122,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		 * 1.00: initial version
 		 * 1.01: modify IntQGramStore
 		 */
-		return "1.01";
+		return "1.02";
 	}
 }

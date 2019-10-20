@@ -5,9 +5,16 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class NaiveIndexStoreBuilder extends AbstractIndexStoreBuilder {
+	
+	public final String storeName;
 
 	public NaiveIndexStoreBuilder(Iterable<Record> recordList) {
+		this(recordList, "NaiveIndexStore");
+	}
+
+	public NaiveIndexStoreBuilder(Iterable<Record> recordList, String storeName ) {
 		super(recordList);
+		this.storeName = storeName;
 	}
 
 	@Override
@@ -32,6 +39,6 @@ public class NaiveIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	@Override
 	protected String getIndexStoreName() {
-		return "NaiveIndexStore";
+		return storeName;
 	}
 }

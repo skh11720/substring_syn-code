@@ -12,6 +12,7 @@ import org.xerial.snappy.Snappy;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 
 public class IntQGramStore {
@@ -75,11 +76,11 @@ public class IntQGramStore {
 		return new IntQGram(arr);
 	}
 	
-	public Iterable<IntQGram> getIntQGrams() {
-		return new Iterable<IntQGram>() {
+	public Iterable<Record> getIntQGrams() {
+		return new Iterable<Record>() {
 			
 			@Override
-			public Iterator<IntQGram> iterator() {
+			public Iterator<Record> iterator() {
 				return new IntQGramIterator();
 			}
 		};
@@ -89,7 +90,7 @@ public class IntQGramStore {
 		return posList.size();
 	}
 	
-	class IntQGramIterator implements Iterator<IntQGram> {
+	class IntQGramIterator implements Iterator<Record> {
 		
 		int i = 0;
 		FileInputStream fis;
@@ -110,7 +111,7 @@ public class IntQGramStore {
 		}
 
 		@Override
-		public IntQGram next() {
+		public Record next() {
 			int len = posList.get(i+1).subtract(posList.get(i)).intValueExact();
 			int[] arr = null;
 			try {
@@ -120,7 +121,7 @@ public class IntQGramStore {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-			IntQGram iqgram = new IntQGram(arr);
+			Record iqgram = new Record(arr);
 			i += 1;
 			return iqgram;
 		}

@@ -44,7 +44,7 @@ public class TransWindowDataset extends WindowDataset {
 		numIntQGrams = iqgramStore.getNumIntQGrams();
 	}
 	
-	public final Iterable<IntQGram> getIntQGrams() {
+	public final Iterable<Record> getIntQGrams() {
 		return iqgramStore.getIntQGrams();
 	}
 	

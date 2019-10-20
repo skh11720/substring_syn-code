@@ -17,7 +17,7 @@ import snu.kdd.substring_syn.data.record.Record;
 
 public abstract class AbstractIndexStoreBuilder {
 
-	protected static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
+	public static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
 	protected final Iterable<Record> recordList;
 	protected FileOutputStream fos = null;
@@ -43,7 +43,7 @@ public abstract class AbstractIndexStoreBuilder {
 	}
 	
 	@FunctionalInterface
-	interface ListSegmentBuilder {
+	protected interface ListSegmentBuilder {
 		Int2ObjectMap<ObjectList<SegmentInfo>> build(Iterable<Record> recordList) throws IOException;
 	}
 	
