@@ -1,4 +1,6 @@
 theta_list: &theta_list ['0.6', '0.7', '0.8', '0.9', '1.0']
+filter_list: &filter_list ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF', 'IPFOnly_L', 'ICF_L', 'IPFOnly', 'LFOnly', 'PFOnly']
+#  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF']
  
 ExactNaiveSearch:
   theta: *theta_list
@@ -8,11 +10,12 @@ GreedyNaiveSearch:
  
 PrefixSearch:
   theta: *theta_list
-#  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF']
-  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF', 'IPFOnly_L', 'ICF_L', 'IPFOnly', 'LFOnly', 'PFOnly']
+  filter: *filter_list
 
 PkwiseSynSearch:
   theta: *theta_list
   kmax: ['1', '2', '3']
 
-
+ZeroPrefixSearch:
+  theta: *theta_list
+  filter: *filter_list
