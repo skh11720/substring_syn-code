@@ -1,10 +1,17 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.Serializable;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
-public class IntQGram {
+public class IntQGram implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public final int arr[];
 	private final int hash;
 	
