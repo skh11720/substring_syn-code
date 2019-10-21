@@ -25,8 +25,10 @@ public class AlgorithmFactory {
 		IF, // IF
 		ICF, // ICF
 		IPF, // IPF
+		IPFOnly, // IPF Only
 		LF, // IPF+LF
 		PF, // IPF+LF+PF
+		PFOnly, // PF
 		NoIndex, // LF+PF
 		NaivePF, // IF+LF+PF
 	}
@@ -66,6 +68,7 @@ public class AlgorithmFactory {
 			indexChoice = IndexChoice.None;
 			bLF = bPF = false;
 			switch (FilterOption.valueOf(param.get("filter"))) {
+			case PFOnly: bPF = true; break;
 			case PF: bPF = true;
 			case LF: bLF = true;
 			case IPF: indexChoice = IndexChoice.Position; break;
@@ -74,6 +77,7 @@ public class AlgorithmFactory {
 			case NoFilter: break;
 			case NaivePF: indexChoice = IndexChoice.Naive;
 			case NoIndex: bLF = bPF = true; break;
+			case IPFOnly: indexChoice = IndexChoice.PositionOnly; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 		}

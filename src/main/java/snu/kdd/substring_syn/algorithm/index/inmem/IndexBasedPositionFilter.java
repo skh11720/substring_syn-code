@@ -19,7 +19,6 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -28,10 +27,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 	protected final DiskBasedPositionalInvertedIndex index;
 	private static final double EPS = 1e-5;
+	private final boolean useCF;
 	
-	public IndexBasedPositionFilter( Dataset dataset, double theta, StatContainer statContainer ) {
+	public IndexBasedPositionFilter( Dataset dataset, double theta, boolean useCF, StatContainer statContainer ) {
 		super(dataset, theta, statContainer);
 		index = new DiskBasedPositionalInvertedIndex(dataset.getIndexedList());
+		this.useCF = useCF;
 	}
 
 	@Override
@@ -86,7 +87,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //			Log.log.trace("minCount=%d", ()->minCount);
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
-				if ( entry.getValue().nToken < minCount ) continue;
+				if ( useCF && entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
 				Record rec = dataset.getRecord(ridx);
 				IntList idxList = entry.getValue().idxList;
@@ -145,8 +146,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( query.getMinTransLength() < num ) score = (double)num/(eidx-sidx+1) + EPS;
 					else score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
 //					Log.log.trace("sidx=%d, eidx1=%d, score=%.3f, theta=%.3f", ()->sidx, ()->eidx1, ()->score, ()->theta);
-					if ( score >= theta && num >= minCount ) {
-						mrange.eidxList.add(eidx+1);
+					if ( score >= theta ) {
+						if ( !useCF || num >= minCount ) {
+							mrange.eidxList.add(eidx+1);
+						}
 //						Log.log.trace("range=%s", ()->rangeList.get(rangeList.size()-1));
 					}
 				}
@@ -207,7 +210,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
-				if ( e.getValue().nToken < minCount ) continue;
+				if ( useCF && e.getValue().nToken < minCount ) continue;
 				int ridx = e.getIntKey();
 //				Log.log.trace("ridx=%d", ridx);
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
@@ -331,8 +334,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					final double score;
 					if ( transLen.getLB(sidx, eidx) < num ) score = (double)num/query.size() + EPS;
 					else score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
-					if ( score >= theta && num >= minCount ) {
-						if ( mrange.eidxList.size() == 0 || mrange.eidxList.getInt(mrange.eidxList.size()-1) < eidx+1 ) mrange.eidxList.add(eidx+1);
+					if ( score >= theta ) {
+						if ( !useCF || num >= minCount ) {
+							if ( mrange.eidxList.size() == 0 || mrange.eidxList.getInt(mrange.eidxList.size()-1) < eidx+1 ) mrange.eidxList.add(eidx+1);
+						}
 					}
 				}
 				if ( mrange.eidxList.size() > 0 ) rangeList.add(mrange);
