@@ -8,8 +8,11 @@ GreedyNaiveSearch:
  
 PrefixSearch:
   theta: *theta_list
-  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'NoIndex', 'NaivePF']
+#  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF']
+  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF', 'IPFOnly_L', 'ICF_L', 'IPFOnly', 'LFOnly', 'PFOnly']
 
 PkwiseSynSearch:
   theta: *theta_list
   kmax: ['1', '2', '3']
+
+

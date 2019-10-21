@@ -4,6 +4,7 @@ import snu.kdd.substring_syn.algorithm.validator.AbstractValidator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -36,7 +37,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 		statContainer.increment(Stat.Num_QS_Verified);
 		statContainer.addCount(Stat.Len_QS_Verified, window.size());
 		if ( areSameString(query, window) ) return true;
-		for ( Record exp : Records.expandAll(query) ) {
+		for ( Record exp : Records.expands(query) ) {
 			double sim = Util.subJaccardM(exp.getTokenList(), window.getTokenList());
 			if ( sim >= theta ) {
 //				Log.log.trace("NaivePkduckValidator.verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);
@@ -46,11 +47,13 @@ public class NaivePkduckValidator extends AbstractValidator {
 		return false;
 	}
 
-	public boolean verifyTextSide( Record query, RecordInterface window, double theta ) {
+	public boolean verifyTextSide( Record query, Subrecord window, double theta ) {
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		if ( areSameString(query, window) ) return true;
-		for ( Record exp : Records.expandAll(window) ) {
+		Record rec = Subrecord.toRecord(window);
+		rec.preprocessAll();
+		for ( Record exp : Records.expands(rec) ) {
 			double sim = Util.subJaccardM(query.getTokenList(), exp.getTokenList());
 			if ( sim >= theta ) {
 //				Log.log.trace("NaivePkduckValidator.verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getID(), ()->sim);

@@ -17,6 +17,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		Naive,
 		Count,
 		Position,
+		PositionOnly,
 	}
 
 	protected AbstractIndexBasedFilter indexFilter;
@@ -54,7 +55,8 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		case None: return null;
 		case Naive: return new IndexBasedNaiveFilter(dataset, theta, statContainer);
 		case Count: return new IndexBasedCountFilter(dataset, theta, statContainer);
-		case Position: return new IndexBasedPositionFilter(dataset, theta, statContainer);
+		case Position: return new IndexBasedPositionFilter(dataset, theta, true, statContainer);
+		case PositionOnly: return new IndexBasedPositionFilter(dataset, theta, false, statContainer);
 		default: throw new RuntimeException("Unknown index type: "+indexChoice);
 		}
 	}

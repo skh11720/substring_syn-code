@@ -11,6 +11,7 @@ import snu.kdd.substring_syn.utils.QGramGenerator;
 public class TransWindowDataset extends WindowDataset {
 	
 	protected IntQGramStore iqgramStore;
+	public int numIntQGrams;
 	final int qlen;
 	final double theta;
 
@@ -40,9 +41,10 @@ public class TransWindowDataset extends WindowDataset {
 	
 	public final void buildIntQGramStore() {
 		iqgramStore = new IntQGramStore(getIntQGramsIterable());
+		numIntQGrams = iqgramStore.getNumIntQGrams();
 	}
 	
-	public final Iterable<IntQGram> getIntQGrams() {
+	public final Iterable<Record> getIntQGrams() {
 		return iqgramStore.getIntQGrams();
 	}
 	

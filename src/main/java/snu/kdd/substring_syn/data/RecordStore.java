@@ -14,7 +14,7 @@ import snu.kdd.substring_syn.data.record.Record;
 
 public class RecordStore {
 
-	private static final String path = "./tmp/RecordStore";
+	public static final String path = "./tmp/RecordStore";
 	private final IntList posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
