@@ -123,6 +123,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		 * 1.01: modify IntQGramStore
 		 * 1.02: use disk-based qgram index
 		 */
-		return "1.021";
+		return "1.02";
 	}
 }
