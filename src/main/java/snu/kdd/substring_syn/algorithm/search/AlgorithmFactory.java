@@ -23,14 +23,18 @@ public class AlgorithmFactory {
 	private enum FilterOption {
 		NoFilter,
 		IF, // IF
-		ICF, // ICF
-		IPF, // IPF
-		IPFOnly, // IPF Only
+		ICF, // ICF (C)
+		IPF, // IPF ( C + P )
 		LF, // IPF+LF
 		PF, // IPF+LF+PF
-		PFOnly, // PF
 		NoIndex, // LF+PF
 		NaivePF, // IF+LF+PF
+
+		IPFOnly_L, // IPF + LF
+		ICF_L, // ICF + LF
+		IPFOnly, // IPF Only
+		LFOnly, // LF
+		PFOnly, // PF
 	}
 	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
@@ -68,7 +72,6 @@ public class AlgorithmFactory {
 			indexChoice = IndexChoice.None;
 			bLF = bPF = false;
 			switch (FilterOption.valueOf(param.get("filter"))) {
-			case PFOnly: bPF = true; break;
 			case PF: bPF = true;
 			case LF: bLF = true;
 			case IPF: indexChoice = IndexChoice.Position; break;
@@ -77,7 +80,12 @@ public class AlgorithmFactory {
 			case NoFilter: break;
 			case NaivePF: indexChoice = IndexChoice.Naive;
 			case NoIndex: bLF = bPF = true; break;
-			case IPFOnly: indexChoice = IndexChoice.PositionOnly; break;
+
+			case IPFOnly_L: bLF = true; bPF = false; indexChoice = IndexChoice.PositionOnly; break;
+			case ICF_L: bLF = true; bPF = false; indexChoice = IndexChoice.Count; break;
+			case IPFOnly: bLF = bPF = false; indexChoice = IndexChoice.PositionOnly; break;
+			case LFOnly: bLF = true; bPF = false; indexChoice = IndexChoice.Naive; break;
+			case PFOnly: bLF = false; bPF = true; indexChoice = IndexChoice.Naive; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 		}
