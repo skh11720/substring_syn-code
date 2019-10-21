@@ -26,13 +26,18 @@ public class AlgorithmFactory {
 		IF, // IF
 		ICF, // ICF (C)
 		IPF, // IPF ( C + P )
+		IPF_PR, // IPF + PR
 		LF, // IPF+LF
 		PF, // IPF+LF+PF
 		NoIndex, // LF+PF
 		NaivePF, // IF+LF+PF
 
 		IPFOnly_L, // IPF + LF
+		IPFOnly_L_PR, // IPF + LF + PR
+		IPFOnly_PR, // IPF + PF
 		ICF_L, // ICF + LF
+		ICF_L_PR, // ICF + LF + PR
+		ICF_PR, // ICF + PF
 		IPFOnly, // IPF Only
 		LFOnly, // LF
 		PFOnly, // PF
@@ -89,11 +94,39 @@ public class AlgorithmFactory {
 
 			case IPFOnly_L: bLF = true; bPF = false; indexChoice = IndexChoice.PositionOnly; break;
 			case ICF_L: bLF = true; bPF = false; indexChoice = IndexChoice.Count; break;
+
 			case IPFOnly: bLF = bPF = false; indexChoice = IndexChoice.PositionOnly; break;
 			case LFOnly: bLF = true; bPF = false; indexChoice = IndexChoice.Naive; break;
 			case PFOnly: bLF = false; bPF = true; indexChoice = IndexChoice.Naive; break;
+
+			case ICF_PR: bLF = false; bPF = true; indexChoice = IndexChoice.Count; break;
+			case IPFOnly_PR: bLF = false; bPF = true; indexChoice = IndexChoice.PositionOnly; break;
+			
+			case ICF_L_PR: bLF = true; bPF = true; indexChoice = IndexChoice.Count; break;
+			case IPF_PR: bLF = false; bPF = true; indexChoice = IndexChoice.Position; break;
+			case IPFOnly_L_PR: bLF = true; bPF = true; indexChoice = IndexChoice.PositionOnly; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
+
+//		NoFilter,
+//		IF, // IF
+//		ICF, // ICF (C)
+//		IPF, // IPF ( C + P )
+//		IPF_PR, // IPF + PR
+//		LF, // IPF+LF
+//		PF, // IPF+LF+PF
+//		NoIndex, // LF+PF
+//		NaivePF, // IF+LF+PF
+//
+//		IPFOnly_L, // IPF + LF
+//		IPFOnly_L_PR, // IPF + LF + PR
+//		IPFOnly_PR, // IPF + PF
+//		ICF_L, // ICF + LF
+//		ICF_L_PR, // ICF + LF + PR
+//		ICF_PR, // ICF + PF
+//		IPFOnly, // IPF Only
+//		LFOnly, // LF
+//		PFOnly, // PF
 		}
 		else {
 			bLF = Boolean.parseBoolean(param.get("bLF"));
