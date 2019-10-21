@@ -67,13 +67,19 @@ public class PrefixSearchFilterPowerTest {
 		String[] sizeList = {"100000"};
 		String[] qlList = {"3", "5"};
 		int[][] optionList = {
-				{0, 0, 0}, // NoFilter
-				{0, 0, 1}, // IF
-				{1, 1, 1}, // NaivePF
-				{0, 0, 2}, // ICF
-				{0, 0, 3}, // IPF
-				{1, 0, 3}, // LF
-				{1, 1, 3}, // PF
+//				{0, 0, 0}, // NoFilter
+//				{0, 0, 1}, // IF
+//				{1, 1, 1}, // NaivePF
+//				{0, 0, 2}, // ICF
+//				{0, 0, 3}, // IPF
+//				{1, 0, 3}, // LF
+//				{1, 1, 3}, // PF
+				
+				{1, 0, 4}, // IPFOnly_L
+				{1, 0, 2}, // ICF_L
+				{0, 0, 4}, // IPFOnly
+				{1, 0, 1}, // LFOnly
+				{0, 1, 1}, // PFOnly 
 				};
 		for ( String ql : qlList ) {
 			for ( double theta : thetaList ) {

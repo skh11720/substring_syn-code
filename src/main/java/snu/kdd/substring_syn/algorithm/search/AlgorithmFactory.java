@@ -18,6 +18,7 @@ public class AlgorithmFactory {
 		PkwiseNaiveSearch,
 		PkwiseSearch,
 		PkwiseSynSearch,
+		ZeroPrefixSearch,
 	}
 	
 	private enum FilterOption {
@@ -49,6 +50,7 @@ public class AlgorithmFactory {
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
 		case PkwiseSynSearch: return createPkwiseSynSearch(param, cmd);
+		case ZeroPrefixSearch: return createZeroPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -62,8 +64,12 @@ public class AlgorithmFactory {
 		double theta = Double.parseDouble(param.get("theta"));
 		return new GreedyNaiveSearch(theta);
 	}
+
+	private static AbstractSearch createPrefixSearch( DictParam param, boolean isExact ) {
+		return createPrefixSearch(param, isExact, false);
+	}
 	
-	private static PrefixSearch createPrefixSearch( DictParam param, boolean isExact ) {
+	private static AbstractSearch createPrefixSearch( DictParam param, boolean isExact, boolean isZero ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		boolean bLF = false, bPF = false;
 		IndexChoice indexChoice;
@@ -95,13 +101,19 @@ public class AlgorithmFactory {
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
 		if ( indexChoice == IndexChoice.Position ) {
+			if ( isZero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( isExact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
 		}
 		else {
+			if ( isZero ) return new ZeroPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( isExact ) return new ExactPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PrefixSearch(theta, bLF, bPF, indexChoice);
 		}
+	}
+	
+	private static AbstractSearch createZeroPrefixSearch( DictParam param ) {
+		return createPrefixSearch(param, false, true);
 	}
 
 	private static PkwiseNaiveSearch createPkwiseNaiveSearch( DictParam param ) {

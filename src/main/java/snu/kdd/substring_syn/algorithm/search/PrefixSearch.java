@@ -128,7 +128,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 //		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
-		if (bLF) {
+		if (bLF || bPF) {
 			statContainer.startWatch("Time_TS_searchRecord.transLen");
 			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
 			statContainer.stopWatch("Time_TS_searchRecord.transLen");
