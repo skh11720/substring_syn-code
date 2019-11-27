@@ -32,10 +32,10 @@ public class PrefixSearchRefactorCheckTest {
 //						strbld.append(alg0.getStatContainer().getStat(Stat.Num_TS_Result)+", ");
 //						strbld.append(alg0.getStatContainer().getStat(Stat.Num_QS_Verified)+", ");
 //						strbld.append(alg0.getStatContainer().getStat(Stat.Num_TS_Verified)+", ");
-						assertEquals(iter.nextInt(), Integer.parseInt(Stat.Num_QS_Result) );
-						assertEquals(iter.nextInt(), Integer.parseInt(Stat.Num_TS_Result) );
-						assertEquals(iter.nextInt(), Integer.parseInt(Stat.Num_QS_Verified) );
-						assertEquals(iter.nextInt(), Integer.parseInt(Stat.Num_TS_Verified) );
+						assertEquals(iter.nextInt(), Integer.parseInt(alg0.getStatContainer().getStat(Stat.Num_QS_Result)) );
+						assertEquals(iter.nextInt(), Integer.parseInt(alg0.getStatContainer().getStat(Stat.Num_TS_Result)) );
+						assertEquals(iter.nextInt(), Integer.parseInt(alg0.getStatContainer().getStat(Stat.Num_QS_Verified)) );
+						assertEquals(iter.nextInt(), Integer.parseInt(alg0.getStatContainer().getStat(Stat.Num_TS_Verified)) );
 					}
 				}
 			}

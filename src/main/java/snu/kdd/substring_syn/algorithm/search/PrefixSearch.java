@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
+import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
@@ -61,29 +62,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-				int w = window.size();
-				
-				if ( bLF ) {
-					switch ( applyLengthFilterQuerySide(w, wRange) ) {
-					case filtered_ignore: continue;
-					case filtered_stop: break;
-					default:
-					}
-					statContainer.addCount(Stat.Len_QS_LF, w);
-				}
-				
-				if ( bPF && isFilteredByPrefixFilteringQuerySide(witer, expandedPrefix)) continue;
-
-				statContainer.addCount(Stat.Len_QS_PF, w); 
-				statContainer.startWatch(Stat.Time_QS_Validation);
-				boolean isSim = verifyQuerySide(query, window);
-				statContainer.stopWatch(Stat.Time_QS_Validation);
-				if ( isSim ) {
-					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-//					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-//					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-					return;
-				}
+				IntCollection wprefix = witer.getPrefix();
+				ReturnStatus status = searchWindowQuerySide(query, window, wRange, wprefix);
+				if (status == ReturnStatus.Continue ) continue;
+				else if (status == ReturnStatus.Break ) break;
+				else if (status == ReturnStatus.Terminate ) return;
 			}
 		}
 	}
@@ -106,14 +89,37 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return new IntRange(min, max);
 	}
 	
-	protected LFOutput applyLengthFilterQuerySide( int w, IntRange wRange ) {
-		if ( w > wRange.max ) return LFOutput.filtered_stop;
-		if ( w < wRange.min ) return LFOutput.filtered_ignore;
-		return LFOutput.not_filtered;
+	protected final ReturnStatus searchWindowQuerySide( Record query, Subrecord window, IntRange wRange, IntCollection wprefix ) {
+		int w = window.size();
+		
+		if ( bLF ) {
+			ReturnStatus lfOutput = applyLengthFilterQuerySide(w, wRange);
+			if ( lfOutput != ReturnStatus.None ) return lfOutput;
+			statContainer.addCount(Stat.Len_QS_LF, w);
+		}
+		
+		if ( bPF && isFilteredByPrefixFilteringQuerySide(wprefix, expandedPrefix)) return ReturnStatus.Continue;
+
+		statContainer.addCount(Stat.Len_QS_PF, w); 
+		statContainer.startWatch(Stat.Time_QS_Validation);
+		boolean isSim = verifyQuerySide(query, window);
+		statContainer.stopWatch(Stat.Time_QS_Validation);
+		if ( isSim ) {
+			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
+//					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+//					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
+			return ReturnStatus.Terminate;
+		}
+		return ReturnStatus.None;
 	}
 	
-	protected boolean isFilteredByPrefixFilteringQuerySide( SortedWindowExpander witer, IntSet expandedPrefix ) {
-		IntCollection wprefix = witer.getPrefix();
+	protected final ReturnStatus applyLengthFilterQuerySide( int w, IntRange wRange ) {
+		if ( w > wRange.max ) return ReturnStatus.Break;
+		if ( w < wRange.min ) return ReturnStatus.Continue;
+		return ReturnStatus.None;
+	}
+	
+	protected final boolean isFilteredByPrefixFilteringQuerySide( IntCollection wprefix, IntSet expandedPrefix ) {
 		return !Util.hasIntersection(wprefix, expandedPrefix);
 	}
 	
@@ -220,25 +226,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return sim >= theta;
 	}
 
-	protected enum LFOutput {
-		filtered_ignore,
-		filtered_stop,
-		not_filtered
-	}
-	
-	protected LFOutput applyLengthFiltering( Record query, int widx, int w ) {
-		int ub = transLenCalculator.getLFUB(widx, widx+w-1);
-		int lb = transLenCalculator.getLFLB(widx, widx+w-1);
-		if ( query.size() > ub ) {
-			statContainer.increment("Num_TS_LFByUB");
-			return LFOutput.filtered_ignore;
-		}
-		if ( query.size() < lb ) {
-			statContainer.increment("Num_TS_LFByLB");
-			return LFOutput.filtered_ignore;
-		}
-		else return LFOutput.not_filtered;
-	}
 
 
 	class PkduckDPExIncremental {
