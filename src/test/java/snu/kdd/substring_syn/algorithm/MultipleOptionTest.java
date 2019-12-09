@@ -100,7 +100,7 @@ public class MultipleOptionTest {
 		Dataset dataset = Dataset.createInstanceByName(param.name, param.size, param.nr, param.ql);
 		
 		AbstractSearch prefixSearch = null;
-		if ( param.index_impl == IndexChoice.Position ) prefixSearch = new PositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new PositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		else prefixSearch = new PrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		prefixSearch.run(dataset);

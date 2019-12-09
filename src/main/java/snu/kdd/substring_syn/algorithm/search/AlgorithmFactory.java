@@ -22,25 +22,17 @@ public class AlgorithmFactory {
 	}
 	
 	private enum FilterOption {
-		NoFilter,
-		IF, // IF
-		ICF, // ICF (C)
-		IPF, // IPF ( C + P )
-		IPF_PR, // IPF + PR
-		LF, // IPF+LF
-		PF, // IPF+LF+PF
-		NoIndex, // LF+PF
-		NaivePF, // IF+LF+PF
-
-		IPFOnly_L, // IPF + LF
-		IPFOnly_L_PR, // IPF + LF + PR
-		IPFOnly_PR, // IPF + PF
-		ICF_L, // ICF + LF
-		ICF_L_PR, // ICF + LF + PR
-		ICF_PR, // ICF + PF
-		IPFOnly, // IPF Only
-		LFOnly, // LF
-		PFOnly, // PF
+		Fopt_None,
+		Fopt_Index,
+		Fopt_C, // count
+		Fopt_P, // position
+		Fopt_L, // length
+		Fopt_R, // prefix
+		Fopt_CP,
+		Fopt_CL,
+		Fopt_PL,
+		Fopt_CPL,
+		Fopt_CPLR,
 	}
 	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
@@ -83,57 +75,26 @@ public class AlgorithmFactory {
 			indexChoice = IndexChoice.None;
 			bLF = bPF = false;
 			switch (FilterOption.valueOf(param.get("filter"))) {
-			case PF: bPF = true;
-			case LF: bLF = true;
-			case IPF: indexChoice = IndexChoice.Position; break;
-			case ICF: indexChoice = IndexChoice.Count; break;
-			case IF: indexChoice = IndexChoice.Naive; break;
-			case NoFilter: break;
-			case NaivePF: indexChoice = IndexChoice.Naive;
-			case NoIndex: bLF = bPF = true; break;
-
-			case IPFOnly_L: bLF = true; bPF = false; indexChoice = IndexChoice.PositionOnly; break;
-			case ICF_L: bLF = true; bPF = false; indexChoice = IndexChoice.Count; break;
-
-			case IPFOnly: bLF = bPF = false; indexChoice = IndexChoice.PositionOnly; break;
-			case LFOnly: bLF = true; bPF = false; indexChoice = IndexChoice.Naive; break;
-			case PFOnly: bLF = false; bPF = true; indexChoice = IndexChoice.Naive; break;
-
-			case ICF_PR: bLF = false; bPF = true; indexChoice = IndexChoice.Count; break;
-			case IPFOnly_PR: bLF = false; bPF = true; indexChoice = IndexChoice.PositionOnly; break;
-			
-			case ICF_L_PR: bLF = true; bPF = true; indexChoice = IndexChoice.Count; break;
-			case IPF_PR: bLF = false; bPF = true; indexChoice = IndexChoice.Position; break;
-			case IPFOnly_L_PR: bLF = true; bPF = true; indexChoice = IndexChoice.PositionOnly; break;
+			case Fopt_None: break;
+			case Fopt_Index: indexChoice = IndexChoice.Naive; break;
+			case Fopt_C: indexChoice = IndexChoice.Count; break;
+			case Fopt_P: indexChoice = IndexChoice.Position; break;
+			case Fopt_L: bLF = true; indexChoice = IndexChoice.Naive; break;
+			case Fopt_R: bPF = true; indexChoice = IndexChoice.Naive; break;
+			case Fopt_CP: indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
+			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
+			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
-
-//		NoFilter,
-//		IF, // IF
-//		ICF, // ICF (C)
-//		IPF, // IPF ( C + P )
-//		IPF_PR, // IPF + PR
-//		LF, // IPF+LF
-//		PF, // IPF+LF+PF
-//		NoIndex, // LF+PF
-//		NaivePF, // IF+LF+PF
-//
-//		IPFOnly_L, // IPF + LF
-//		IPFOnly_L_PR, // IPF + LF + PR
-//		IPFOnly_PR, // IPF + PF
-//		ICF_L, // ICF + LF
-//		ICF_L_PR, // ICF + LF + PR
-//		ICF_PR, // ICF + PF
-//		IPFOnly, // IPF Only
-//		LFOnly, // LF
-//		PFOnly, // PF
 		}
 		else {
 			bLF = Boolean.parseBoolean(param.get("bLF"));
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		if ( indexChoice == IndexChoice.Position ) {
+		if ( indexChoice == IndexChoice.CountPosition ) {
 			if ( isZero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( isExact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
