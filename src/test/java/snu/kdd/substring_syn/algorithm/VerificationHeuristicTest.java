@@ -34,7 +34,7 @@ public class VerificationHeuristicTest {
 		Dataset dataset = Dataset.createInstanceByName(data, nt, nr, ql);
 		for ( int i=0; i<optArr.length; ++i ) {
 			AbstractGreedyValidator.optScore = optArr[i];
-			AbstractSearch prefixSearch = new PositionPrefixSearchWithVerifyOption(0.6, true, true, IndexChoice.Position);
+			AbstractSearch prefixSearch = new PositionPrefixSearchWithVerifyOption(0.6, true, true, IndexChoice.CountPosition);
 			prefixSearch.run(dataset);
 			StatContainer stat = prefixSearch.getStatContainer();
 			output[i][0] = Integer.parseInt(stat.getStat(Stat.Num_Result));

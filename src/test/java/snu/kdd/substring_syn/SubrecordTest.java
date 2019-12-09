@@ -16,17 +16,18 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 
 public class SubrecordTest {
+	
+	boolean showLog = false;
 
 	@Test
 	public void test() throws IOException {
-		String dataName = "SPROT_long";
-		String size = "100";
-		Dataset dataset = Dataset.createInstanceByName(dataName, size);
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "107836", "5");
 		Random rn = new Random(0);
 		
 		for ( Record rec : dataset.getIndexedList() ) {
+			rec.preprocessAll();
 			if ( rec.getNumApplicableRules() < 5 ) continue;
-			System.out.println(rec.toStringDetails());
+			if (showLog) System.out.println(rec.toStringDetails());
 			
 			for ( int i=0; i<5; ++i ) {
 				int sidx = rn.nextInt(rec.size()/2);
@@ -39,12 +40,9 @@ public class SubrecordTest {
 	public void testSubrec( Record rec, int sidx, int eidx ) {
 		Subrecord subrec0 = new Subrecord(rec, sidx, eidx);
 		Record subrec1 = Subrecord.toRecord(subrec0);
-		System.out.println("[sidx, eidx] = ["+sidx+", "+eidx+"]");
-		System.out.println(subrec0.toStringDetails());
-		
-		for ( int k=0; k<subrec1.size(); ++k ) {
-			System.out.println( "suffix "+k+": "+new ObjectArrayList<Rule>(subrec1.getSuffixApplicableRules(k).iterator()) );
-		}
+		subrec1.preprocessAll();
+		if (showLog) System.out.println("[sidx, eidx] = ["+sidx+", "+eidx+"]");
+		if (showLog) System.out.println(subrec0.toStringDetails());
 		
 		assertEquals(Util.sumWindowSize(subrec0), Util.sumWindowSize(subrec1));
 		ObjectList<Rule> prefixRuleList0 = new ObjectArrayList<>(subrec0.getApplicableRuleIterable().iterator());
@@ -54,10 +52,10 @@ public class SubrecordTest {
 		for ( int k=0; k<subrec1.size(); ++k ) {
 			ObjectList<Rule> suffixRuleList0 = new ObjectArrayList<>(subrec0.getSuffixApplicableRules(k).iterator());
 			ObjectList<Rule> suffixRuleList1 = new ObjectArrayList<>(subrec1.getSuffixApplicableRules(k).iterator());
-			System.out.println("k: "+k);
-			System.out.println(suffixRuleList0);
-			System.out.println(suffixRuleList1);
-			System.out.println(subrec1.getNumApplicableRules());
+			if (showLog) System.out.println("k: "+k);
+			if (showLog) System.out.println(suffixRuleList0);
+			if (showLog) System.out.println(suffixRuleList1);
+			if (showLog) System.out.println(subrec1.getNumApplicableRules());
 			assertEquals(suffixRuleList0.size(), suffixRuleList1.size());
 //			for ( int i=0; i<suffixRuleList0.size(); ++i ) assertEquals(suffixRuleList0.get(i), suffixRuleList1.get(i));
 		}

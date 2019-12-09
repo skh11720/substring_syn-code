@@ -104,7 +104,7 @@ public class PrefixSearchFilterPowerTest {
 		Dataset dataset = Dataset.createInstanceByName(param.name, param.size, param.nr, param.ql);
 		
 		AbstractSearch prefixSearch = null;
-		if ( param.index_impl == IndexChoice.Position ) prefixSearch = new ZeroPositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new ZeroPositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		else prefixSearch = new ZeroPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		prefixSearch.run(dataset);

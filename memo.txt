@@ -60,3 +60,11 @@
   signatures do not have an overlap, a substring of a window can be similar to
   the query.
 - cost estimation is not straightforward, since problem definition changed
+
+
+
+BUG REPORT
+when: 191126
+where: the length filter
+problem: -
+evidence: exp 1024193006, 1024193219, 1025104439

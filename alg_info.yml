@@ -1,6 +1,5 @@
 theta_list: &theta_list ['0.6', '0.7', '0.8', '0.9', '1.0']
-filter_list: &filter_list ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF', 'IPFOnly_L', 'ICF_L', 'IPFOnly', 'LFOnly', 'PFOnly']
-#  filter: ['NoFilter', 'IF', 'ICF', 'IPF', 'LF', 'PF', 'PFOnly', 'NoIndex', 'NaivePF']
+filter_list: &filter_list ['Fopt_None', 'Fopt_Index', 'Fopt_C', 'Fopt_P', 'Fopt_L', 'Fopt_R', 'Fopt_CP', 'Fopt_CL', 'Fopt_PL', 'Fopt_CPL', 'Fopt_CPLR']
  
 ExactNaiveSearch:
   theta: *theta_list

@@ -8,10 +8,9 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
-import snu.kdd.substring_syn.data.record.RecordWithPos;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
-import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -30,44 +29,21 @@ public class PositionPrefixSearch extends PrefixSearch {
 
 //		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int eidx : epList ) {
-			int w = eidx - sidx;
-
-			if ( bLF ) {
-				switch ( applyLengthFilterQuerySide(w, wRange) ) {
-				case filtered_ignore: continue;
-				case filtered_stop: break;
-				default:
-				}
-				statContainer.addCount(Stat.Len_QS_LF, w);
-			}
 			Subrecord window = new Subrecord(rec, sidx, eidx);
-			if ( bPF && isFilteredByPrefixFilteringQuerySide(window) ) continue;
-
-			statContainer.addCount(Stat.Len_QS_PF, w); 
-			statContainer.startWatch(Stat.Time_QS_Validation);
-			boolean isSim = verifyQuerySide(query, window);
-			statContainer.stopWatch(Stat.Time_QS_Validation);
-			if ( isSim ) {
-				rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-//					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-//					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-				return;
-			}
+			IntCollection wprefix = Util.getPrefix(window, theta);
+			ReturnStatus status = searchWindowQuerySide(query, window, wRange, wprefix);
+			if (status == ReturnStatus.Continue ) continue;
+			else if (status == ReturnStatus.Break ) break;
+			else if (status == ReturnStatus.Terminate ) return;
 		}
 	}
-
-	protected boolean isFilteredByPrefixFilteringQuerySide( Subrecord window ) {
-		IntCollection wprefix = Util.getPrefix(window, theta);
-		return !Util.hasIntersection(wprefix, expandedPrefix);
-	}
-	
 
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
 //		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
-		if (bLF) {
+		if (bLF || bPF) {
 			statContainer.startWatch("Time_TS_searchRecord.transLen");
 			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
 			statContainer.stopWatch("Time_TS_searchRecord.transLen");
@@ -99,12 +75,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 			int j = 0;
 			while ( j < eidxList.size() && eidxList.get(j) <= widx ) ++j;
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
-//					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
-				if ( bLF ) {
-//						Log.log.trace("lb=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
-					if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
-					statContainer.addCount(Stat.Len_TS_LF, w);
-				}
+				if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 				statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 				pkduckdp.compute(widx+1, w);
 				statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
@@ -114,18 +85,10 @@ public class PositionPrefixSearch extends PrefixSearch {
 				++j;
 				
 				if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
-				if ( pkduckdp.isInSigU(widx, w) ) {
-					verifiedWindowSet.add(new IntPair(widx, w));
-					statContainer.addCount(Stat.Len_TS_PF, w);
-					Subrecord window = new Subrecord(rec, widx, widx+w);
-					boolean isSim = verifyTextSideWrapper(query, window);
-					if ( isSim ) {
-						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-//							Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-//							Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-						return;
-					}
-				}
+				if ( pkduckdp.isInSigU(widx, w) ) continue;
+				verifiedWindowSet.add(new IntPair(widx, w));
+				statContainer.addCount(Stat.Len_TS_PF, w);
+				if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
 			}
 		}
 	}
@@ -143,20 +106,9 @@ public class PositionPrefixSearch extends PrefixSearch {
 			if ( j >= eidxList.size() ) break;
 			if ( eidxList.get(j) != widx+w ) continue;
 			++j;
-//				Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
-			if ( bLF ) {
-//					Log.log.trace("searchRecordTextSideWithoutPrefixFilter.transLenCalculator\tLFLB=%d, query.size=%d", transLenCalculator.getLFLB(widx, widx+w-1), query.size());
-				if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) break;
-				statContainer.addCount(Stat.Len_TS_LF, w);
-			}
-			Subrecord window = new Subrecord(rec, widx, widx+w);
-			boolean isSim = verifyTextSideWrapper(query, window);
-			if ( isSim ) {
-				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-//					Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-//					Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
-				return;
-			}
+//			Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
+			if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
+			if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
 		}
 	}
 }

@@ -31,19 +31,15 @@ public class ParameterizedTest {
 
 	@Test
 	public void test1() throws InterruptedException {
-		System.out.println("before1"+n*m);
-		System.out.println(n*m);
-		Thread.sleep(10000);
-		System.out.println("after1"+n*m);
+		System.out.println( String.format("start test1(%d, %d)", n, m) );
+		Thread.sleep(2000);
 
 	}
 
 	@Test
 	public void test2() throws InterruptedException {
-		System.out.println("before2"+n*m);
-		System.out.println(n*m);
-		Thread.sleep(10000);
-		System.out.println("after2"+n*m);
+		System.out.println( String.format("start test2(%d, %d)", n, m) );
+		Thread.sleep(3000);
 	}
 	
 	

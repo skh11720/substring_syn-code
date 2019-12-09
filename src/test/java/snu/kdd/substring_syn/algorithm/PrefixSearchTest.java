@@ -84,7 +84,7 @@ public class PrefixSearchTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.Position);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.CountPosition);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
@@ -127,7 +127,7 @@ public class PrefixSearchTest {
 		prefixSearch.run(dataset);
 		String num_qs0 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts0 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
-		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.Position);
+		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.CountPosition);
 		prefixSearch.run(dataset);
 		String num_qs1 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts1 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
