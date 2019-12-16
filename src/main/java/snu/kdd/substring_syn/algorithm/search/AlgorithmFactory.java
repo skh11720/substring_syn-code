@@ -28,6 +28,8 @@ public class AlgorithmFactory {
 		Fopt_P, // position
 		Fopt_L, // length
 		Fopt_R, // prefix
+		Fopt_IL, // index+length
+		Fopt_IR, // index+prefix
 		Fopt_CP,
 		Fopt_CL,
 		Fopt_PL,
@@ -50,6 +52,8 @@ public class AlgorithmFactory {
 			case Fopt_P: indexChoice = IndexChoice.Position; break;
 			case Fopt_L: bLF = true; break;
 			case Fopt_R: bPF = true; break;
+			case Fopt_IL: bLF = true; indexChoice = IndexChoice.Naive; break;
+			case Fopt_IR: bPF = true; indexChoice = IndexChoice.Naive; break;
 			case Fopt_CP: indexChoice = IndexChoice.CountPosition; break;
 			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
 			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
