@@ -46,6 +46,8 @@ public class Stat {
 	public static final String Num_Result = "Num_Result";
 	public static final String Num_QS_Result = "Num_QS_Result";
 	public static final String Num_TS_Result = "Num_TS_Result";
+	public static final String Num_QS_Retrieved = "Num_QS_Retrieved";
+	public static final String Num_TS_Retrieved = "Num_TS_Retrieved";
 	public static final String Num_QS_Verified = "Num_QS_Verified";
 	public static final String Num_TS_Verified = "Num_TS_Verified";
 	

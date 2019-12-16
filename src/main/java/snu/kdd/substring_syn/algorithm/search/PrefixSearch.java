@@ -55,13 +55,14 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-//		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+//		Log.log.trace("searchRecordQuerySide(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 //		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
+//				Log.log.trace("window=[%d,%d]", ()->window.sidx, ()->window.eidx);
 				IntCollection wprefix = witer.getPrefix();
 				ReturnStatus status = searchWindowQuerySide(query, window, wRange, wprefix);
 				if (status == ReturnStatus.Continue ) continue;
@@ -98,9 +99,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			statContainer.addCount(Stat.Len_QS_LF, w);
 		}
 		
-		if ( bPF && isFilteredByPrefixFilteringQuerySide(wprefix, expandedPrefix)) return ReturnStatus.Continue;
+		if ( bPF ) {
+			if ( isFilteredByPrefixFilteringQuerySide(wprefix, expandedPrefix) ) return ReturnStatus.Continue;
+			statContainer.addCount(Stat.Len_QS_PF, w); 
+		}
 
-		statContainer.addCount(Stat.Len_QS_PF, w); 
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		boolean isSim = verifyQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
@@ -444,7 +447,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.19: prevent repeated verification in PF 
 		 * 6.20: improve pos filter, without split
 		 * 6.21: fix bug in length filter
+		 * 6.22: fix bug in PF and LF
 		 */
-		return "6.21";
+		return "6.22";
 	}
 }

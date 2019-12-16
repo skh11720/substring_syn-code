@@ -22,16 +22,19 @@ public class PositionPrefixSearch extends PrefixSearch {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-//		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+//		Log.log.trace("searchRecordQuerySide(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		int sidx = ((RecordWithEndpoints)rec).getStartPoint();
 		IntList epList = ((RecordWithEndpoints)rec).getEndpoints();
 
 //		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
+//		Log.log.trace("epList=%s", ()->epList);
 		for ( int eidx : epList ) {
 			Subrecord window = new Subrecord(rec, sidx, eidx);
+//			Log.log.trace("window=[%d,%d]", ()->window.sidx, ()->window.eidx);
 			IntCollection wprefix = Util.getPrefix(window, theta);
 			ReturnStatus status = searchWindowQuerySide(query, window, wRange, wprefix);
+//			Log.log.trace("status=%s", status);
 			if (status == ReturnStatus.Continue ) continue;
 			else if (status == ReturnStatus.Break ) break;
 			else if (status == ReturnStatus.Terminate ) return;
@@ -75,7 +78,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 			int j = 0;
 			while ( j < eidxList.size() && eidxList.get(j) <= widx ) ++j;
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
-				if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
+				if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 				statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 				pkduckdp.compute(widx+1, w);
 				statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
@@ -107,7 +110,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 			if ( eidxList.get(j) != widx+w ) continue;
 			++j;
 //			Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
-			if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
+			if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 			if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
 		}
 	}

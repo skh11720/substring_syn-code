@@ -21,7 +21,7 @@ public class AlgorithmFactory {
 		ZeroPrefixSearch,
 	}
 	
-	private enum FilterOption {
+	public enum FilterOptionLabel {
 		Fopt_None,
 		Fopt_Index,
 		Fopt_C, // count
@@ -33,6 +33,34 @@ public class AlgorithmFactory {
 		Fopt_PL,
 		Fopt_CPL,
 		Fopt_CPLR,
+	}
+
+	public static class FilterOption {
+		public final boolean bLF;
+		public final boolean bPF;
+		public final IndexChoice indexChoice;
+		
+		public FilterOption( FilterOptionLabel label ) {
+			boolean bLF = false, bPF = false;
+			IndexChoice indexChoice = IndexChoice.None;
+			switch (label) {
+			case Fopt_None: break;
+			case Fopt_Index: indexChoice = IndexChoice.Naive; break;
+			case Fopt_C: indexChoice = IndexChoice.Count; break;
+			case Fopt_P: indexChoice = IndexChoice.Position; break;
+			case Fopt_L: bLF = true; break;
+			case Fopt_R: bPF = true; break;
+			case Fopt_CP: indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
+			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
+			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
+			default: throw new RuntimeException("Unexpected error");
+			}
+			this.bLF = bLF;
+			this.bPF = bPF;
+			this.indexChoice = indexChoice;
+		}
 	}
 	
 	public static AbstractSearch createInstance( CommandLine cmd ) {
@@ -72,29 +100,18 @@ public class AlgorithmFactory {
 		IndexChoice indexChoice;
 	
 		if ( param.containsKey("filter")) {
-			indexChoice = IndexChoice.None;
-			bLF = bPF = false;
-			switch (FilterOption.valueOf(param.get("filter"))) {
-			case Fopt_None: break;
-			case Fopt_Index: indexChoice = IndexChoice.Naive; break;
-			case Fopt_C: indexChoice = IndexChoice.Count; break;
-			case Fopt_P: indexChoice = IndexChoice.Position; break;
-			case Fopt_L: bLF = true; indexChoice = IndexChoice.Naive; break;
-			case Fopt_R: bPF = true; indexChoice = IndexChoice.Naive; break;
-			case Fopt_CP: indexChoice = IndexChoice.CountPosition; break;
-			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
-			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
-			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
-			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
-			default: throw new RuntimeException("Unexpected error");
-			}
+			FilterOptionLabel label = FilterOptionLabel.valueOf(param.get("filter"));
+			FilterOption fopt = new FilterOption(label);
+			bLF = fopt.bLF;
+			bPF = fopt.bPF;
+			indexChoice = fopt.indexChoice;
 		}
 		else {
 			bLF = Boolean.parseBoolean(param.get("bLF"));
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		if ( indexChoice == IndexChoice.CountPosition ) {
+		if ( indexChoice == IndexChoice.CountPosition || indexChoice == IndexChoice.Position ) {
 			if ( isZero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( isExact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);

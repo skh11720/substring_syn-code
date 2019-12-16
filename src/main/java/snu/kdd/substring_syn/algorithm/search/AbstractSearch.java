@@ -81,14 +81,11 @@ public abstract class AbstractSearch {
 	
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
-		int nCand = 0;
-		int sumLen = 0;
 		for ( Record rec : candListQuerySide ) {
 			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			statContainer.addCount(Stat.Num_QS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
-			++nCand;
-			sumLen += rec.size();
 		}
 //		Log.log.trace("SearchQuerySide.nCand=%d", nCand);
 //		Log.log.trace("SearchQuerySide.sumLen=%d", sumLen);
@@ -96,18 +93,15 @@ public abstract class AbstractSearch {
 	
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
-		int nCand = 0;
-		int sumLen = 0;
 		for ( Record rec : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
 //			if ( rec.getID() != 29 ) continue;
+			statContainer.addCount(Stat.Num_TS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
 			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
 			rec.preprocessAll();
 			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
 			searchRecordTextSide(query, rec);
-			++nCand;
-			sumLen += rec.size();
 		}
 //		Log.log.trace("SearchTextSide.nCand=%d", nCand);
 //		Log.log.trace("SearchTextSide.sumLen=%d", sumLen);
