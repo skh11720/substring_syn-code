@@ -75,7 +75,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 			int j = 0;
 			while ( j < eidxList.size() && eidxList.get(j) <= widx ) ++j;
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
-				if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
+				if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 				statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 				pkduckdp.compute(widx+1, w);
 				statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
@@ -107,7 +107,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 			if ( eidxList.get(j) != widx+w ) continue;
 			++j;
 //			Log.log.trace("searchRecordTextSideWithoutPrefixFilter\trec.id=%d, widx=%d, w=%d", rec.getID(), widx, w);
-			if ( applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
+			if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 			if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
 		}
 	}
