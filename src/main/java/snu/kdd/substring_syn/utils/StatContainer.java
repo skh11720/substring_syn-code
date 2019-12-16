@@ -90,9 +90,9 @@ public class StatContainer {
 	}
 	
 	public void print() {
-		System.out.println("------------------------ Stat ------------------------");
+		Log.log.info("------------------------ Stat ------------------------");
 		for ( String key : keyList ) {
-			System.out.println(String.format("%25s  :  %s", key, statMap.get(key)));
+			Log.log.info(String.format("%25s  :  %s", key, statMap.get(key)));
 		}
 	}
 	
