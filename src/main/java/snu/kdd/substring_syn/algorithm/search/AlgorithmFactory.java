@@ -111,7 +111,7 @@ public class AlgorithmFactory {
 			bPF = Boolean.parseBoolean(param.get("bPF"));
 			indexChoice = IndexChoice.valueOf(param.get("index_impl"));
 		}
-		if ( indexChoice == IndexChoice.CountPosition ) {
+		if ( indexChoice == IndexChoice.CountPosition || indexChoice == IndexChoice.Position ) {
 			if ( isZero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( isExact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);

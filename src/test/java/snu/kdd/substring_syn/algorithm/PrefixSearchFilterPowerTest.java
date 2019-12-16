@@ -15,6 +15,8 @@ import org.junit.runners.Parameterized.Parameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOption;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ZeroPositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.ZeroPrefixSearch;
@@ -66,27 +68,25 @@ public class PrefixSearchFilterPowerTest {
 		String[] nameList = {"WIKI", "PUBMED", "AMAZON"};
 		String[] sizeList = {"100000"};
 		String[] qlList = {"3", "5"};
-		int[][] optionList = {
-//				{0, 0, 0}, // NoFilter
-//				{0, 0, 1}, // IF
-//				{1, 1, 1}, // NaivePF
-//				{0, 0, 2}, // ICF
-//				{0, 0, 3}, // IPF
-//				{1, 0, 3}, // LF
-//				{1, 1, 3}, // PF
-				
-				{1, 0, 4}, // IPFOnly_L
-				{1, 0, 2}, // ICF_L
-				{0, 0, 4}, // IPFOnly
-				{1, 0, 1}, // LFOnly
-				{0, 1, 1}, // PFOnly 
-				};
+		FilterOption[] optionList = {
+				new FilterOption(FilterOptionLabel.Fopt_None),
+				new FilterOption(FilterOptionLabel.Fopt_Index),
+				new FilterOption(FilterOptionLabel.Fopt_C),
+				new FilterOption(FilterOptionLabel.Fopt_P),
+				new FilterOption(FilterOptionLabel.Fopt_L),
+				new FilterOption(FilterOptionLabel.Fopt_R),
+				new FilterOption(FilterOptionLabel.Fopt_CP),
+				new FilterOption(FilterOptionLabel.Fopt_CL),
+				new FilterOption(FilterOptionLabel.Fopt_PL),
+				new FilterOption(FilterOptionLabel.Fopt_CPL),
+				new FilterOption(FilterOptionLabel.Fopt_CPLR),
+		};
 		for ( String ql : qlList ) {
 			for ( double theta : thetaList ) {
 				for (String name : nameList ) {
 					for ( String size : sizeList ) {
-						for ( int[] option : optionList ) {
-							paramList.add( new Param(theta, name, size, ql, option[0]==1?true:false, option[1]==1?true:false, IndexChoice.values()[option[2]]) );
+						for ( FilterOption opt : optionList ) {
+							paramList.add( new Param(theta, name, size, ql, opt.bLF, opt.bPF, opt.indexChoice) );
 						}
 					}
 				}
