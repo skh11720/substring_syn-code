@@ -44,27 +44,26 @@ public class FaerieSearch extends AbstractSearch {
 //			Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
 			for ( Record rec : dataset.getIndexedList() ) {
 //				if ( rec.getID() != 946 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
-				IntList posList = getPosList(query, rec);
-				boolean isVerified = false;
+				searchRecord(query, rec, minLen, maxLen);
+			}
+		}
+	}
+	
+	protected void searchRecord( Record query, Record rec, int minLen, int maxLen ) {
+		IntList posList = getPosList(query, rec);
 //				Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
-				for ( int i=0; i<posList.size()-minLen+1; ++i ) {
-					int j = i+minLen-1; // inclusive
-					while ( j < posList.size() ) {
-						if ( posList.get(j)-posList.getInt(i)+1 > maxLen ) break;
-						int sidx = posList.getInt(i);
-						int eidx = posList.getInt(j)+1;
-						Record window = rec.getSubrecord(sidx, eidx);
+		for ( int i=0; i<posList.size()-minLen+1; ++i ) {
+			for ( int j = i+minLen-1; j < posList.size(); j++ ) {
+				if ( posList.get(j)-posList.getInt(i)+1 > maxLen ) break;
+				int sidx = posList.getInt(i);
+				int eidx = posList.getInt(j)+1;
+				Record window = rec.getSubrecord(sidx, eidx);
 //						Log.log.trace("window = rec%d[%d:%d] = %s", rec.getID(), sidx, eidx, window.toOriginalString());
-						double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
-						if ( sim >= theta ) {
+				double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
+				if ( sim >= theta ) {
 //							Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-							rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-							isVerified = true;
-							break;
-						}
-						j += 1;
-					}
-					if ( isVerified ) break;
+					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+					return;
 				}
 			}
 		}
