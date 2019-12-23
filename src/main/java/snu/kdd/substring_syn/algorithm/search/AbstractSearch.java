@@ -66,6 +66,7 @@ public abstract class AbstractSearch {
 	
 	protected final void searchGivenQuery( Record query, Dataset dataset ) {
 //		if ( query.getID() != 0 ) return;
+//		else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		searchQuerySide(query, dataset);
@@ -95,7 +96,8 @@ public abstract class AbstractSearch {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( Record rec : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
-//			if ( rec.getID() != 29 ) continue;
+//			if ( rec.getID() != 946 ) continue;
+//			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 			statContainer.addCount(Stat.Num_TS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
 			statContainer.startWatch("Time_TS_searchTextSide.preprocess");

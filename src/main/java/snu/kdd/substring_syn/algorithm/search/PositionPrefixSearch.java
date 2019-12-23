@@ -10,6 +10,7 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -66,9 +67,11 @@ public class PositionPrefixSearch extends PrefixSearch {
 		IntList eidxList = ((RecordWithEndpoints)rec).getEndpoints();
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
+//		for ( int token : candTokenList ) Log.log.trace("\t%d\t%s", token, Record.tokenIndex.getToken(token));
 		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {
+//			Log.log.trace("target=%s", Record.tokenIndex.getToken(target));
 			statContainer.startWatch("Time_TS_searchRecordPF.setTarget");
 			pkduckdp.setTarget(target);
 			statContainer.stopWatch("Time_TS_searchRecordPF.setTarget");
@@ -81,6 +84,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 				if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 				statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 				pkduckdp.compute(widx+1, w);
+//				Log.log.trace("pkduckdp.b[%d][%d]=%s", widx+1, w, pkduckdp.isInSigU(widx, w));
 				statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
 
 				if ( j >= eidxList.size() ) break;
@@ -88,7 +92,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 				++j;
 				
 				if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) continue;
-				if ( pkduckdp.isInSigU(widx, w) ) continue;
+				if ( !pkduckdp.isInSigU(widx, w) ) continue;
 				verifiedWindowSet.add(new IntPair(widx, w));
 				statContainer.addCount(Stat.Len_TS_PF, w);
 				if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
