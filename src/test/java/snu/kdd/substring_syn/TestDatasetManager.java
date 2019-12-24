@@ -16,8 +16,12 @@ public class TestDatasetManager {
 	private Object2ObjectMap<DatasetKey, Dataset> map = new Object2ObjectOpenHashMap<>();
 	
 	public static final Iterable<Dataset> getAllDatasets() {
-		String nr = "10000";
 		String size = "10000";
+		String nr = "10000";
+		return getAllDatasets(size, nr);
+	}
+
+	public static final Iterable<Dataset> getAllDatasets( String size, String nr ) {
 		String[] datasetNameList = {"WIKI", "PUBMED", "AMAZON"};
 		String[] qlenList = {"1", "3", "5"};
 		return new Iterable<Dataset>() {

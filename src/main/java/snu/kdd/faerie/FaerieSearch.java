@@ -36,7 +36,7 @@ public class FaerieSearch extends AbstractSearch {
 		index = new FaerieIndex(dataset.getIndexedList());
 	}
 	
-	protected final void search( Dataset dataset ) {
+	protected void search( Dataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 //			if ( query.getID() != 0 ) return; else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
 			int minLen = (int)Math.ceil(query.size()*theta);
@@ -44,13 +44,14 @@ public class FaerieSearch extends AbstractSearch {
 //			Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
 			for ( Record rec : dataset.getIndexedList() ) {
 //				if ( rec.getID() != 946 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
-				searchRecord(query, rec, minLen, maxLen);
+				IntList posList = getPosList(query, rec);
+				boolean isSim = searchRecord(query, rec, posList, minLen, maxLen);
+				if ( isSim ) rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 			}
 		}
 	}
 	
-	protected void searchRecord( Record query, Record rec, int minLen, int maxLen ) {
-		IntList posList = getPosList(query, rec);
+	protected boolean searchRecord( Record query, Record rec, IntList posList, int minLen, int maxLen ) {
 //				Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
 		for ( int i=0; i<posList.size()-minLen+1; ++i ) {
 			for ( int j = i+minLen-1; j < posList.size(); j++ ) {
@@ -62,11 +63,11 @@ public class FaerieSearch extends AbstractSearch {
 				double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
 				if ( sim >= theta ) {
 //							Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-					return;
+					return true;
 				}
 			}
 		}
+		return false;
 	}
 	
 	protected final IntList getPosList( Record query, Record rec ) {
