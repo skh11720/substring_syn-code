@@ -2,7 +2,6 @@ package snu.kdd.faerie;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
@@ -69,7 +68,7 @@ public class FaerieSynSearch extends FaerieSearch {
 
 	protected final IntList getPosListTextSide( Record query, Record recExp ) {
 		IntList posList = new IntArrayList();
-		IntSet tokens = new IntOpenHashSet(query.getTokens());
+		IntSet tokens = query.getDistinctTokens();
 		for ( int i=0; i<recExp.size(); ++i ) {
 			int token = recExp.getToken(i);
 			if ( tokens.contains(token) ) posList.add(i);
