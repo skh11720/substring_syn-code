@@ -15,6 +15,14 @@ import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieSearchTest {
+	
+	@Test
+	public void testSingleRun() {
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
+		double theta = 0.6;
+		AbstractSearch alg1 = new FaerieSearch(theta);
+		alg1.run(dataset);
+	}
 
 	@Test
 	public void testCorrectness() throws IOException {
@@ -37,6 +45,7 @@ public class FaerieSearchTest {
 
 		for ( Dataset dataset : TestDatasetManager.getAllDatasets() ) {
 			for ( double theta : new double[] {0.6, 1.0} ) {
+//				if ( theta != 0.6 || !dataset.name.equals("WIKI_n10000_r10000_q3") ) continue;
 				AbstractSearch alg0 = new FaerieNaiveSearch(theta);
 				alg0.run(dataset);
 				AbstractSearch alg1 = new FaerieSearch(theta);
@@ -57,11 +66,13 @@ public class FaerieSearchTest {
 	public void testEfficiency() {
 		/*
 		 * 692.9975999999999
+		 * binarySpan: 669.1880000000001
+		 * binarySpan+Shift: 656.3233
 		 */
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "31622", "5");
 		double theta = 0.6;
 		double t_sum = 0;
-		int nTries = 5;
+		int nTries = 10;
 		for ( int i=0; i<nTries; ++i ) {
 			AbstractSearch alg1 = new FaerieSearch(theta);
 			alg1.run(dataset);
@@ -108,4 +119,21 @@ public class FaerieSearchTest {
 			return 1.0*num/den;
 		}
 	}
+
+//	@Test
+//	public void testDiskBased() throws IOException, ClassNotFoundException {
+//		int[] arr = {3, 2, 5, 3, 7, 3, 2, 3, 1};
+//		FaerieIndexEntry entry = new FaerieIndexEntry(arr); 
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		ObjectOutputStream oos = new ObjectOutputStream(bos);
+//		oos.writeObject(entry);
+//		oos.flush();
+//		byte[] buf = bos.toByteArray();
+//		System.out.println(Arrays.toString(buf));
+//		
+//		ByteArrayInputStream bis = new ByteArrayInputStream(buf);
+//		ObjectInputStream ois = new ObjectInputStream(bis);
+//		FaerieIndexEntry entry2 = (FaerieIndexEntry)ois.readObject();
+//		System.out.println(entry2);
+//	}
 }

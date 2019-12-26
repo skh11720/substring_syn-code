@@ -31,22 +31,4 @@ public class FaerieIndexEntry implements Serializable {
 	}
 
 	private static final long serialVersionUID = 34239854729843L;
-	
-	
-//	public static void main(String[] args) throws IOException, ClassNotFoundException {
-//		int[] arr = {3, 2, 5, 3, 7, 3, 2, 3, 1};
-//		FaerieIndexEntry entry = new FaerieIndexEntry(arr);
-//
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		ObjectOutputStream oos = new ObjectOutputStream(bos);
-//		oos.writeObject(entry);
-//		oos.flush();
-//		byte[] buf = bos.toByteArray();
-//		System.out.println(Arrays.toString(buf));
-//		
-//		ByteArrayInputStream bis = new ByteArrayInputStream(buf);
-//		ObjectInputStream ois = new ObjectInputStream(bis);
-//		FaerieIndexEntry entry2 = (FaerieIndexEntry)ois.readObject();
-//		System.out.println(entry2);
-//	}
 }
