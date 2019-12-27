@@ -13,6 +13,14 @@ import snu.kdd.substring_syn.utils.Stat;
 public class FaerieSynSearchTest {
 
 	@Test
+	public void testSingleRun() {
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
+		double theta = 0.6;
+		AbstractSearch alg1 = new FaerieSynSearch(theta);
+		alg1.run(dataset);
+	}
+
+	@Test
 	public void testCorrectness() throws IOException {
 
 		String[] attrs = {

@@ -17,6 +17,13 @@ import snu.kdd.substring_syn.utils.Util;
 public class FaerieSearchTest {
 	
 	@Test
+	public void testFaerieIndex() {
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
+		FaerieIndex index = new FaerieIndex(dataset.getIndexedList());
+		for ( int i=0; i<index.store.size(); ++i ) index.getEntry(i);
+	}
+	
+	@Test
 	public void testSingleRun() {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
 		double theta = 0.6;

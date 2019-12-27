@@ -1,6 +1,6 @@
 package snu.kdd.faerie;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
@@ -9,18 +9,26 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 
 public class FaerieSynSearch extends FaerieSearch {
+	
+	private FaerieSynIndex indexT = null;
 
 	public FaerieSynSearch(double theta) {
 		super(theta);
 	}
 
 	@Override
-	protected void search( Dataset dataset ) {
+	protected final void prepareSearch( Dataset dataset ) {
+		super.prepareSearch(dataset);
+		indexT = new FaerieSynIndex(dataset.getIndexedList());
+	}
+
+	@Override
+	protected final void search( Dataset dataset ) {
 		searchQuerySide(dataset);
 		searchTextSide(dataset);;
 	}
 
-	protected void searchQuerySide( Dataset dataset ) {
+	protected final void searchQuerySide( Dataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
 //			if ( query.getID() != 0 ) return; else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
@@ -30,7 +38,7 @@ public class FaerieSynSearch extends FaerieSearch {
 					int maxLen = (int)Math.floor(queryExp.size()/theta);
 //			Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
 	//				if ( rec.getID() != 946 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
-					IntList posList = getPosListQuerySide(queryExp, rec);
+					IntList posList = getPosList(queryExp, rec);
 					boolean isSim = searchRecord(queryExp, rec, posList, minLen, maxLen);
 					if ( isSim ) {
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
@@ -41,39 +49,30 @@ public class FaerieSynSearch extends FaerieSearch {
 		}
 	}
 
-	protected final IntList getPosListQuerySide( Record queryExp, Record rec ) {
-		return getPosList(queryExp, rec);
-	}
-
-	protected void searchTextSide( Dataset dataset ) {
+	protected final void searchTextSide( Dataset dataset ) {
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessAll();
+			FaerieSynIndexEntry entry = indexT.getEntry(rec.getID());
 			for ( Record query : dataset.getSearchedList() ) {
-	//			if ( query.getID() != 0 ) return; else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
+				IntSet tokenSet = query.getDistinctTokens();
+//				if ( query.getID() != 0 ) return; else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
 				int minLen = (int)Math.ceil(query.size()*theta);
 				int maxLen = (int)Math.floor(query.size()/theta);
-	//			Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
+//				Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
+				int i = 0;
 				for ( Record recExp : Records.expands(rec) ) {
-	//				if ( rec.getID() != 946 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
-					IntList posList = getPosListTextSide(query, recExp);
+					Int2ObjectMap<IntList> invIndex = entry.invIndexList.get(i);
+//					if ( rec.getID() != 946 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
+					IntList posList = getPosList(tokenSet, invIndex);
 					boolean isSim = searchRecord(query, recExp, posList, minLen, maxLen);
 					if ( isSim ) {
 						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 						break;
 					}
+					i += 1;
 				}
 			}
 		}
-	}
-
-	protected final IntList getPosListTextSide( Record query, Record recExp ) {
-		IntList posList = new IntArrayList();
-		IntSet tokens = query.getDistinctTokens();
-		for ( int i=0; i<recExp.size(); ++i ) {
-			int token = recExp.getToken(i);
-			if ( tokens.contains(token) ) posList.add(i);
-		}
-		return posList;
 	}
 
 	@Override

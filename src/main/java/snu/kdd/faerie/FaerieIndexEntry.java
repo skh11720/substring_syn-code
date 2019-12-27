@@ -3,21 +3,15 @@ package snu.kdd.faerie;
 import java.io.Serializable;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import snu.kdd.substring_syn.data.record.Record;
 
 public class FaerieIndexEntry implements Serializable {
 	
 	final Int2ObjectMap<IntList> tok2posListMap;
 	
-	public FaerieIndexEntry( int[] arr ) {
-		tok2posListMap = new Int2ObjectOpenHashMap<IntList>();
-		for ( int i=0; i<arr.length; ++i ) {
-			int token = arr[i];
-			if ( !tok2posListMap.containsKey(token) ) tok2posListMap.put(token, new IntArrayList());
-			tok2posListMap.get(token).add(i);
-		}
+	public FaerieIndexEntry(Record rec) {
+		tok2posListMap = FaerieUtils.getInvIndex(rec);
 	}
 	
 	@Override

@@ -1,19 +1,20 @@
 package snu.kdd.faerie;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieSearch extends AbstractSearch {
 	
-	private FaerieIndex index = null;
+	protected FaerieIndex index = null;
 
 	public FaerieSearch(double theta) {
 		super(theta);
@@ -79,12 +80,13 @@ public class FaerieSearch extends AbstractSearch {
 	}
 	
 	protected final IntList getPosList( Record query, Record rec ) {
-		FaerieIndexEntry entry = index.entryList.get(rec.getID());
+		FaerieIndexEntry entry = index.getEntry(rec.getID());
+		return getPosList( query.getDistinctTokens(), entry.tok2posListMap);
+	}
+	
+	protected final IntList getPosList( IntSet tokenSet, Int2ObjectMap<IntList> invIndex ) {
 		ObjectList<IntList> posLists = new ObjectArrayList<>();
-		for ( int token : query.getDistinctTokens() ) {
-			posLists.add(entry.tok2posListMap.get(token));
-//			Log.log.trace(Record.tokenIndex.getToken(token)+"\t"+posLists.get(posLists.size()-1));
-		}
+		for ( int token : tokenSet ) posLists.add(invIndex.get(token));
 		return Util.mergeSortedIntLists(posLists);
 	}
 	
