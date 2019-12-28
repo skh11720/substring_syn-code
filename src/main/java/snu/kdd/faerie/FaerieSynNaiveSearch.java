@@ -28,16 +28,23 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 	}
 
 	protected void search( Dataset dataset ) {
+		statContainer.startWatch(Stat.Time_QS_Total);
 		searchQuerySide(dataset);
+		statContainer.stopWatch(Stat.Time_QS_Total);
+		statContainer.startWatch(Stat.Time_TS_Total);
 		searchTextSide(dataset);
+		statContainer.stopWatch(Stat.Time_TS_Total);
 	}
 
 	protected void searchQuerySide( Dataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
+			statContainer.startWatch(Stat.Time_QS_Validation);
 			for ( Record rec : dataset.getIndexedList() ) {
 				for ( Record queryExp : Records.expands(query) ) {
 					double sim = Util.subJaccardM(queryExp.getTokenArray(), rec.getTokenArray());
+					statContainer.increment(Stat.Num_QS_Verified);
+					statContainer.addCount(Stat.Len_QS_Verified, rec.size());
 					if ( sim >= theta ) {
 //					Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
 						rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
@@ -45,15 +52,19 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 					}
 				}
 			}
+			statContainer.stopWatch(Stat.Time_QS_Validation);
 		}
 	}
 
 	protected void searchTextSide( Dataset dataset ) {
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessAll();
+			statContainer.startWatch(Stat.Time_TS_Validation);
 			for ( Record query : dataset.getSearchedList() ) {
 				for ( Record recExp : Records.expands(rec) ) {
 					double sim = Util.subJaccardM(query.getTokenArray(), recExp.getTokenArray());
+					statContainer.increment(Stat.Num_TS_Verified);
+					statContainer.addCount(Stat.Len_TS_Verified, rec.size());
 					if ( sim >= theta ) {
 //					Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
 						rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
@@ -61,6 +72,7 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 					}
 				}
 			}
+			statContainer.stopWatch(Stat.Time_TS_Validation);
 		}
 	}
 

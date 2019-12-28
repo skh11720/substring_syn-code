@@ -27,10 +27,10 @@ public class FaerieSynSearchTest {
 				Stat.Num_Result,
 				Stat.Num_QS_Result,
 				Stat.Num_TS_Result,
-//				Stat.Num_QS_Verified,
-//				Stat.Num_TS_Verified,
-//				Stat.Len_QS_Verified,
-//				Stat.Len_TS_Verified,
+				Stat.Num_QS_Verified,
+				Stat.Num_TS_Verified,
+				Stat.Len_QS_Verified,
+				Stat.Len_TS_Verified,
 //				Stat.Len_QS_Retrieved,
 //				Stat.Len_TS_Retrieved,
 //				Stat.Len_QS_LF,
@@ -55,7 +55,9 @@ public class FaerieSynSearchTest {
 					int val0 = Integer.parseInt(alg0.getStatContainer().getStat(attr));
 					int val1 = Integer.parseInt(alg1.getStatContainer().getStat(attr));
 //					assertEquals(val0, val1);
-					strbld.append(dataset.name+"\t"+attr+"\t"+val0+"\t"+val1+"\t"+(val0 == val1)+"\n");
+					strbld.append(dataset.name+"\t"+attr+"\t"+val0+"\t"+val1+"\t");
+					if ( attr.equals(Stat.Num_Result) ) strbld.append((val0 == val1)+"\n");
+					else strbld.append("\n");
 				}
 			}
 		}

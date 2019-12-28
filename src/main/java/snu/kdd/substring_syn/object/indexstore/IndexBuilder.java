@@ -23,7 +23,6 @@ public class IndexBuilder {
 	protected int inmem_max_size;
 	protected int nFlush;
 	protected int bufSize;
-	protected long size;
 	protected Cursor curTmp;
 	protected Cursor curOut;
 	
@@ -54,14 +53,13 @@ public class IndexBuilder {
 	
 	final InvListAccessor createIndexStoreAccessor( Iterable<IntPair> kvList, String path, ListSegmentBuilder listSegmentBuilder ) {
 		bufSize = nFlush = 0;
-		size = 0;
 		curTmp = new Cursor();
 		curOut = new Cursor();
 		InvListAccessor accessor = null;
 		try {
 			Int2ObjectMap<ObjectList<SegmentInfo>> key2segList = listSegmentBuilder.build(kvList);
 			Int2ObjectMap<SegmentInfo> key2SegMap = mergeSegments(path, key2segList);
-			accessor = new InvListAccessor(path, key2SegMap, curOut.fileOffset+1, bufSize, size);
+			accessor = new InvListAccessor(path, key2SegMap, curOut.fileOffset+1, bufSize);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -137,7 +135,6 @@ public class IndexBuilder {
 			key2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, b.length));
 			fos.write(b);
 			curOut.offset += b.length;
-			size += invList.size();
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
 		fos.close();

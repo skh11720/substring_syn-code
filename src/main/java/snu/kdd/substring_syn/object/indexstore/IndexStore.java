@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.object.indexstore;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -38,6 +39,10 @@ public abstract class IndexStore<E extends Serializable> {
 		IntList invList = index.getInvList(key);
 		if ( invList == null ) return IntLists.EMPTY_LIST;
 		else return invList;
+	}
+	
+	public final BigInteger diskSpaceUsage() {
+		return store.diskSpaceUsage().add(index.invListAccessor.diskSpaceUsage);
 	}
 	
 	final class IndexEntryIterator implements Iterator<E> {

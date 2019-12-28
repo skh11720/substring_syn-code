@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -90,6 +91,7 @@ public class IndexStoreTest {
 				System.out.println(key+"\t"+e);
 			}
 		}
+		System.out.println("Disk space usage "+istore.diskSpaceUsage());
 	}
 	
 	public void randomSearchTest(DataEntryStore store, int tries) {

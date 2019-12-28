@@ -15,8 +15,6 @@ public class InvertedIndex {
 		invPool = new InvertedListPool();
 	}
 
-	public long invListSize() { return invListAccessor.size; }
-	
 	public final int getNumInvFault() { return nPageFault; }
 
 	public IntList getInvList( int key ) {

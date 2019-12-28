@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.object.indexstore;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,8 +10,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Iterator;
-import java.util.Random;
+
+import org.apache.commons.io.FileUtils;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -115,6 +118,10 @@ public class EntryStore<E extends Serializable> {
 	}
 	
 	public final int size() { return size; }
+	
+	public final BigInteger diskSpaceUsage() {
+		return FileUtils.sizeOfAsBigInteger(new File(path));
+	}
 	
 	class EntryIterator implements Iterator<E> {
 		

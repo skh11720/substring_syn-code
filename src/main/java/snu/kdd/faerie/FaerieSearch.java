@@ -1,5 +1,7 @@
 package snu.kdd.faerie;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -9,6 +11,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -35,7 +38,10 @@ public class FaerieSearch extends AbstractSearch {
 
 	@Override
 	protected void prepareSearch( Dataset dataset ) {
+		statContainer.startWatch(Stat.Time_BuildIndex);
 		index = new FaerieIndex(dataset.getIndexedList());
+		statContainer.stopWatch(Stat.Time_BuildIndex);
+		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
 	}
 	
 	protected void search( Dataset dataset ) {
@@ -47,36 +53,10 @@ public class FaerieSearch extends AbstractSearch {
 			for ( Record rec : dataset.getIndexedList() ) {
 //				if ( rec.getID() != 9185 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 				IntList posList = getPosList(query, rec);
-				boolean isSim = searchRecord(query, rec, posList, minLen, maxLen);
+				boolean isSim = searchRecord(query, rec, posList, minLen, maxLen, this::computeSim);
 				if ( isSim ) rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 			}
 		}
-	}
-	
-	protected boolean searchRecord( Record query, Record rec, IntList posList, int minLen, int maxLen ) {
-//		Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
-		int i = 0;
-		while ( i < posList.size()-minLen+1 ) {
-//			Log.log.trace("while: i=%d, limit=%d", i, posList.size()-minLen+1);
-			int j = i+minLen-1;
-			if ( posList.get(j)-posList.getInt(i)+1 <= maxLen ) {
-				int mid = binarySpan(posList, i, j, maxLen);
-				for ( int k=j; k<=mid; k++ ) {
-					int sidx = posList.getInt(i);
-					int eidx = posList.getInt(k)+1;
-					Record window = rec.getSubrecord(sidx, eidx);
-//					Log.log.trace("window = rec%d[%d:%d] = %s", rec.getID(), sidx, eidx, window.toOriginalString());
-					double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
-					if ( sim >= theta ) {
-//						Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-						return true;
-					}
-				}
-				i += 1;
-			}
-			else i = binaryShift(posList, i, j, maxLen);
-		}
-		return false;
 	}
 	
 	protected final IntList getPosList( Record query, Record rec ) {
@@ -88,6 +68,40 @@ public class FaerieSearch extends AbstractSearch {
 		ObjectList<IntList> posLists = new ObjectArrayList<>();
 		for ( int token : tokenSet ) posLists.add(invIndex.get(token));
 		return Util.mergeSortedIntLists(posLists);
+	}
+	
+	@FunctionalInterface
+	protected interface SimCalculator {
+		double run(Record query, Subrecord window);
+	}
+
+	protected boolean searchRecord( Record query, Record rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
+//		Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
+		int i = 0;
+		while ( i < posList.size()-minLen+1 ) {
+//			Log.log.trace("while: i=%d, limit=%d", i, posList.size()-minLen+1);
+			int j = i+minLen-1;
+			if ( posList.get(j)-posList.getInt(i)+1 <= maxLen ) {
+				int mid = binarySpan(posList, i, j, maxLen);
+				for ( int k=j; k<=mid; k++ ) {
+					int sidx = posList.getInt(i);
+					int eidx = posList.getInt(k)+1;
+					Subrecord window = new Subrecord(rec, sidx, eidx);
+//					Log.log.trace("window = rec%d[%d:%d] = %s", rec.getID(), sidx, eidx, window.toOriginalString());
+					double sim = verifier.run(query, window);
+					if ( sim >= theta ) return true;
+				}
+				i += 1;
+			}
+			else i = binaryShift(posList, i, j, maxLen);
+		}
+		return false;
+	}
+	
+	private double computeSim(Record query, Subrecord window) {
+		statContainer.increment(Stat.Num_QS_Verified);
+		statContainer.addCount(Stat.Len_QS_Verified, window.size());
+		return Util.jaccardM(query.getTokenList(), window.getTokenList());
 	}
 	
 	protected final int binarySpan( IntList posList, int i, int j, int maxLen ) {
@@ -109,6 +123,10 @@ public class FaerieSearch extends AbstractSearch {
 		}
 //		Log.log.trace("binaryShift(i=%d, j=%d): %d", i, j, lower);
 		return lower;
+	}
+	
+	protected BigInteger diskSpaceUsage() {
+		return index.diskSpaceUsage(); 
 	}
 	
 //	private class SimilarityCalculator {
