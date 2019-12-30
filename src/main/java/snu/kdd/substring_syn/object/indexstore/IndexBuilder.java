@@ -27,12 +27,12 @@ public class IndexBuilder {
 	protected Cursor curOut;
 	
 	
-	IndexBuilder( Iterable<IntPair> kvList ) {
+	IndexBuilder(Iterable<IntPair> kvList) {
 		this.kvList = kvList;
 		inmem_max_size = INMEM_MAX_SIZE;
 	}
 	
-	final void setInMemMaxSize( int inmem_max_size ) {
+	final void setInMemMaxSize(int inmem_max_size) {
 		this.inmem_max_size = inmem_max_size;
 	}
 	
@@ -46,12 +46,12 @@ public class IndexBuilder {
 	}
 	
 	final InvListAccessor buildInvList() {
-		return createIndexStoreAccessor(kvList, getInvPath(), this::buildInvListSegment);
+		return createDataFileAccessor(kvList, getInvPath(), this::buildInvListSegment);
 	}
 
 	final String getIndexStoreName() { return "IndexBuilder"; }
 	
-	final InvListAccessor createIndexStoreAccessor( Iterable<IntPair> kvList, String path, ListSegmentBuilder listSegmentBuilder ) {
+	final InvListAccessor createDataFileAccessor(Iterable<IntPair> kvList, String path, ListSegmentBuilder listSegmentBuilder) {
 		bufSize = nFlush = 0;
 		curTmp = new Cursor();
 		curOut = new Cursor();

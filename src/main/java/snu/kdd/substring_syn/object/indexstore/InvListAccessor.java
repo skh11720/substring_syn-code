@@ -25,10 +25,10 @@ public class InvListAccessor {
 		buffer = new byte[bufSize];
 		rafList = new RandomAccessFile[nFiles];
 		for (int i=0; i<rafList.length; ++i ) rafList[i] = new RandomAccessFile(path+"."+i, "r");
-		diskSpaceUsage = computeDiskSpaceUsage(path, nFiles);
+		diskSpaceUsage = computeDiskSpaceUsage(path);
 	}
 	
-	private final BigInteger computeDiskSpaceUsage(String path, int nFiles) {
+	private final BigInteger computeDiskSpaceUsage(String path) {
 		BigInteger sum = BigInteger.ZERO;
 		for (int i=0; i<rafList.length; ++i ) {
 			sum = sum.add(FileUtils.sizeOfAsBigInteger(new File(path+"."+i)));
@@ -36,7 +36,7 @@ public class InvListAccessor {
 		return sum;
 	}
 
-	public final IntList getList( int key ) {
+	public final IntList getList(int key) {
 		SegmentInfo seg = key2segMap.get(key);
 		if ( seg == null ) return null;
 		int[] arr = null;
