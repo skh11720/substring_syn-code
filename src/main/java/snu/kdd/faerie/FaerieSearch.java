@@ -19,6 +19,8 @@ public class FaerieSearch extends AbstractSearch {
 	
 	protected FaerieIndexInterface index = null;
 	protected final boolean isDiskBased;
+	
+	protected int minLenQS, maxLenTS;
 
 	public FaerieSearch(double theta, boolean isDiskBased) {
 		super(theta);
@@ -27,19 +29,6 @@ public class FaerieSearch extends AbstractSearch {
 	}
 	
 	@Override
-	public void run(Dataset dataset) {
-		statContainer.setAlgorithm(this);
-		statContainer.mergeStatContainer(dataset.statContainer);
-		statContainer.startWatch(Stat.Time_Total);
-		prepareSearch(dataset);
-		search(dataset);
-		statContainer.stopWatch(Stat.Time_Total);
-		putResultIntoStat();
-		statContainer.finalizeAndOutput();
-		outputResult(dataset);
-	}
-
-	@Override
 	protected void prepareSearch( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_BuildIndex);
 		if (isDiskBased) index = new FaerieMemBasedIndex(dataset.getIndexedList());
@@ -47,22 +36,25 @@ public class FaerieSearch extends AbstractSearch {
 		statContainer.stopWatch(Stat.Time_BuildIndex);
 		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
 	}
-	
-	protected void search( Dataset dataset ) {
-		for ( Record query : dataset.getSearchedList() ) {
-//			if ( query.getID() != 24 ) continue; else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
-			int minLen = (int)Math.ceil(query.size()*theta);
-			int maxLen = (int)Math.floor(query.size()/theta);
-//			Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
-			for ( Record rec : dataset.getIndexedList() ) {
-//				if ( rec.getID() != 9185 ) continue; else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
-				IntList posList = getPosList(query, rec);
-				boolean isSim = searchRecord(query, rec, posList, minLen, maxLen, this::computeSim);
-				if ( isSim ) rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-			}
-		}
+
+	@Override
+	protected void prepareSearchGivenQuery(Record query) {
+		minLenQS = (int)Math.ceil(query.size()*theta);
+		maxLenTS = (int)Math.floor(query.size()/theta);
+//		Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
 	}
 	
+	@Override
+	protected void searchRecordQuerySide(Record query, Record rec) {
+		IntList posList = getPosList(query, rec);
+		boolean isSim = searchRecord(query, rec, posList, minLenQS, maxLenTS, this::computeSim);
+		if ( isSim ) rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+	}
+
+	@Override
+	protected void searchRecordTextSide(Record query, Record rec) {
+	}
+
 	protected final IntList getPosList( Record query, Record rec ) {
 		FaerieIndexEntry entry = index.getEntry(rec.getID());
 		return getPosList( query.getDistinctTokens(), entry.tok2posListMap);
@@ -155,14 +147,6 @@ public class FaerieSearch extends AbstractSearch {
 //			return num/den;
 //		}
 //	}
-
-	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
-	}
-
-	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
-	}
 
 	@Override
 	public String getName() {
