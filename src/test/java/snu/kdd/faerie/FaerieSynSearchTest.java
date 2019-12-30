@@ -13,7 +13,7 @@ import snu.kdd.substring_syn.utils.Stat;
 public class FaerieSynSearchTest {
 
 	@Test
-	public void testSingleRun() {
+	public void test00SingleRun() {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
 		double theta = 0.6;
 		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
@@ -21,7 +21,7 @@ public class FaerieSynSearchTest {
 	}
 
 	@Test
-	public void testCorrectness() throws IOException {
+	public void test01Correctness() throws IOException {
 
 		String[] attrs = {
 				Stat.Num_Result,
@@ -65,5 +65,18 @@ public class FaerieSynSearchTest {
 		PrintStream ps = new PrintStream("tmp/FaerieSynSearchTest.testCorrectness.txt");
 		ps.println(strbld.toString());
 		ps.close();
+	}
+	
+	@Test
+	public void test02CompareMemAndDIsk() {
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
+		double theta = 0.6;
+		AbstractSearch alg0 = new FaerieSynSearch(theta, false);
+		alg0.run(dataset);
+		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
+		alg1.run(dataset);
+		for ( String attr : new String[] {Stat.Time_Total, Stat.Time_BuildIndex}) {
+			System.out.println(attr+"\t"+alg0.getStatContainer().getStat(attr)+"\t"+alg1.getStatContainer().getStat(attr));
+		}
 	}
 }
