@@ -1,10 +1,14 @@
 package snu.kdd.pkwise;
 
+import java.io.File;
 import java.util.Iterator;
+
+import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.data.IntQGram;
 import snu.kdd.substring_syn.data.IntQGramStore;
 import snu.kdd.substring_syn.data.QGram;
+import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 
@@ -19,6 +23,14 @@ public class TransWindowDataset extends WindowDataset {
 		super(datasetName, size, nr, qlen);
 		this.qlen = Integer.parseInt(qlen);
 		this.theta = Double.parseDouble(theta);
+	}
+
+	@Override
+	public void addStat() {
+		super.addStat();
+		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
+		statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString());
+		statContainer.setStat("Num_IntQGrams", Integer.toString(((TransWindowDataset)this).numIntQGrams));
 	}
 	
 	public final int getMaxQueryTransformLength() {

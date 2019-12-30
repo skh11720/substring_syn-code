@@ -1,9 +1,12 @@
 package snu.kdd.substring_syn.data;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+
+import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.data.record.Record;
 
@@ -15,6 +18,12 @@ public class DiskBasedDataset extends Dataset {
 		super(datasetName, size, nr, qlen);
 		initTokenIndex();
 		store = new RecordStore(getIndexedList());
+	}
+	
+	@Override
+	public void addStat() {
+		super.addStat();
+		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
 	}
 	
 	@Override

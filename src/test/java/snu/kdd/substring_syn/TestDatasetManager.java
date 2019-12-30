@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -13,6 +14,44 @@ public class TestDatasetManager {
 
 	private static TestDatasetManager manager = new TestDatasetManager();
 	private Object2ObjectMap<DatasetKey, Dataset> map = new Object2ObjectOpenHashMap<>();
+	
+	public static final Iterable<Dataset> getAllDatasets() {
+		String size = "10000";
+		String nr = "10000";
+		return getAllDatasets(size, nr);
+	}
+
+	public static final Iterable<Dataset> getAllDatasets( String size, String nr ) {
+		String[] datasetNameList = {"WIKI", "PUBMED", "AMAZON"};
+		String[] qlenList = {"1", "3", "5"};
+		return new Iterable<Dataset>() {
+
+			@Override
+			public Iterator<Dataset> iterator() {
+				return new Iterator<Dataset>() {
+					
+					int didx = 0;
+					int qidx = 0;
+					
+					@Override
+					public Dataset next() {
+						DatasetKey key = new DatasetKey(0, datasetNameList[didx], size, nr, qlenList[qidx], "0");
+						didx += 1;
+						if ( didx >= datasetNameList.length ) {
+							didx = 0;
+							qidx += 1;
+						}
+						return manager.getDataset(key);
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return qidx < qlenList.length;
+					}
+				};
+			}
+		};
+	}
 	
 	public static final Dataset getDataset( String datasetName, String size, String nr, String qlen ) {
 		DatasetKey key = new DatasetKey(0, datasetName, size, nr, qlen, "0");

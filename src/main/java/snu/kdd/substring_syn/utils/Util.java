@@ -814,4 +814,25 @@ public class Util {
 	public static void addToIntList( IntList list, int c ) {
 		for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 	}
+	
+	public static IntList mergeSortedIntLists( ObjectList<IntList> intLists ) {
+		int[] cur = new int[intLists.size()];
+		IntBinaryHeap heap = new IntBinaryHeap(intLists.size());
+		for ( int lidx=0; lidx<intLists.size(); ++lidx ) {
+			IntList list = intLists.get(lidx);
+			if ( list != null && list.size() > 0 ) {
+				heap.insert(intLists.get(lidx).getInt(0), lidx);
+			}
+		}
+		IntList mergedList = new IntArrayList();
+		while ( !heap.isEmpty() ) {
+			IntPair minPair = heap.poll();
+			int pos = minPair.i1;
+			int lidx = minPair.i2;
+			mergedList.add(pos);
+			cur[lidx] += 1;
+			if ( cur[lidx] < intLists.get(lidx).size() ) heap.insert(intLists.get(lidx).getInt(cur[lidx]), lidx);
+		}
+		return mergedList;
+	}
 }
