@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -7,6 +8,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
@@ -34,8 +36,13 @@ public class App {
 		Util.printArgsError( cmd );
 		return cmd;
 	}
+	
+	private static void initialize() {
+		FileUtils.listFiles(new File("./tmp"), null, false).stream().forEach(f -> f.delete());
+	}
 
     public static void main( String[] args ) throws ParseException, IOException {
+    	initialize();
     	CommandLine cmd = parseInput(args);
     	Dataset dataset = Dataset.createInstance(cmd);
     	AbstractSearch alg = AlgorithmFactory.createInstance(cmd);
