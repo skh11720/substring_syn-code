@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.search;
 import org.apache.commons.cli.CommandLine;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.faerie.FaerieSynSearch;
 import snu.kdd.pkwise.PkwiseNaiveSearch;
 import snu.kdd.pkwise.PkwiseSearch;
 import snu.kdd.pkwise.PkwiseSynSearch;
@@ -18,6 +19,8 @@ public class AlgorithmFactory {
 		PkwiseNaiveSearch,
 		PkwiseSearch,
 		PkwiseSynSearch,
+		FaerieSynSearch,
+
 		ZeroPrefixSearch,
 	}
 	
@@ -79,6 +82,7 @@ public class AlgorithmFactory {
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
 		case PkwiseSynSearch: return createPkwiseSynSearch(param, cmd);
+		case FaerieSynSearch: return createFaerieSynSearch(param, cmd);
 		case ZeroPrefixSearch: return createZeroPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
@@ -150,6 +154,12 @@ public class AlgorithmFactory {
 		int qlen = Integer.parseInt(cmd.getOptionValue("ql"));
 		int kmax = Integer.parseInt(param.get("kmax"));
 		return new PkwiseSynSearch(theta, qlen, kmax);
+	}
+	
+	private static FaerieSynSearch createFaerieSynSearch( DictParam param, CommandLine cmd ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		boolean isDiskBased = Boolean.parseBoolean(param.get("isDiskBased"));
+		return new FaerieSynSearch(theta, isDiskBased);
 	}
 	
 	
