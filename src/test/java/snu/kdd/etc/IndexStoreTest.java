@@ -1,22 +1,19 @@
 package snu.kdd.etc;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.xerial.snappy.Snappy;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.IntPair;
@@ -28,13 +25,20 @@ public class IndexStoreTest {
 	
 	@Test
 	public void test00DataStoreCorrectness() {
-		int n = 5;
-		DataEntryStore store = new DataEntryStoreWithSnappy(DataEntry.genDataEntries(n, 1000, 1000));
+		int n = 100;
+		ObjectArrayList<DataEntry> entryList = new ObjectArrayList<>(DataEntry.genDataEntries(n, 1000, 1000).iterator());
+		DataEntryStore store = new DataEntryStore(entryList);
+		store.printDetailStats();
+
+		ObjectListIterator<DataEntry> iter = entryList.iterator();
 		for ( DataEntry entry : store.getEntries() ) {
-			System.out.println(entry);
+			assertEquals(iter.next(), entry);
 		}
-		
-		System.out.println(n/2+"\t"+store.getEntry(n/2));
+		Random rn = new Random();
+		for ( int i=0; i<n; ++i ) {
+			int id = rn.nextInt(n);
+			assertEquals(entryList.get(id), store.getEntry(id));
+		}
 	}
 	
 	@Test
@@ -156,6 +160,18 @@ public class IndexStoreTest {
 		}
 		
 		@Override
+		public int hashCode() {
+			return score + name.hashCode() + valueList.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if ( obj == null ) return false;
+			DataEntry o = (DataEntry) obj;
+			return this.score == o.score && this.name.equals(o.name) && this.valueList.equals(o.valueList);
+		}
+		
+		@Override
 		public String toString() {
 			return String.format("(%d, %s, %s)", score, name, valueList);
 		}
@@ -185,79 +201,12 @@ public class IndexStoreTest {
 		public DataEntryStore(Iterable<DataEntry> entryList) {
 			super(entryList, "EntryStore");
 		}
-
-		@Override
-		protected byte[] serialize(DataEntry entry) {
-			ByteArrayOutputStream bos = null;
-			try {
-				bos = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(bos);
-				oos.writeObject(entry);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			return bos.toByteArray();
-		}
-
-		@Override
-		protected DataEntry deserialize(byte[] buf, int offset, int length) {
-			ByteArrayInputStream bis = new ByteArrayInputStream(buf, offset, length);
-			DataEntry entry = null;
-			try {
-				ObjectInputStream ois = new ObjectInputStream(bis);
-				entry = (DataEntry) ois.readObject();
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			return entry;
-		}
 	}
 
 	class DataEntryStoreWithSnappy extends DataEntryStore {
 
 		public DataEntryStoreWithSnappy(Iterable<DataEntry> entryList) {
 			super(entryList);
-		}
-
-		@Override
-		protected byte[] serialize(DataEntry entry) {
-			ByteArrayOutputStream bos = null;
-			ObjectOutputStream oos = null;
-			bos = new ByteArrayOutputStream();
-			try {
-				oos = new ObjectOutputStream(bos);
-				oos.writeObject(entry);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			byte[] buf = null;
-			try {
-				buf = Snappy.compress(bos.toByteArray());
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			return buf;
-		}
-
-		@Override
-		protected DataEntry deserialize(byte[] buf, int offset, int length) {
-			DataEntry entry = null;
-			try {
-				int bo_len = Snappy.uncompressedLength(buf);
-				byte[] buf_out = new byte[bo_len];
-				Snappy.uncompress(buf, offset, length, buf_out, 0);
-				ByteArrayInputStream bis = new ByteArrayInputStream(buf_out, 0, bo_len);
-				ObjectInputStream ois = new ObjectInputStream(bis);
-				entry = (DataEntry) ois.readObject();
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-			return entry;
 		}
 	}
 }
