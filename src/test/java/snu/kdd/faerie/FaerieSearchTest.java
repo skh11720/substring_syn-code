@@ -19,15 +19,17 @@ public class FaerieSearchTest {
 	@Test
 	public void testFaerieIndex() {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
-		FaerieIndex index = new FaerieIndex(dataset.getIndexedList());
-		for ( int i=0; i<index.store.size(); ++i ) index.getEntry(i);
+		FaerieMemBasedIndex index0 = new FaerieMemBasedIndex(dataset.getIndexedList());
+		for ( int i=0; i<index0.store.size(); ++i ) index0.getEntry(i);
+		FaerieDiskBasedIndex index1 = new FaerieDiskBasedIndex(dataset.getIndexedList());
+		for ( int i=0; i<index1.store.size(); ++i ) index1.getEntry(i);
 	}
 	
 	@Test
 	public void testSingleRun() {
-		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "10000", "3");
 		double theta = 0.6;
-		AbstractSearch alg1 = new FaerieSearch(theta);
+		AbstractSearch alg1 = new FaerieSearch(theta, true);
 		alg1.run(dataset);
 	}
 
@@ -55,7 +57,7 @@ public class FaerieSearchTest {
 //				if ( theta != 0.6 || !dataset.name.equals("WIKI_n10000_r10000_q3") ) continue;
 				AbstractSearch alg0 = new FaerieNaiveSearch(theta);
 				alg0.run(dataset);
-				AbstractSearch alg1 = new FaerieSearch(theta);
+				AbstractSearch alg1 = new FaerieSearch(theta, true);
 				alg1.run(dataset);
 				
 				for ( String attr : attrs ) {
@@ -81,7 +83,7 @@ public class FaerieSearchTest {
 		double t_sum = 0;
 		int nTries = 10;
 		for ( int i=0; i<nTries; ++i ) {
-			AbstractSearch alg1 = new FaerieSearch(theta);
+			AbstractSearch alg1 = new FaerieSearch(theta, true);
 			alg1.run(dataset);
 			t_sum += Double.parseDouble(alg1.getStatContainer().getStat(Stat.Time_Total));
 		}

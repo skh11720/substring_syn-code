@@ -16,7 +16,7 @@ public class FaerieSynSearchTest {
 	public void testSingleRun() {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "10000", "3");
 		double theta = 0.6;
-		AbstractSearch alg1 = new FaerieSynSearch(theta);
+		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
 		alg1.run(dataset);
 	}
 
@@ -44,7 +44,7 @@ public class FaerieSynSearchTest {
 			for ( double theta : new double[] {0.6, 1.0} ) {
 				AbstractSearch alg0 = new FaerieSynNaiveSearch(theta);
 				alg0.run(dataset);
-				AbstractSearch alg1 = new FaerieSynSearch(theta);
+				AbstractSearch alg1 = new FaerieSynSearch(theta, true);
 				alg1.run(dataset);
 				
 				double t0 = Double.parseDouble(alg0.getStatContainer().getStat(Stat.Time_Total));

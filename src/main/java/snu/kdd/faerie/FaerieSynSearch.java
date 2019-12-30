@@ -15,17 +15,23 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieSynSearch extends FaerieSearch {
 	
-	private FaerieSynIndex indexT = null;
+	private FaerieSynIndexInterface indexT = null;
 
-	public FaerieSynSearch(double theta) {
-		super(theta);
+	public FaerieSynSearch(double theta, boolean isDiskBased) {
+		super(theta, isDiskBased);
 	}
 
 	@Override
 	protected final void prepareSearch( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_BuildIndex);
-		index = new FaerieIndex(dataset.getIndexedList(), "FaerieSynSearch_index");
-		indexT = new FaerieSynIndex(dataset.getIndexedList(), "FaerieSynSearch_indexT");
+		if (isDiskBased) {
+			index = new FaerieDiskBasedIndex(dataset.getIndexedList(), "FaerieSynDiskBasedSearch_index");
+			indexT = new FaerieSynDiskBasedIndex(dataset.getIndexedList(), "FaerieSynDiskBasedSearch_indexT");
+		}
+		else {
+			index = new FaerieMemBasedIndex(dataset.getIndexedList(), "FaerieSynMemBasedSearch_index");
+			indexT = new FaerieSynMemBasedIndex(dataset.getIndexedList(), "FaerieSynMemBasedSearch_indexT");
+		}
 		statContainer.stopWatch(Stat.Time_BuildIndex);
 		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
 	}

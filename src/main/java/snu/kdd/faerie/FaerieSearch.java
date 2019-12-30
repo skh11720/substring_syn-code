@@ -17,10 +17,13 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieSearch extends AbstractSearch {
 	
-	protected FaerieIndex index = null;
+	protected FaerieIndexInterface index = null;
+	protected final boolean isDiskBased;
 
-	public FaerieSearch(double theta) {
+	public FaerieSearch(double theta, boolean isDiskBased) {
 		super(theta);
+		this.isDiskBased = isDiskBased;
+		param.put("isDiskBased", Boolean.toString(isDiskBased));
 	}
 	
 	@Override
@@ -39,7 +42,8 @@ public class FaerieSearch extends AbstractSearch {
 	@Override
 	protected void prepareSearch( Dataset dataset ) {
 		statContainer.startWatch(Stat.Time_BuildIndex);
-		index = new FaerieIndex(dataset.getIndexedList());
+		if (isDiskBased) index = new FaerieMemBasedIndex(dataset.getIndexedList());
+		else index = new FaerieDiskBasedIndex(dataset.getIndexedList());
 		statContainer.stopWatch(Stat.Time_BuildIndex);
 		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
 	}
