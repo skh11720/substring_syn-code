@@ -15,6 +15,10 @@ PkwiseSynSearch:
   theta: *theta_list
   kmax: ['1', '2', '3']
 
+FaerieSynSearch:
+   theta: *theta_list
+   isDiskBased: ['false', 'true']
+
 ZeroPrefixSearch:
   theta: *theta_list
   filter: *filter_list
