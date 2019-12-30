@@ -241,9 +241,11 @@ public class EntryStore<E extends Serializable> {
 			}
 		}
 	
-		
-		private final void deleteAllFiles() {
-			for ( int i=0; i<fileOffset; ++i ) FileUtils.deleteQuietly(new File(path+"."+i));
+		private final void deleteAllFiles() throws IOException {
+			for ( int i=0; i<rafList.size(); ++i ) {
+				rafList.get(i).close();
+				FileUtils.forceDelete(new File(path+"."+i));
+			}
 		}
 	}
 }

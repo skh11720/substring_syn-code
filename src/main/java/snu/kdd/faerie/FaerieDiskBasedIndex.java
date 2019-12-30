@@ -27,6 +27,6 @@ public class FaerieDiskBasedIndex implements FaerieIndexInterface {
 	
 	@Override
 	public final BigInteger diskSpaceUsage() {
-		return store.diskSpaceUsage();
+		return BigInteger.valueOf(store.storeSize);
 	}
 }
