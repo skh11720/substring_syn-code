@@ -13,7 +13,7 @@ public class FaerieMemBasedIndex implements FaerieIndexInterface {
 	final ObjectList<FaerieIndexEntry> store;
 
 	public FaerieMemBasedIndex(Iterable<Record> records) {
-		this(records, "FaerieDiskBasedIndex_EntryStore");
+		this(records, "FaerieMemBasedIndex_EntryStore");
 	}
 
 	public FaerieMemBasedIndex(Iterable<Record> records, String name) {
