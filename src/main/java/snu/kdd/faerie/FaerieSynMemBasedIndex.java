@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class FaerieSynMemBasedIndex extends AbstractFaerieSynIndex {
 	
@@ -12,7 +13,7 @@ public class FaerieSynMemBasedIndex extends AbstractFaerieSynIndex {
 
 	public FaerieSynMemBasedIndex(Iterable<Record> records) {
 		super(records);
-		store = new ObjectArrayList<>(getEntryStream(records).iterator());
+		store = new ObjectArrayList<>(getEntries(Records.expands(records)).iterator());
 	}
 
 	@Override

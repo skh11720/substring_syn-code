@@ -70,6 +70,56 @@ public class Records {
 		}
 	}
 	
+	public static Iterable<Record> expands( Iterable<Record> records ) {
+		return new Iterable<Record>() {
+
+			@Override
+			public Iterator<Record> iterator() {
+				return new ExpandMultipleIterator(records);
+			}
+		};
+	}
+	
+	private static class ExpandMultipleIterator implements Iterator<Record> {
+		
+		Iterator<Record> rIter = null;
+		Record rec = null;
+		ExpandIterator eIter = null;
+
+		public ExpandMultipleIterator(Iterable<Record> records) {
+			rIter = records.iterator();
+			findNext();
+		}
+
+		@Override
+		public Record next() {
+			Record recExp = eIter.next();
+			findNext();
+			return recExp;
+		}
+		
+		protected void findNext() {
+			while ( eIter == null || !eIter.hasNext() ) {
+				if ( !rIter.hasNext() ) {
+					rIter = null;
+					eIter = null;
+					rec = null;
+					return;
+				}
+				else {
+					rec = rIter.next();
+					rec.preprocessAll();
+					eIter = new ExpandIterator(rec);
+				}
+			}
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return eIter != null && eIter.hasNext();
+		}
+	}
+	
 	public static Iterable<Record> expands( Record rec ) {
 		return new Iterable<Record>() {
 			
@@ -81,7 +131,7 @@ public class Records {
 	}
 	
 	private static class ExpandIterator implements Iterator<Record> {
-		
+
 		final State state;
 		boolean hasNext = true;
 		

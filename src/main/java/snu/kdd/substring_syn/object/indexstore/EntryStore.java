@@ -26,7 +26,7 @@ import snu.kdd.substring_syn.utils.Log;
 public class EntryStore<E extends Serializable> {
 
 	protected final long MAX_FILE_SIZE = 10L * 1024 * 1024 * 1024;
-	protected final long MAX_STORE_SIZE = 10L * 1024 * 1024 * 1024;
+	protected final long MAX_STORE_SIZE = 10L * 1024 * 1024 * 1024 * 1024;
 	private final IntList maxIdList;
 	private final LongList posList;
 	private final ObjectList<RandomAccessFile> rafList;
