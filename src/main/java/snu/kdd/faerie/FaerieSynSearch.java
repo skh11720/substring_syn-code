@@ -98,6 +98,10 @@ public class FaerieSynSearch extends FaerieSearch {
 
 	@Override
 	public String getVersion() {
-		return "1.00";
+		/*
+		 * 1.00: initial version
+		 * 1.01: fix OOM issue
+		 */
+		return "1.01";
 	}
 }

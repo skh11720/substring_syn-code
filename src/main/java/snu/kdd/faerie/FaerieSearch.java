@@ -157,8 +157,7 @@ public class FaerieSearch extends AbstractSearch {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
-		 * 1.01: fix OOM issue
 		 */
-		return "1.01";
+		return "1.00";
 	}
 }
