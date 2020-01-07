@@ -26,6 +26,7 @@ public class App {
 		argOptions.addOption("nt", true, "");
 		argOptions.addOption("nr", true, "");
 		argOptions.addOption("ql", true, "");
+		argOptions.addOption("lr", true, "");
 		argOptions.addOption("alg", true, "");
 		argOptions.addOption("param", true, "");
 	}

@@ -27,9 +27,9 @@ public class FaerieSearchTest {
 	
 	@Test
 	public void testSingleRun() {
-		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "10000", "3");
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", "1.0");
 		double theta = 0.6;
-		AbstractSearch alg1 = new FaerieSearch(theta, true);
+		AbstractSearch alg1 = new FaerieSearch(theta, false);
 		alg1.run(dataset);
 	}
 

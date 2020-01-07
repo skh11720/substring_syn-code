@@ -24,6 +24,8 @@ public abstract class Dataset {
 	public final String rulePath;
 	public final String outputPath;
 	public final StatContainer statContainer;
+	public final int size;
+	public final double lenRatio;
 
 	public Ruleset ruleSet;
 
@@ -32,39 +34,41 @@ public abstract class Dataset {
 		String size = getOptionValue(cmd, "nt");
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
+		String lenRatio = getOptionValue(cmd, "lr");
+		DatasetParam param = new DatasetParam(name, size, nr, qlen, lenRatio);
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
-			return createWindowInstanceByName(name, size, nr, qlen);
+			return createWindowInstanceByName(param);
 		if ( algName == AlgorithmName.PkwiseSynSearch ) {
-			String param = getOptionValue(cmd, "param");
-			String theta = param.split(",")[0].split(":")[1];
-			return createTransWindowInstanceByName(name, size, nr, qlen, theta);
+			String paramStr = getOptionValue(cmd, "param");
+			String theta = paramStr.split(",")[0].split(":")[1];
+			return createTransWindowInstanceByName(param, theta);
 		}
 		else
-			return createInstanceByName(name, size, nr, qlen);
+			return createInstanceByName(param);
 	}
 	
-	private static String getOptionValue( CommandLine cmd, String key ) {
+	static String getOptionValue( CommandLine cmd, String key ) {
 		String value = cmd.getOptionValue(key);
 		if ( value == null ) throw new RuntimeException("Invalid input argument: "+key+" = "+value);
 		return value;
 	}
 
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
-		return createInstanceByName(name, size, null, null);
+		return createInstanceByName(new DatasetParam(name, size, null, null, null));
 	}
 
-	public static Dataset createInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
-		DiskBasedDataset dataset = new DiskBasedDataset(datasetName, size, nr, qlen);
+	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
+		DiskBasedDataset dataset = new DiskBasedDataset(param);
 		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
 	}
 	
-	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
-		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
-		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
+	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
+		WindowDataset dataset = new WindowDataset(param);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
 		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
 		dataset.ruleSet = new Ruleset();
@@ -74,9 +78,9 @@ public abstract class Dataset {
 		return dataset;
 	}
 
-	public static TransWindowDataset createTransWindowInstanceByName( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
-		TransWindowDataset dataset = new TransWindowDataset(datasetName, size, nr, qlen, theta);
-		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
+	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
+		TransWindowDataset dataset = new TransWindowDataset(param, theta);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
 		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
@@ -87,27 +91,21 @@ public abstract class Dataset {
 		return dataset;
 	}
 
-
-	protected static String setName( String name, String size, String nr, String qlen ) {
-		StringBuilder strbld = new StringBuilder(name);
-		if ( size != null ) strbld.append("_n"+size);
-		if ( nr != null ) strbld.append("_r"+nr);
-		if ( qlen != null ) strbld.append("_q"+qlen);
-		return strbld.toString();
-	}
-	
-	protected Dataset( String datasetName, String size, String nr, String qlen ) {
-		name = setName(datasetName, size, nr, qlen);
-		searchedPath = DatasetInfo.getSearchedPath(datasetName, qlen);
-		indexedPath = DatasetInfo.getIndexedPath(datasetName, size);
-		rulePath = DatasetInfo.getRulePath(datasetName, nr);
+	protected Dataset(DatasetParam param) {
+		name = param.getDatasetName();
+		this.size = Integer.parseInt(param.size);
+		this.lenRatio = Double.parseDouble(param.lenRatio);
+		searchedPath = DatasetInfo.getSearchedPath(param.name, param.qlen);
+		indexedPath = DatasetInfo.getIndexedPath(param.name);
+		rulePath = DatasetInfo.getRulePath(param.name, param.nr);
 		outputPath = "output";
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
 		statContainer.setStat(Stat.Dataset_Name, name);
-		statContainer.setStat(Stat.Dataset_nt, size);
-		statContainer.setStat(Stat.Dataset_nr, nr);
-		statContainer.setStat(Stat.Dataset_qlen, qlen);
+		statContainer.setStat(Stat.Dataset_nt, param.size);
+		statContainer.setStat(Stat.Dataset_nr, param.nr);
+		statContainer.setStat(Stat.Dataset_qlen, param.qlen);
+		statContainer.setStat(Stat.Dataset_lr, param.lenRatio);
 	}
 	
 	protected void initTokenIndex() {
@@ -166,5 +164,19 @@ public abstract class Dataset {
 		int n = 0;
 		for ( @SuppressWarnings("unused") Record rec : recordList ) ++n;
 		return n;
+	}
+
+	protected final String getPrefixWithLengthRatio(String str) {
+		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		int eidx=0;
+		int len0 = (int)(nTokens*lenRatio);
+		int len = 0;
+		for ( ; eidx<str.length(); ++eidx ) {
+			if ( str.charAt(eidx) == ' ' ) {
+				len += 1;
+				if ( len == len0 ) break;
+			}
+		}
+		return str.substring(0, eidx);
 	}
 }

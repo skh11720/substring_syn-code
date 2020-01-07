@@ -33,8 +33,8 @@ public class buildWiki0Dataset {
 		br.close();
 		ps.close();
 
-		br = new BufferedReader(new FileReader(DatasetInfo.getIndexedPath(name, size)));
-		ps = new PrintStream(DatasetInfo.getIndexedPath("WIKI_0", "0"));
+		br = new BufferedReader(new FileReader(DatasetInfo.getIndexedPath(name)));
+		ps = new PrintStream(DatasetInfo.getIndexedPath("WIKI_0"));
 		for ( int i=0; (line = br.readLine()) != null; ++i ) {
 			if ( sidx == i ) {
 				ps.println(line);

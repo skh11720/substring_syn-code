@@ -14,10 +14,10 @@ public class InMemDataset extends Dataset {
 	private final List<Record> searchedList;
 	private final List<Record> indexedList;
 	
-	protected InMemDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
-		super(datasetName, size, nr, qlen);
-		searchedList = loadRecordList(searchedPath);
-		indexedList = loadRecordList(indexedPath);
+	protected InMemDataset(DatasetParam param) throws IOException {
+		super(param);
+		searchedList = loadSearchedRecords(searchedPath);
+		indexedList = loadIndexedRecords(indexedPath);
 	}
 	
 	@Override
@@ -35,7 +35,7 @@ public class InMemDataset extends Dataset {
 		return indexedList.get(id);
 	}
 
-	private List<Record> loadRecordList( String dataPath ) throws IOException {
+	private List<Record> loadSearchedRecords( String dataPath ) throws IOException {
 		List<Record> recordList = new ObjectArrayList<>();
 		BufferedReader br = new BufferedReader( new FileReader( dataPath ) );
 		String line;
@@ -47,4 +47,16 @@ public class InMemDataset extends Dataset {
 		return recordList;
 	}
 	
+	private List<Record> loadIndexedRecords( String dataPath ) throws IOException {
+		List<Record> recordList = new ObjectArrayList<>();
+		BufferedReader br = new BufferedReader( new FileReader( dataPath ) );
+		String line;
+		for ( int i=0; ( line = br.readLine() ) != null && i<size; ++i ) {
+			String str = getPrefixWithLengthRatio(line);
+			recordList.add( new Record( i, str ) );
+		}
+		br.close();
+		Log.log.info("loadRecordList(%s): %d records", dataPath, recordList.size());
+		return recordList;
+	}
 }

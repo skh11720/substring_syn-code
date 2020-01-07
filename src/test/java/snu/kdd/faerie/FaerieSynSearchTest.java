@@ -8,15 +8,16 @@ import org.junit.Test;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
 public class FaerieSynSearchTest {
 
 	@Test
 	public void test00SingleRun() {
-		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "1000", "3");
+		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", "0.6");
 		double theta = 0.6;
-		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
+		AbstractSearch alg1 = new FaerieSynSearch(theta, false);
 		alg1.run(dataset);
 	}
 
@@ -81,6 +82,36 @@ public class FaerieSynSearchTest {
 		alg1.run(dataset);
 		for ( String attr : new String[] {Stat.Time_Total, Stat.Time_BuildIndex, Stat.Num_Result, Stat.Num_QS_Result, Stat.Num_TS_Result}) {
 			System.out.println(attr+"\t"+alg0.getStatContainer().getStat(attr)+"\t"+alg1.getStatContainer().getStat(attr));
+		}
+	}
+	
+	@Test
+	public void test03VaryLenRatio() {
+		/*	WIKI_n10000_r3162_q3, theta=0.6, isDiskBased=false
+			0.2	10040.190	903	901	903
+			0.4	14074.271	2547	2539	2547
+			0.6	17796.640	4129	4109	4129
+			0.8	22864.813	5617	5588	5617
+			1.0	29560.680	7129	7090	7129
+
+			WIKI_n10000_r3162_q3, theta=1.0, isDiskBased=false
+			0.2	9393.085	12	12	12
+			0.4	13991.276	46	46	46
+			0.6	17891.154	89	87	89
+			0.8	22450.968	123	121	123
+			1.0	28867.628	195	193	195
+		 */
+		Log.disable();
+		for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
+			Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", lenRatio);
+			double theta = 0.6;
+			AbstractSearch alg1 = new FaerieSynSearch(theta, true);
+			alg1.run(dataset);
+			System.out.println(lenRatio
+					+"\t"+alg1.getStatContainer().getStat(Stat.Time_Total)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_Result)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_QS_Result)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_TS_Result));
 		}
 	}
 }

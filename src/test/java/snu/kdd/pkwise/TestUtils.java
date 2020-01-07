@@ -3,6 +3,7 @@ package snu.kdd.pkwise;
 import java.io.IOException;
 
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetParam;
 
 public class TestUtils {
 
@@ -11,7 +12,8 @@ public class TestUtils {
 		String size = "10000";
 		String nr = "1000";
 		String qlen = "5";
-		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
+		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, null);
+		WindowDataset dataset = new WindowDataset(param);
 		return dataset;
 	}
 
@@ -20,17 +22,20 @@ public class TestUtils {
 		String size = "10000";
 		String nr = "1000";
 		String qlen = "5";
-		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
+		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, null);
+		WindowDataset dataset = Dataset.createWindowInstanceByName(param);
 		return dataset;
 	}
 
 	public static WindowDataset getTestDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
-		WindowDataset dataset = Dataset.createWindowInstanceByName(datasetName, size, nr, qlen);
+		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, null);
+		WindowDataset dataset = Dataset.createWindowInstanceByName(param);
 		return dataset;
 	}
 
 	public static TransWindowDataset getTestDataset( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(datasetName, size, nr, qlen, theta);
+		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, null);
+		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, theta);
 		return dataset;
 	}
 }

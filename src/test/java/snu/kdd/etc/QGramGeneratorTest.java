@@ -9,6 +9,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.QGram;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
@@ -23,7 +24,8 @@ public class QGramGeneratorTest {
 		String nr = "107836";
 		String ql = "5";
 		int q = 1;
-		Dataset dataset = Dataset.createInstanceByName(name, size, nr, ql);
+		DatasetParam param = new DatasetParam(name, size, nr, ql, null);
+		Dataset dataset = Dataset.createInstanceByName(param);
 		
 		for ( int i=0; i<10; ++i ) {
 			Record rec = dataset.getRecord(i);
@@ -45,7 +47,8 @@ public class QGramGeneratorTest {
 		String nr = "1000";
 		String ql = "5";
 		int q = 3;
-		Dataset dataset = Dataset.createInstanceByName(name, size, nr, ql);
+		DatasetParam param = new DatasetParam(name, size, nr, ql, null);
+		Dataset dataset = Dataset.createInstanceByName(param);
 		
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessAll();

@@ -11,12 +11,16 @@ import java.util.NoSuchElementException;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
 public class PrefixSearchTest {
@@ -29,8 +33,7 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		test("SPROT_long", 0.7, "100", "2.00");
-//		test("WIKI_3", 0.8, "13657", "2.00");
+		test("WIKI", "100", "1000", "5", 0.7);
 	}
 	
 	@Ignore
@@ -79,8 +82,9 @@ public class PrefixSearchTest {
 		}
 	}
 
-	public void test( String name, double theta, String size, String version ) throws IOException {
-		Dataset dataset = Dataset.createInstanceByName(name, size);
+	public void test( String name, String size, String nr, String ql, double theta ) throws IOException {
+		DatasetParam param = new DatasetParam(name, size, nr, ql, null);
+		Dataset dataset = Dataset.createInstanceByName(param);
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
@@ -133,5 +137,37 @@ public class PrefixSearchTest {
 		String num_ts1 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
 		assertTrue(num_qs0.equals(num_qs1));
 		assertTrue(num_ts0.equals(num_ts1));
+	}
+
+	@Test
+	public void testVaryLenRatio() {
+		/*	
+		    WIKI_n10000_r3162_q3, theta=0.6
+		    0.2	942.045	903	901	903
+			0.4	828.984	2547	2539	2547
+			0.6	1275.105	4129	4109	4129
+			0.8	1520.456	5617	5588	5617
+			1.0	1799.332	7129	7090	7129
+
+			WIKI_n10000_r3162_q3, theta=1.0
+			0.2	561.684	12	12	12
+			0.4	691.665	46	46	46
+			0.6	928.745	89	87	89
+			0.8	936.643	123	121	123
+			1.0	1107.630	195	193	195
+
+		 */
+		Log.disable();
+		for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
+			Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", lenRatio);
+			double theta = 1.0;
+			AbstractSearch alg1 = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+			alg1.run(dataset);
+			System.out.println(lenRatio
+					+"\t"+alg1.getStatContainer().getStat(Stat.Time_Total)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_Result)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_QS_Result)
+					+"\t"+alg1.getStatContainer().getStat(Stat.Num_TS_Result));
+		}
 	}
 }

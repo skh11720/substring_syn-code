@@ -11,7 +11,8 @@ import org.apache.commons.io.FileUtils;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.AbstractDiskBasedDataset;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
@@ -20,13 +21,13 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
-public class WindowDataset extends Dataset {
+public class WindowDataset extends AbstractDiskBasedDataset {
 
 	protected RecordStore recordStore = null;
 	protected List<Record> searchedList;
 
-	public WindowDataset(String datasetName, String size, String nr, String qlen) {
-		super(datasetName, size, nr, qlen);
+	public WindowDataset(DatasetParam param) {
+		super(param);
 		Record.tokenIndex = new TokenIndex();
 		searchedList = loadRecordList(searchedPath);
 	}
@@ -53,7 +54,7 @@ public class WindowDataset extends Dataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedRecordIterator(indexedPath);
+				return new DiskBasedIndexedRecordIterator(indexedPath);
 			}
 		};
 	}
@@ -107,38 +108,9 @@ public class WindowDataset extends Dataset {
 		return recordList;
 	}
 
-	class DiskBasedRecordIterator implements Iterator<Record> {
-		
-		BufferedReader br;
-		Iterator<String> iter;
-		int i = 0;
-		
-		public DiskBasedRecordIterator( String path ) {
-			try {
-				br = new BufferedReader(new FileReader(path));
-				iter = br.lines().iterator();
-			}
-			catch ( IOException e ) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iter.hasNext();
-		}
-
-		@Override
-		public Record next() {
-			String line = iter.next();
-			return new Record(i++, line);
-		}
-	}
-	
 	class WindowIterator implements Iterator<RecordInterface> {
 
-		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
+		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator(indexedPath);
 		Record rec = null;
 		Record recNext = null;
 		int widx = -1;
@@ -183,7 +155,7 @@ public class WindowDataset extends Dataset {
 
 	class TransWindowIterator implements Iterator<RecordInterface> {
 
-		Iterator<Record> rIter = new DiskBasedRecordIterator(indexedPath);
+		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator(indexedPath);
 		Record rec = null;
 		TransLenCalculator transLen;
 		int sidx, eidx;

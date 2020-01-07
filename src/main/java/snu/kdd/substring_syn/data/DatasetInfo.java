@@ -43,10 +43,9 @@ public class DatasetInfo {
 		else return String.format(path, qlen);
 	}
 	
-	public static String getIndexedPath( String name, String size ) {
+	public static String getIndexedPath( String name ) {
 		String path = map.get(name).indexedPath;
-		if ( size == null ) return path;
-		else return String.format(path, size);
+		return path;
 	}
 	
 	public static String getRulePath( String name, String nr ) {
