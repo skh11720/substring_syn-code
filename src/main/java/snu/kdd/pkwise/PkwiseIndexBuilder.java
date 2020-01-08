@@ -207,11 +207,11 @@ public class PkwiseIndexBuilder {
 				int l = siggen.getPrefixLength(x1, maxDiff);
 				prefix1 = new IntArrayList( x1.getTokenList().stream().sorted().limit(l).iterator() );
 				sig1 = siggen.genSignature(prefix1, indexing);
-				if ( x1.getID() == 7324 && x1.size() == 2 ) {
-					Log.log.trace("First window");
-					Log.log.trace("prefix1=%s", prefix1);
-					Log.log.trace("sig1=%s", sig1);
-				}
+//				if ( x1.getID() == 7324 && x1.size() == 2 ) {
+//					Log.log.trace("First window");
+//					Log.log.trace("prefix1=%s", prefix1);
+//					Log.log.trace("sig1=%s", sig1);
+//				}
 				for ( int token : sig1 ) {
 					openInterval(token, x1);
 				}
@@ -234,11 +234,11 @@ public class PkwiseIndexBuilder {
 //				System.out.println("sig1="+sig1);
 //				System.out.println("cov1="+cov1);
 //				System.out.println("sig1.size="+sig1.size()+"\tcov="+cov+"\tmaxDiff="+maxDiff);
-				if ( x1.getID() == 7324 && x1.size() == 2 ) {
-					Log.log.trace("Intermediate window");
-					Log.log.trace("prefix1=%s", prefix1);
-					Log.log.trace("sig1=%s", sig1);
-				}
+//				if ( x1.getID() == 7324 && x1.size() == 2 ) {
+//					Log.log.trace("Intermediate window");
+//					Log.log.trace("prefix1=%s", prefix1);
+//					Log.log.trace("sig1=%s", sig1);
+//				}
 				
 				if ( siggen.getCov(prefix, t1) < maxDiff ) {
 //					Log.log.trace("case1");
@@ -249,11 +249,11 @@ public class PkwiseIndexBuilder {
 						if ( t1 != t2 ) {
 //							Log.log.trace("case1.1.1");
 							openAndCloseIntervals(sig, sig1, x1);
-							if ( x1.getID() == 7324 && x1.size() == 2 ) {
-								Log.log.trace("case1.1.1");
-								Log.log.trace("prefix1=%s", prefix1);
-								Log.log.trace("sig1=%s", sig1);
-							}
+//							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+//								Log.log.trace("case1.1.1");
+//								Log.log.trace("prefix1=%s", prefix1);
+//								Log.log.trace("sig1=%s", sig1);
+//							}
 						}
 					}
 					else {
@@ -263,11 +263,11 @@ public class PkwiseIndexBuilder {
 						if ( diffPrefix.size() != 1 || diffPrefix.getInt(0) != t1 ) {
 //							Log.log.trace("case1.2.1");
 							openAndCloseIntervals(sig, sig1, x1);
-							if ( x1.getID() == 7324 && x1.size() == 2 ) {
-								Log.log.trace("case1.2.1");
-								Log.log.trace("prefix1=%s", prefix1);
-								Log.log.trace("sig1=%s", sig1);
-							}
+//							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+//								Log.log.trace("case1.2.1");
+//								Log.log.trace("prefix1=%s", prefix1);
+//								Log.log.trace("sig1=%s", sig1);
+//							}
 						}
 					}
 					
@@ -282,11 +282,11 @@ public class PkwiseIndexBuilder {
 						if ( diffPrefix.size() != 1 || diffPrefix.getInt(0) != t2 ) {
 //							Log.log.trace("case2.1.1");
 							openAndCloseIntervals(sig, sig1, x1);
-							if ( x1.getID() == 7324 && x1.size() == 2 ) {
-								Log.log.trace("case2.1.1");
-								Log.log.trace("prefix1=%s", prefix1);
-								Log.log.trace("sig1=%s", sig1);
-							}
+//							if ( x1.getID() == 7324 && x1.size() == 2 ) {
+//								Log.log.trace("case2.1.1");
+//								Log.log.trace("prefix1=%s", prefix1);
+//								Log.log.trace("sig1=%s", sig1);
+//							}
 						}
 					}
 				}

@@ -34,13 +34,13 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	@Override
 	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
-//		if ( query.getID() != 16 ) return;
+//		if ( query.getID() != 66 ) return;
 		statContainer.startWatch(Stat.Time_Preprocess);
 		prepareSearchGivenQuery(query);
 		statContainer.stopWatch(Stat.Time_Preprocess);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		for ( Record queryExp : Records.expands(query) ) {
-			Log.log.trace("queryExp=%s\t%s", queryExp, queryExp.toOriginalString());
+//			Log.log.trace("queryExp=%s\t%s", ()->queryExp, ()->queryExp.toOriginalString());
 			pkwiseSearchQuerySide(queryExp, dataset);
 		}
 		statContainer.stopWatch(Stat.Time_QS_Total);
@@ -63,7 +63,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
-//			if ( window.getID() != 6116 ) continue;
+//			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
 			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
 			window.getSuperRecord().preprocessAll();
@@ -74,21 +74,20 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	@Override
 	protected Iterable<RecordInterface> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-//		return dataset.getWindowList(wMin, wMax);
 		return index.getCandWindowQuerySide(query);
 	}
 	
 	protected Iterable<RecordInterface> getCandWindowListTextSide(Record query, WindowDataset dataset ) {
-//		return dataset.getTransWindowList(qlen, theta);
 		return index.getCandWindowTextSide(query);
 	}
 
 	protected final void searchWindowTextSide(Record query, RecordInterface window) {
-//		Log.log.trace("searchWindowTextSide: query=%s\t%s", query, query.toOriginalString());
-//		Log.log.trace("searchWindowTextSide: window=%s\t%s", window, window.toOriginalString());
+//		Log.log.trace("searchWindowTextSide: query=%s\t%s", ()->query, ()->query.toOriginalString());
+//		Log.log.trace("searchWindowTextSide: window=%s\t%s", ()->window, ()->window.toOriginalString());
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		statContainer.addCount(Stat.Num_TS_Verified, 1);
 		double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
+//		Log.log.trace("sim=%f", ()->sim);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
 			rsltTextSide.add(new IntPair(query.getID(), window.getID()));
