@@ -22,7 +22,7 @@ public class TestDatasetManager {
 		return getAllDatasets(size, nr);
 	}
 
-	public static final Iterable<Dataset> getAllDatasets( String size, String nr ) {
+	public static final Iterable<Dataset> getAllDatasets( int datasetType, String size, String nr, String lenRatio, String theta ) {
 		String[] datasetNameList = {"WIKI", "PUBMED", "AMAZON"};
 		String[] qlenList = {"1", "3", "5"};
 		return new Iterable<Dataset>() {
@@ -36,7 +36,7 @@ public class TestDatasetManager {
 					
 					@Override
 					public Dataset next() {
-						DatasetKey key = new DatasetKey(0, datasetNameList[didx], size, nr, qlenList[qidx], "1.0", "0");
+						DatasetKey key = new DatasetKey(datasetType, datasetNameList[didx], size, nr, qlenList[qidx], lenRatio, theta);
 						didx += 1;
 						if ( didx >= datasetNameList.length ) {
 							didx = 0;
@@ -54,6 +54,10 @@ public class TestDatasetManager {
 		};
 	}
 
+	public static final Iterable<Dataset> getAllDatasets( String size, String nr ) {
+		return getAllDatasets(0, size, nr, "1.0", "0");
+	}
+
 	public static final Dataset getDataset( String datasetName, String size, String nr, String qlen, String lenRatio ) {
 		DatasetKey key = new DatasetKey(0, datasetName, size, nr, qlen, lenRatio, "0");
 		return manager.getDataset(key);
@@ -69,8 +73,8 @@ public class TestDatasetManager {
 		return (WindowDataset) manager.getDataset(key);
 	}
 
-	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String theta ) {
-		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, "1.0", theta);
+	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, String theta ) {
+		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, lenRatio, theta);
 		return (TransWindowDataset) manager.getDataset(key);
 	}
 	

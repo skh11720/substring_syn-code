@@ -1,5 +1,7 @@
 package snu.kdd.pkwise;
 
+import org.apache.logging.log4j.Level;
+
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
@@ -22,7 +24,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		statContainer.startWatch(Stat.Time_BuildIndex);
         index = new PkwiseSynIndex(this, ((TransWindowDataset)dataset), qlen, theta);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
-        index.writeToFile(sigMap);
+		if ( Log.log.getLevel().isLessSpecificThan(Level.INFO)) index.writeToFile(sigMap);
 	}
 
 	@Override

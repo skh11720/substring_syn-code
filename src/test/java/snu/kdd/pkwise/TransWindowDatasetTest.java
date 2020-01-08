@@ -18,7 +18,7 @@ public class TransWindowDatasetTest {
 	
 	@Test
 	public void test001_QgramRecordIterator() throws IOException {
-		TransWindowDataset dataset = TestUtils.getTestDataset("WIKI", "10000", "1000", "5", "0.6");
+		TransWindowDataset dataset = TestUtils.getTestTransWindowDataset("WIKI", "10000", "1000", "5", "1.0", "0.6");
 		Iterator<IntQGram> iter = dataset.getIntQGramIterator(5);
 		while ( iter.hasNext() ) {
 			iter.next();

@@ -1,9 +1,13 @@
 package snu.kdd.faerie;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.PrintStream;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
@@ -11,6 +15,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FaerieSynSearchTest {
 
 	@Test
@@ -55,7 +60,9 @@ public class FaerieSynSearchTest {
 				for ( String attr : attrs ) {
 					int val0 = Integer.parseInt(alg0.getStatContainer().getStat(attr));
 					int val1 = Integer.parseInt(alg1.getStatContainer().getStat(attr));
-//					assertEquals(val0, val1);
+					if ( attr.equals(Stat.Num_Result) ) assertEquals(val0, val1);
+					else if ( attr.equals(Stat.Num_QS_Result) ) assertEquals(val0, val1);
+					else if ( attr.equals(Stat.Num_TS_Result) ) assertEquals(val0, val1);
 					strbld.append(dataset.name+"\t"+attr+"\t"+val0+"\t"+val1+"\t");
 					if ( attr.equals(Stat.Num_Result) ) strbld.append((val0 == val1)+"\n");
 					else strbld.append("\n");
