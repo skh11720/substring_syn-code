@@ -8,7 +8,7 @@ import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.data.record.Record;
 
-public class DiskBasedDataset extends AbstractDiskBasedDataset {
+public class DiskBasedDataset extends Dataset {
 	
 	final RecordStore store;
 	
@@ -30,7 +30,7 @@ public class DiskBasedDataset extends AbstractDiskBasedDataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedSearchedRecordIterator(searchedPath);
+				return new DiskBasedSearchedRecordIterator();
 			}
 		};
 	}
@@ -41,7 +41,7 @@ public class DiskBasedDataset extends AbstractDiskBasedDataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedIndexedRecordIterator(indexedPath);
+				return new DiskBasedIndexedRecordIterator();
 			}
 		};
 	}

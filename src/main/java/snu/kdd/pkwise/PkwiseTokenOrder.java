@@ -1,8 +1,5 @@
 package snu.kdd.pkwise;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -43,20 +40,12 @@ public class PkwiseTokenOrder {
 			}
 		}
 
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(dataset.rulePath));
-			br.lines().forEach(line -> {
-				String[][] rstr = Rule.tokenize(line);
-				for ( String token : rstr[1] ) {
-					int tokenIdx = Record.tokenIndex.getIDOrAdd(token);
-					counter.addTo(tokenIdx, 1);
-				}
-			});
-			br.close();
-		}
-		catch ( IOException e ) {
-			e.printStackTrace();
-			System.exit(1);
+		for ( String line : dataset.getRuleStrings() ) {
+			String[][] rstr = Rule.tokenize(line);
+			for ( String token : rstr[1] ) {
+				int tokenIdx = Record.tokenIndex.getIDOrAdd(token);
+				counter.addTo(tokenIdx, 1);
+			}
 		}
 		return counter;
 	}

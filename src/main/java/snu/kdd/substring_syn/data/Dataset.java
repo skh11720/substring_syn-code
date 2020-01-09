@@ -1,6 +1,9 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +16,7 @@ import snu.kdd.pkwise.TransWindowDataset;
 import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -69,9 +73,8 @@ public abstract class Dataset {
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		WindowDataset dataset = new WindowDataset(param);
 		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
-		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
-		dataset.ruleSet = new Ruleset();
+		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 //		dataset.ruleSet.writeToFile();
@@ -81,7 +84,6 @@ public abstract class Dataset {
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		TransWindowDataset dataset = new TransWindowDataset(param, theta);
 		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
-		dataset.loadRecordList(dataset.searchedPath);
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
 		dataset.buildIntQGramStore();
@@ -92,6 +94,7 @@ public abstract class Dataset {
 	}
 
 	protected Dataset(DatasetParam param) {
+		Log.log.trace("Dataset.constructor");
 		name = param.getDatasetName();
 		this.size = Integer.parseInt(param.size);
 		this.lenRatio = Double.parseDouble(param.lenRatio);
@@ -109,10 +112,12 @@ public abstract class Dataset {
 	}
 	
 	protected void initTokenIndex() {
+		Log.log.trace("Dataset.initTokenIndex()");
 		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();
 		statContainer.stopWatch("Time_TokenOrder");
+		Log.log.trace("Dataset.initTokenIndex() finished");
 	}
 	
 	protected void createRuleSet() {
@@ -140,12 +145,6 @@ public abstract class Dataset {
 //		catch ( Exception e ) {}
 	}
 	
-	public abstract Iterable<Record> getSearchedList();
-
-	public abstract Iterable<Record> getIndexedList();
-	
-	public abstract Record getRecord(int id);
-
 	protected Iterable<Integer> getDistinctTokens() {
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : getSearchedList() ) tokenSet.addAll( rec.getTokens() );
@@ -178,5 +177,132 @@ public abstract class Dataset {
 			}
 		}
 		return str.substring(0, eidx);
+	}
+
+	public abstract Record getRecord(int id);
+
+	public abstract Iterable<Record> getSearchedList();
+
+	public abstract Iterable<Record> getIndexedList();
+	
+	public final Iterable<String> getIndexedStringsFromFile() {
+		return new Iterable<String>() {
+			
+			@Override
+			public Iterator<String> iterator() {
+				return new DiskBasedIndexedStringIterator();
+			}
+		};
+	}
+	
+	public final Iterable<Rule> getRules() {
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new DiskBasedRuleIterator();
+			}
+		};
+	}
+
+	public final Iterable<String> getRuleStrings() {
+		return new Iterable<String>() {
+			
+			@Override
+			public Iterator<String> iterator() {
+				return new DiskBasedRuleStringIterator();
+			}
+		};
+	}
+
+	protected abstract class AbstractDiskBasedIterator<T> implements Iterator<T> {
+		
+		BufferedReader br;
+		Iterator<String> iter;
+		int i = 0;
+		
+		public AbstractDiskBasedIterator(String path) {
+			try {
+				br = new BufferedReader(new FileReader(path));
+				iter = br.lines().iterator();
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+	}
+	
+	public abstract class AbstractDiskBasedIndexedDataIterator<T> extends AbstractDiskBasedIterator<T> {
+		
+		public AbstractDiskBasedIndexedDataIterator() {
+			super(indexedPath);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return i < size && iter.hasNext();
+		}
+	}
+	
+	public final class DiskBasedSearchedRecordIterator extends AbstractDiskBasedIterator<Record> {
+
+		public DiskBasedSearchedRecordIterator() {
+			super(searchedPath);
+		}
+
+		@Override
+		public Record next() {
+			String line = iter.next();
+			return new Record(i++, line);
+		}
+	}
+
+	public final class DiskBasedIndexedStringIterator extends AbstractDiskBasedIndexedDataIterator<String> {
+
+		@Override
+		public String next() {
+			i += 1;
+			return getPrefixWithLengthRatio(iter.next());
+		}
+	}
+
+	public final class DiskBasedIndexedRecordIterator extends AbstractDiskBasedIndexedDataIterator<Record> {
+
+		@Override
+		public Record next() {
+			String line = getPrefixWithLengthRatio(iter.next());
+			return new Record(i++, line);
+		}
+	}
+
+	public final class DiskBasedRuleIterator extends AbstractDiskBasedIterator<Rule> {
+		
+		public DiskBasedRuleIterator() {
+			super(rulePath);
+		}
+
+		@Override
+		public Rule next() {
+			return Rule.createRule(iter.next());
+		}
+
+	}
+
+	public final class DiskBasedRuleStringIterator extends AbstractDiskBasedIterator<String> {
+
+		public DiskBasedRuleStringIterator() {
+			super(rulePath);
+		}
+
+		@Override
+		public String next() {
+			return iter.next();
+		}
 	}
 }

@@ -1,39 +1,30 @@
 package snu.kdd.pkwise;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.data.AbstractDiskBasedDataset;
+import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
-public class WindowDataset extends AbstractDiskBasedDataset {
+public class WindowDataset extends Dataset {
 
 	protected RecordStore recordStore = null;
-	protected List<Record> searchedList;
 
 	public WindowDataset(DatasetParam param) {
 		super(param);
 		Record.tokenIndex = new TokenIndex();
-		searchedList = loadRecordList(searchedPath);
 	}
 	
 	public final void buildRecordStore() {
-		searchedList = loadRecordList(searchedPath);
 		recordStore = new RecordStore(getIndexedList());
 	}
 	
@@ -45,7 +36,13 @@ public class WindowDataset extends AbstractDiskBasedDataset {
 
 	@Override
 	public Iterable<Record> getSearchedList() {
-		return searchedList;
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new DiskBasedSearchedRecordIterator();
+			}
+		};
 	}
 
 	@Override
@@ -54,7 +51,7 @@ public class WindowDataset extends AbstractDiskBasedDataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedIndexedRecordIterator(indexedPath);
+				return new DiskBasedIndexedRecordIterator();
 			}
 		};
 	}
@@ -90,27 +87,9 @@ public class WindowDataset extends AbstractDiskBasedDataset {
 		return recordStore.getRecord(id);
 	}
 
-	public List<Record> loadRecordList( String dataPath ) {
-		List<Record> recordList = new ObjectArrayList<>();
-		try {
-			BufferedReader br = new BufferedReader( new FileReader( dataPath ) );
-			String line;
-			for ( int i=0; ( line = br.readLine() ) != null; ++i ) {
-				recordList.add( new Record( i, line ) );
-			}
-			br.close();
-		}
-		catch ( IOException e ) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		Log.log.info("loadRecordList(%s): %d records", dataPath, recordList.size());
-		return recordList;
-	}
-
 	class WindowIterator implements Iterator<RecordInterface> {
 
-		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator(indexedPath);
+		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator();
 		Record rec = null;
 		Record recNext = null;
 		int widx = -1;
@@ -155,7 +134,7 @@ public class WindowDataset extends AbstractDiskBasedDataset {
 
 	class TransWindowIterator implements Iterator<RecordInterface> {
 
-		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator(indexedPath);
+		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator();
 		Record rec = null;
 		TransLenCalculator transLen;
 		int sidx, eidx;
