@@ -160,6 +160,10 @@ public abstract class AbstractSearch {
 		return statContainer;
 	}
 	
+	public final String getStat(String key) {
+		return statContainer.getStat(key);
+	}
+	
 	public String getOutputName( Dataset dataset ) {
 		return String.join( "_", getName(), getVersion(), String.format("%.2f", theta), dataset.name);
 	}

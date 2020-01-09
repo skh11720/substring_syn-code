@@ -1,8 +1,6 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -14,8 +12,8 @@ public class DiskBasedDataset extends Dataset {
 	
 	final RecordStore store;
 	
-	protected DiskBasedDataset( String datasetName, String size, String nr, String qlen ) throws IOException {
-		super(datasetName, size, nr, qlen);
+	protected DiskBasedDataset(DatasetParam param) throws IOException {
+		super(param);
 		initTokenIndex();
 		store = new RecordStore(getIndexedList());
 	}
@@ -32,7 +30,7 @@ public class DiskBasedDataset extends Dataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedRecordIterator(searchedPath);
+				return new DiskBasedSearchedRecordIterator();
 			}
 		};
 	}
@@ -43,7 +41,7 @@ public class DiskBasedDataset extends Dataset {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new DiskBasedRecordIterator(indexedPath);
+				return new DiskBasedIndexedRecordIterator();
 			}
 		};
 	}
@@ -55,35 +53,5 @@ public class DiskBasedDataset extends Dataset {
 	
 	public Iterable<Record> getRecords() {
 		return store.getRecords();
-	}
-	
-	class DiskBasedRecordIterator implements Iterator<Record> {
-		
-		BufferedReader br;
-		Iterator<String> iter;
-		int i = 0;
-		
-		public DiskBasedRecordIterator( String path ) {
-			try {
-				br = new BufferedReader(new FileReader(path));
-				iter = br.lines().iterator();
-			}
-			catch ( IOException e ) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iter.hasNext();
-		}
-
-		@Override
-		public Record next() {
-			String line = iter.next();
-			return new Record(i++, line);
-		}
-		
 	}
 }

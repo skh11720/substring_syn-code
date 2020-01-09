@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntQGram;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -17,7 +18,7 @@ public class TransWindowDatasetTest {
 	
 	@Test
 	public void test001_QgramRecordIterator() throws IOException {
-		TransWindowDataset dataset = TestUtils.getTestDataset("WIKI", "10000", "1000", "5", "0.6");
+		TransWindowDataset dataset = TestUtils.getTestTransWindowDataset("WIKI", "10000", "1000", "5", "1.0", "0.6");
 		Iterator<IntQGram> iter = dataset.getIntQGramIterator(5);
 		while ( iter.hasNext() ) {
 			iter.next();
@@ -28,12 +29,14 @@ public class TransWindowDatasetTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void test002_Construction() throws IOException {
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName("WIKI", "10000", "1000", "5", "0.6");
+		DatasetParam param = new DatasetParam("WIKI", "10000", "1000", "5", null);
+		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, "0.6");
 	}
 	
 	@Test
 	public void test003_getIQGram() throws IOException {
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName("WIKI", "10000", "1000", "5", "0.6");
+		DatasetParam param = new DatasetParam("WIKI", "10000", "1000", "5", null);
+		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, "0.6");
 		Iterator<IntQGram> iter = dataset.getIntQGramsIterable().iterator();
 		for ( int i=0; iter.hasNext() && i < 20; ++i ) {
 			IntQGram iqgram0 = iter.next();

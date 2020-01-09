@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn;
+package snu.kdd.etc;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;

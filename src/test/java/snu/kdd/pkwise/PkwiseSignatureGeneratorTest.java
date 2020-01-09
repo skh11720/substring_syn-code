@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -14,9 +13,8 @@ public class PkwiseSignatureGeneratorTest {
 	@Test
 	public void visualize() throws IOException {
 		double theta = 0.6;
-		int qlen = 5;
 		int kmax = 3;
-		WindowDataset dataset = TestUtils.getTestDataset();
+		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		KwiseSignatureMap sigMap = new KwiseSignatureMap();
 		TokenPartitioner partitioner = new TokenPartitioner(kmax);
 		PkwiseSignatureGenerator pksiggen = new PkwiseSignatureGenerator(partitioner, sigMap, kmax);
@@ -33,5 +31,4 @@ public class PkwiseSignatureGeneratorTest {
 		
 		System.out.println(sigMap);
 	}
-
 }

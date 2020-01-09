@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Util;
 
 public class IntQGramStore {
 
@@ -90,6 +91,10 @@ public class IntQGramStore {
 		return posList.size();
 	}
 	
+	public final BigInteger diskSpaceUsage() {
+		return Util.getSpaceUsage(path);
+	}
+
 	class IntQGramIterator implements Iterator<Record> {
 		
 		int i = 0;

@@ -1,10 +1,8 @@
 package snu.kdd.faerie;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieNaiveSearch extends AbstractSearch {

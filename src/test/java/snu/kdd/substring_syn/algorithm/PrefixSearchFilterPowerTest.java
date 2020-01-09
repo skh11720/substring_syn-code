@@ -15,12 +15,13 @@ import org.junit.runners.Parameterized.Parameters;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
+import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOption;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
-import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ZeroPositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.ZeroPrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetParam;
 
 @RunWith(Parameterized.class)
 public class PrefixSearchFilterPowerTest {
@@ -101,7 +102,8 @@ public class PrefixSearchFilterPowerTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName(param.name, param.size, param.nr, param.ql);
+		DatasetParam dParam = new DatasetParam(param.name, param.size, param.nr, param.ql, null);
+		Dataset dataset = Dataset.createInstanceByName(dParam);
 		
 		AbstractSearch prefixSearch = null;
 		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new ZeroPositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);

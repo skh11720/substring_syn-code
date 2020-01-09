@@ -8,20 +8,21 @@ import java.util.Iterator;
 
 import org.xerial.snappy.Snappy;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class RecordStore {
 
 	public static final String path = "./tmp/RecordStore";
-	private final IntList posList;
+	private final LongList posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
 	
 	
 	public RecordStore( Iterable<Record> recordList ) {
-		posList = new IntArrayList();
+//		Log.log.trace("RecordStore.constructor");
+		posList = new LongArrayList();
 		try {
 			materializeRecords(recordList);
 			raf = new RandomAccessFile(path, "r");
@@ -33,9 +34,10 @@ public class RecordStore {
 	}
 	
 	private void materializeRecords( Iterable<Record> recordList ) throws IOException {
-		int cur = 0;
+		long cur = 0;
 		FileOutputStream fos = new FileOutputStream(path);
 		for ( Record rec : recordList ) {
+//			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, cur=%d", rec.getID(), cur);
 			posList.add(cur);
 			byte[] b = Snappy.compress(rec.getTokenArray());
 			cur += b.length;
@@ -47,7 +49,7 @@ public class RecordStore {
 	
 	private byte[] setBuffer() {
 		int bufSize = 0;
-		for ( int i=0; i<posList.size()-1; ++i ) bufSize = Math.max(bufSize, posList.get(i+1)-posList.get(i));
+		for ( int i=0; i<posList.size()-1; ++i ) bufSize = Math.max(bufSize, (int)(posList.get(i+1)-posList.get(i)));
 		return new byte[bufSize];
 	}
 	
@@ -62,7 +64,7 @@ public class RecordStore {
 	}
 	
 	public Record tryGetRecord( int id ) throws IOException {
-		int len = posList.get(id+1) - posList.get(id);
+		int len = (int)(posList.get(id+1) - posList.get(id));
 		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);
 		int[] tokens = Snappy.uncompressIntArray(buffer, 0, len);
@@ -101,7 +103,7 @@ public class RecordStore {
 
 		@Override
 		public Record next() {
-			int len = posList.get(i+1) - posList.get(i);
+			int len = (int)(posList.get(i+1) - posList.get(i));
 			int[] tokens = null;
 			try {
 				fis.read(buffer, 0, len);

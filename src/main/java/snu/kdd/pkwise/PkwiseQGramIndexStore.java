@@ -9,6 +9,7 @@ import snu.kdd.substring_syn.data.record.Record;
 public class PkwiseQGramIndexStore {
 
 	final IndexStoreAccessor invListAccessor;
+	public final long storeSize;
 	
 	public PkwiseQGramIndexStore( Iterable<Record> recordList, double theta, PkwiseSignatureGenerator siggen, String storeName ) {
 		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE, theta, siggen, storeName);
@@ -18,6 +19,7 @@ public class PkwiseQGramIndexStore {
 		PkwiseQGramIndexStoreBuilder builder = new PkwiseQGramIndexStoreBuilder(recordList, theta, siggen, storeName);
 		builder.setInMemMaxSize(mem);
 		invListAccessor = builder.buildInvList();
+		storeSize = builder.diskSpaceUsage();
 	}
 
 	public IntList getInvList( int token ) {

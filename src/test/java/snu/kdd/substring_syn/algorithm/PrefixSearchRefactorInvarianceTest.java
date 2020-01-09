@@ -1,4 +1,4 @@
-package snu.kdd.substring_syn;
+package snu.kdd.substring_syn.algorithm;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
+import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Stat;

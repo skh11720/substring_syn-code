@@ -19,6 +19,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.object.indexstore.EntryStore;
 import snu.kdd.substring_syn.object.indexstore.IndexStore;
+import snu.kdd.substring_syn.utils.Util;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IndexStoreTest {
@@ -44,10 +45,12 @@ public class IndexStoreTest {
 	@Test
 	public void test01DataStoreEfficiencyComparedToWithSnappy() {
 		/*
-		DataEntryStore.construct: 26611.7664
-		DataEntryStore.search: 2377.2701
-		DataEntryStore.construct: 26986.5987
-		DataEntryStore.search: 2516.4783
+		DataEntryStore.construct: 25068.2559
+		DataEntryStore.search: 2247.5299
+		DataEntryStore.space: 273270053
+		DataEntryStore.construct: 24851.6156
+		DataEntryStore.search: 2072.4801
+		DataEntryStore.space: 272546997
 		*/
 		int n = 100000;
 		long ts;
@@ -57,6 +60,7 @@ public class IndexStoreTest {
 		ts = System.nanoTime();
 		randomSearchTest(store0, n);
 		System.out.println("DataEntryStore.search: "+(System.nanoTime()-ts)/1e6);
+		System.out.println("DataEntryStore.space: "+store0.storeSize);
 
 		ts = System.nanoTime();
 		DataEntryStore store1 = new DataEntryStoreWithSnappy(DataEntry.genDataEntries(n, 1000, 1000));
@@ -64,6 +68,7 @@ public class IndexStoreTest {
 		ts = System.nanoTime();
 		randomSearchTest(store1, n);
 		System.out.println("DataEntryStore.search: "+(System.nanoTime()-ts)/1e6);
+		System.out.println("DataEntryStore.space: "+store1.storeSize);
 	}
 	
 	@Test

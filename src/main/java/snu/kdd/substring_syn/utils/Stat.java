@@ -21,6 +21,7 @@ public class Stat {
 	public static final String Dataset_nt= "Dataset_nt";
 	public static final String Dataset_nr= "Dataset_nr";
 	public static final String Dataset_qlen = "Dataset_qlen";
+	public static final String Dataset_lr = "Dataset_lr";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
 	public static final String Dataset_numRule= "Dataset_numRule";
@@ -66,7 +67,7 @@ public class Stat {
 	
 	public static final String Mem_Before_Index = "Mem_Before_Index";
 	public static final String Mem_After_Index = "Mem_After_Index";
-	public static final String SpaceUsage_Index = "SpaceUsage_Index";
+	public static final String Space_Index = "Space_Index";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

@@ -20,6 +20,11 @@ public class PkwiseSearch extends PkwiseNaiveSearch {
 	
 	public final PkwiseSignatureGenerator getSiggen() { return siggen; }
 
+	public final String tok2str(int token) {
+		if ( token <= Record.tokenIndex.getMaxID() ) return Record.tokenIndex.getToken(token);
+		else return sigMap.get(token).toOriginalString();
+	}
+
 	@Override
 	protected void prepareSearch(Dataset dataset) {
 		super.prepareSearch(dataset);

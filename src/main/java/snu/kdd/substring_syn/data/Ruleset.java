@@ -1,7 +1,5 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -18,7 +16,7 @@ public class Ruleset {
 	public Ruleset( Dataset dataset ) {
 		this.ruleList = new ObjectArrayList<>();
 		createSelfRules(dataset.getDistinctTokens());
-		loadRulesFromFile(dataset.rulePath);
+		loadRulesFromDataset(dataset);
 		Log.log.info("Ruleset created: %d rules", size());
 	}
 	
@@ -27,19 +25,8 @@ public class Ruleset {
 			ruleList.add( Rule.createRule(token, token) );
 	}
 
-	private void loadRulesFromFile( String path ) {
-		try {
-			BufferedReader br = new BufferedReader( new FileReader( path ) );
-			String line;
-			while( ( line = br.readLine() ) != null ) {
-				this.ruleList.add( Rule.createRule(line) );
-			}
-			br.close();
-		}
-		catch ( IOException e ) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+	private void loadRulesFromDataset(Dataset dataset) {
+		for ( Rule rule : dataset.getRules() ) ruleList.add(rule);
 	}
 
 	public Iterable<Rule> get() {

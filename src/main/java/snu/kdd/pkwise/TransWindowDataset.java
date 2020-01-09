@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntQGram;
 import snu.kdd.substring_syn.data.IntQGramStore;
 import snu.kdd.substring_syn.data.QGram;
@@ -19,9 +20,9 @@ public class TransWindowDataset extends WindowDataset {
 	final int qlen;
 	final double theta;
 
-	public TransWindowDataset(String datasetName, String size, String nr, String qlen, String theta ) {
-		super(datasetName, size, nr, qlen);
-		this.qlen = Integer.parseInt(qlen);
+	public TransWindowDataset(DatasetParam param, String theta) {
+		super(param);
+		this.qlen = Integer.parseInt(param.qlen);
 		this.theta = Double.parseDouble(theta);
 	}
 

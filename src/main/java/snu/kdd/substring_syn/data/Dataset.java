@@ -1,6 +1,9 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +16,7 @@ import snu.kdd.pkwise.TransWindowDataset;
 import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -24,6 +28,8 @@ public abstract class Dataset {
 	public final String rulePath;
 	public final String outputPath;
 	public final StatContainer statContainer;
+	public final int size;
+	public final double lenRatio;
 
 	public Ruleset ruleSet;
 
@@ -32,52 +38,52 @@ public abstract class Dataset {
 		String size = getOptionValue(cmd, "nt");
 		String nr = getOptionValue(cmd, "nr");
 		String qlen = getOptionValue(cmd, "ql");
+		String lenRatio = getOptionValue(cmd, "lr");
+		DatasetParam param = new DatasetParam(name, size, nr, qlen, lenRatio);
 		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
-			return createWindowInstanceByName(name, size, nr, qlen);
+			return createWindowInstanceByName(param);
 		if ( algName == AlgorithmName.PkwiseSynSearch ) {
-			String param = getOptionValue(cmd, "param");
-			String theta = param.split(",")[0].split(":")[1];
-			return createTransWindowInstanceByName(name, size, nr, qlen, theta);
+			String paramStr = getOptionValue(cmd, "param");
+			String theta = paramStr.split(",")[0].split(":")[1];
+			return createTransWindowInstanceByName(param, theta);
 		}
 		else
-			return createInstanceByName(name, size, nr, qlen);
+			return createInstanceByName(param);
 	}
 	
-	private static String getOptionValue( CommandLine cmd, String key ) {
+	static String getOptionValue( CommandLine cmd, String key ) {
 		String value = cmd.getOptionValue(key);
 		if ( value == null ) throw new RuntimeException("Invalid input argument: "+key+" = "+value);
 		return value;
 	}
 
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
-		return createInstanceByName(name, size, null, null);
+		return createInstanceByName(new DatasetParam(name, size, null, null, null));
 	}
 
-	public static Dataset createInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
-		DiskBasedDataset dataset = new DiskBasedDataset(datasetName, size, nr, qlen);
+	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
+		DiskBasedDataset dataset = new DiskBasedDataset(param);
 		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
 	}
 	
-	public static WindowDataset createWindowInstanceByName( String datasetName, String size, String nr, String qlen ) throws IOException {
-		WindowDataset dataset = new WindowDataset(datasetName, size, nr, qlen);
-		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
-		dataset.loadRecordList(dataset.searchedPath);
+	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
+		WindowDataset dataset = new WindowDataset(param);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
 		dataset.buildRecordStore();
-		dataset.ruleSet = new Ruleset();
+		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 //		dataset.ruleSet.writeToFile();
 		return dataset;
 	}
 
-	public static TransWindowDataset createTransWindowInstanceByName( String datasetName, String size, String nr, String qlen, String theta ) throws IOException {
-		TransWindowDataset dataset = new TransWindowDataset(datasetName, size, nr, qlen, theta);
-		PkwiseTokenOrder.run(dataset, Integer.parseInt(qlen));
-		dataset.loadRecordList(dataset.searchedPath);
+	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
+		TransWindowDataset dataset = new TransWindowDataset(param, theta);
+		PkwiseTokenOrder.run(dataset, Integer.parseInt(param.qlen));
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
 		dataset.buildIntQGramStore();
@@ -87,34 +93,31 @@ public abstract class Dataset {
 		return dataset;
 	}
 
-
-	protected static String setName( String name, String size, String nr, String qlen ) {
-		StringBuilder strbld = new StringBuilder(name);
-		if ( size != null ) strbld.append("_n"+size);
-		if ( nr != null ) strbld.append("_r"+nr);
-		if ( qlen != null ) strbld.append("_q"+qlen);
-		return strbld.toString();
-	}
-	
-	protected Dataset( String datasetName, String size, String nr, String qlen ) {
-		name = setName(datasetName, size, nr, qlen);
-		searchedPath = DatasetInfo.getSearchedPath(datasetName, qlen);
-		indexedPath = DatasetInfo.getIndexedPath(datasetName, size);
-		rulePath = DatasetInfo.getRulePath(datasetName, nr);
+	protected Dataset(DatasetParam param) {
+		Log.log.trace("Dataset.constructor");
+		name = param.getDatasetName();
+		this.size = Integer.parseInt(param.size);
+		this.lenRatio = Double.parseDouble(param.lenRatio);
+		searchedPath = DatasetInfo.getSearchedPath(param.name, param.qlen);
+		indexedPath = DatasetInfo.getIndexedPath(param.name);
+		rulePath = DatasetInfo.getRulePath(param.name, param.nr);
 		outputPath = "output";
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
 		statContainer.setStat(Stat.Dataset_Name, name);
-		statContainer.setStat(Stat.Dataset_nt, size);
-		statContainer.setStat(Stat.Dataset_nr, nr);
-		statContainer.setStat(Stat.Dataset_qlen, qlen);
+		statContainer.setStat(Stat.Dataset_nt, param.size);
+		statContainer.setStat(Stat.Dataset_nr, param.nr);
+		statContainer.setStat(Stat.Dataset_qlen, param.qlen);
+		statContainer.setStat(Stat.Dataset_lr, param.lenRatio);
 	}
 	
 	protected void initTokenIndex() {
+		Log.log.trace("Dataset.initTokenIndex()");
 		statContainer.startWatch("Time_TokenOrder");
 		TokenOrder order = new TokenOrder(this);
 		Record.tokenIndex = order.getTokenIndex();
 		statContainer.stopWatch("Time_TokenOrder");
+		Log.log.trace("Dataset.initTokenIndex() finished");
 	}
 	
 	protected void createRuleSet() {
@@ -142,12 +145,6 @@ public abstract class Dataset {
 //		catch ( Exception e ) {}
 	}
 	
-	public abstract Iterable<Record> getSearchedList();
-
-	public abstract Iterable<Record> getIndexedList();
-	
-	public abstract Record getRecord(int id);
-
 	protected Iterable<Integer> getDistinctTokens() {
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : getSearchedList() ) tokenSet.addAll( rec.getTokens() );
@@ -166,5 +163,146 @@ public abstract class Dataset {
 		int n = 0;
 		for ( @SuppressWarnings("unused") Record rec : recordList ) ++n;
 		return n;
+	}
+
+	protected final String getPrefixWithLengthRatio(String str) {
+		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		int eidx=0;
+		int len0 = (int)(nTokens*lenRatio);
+		int len = 0;
+		for ( ; eidx<str.length(); ++eidx ) {
+			if ( str.charAt(eidx) == ' ' ) {
+				len += 1;
+				if ( len == len0 ) break;
+			}
+		}
+		return str.substring(0, eidx);
+	}
+
+	public abstract Record getRecord(int id);
+
+	public abstract Iterable<Record> getSearchedList();
+
+	public abstract Iterable<Record> getIndexedList();
+	
+	public final Iterable<String> getIndexedStringsFromFile() {
+		return new Iterable<String>() {
+			
+			@Override
+			public Iterator<String> iterator() {
+				return new DiskBasedIndexedStringIterator();
+			}
+		};
+	}
+	
+	public final Iterable<Rule> getRules() {
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return new DiskBasedRuleIterator();
+			}
+		};
+	}
+
+	public final Iterable<String> getRuleStrings() {
+		return new Iterable<String>() {
+			
+			@Override
+			public Iterator<String> iterator() {
+				return new DiskBasedRuleStringIterator();
+			}
+		};
+	}
+
+	protected abstract class AbstractDiskBasedIterator<T> implements Iterator<T> {
+		
+		BufferedReader br;
+		Iterator<String> iter;
+		int i = 0;
+		
+		public AbstractDiskBasedIterator(String path) {
+			try {
+				br = new BufferedReader(new FileReader(path));
+				iter = br.lines().iterator();
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+	}
+	
+	public abstract class AbstractDiskBasedIndexedDataIterator<T> extends AbstractDiskBasedIterator<T> {
+		
+		public AbstractDiskBasedIndexedDataIterator() {
+			super(indexedPath);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return i < size && iter.hasNext();
+		}
+	}
+	
+	public final class DiskBasedSearchedRecordIterator extends AbstractDiskBasedIterator<Record> {
+
+		public DiskBasedSearchedRecordIterator() {
+			super(searchedPath);
+		}
+
+		@Override
+		public Record next() {
+			String line = iter.next();
+			return new Record(i++, line);
+		}
+	}
+
+	public final class DiskBasedIndexedStringIterator extends AbstractDiskBasedIndexedDataIterator<String> {
+
+		@Override
+		public String next() {
+			i += 1;
+			return getPrefixWithLengthRatio(iter.next());
+		}
+	}
+
+	public final class DiskBasedIndexedRecordIterator extends AbstractDiskBasedIndexedDataIterator<Record> {
+
+		@Override
+		public Record next() {
+			String line = getPrefixWithLengthRatio(iter.next());
+			return new Record(i++, line);
+		}
+	}
+
+	public final class DiskBasedRuleIterator extends AbstractDiskBasedIterator<Rule> {
+		
+		public DiskBasedRuleIterator() {
+			super(rulePath);
+		}
+
+		@Override
+		public Rule next() {
+			return Rule.createRule(iter.next());
+		}
+
+	}
+
+	public final class DiskBasedRuleStringIterator extends AbstractDiskBasedIterator<String> {
+
+		public DiskBasedRuleStringIterator() {
+			super(rulePath);
+		}
+
+		@Override
+		public String next() {
+			return iter.next();
+		}
 	}
 }

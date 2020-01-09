@@ -50,6 +50,7 @@ public class MiscTest {
 		System.out.println(text.toOriginalString());
 	}
 	
+	@SuppressWarnings("unused")
 	@Test
 	public void testRecord() throws IOException {
 		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
@@ -112,7 +113,7 @@ public class MiscTest {
 			int nw1 = 0;
 			for ( int w=1; w<=rec.size(); ++w ) {
 				SortedRecordSlidingWindowIterator witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
-				for ( int widx=0; witer.hasNext(); ++widx ) {
+				while ( witer.hasNext() ) {
 					Subrecord window = witer.next();
 					nw1 += window.size();
 				}
@@ -280,5 +281,41 @@ public class MiscTest {
 		mergedList1.sort(Integer::compare);
 		assertTrue(mergedList0.equals(mergedList1));
 		System.out.println(mergedList0);
+	}
+
+	@Test
+	public void test() {
+		String str = "aaa bbbb cc ddd eeeee f g hh i jj kkk";
+		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		for ( double lenRatio : new double[] {0.2, 0.4, 0.6, 0.8, 1.0} ) {
+			int eidx=0;
+			int len0 = (int)(nTokens*lenRatio);
+			int len = 0;
+			for ( ; eidx<str.length(); ++eidx ) {
+				if ( str.charAt(eidx) == ' ' ) {
+					len += 1;
+					if ( len == len0 ) break;
+				}
+			}
+			System.out.println(nTokens+"\t"+len0+"\t"+len+"\t"+eidx+"\t"+str.substring(0, eidx));
+		}
+		
+		for ( double lenRatio : new double[] {0.2, 0.4, 0.6, 0.8, 1.0} ) {
+			System.out.println(getPrefixWithLengthRatio(str, lenRatio));
+		}
+	}
+	
+	public static String getPrefixWithLengthRatio( String str, double lenRatio ) {
+		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		int eidx=0;
+		int len0 = (int)(nTokens*lenRatio);
+		int len = 0;
+		for ( ; eidx<str.length(); ++eidx ) {
+			if ( str.charAt(eidx) == ' ' ) {
+				len += 1;
+				if ( len == len0 ) break;
+			}
+		}
+		return str.substring(0, eidx);
 	}
 }

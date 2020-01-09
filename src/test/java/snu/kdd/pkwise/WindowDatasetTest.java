@@ -62,7 +62,7 @@ public class WindowDatasetTest {
 	
 	@Test
 	public void getRecordTest() throws IOException {
-		WindowDataset dataset = TestUtils.getTestDataset();
+		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		int n = 10;
 		int i = 0;
 		for ( Record rec : dataset.getIndexedList() ) {
@@ -75,10 +75,8 @@ public class WindowDatasetTest {
 	
 	@Test
 	public void getTransWindowIteratorTest() throws IOException {
-		WindowDataset dataset = TestUtils.getTestDataset("WIKI", "10000", "107836", "5");
+		WindowDataset dataset = TestUtils.getTestWindowDataset("WIKI", "10000", "107836", "5", "1.0");
 		System.out.println(dataset.ruleSet.size());
-		int n = 100;
-		int i = 0;
 		int qlen = 5;
 		double theta = 0.6;
 		for ( RecordInterface window : dataset.getTransWindowList(qlen, theta) ) {

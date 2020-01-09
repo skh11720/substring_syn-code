@@ -34,7 +34,7 @@ public class FaerieSearch extends AbstractSearch {
 		if (isDiskBased) index = new FaerieMemBasedIndex(dataset.getIndexedList());
 		else index = new FaerieDiskBasedIndex(dataset.getIndexedList());
 		statContainer.stopWatch(Stat.Time_BuildIndex);
-		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
+		statContainer.setStat(Stat.Space_Index, diskSpaceUsage().toString());
 	}
 
 	@Override
@@ -155,6 +155,9 @@ public class FaerieSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 */
 		return "1.00";
 	}
 }
