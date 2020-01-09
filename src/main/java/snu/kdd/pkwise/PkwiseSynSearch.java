@@ -1,5 +1,7 @@
 package snu.kdd.pkwise;
 
+import java.math.BigInteger;
+
 import org.apache.logging.log4j.Level;
 
 import snu.kdd.substring_syn.data.Dataset;
@@ -24,6 +26,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		statContainer.startWatch(Stat.Time_BuildIndex);
         index = new PkwiseSynIndex(this, ((TransWindowDataset)dataset), qlen, theta);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
+		statContainer.setStat(Stat.Space_Index, index.diskSpaceUsage().toString());
 		if ( Log.log.getLevel().isLessSpecificThan(Level.INFO)) index.writeToFile(sigMap);
 	}
 
@@ -110,6 +113,10 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	public final int getLFUB( int size ) {
 		return (int)(1.0*size/theta);
+	}
+
+	public final BigInteger diskSpaceUsage() {
+		return index.diskSpaceUsage();
 	}
 	
 	@Override

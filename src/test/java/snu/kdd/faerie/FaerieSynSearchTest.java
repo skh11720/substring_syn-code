@@ -78,8 +78,12 @@ public class FaerieSynSearchTest {
 	@Test
 	public void test02CompareMemAndDIsk() {
 		/*
-		Time_Total	2792.084	9995.023
-		Time_BuildIndex	84.329	167.555
+			  Time_Total	3698.539	11226.232
+		 Time_BuildIndex	172.875	198.884
+			 Space_Index	0	2425682
+			  Num_Result	702	702
+		   Num_QS_Result	701	701
+		   Num_TS_Result	702	702
 		 */
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "1000", "3");
 		double theta = 0.6;
@@ -87,8 +91,8 @@ public class FaerieSynSearchTest {
 		alg0.run(dataset);
 		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
 		alg1.run(dataset);
-		for ( String attr : new String[] {Stat.Time_Total, Stat.Time_BuildIndex, Stat.Num_Result, Stat.Num_QS_Result, Stat.Num_TS_Result}) {
-			System.out.println(attr+"\t"+alg0.getStatContainer().getStat(attr)+"\t"+alg1.getStatContainer().getStat(attr));
+		for ( String attr : new String[] {Stat.Time_Total, Stat.Time_BuildIndex, Stat.Space_Index, Stat.Num_Result, Stat.Num_QS_Result, Stat.Num_TS_Result}) {
+			System.out.println(String.format("%20s", attr)+"\t"+alg0.getStatContainer().getStat(attr)+"\t"+alg1.getStatContainer().getStat(attr));
 		}
 	}
 	

@@ -13,6 +13,7 @@ import snu.kdd.faerie.FaerieSynNaiveSearch;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -79,5 +80,58 @@ public class PkwiseSynSearchTest {
 		PrintStream ps = new PrintStream("tmp/PkwiseSynSearchTest.testCorrectness.txt");
 		ps.println(strbld.toString());
 		ps.close();
+	}
+	
+	@Test
+	public void test02IndexSize() {
+		/*
+		WIKI_n10000_r3162_q5_l0.6	theta=0.6	lenRatio=0.6	indexSize=26944352
+		WIKI_n10000_r3162_q5_l1.0	theta=0.6	lenRatio=1.0	indexSize=61276246
+		WIKI_n10000_r3162_q5_l0.6	theta=1.0	lenRatio=0.6	indexSize=3101963
+		WIKI_n10000_r3162_q5_l1.0	theta=1.0	lenRatio=1.0	indexSize=6546376
+		 */
+		Log.disable();
+		int qlen = 5;
+		int kmax= 2;
+		for ( double theta : new double[] {0.6, 1.0} ) {
+			for ( String lenRatio : new String[] {"0.6", "1.0"} ) {
+				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, ""+theta);
+				PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
+				alg.run(dataset);
+				System.out.println(dataset.name+"\ttheta="+theta+"\tlenRatio="+lenRatio+"\tindexSize="+alg.diskSpaceUsage());
+			}
+		}
+	}
+
+	@Test
+	public void test03VaryLenRatio() {
+		/*	
+		WIKI_n10000_r3162_q5_l0.2	theta=0.6	kmax=2	0.2	1758.363	66	61	66
+		WIKI_n10000_r3162_q5_l0.4	theta=0.6	kmax=2	0.4	6384.191	175	170	175
+		WIKI_n10000_r3162_q5_l0.6	theta=0.6	kmax=2	0.6	12979.315	269	260	269
+		WIKI_n10000_r3162_q5_l0.8	theta=0.6	kmax=2	0.8	21229.815	383	372	383
+		WIKI_n10000_r3162_q5_l1.0	theta=0.6	kmax=2	1.0	27381.245	494	481	494
+		WIKI_n10000_r3162_q5_l0.2	theta=1.0	kmax=2	0.2	184.874	4	4	4
+		WIKI_n10000_r3162_q5_l0.4	theta=1.0	kmax=2	0.4	956.023	28	28	28
+		WIKI_n10000_r3162_q5_l0.6	theta=1.0	kmax=2	0.6	1826.178	58	58	58
+		WIKI_n10000_r3162_q5_l0.8	theta=1.0	kmax=2	0.8	2756.018	81	81	81
+		WIKI_n10000_r3162_q5_l1.0	theta=1.0	kmax=2	1.0	3771.643	100	100	100
+		 */
+		Log.disable();
+		int qlen = 5;
+		int kmax = 2;
+		for ( double theta : new double[] {0.6, 1.0} ) {
+			for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
+				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, ""+theta);
+				AbstractSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
+				alg.run(dataset);
+				System.out.println(dataset.name+"\ttheta="+theta+"\tkmax="+kmax
+						+"\t"+lenRatio
+						+"\t"+alg.getStatContainer().getStat(Stat.Time_Total)
+						+"\t"+alg.getStatContainer().getStat(Stat.Num_Result)
+						+"\t"+alg.getStatContainer().getStat(Stat.Num_QS_Result)
+						+"\t"+alg.getStatContainer().getStat(Stat.Num_TS_Result));
+			}
+		}
 	}
 }

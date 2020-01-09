@@ -33,7 +33,7 @@ public class FaerieSynSearch extends FaerieSearch {
 			indexT = new FaerieSynMemBasedIndex(dataset.getIndexedList());
 		}
 		statContainer.stopWatch(Stat.Time_BuildIndex);
-		statContainer.setStat(Stat.SpaceUsage_Index, diskSpaceUsage().toString());
+		statContainer.setStat(Stat.Space_Index, diskSpaceUsage().toString());
 	}
 	
 	@Override

@@ -154,10 +154,6 @@ public class EntryStore<E extends Serializable> {
 	
 	public final int size() { return numEntries; }
 	
-	public final BigInteger diskSpaceUsage() {
-		return FileUtils.sizeOfAsBigInteger(new File(path));
-	}
-	
 	public final void printDetailStats() {
 		StringBuilder strbld = new StringBuilder("EntryStore {\n");
 		strbld.append("\tMAX_STORE_SIZE="+String.format("%,d", MAX_STORE_SIZE)+"\n");

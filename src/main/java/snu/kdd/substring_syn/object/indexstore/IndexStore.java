@@ -42,7 +42,7 @@ public abstract class IndexStore<E extends Serializable> {
 	}
 	
 	public final BigInteger diskSpaceUsage() {
-		return store.diskSpaceUsage().add(index.invListAccessor.diskSpaceUsage);
+		return (new BigInteger(""+store.storeSize)).add(index.invListAccessor.diskSpaceUsage);
 	}
 	
 	final class IndexEntryIterator implements Iterator<E> {

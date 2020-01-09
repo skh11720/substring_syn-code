@@ -1,7 +1,9 @@
 package snu.kdd.substring_syn.utils;
 
+import java.io.File;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -9,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.FileUtils;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -802,6 +805,10 @@ public class Util {
 		// return in MB
 		Runtime inst = Runtime.getRuntime();
 		return (inst.totalMemory()-inst.freeMemory())/1e6;
+	}
+	
+	public static BigInteger getSpaceUsage(String path) {
+		return FileUtils.sizeOfAsBigInteger(new File(path));
 	}
 	
 	public static void unzip( ObjectList<IntPair> pairList, IntList list1, IntList list2 ) {

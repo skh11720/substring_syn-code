@@ -67,7 +67,7 @@ public class Stat {
 	
 	public static final String Mem_Before_Index = "Mem_Before_Index";
 	public static final String Mem_After_Index = "Mem_After_Index";
-	public static final String SpaceUsage_Index = "SpaceUsage_Index";
+	public static final String Space_Index = "Space_Index";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

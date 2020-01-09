@@ -24,7 +24,7 @@ public abstract class AbstractIndexStoreBuilder {
 	protected int inmem_max_size;
 	protected int nFlush;
 	protected int bufSize;
-	protected long size;
+	protected long storeSize;
 	protected Cursor curTmp;
 	protected Cursor curOut;
 	
@@ -59,14 +59,14 @@ public abstract class AbstractIndexStoreBuilder {
 	
 	protected IndexStoreAccessor createIndexStoreAccessor( Iterable<Record> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
 		bufSize = nFlush = 0;
-		size = 0;
+		storeSize = 0;
 		curTmp = new Cursor();
 		curOut = new Cursor();
 		IndexStoreAccessor accessor = null;
 		try {
 			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = listSegmentBuilder.build(recordList);
 			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(path, tok2segList);
-			accessor = new IndexStoreAccessor(path, tok2SegMap, curOut.fileOffset+1, bufSize, size);
+			accessor = new IndexStoreAccessor(path, tok2SegMap, curOut.fileOffset+1, bufSize, storeSize);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -172,7 +172,7 @@ public abstract class AbstractIndexStoreBuilder {
 			tok2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, b.length));
 			fos.write(b);
 			curOut.offset += b.length;
-			size += invList.size();
+			storeSize += b.length;
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
 		fos.close();
@@ -195,6 +195,7 @@ public abstract class AbstractIndexStoreBuilder {
 
 	protected String getTmpPath( int fileOffset ) { return "./tmp/"+getIndexStoreName()+".tmp."+fileOffset; }
 	
+	public final long diskSpaceUsage() { return storeSize; }
 
 
 	private class Cursor {
