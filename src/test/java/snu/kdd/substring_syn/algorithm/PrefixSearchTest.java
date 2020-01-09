@@ -33,7 +33,11 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		test("WIKI", "100", "1000", "5", 0.7);
+		DatasetParam param = new DatasetParam("AMAZON-DOC", "10000", "1000", "5", "1.0");
+		double theta = 0.6;
+		Dataset dataset = Dataset.createInstanceByName(param);
+		AbstractSearch alg = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+		alg.run(dataset);
 	}
 	
 	@Ignore
