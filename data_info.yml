@@ -46,3 +46,30 @@ USPS:
     ql: ['1', '3', '5']
     nr: ['142']
     lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-DOC:
+    searchedPath: 'wiki-doc/queries/queries_%s.txt'
+    indexedPath: 'wiki-doc/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7033538']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-DOC:
+    searchedPath: 'PubMed-doc/queries/queries_%s.txt'
+    indexedPath: 'PubMed-doc/records_all.txt'
+    rulePath: 'PubMed-doc/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '2093351']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-DOC:
+    searchedPath: 'Amazon-doc/queries/queries_%s.txt'
+    indexedPath: 'Amazon-doc/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '14364973']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
