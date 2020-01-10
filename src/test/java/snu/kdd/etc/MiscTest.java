@@ -3,7 +3,10 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
@@ -19,6 +22,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
@@ -284,7 +288,7 @@ public class MiscTest {
 	}
 
 	@Test
-	public void test() {
+	public void testPrefixWithLengthRatio() {
 		String str = "aaa bbbb cc ddd eeeee f g hh i jj kkk";
 		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
 		for ( double lenRatio : new double[] {0.2, 0.4, 0.6, 0.8, 1.0} ) {
@@ -317,5 +321,67 @@ public class MiscTest {
 			}
 		}
 		return str.substring(0, eidx);
+	}
+	
+	@Test
+	public void testLongToByteArray() {
+		int n = 100;
+		long v = 1;
+		ByteBuffer buf = ByteBuffer.allocate(Long.BYTES);
+		for ( int i=0; i<n; ++i ) {
+			buf.putLong(0, v);
+			System.out.println(v+"\t"+Arrays.toString(buf.array())+buf.getLong(0));
+			v *= 2.1;
+		}
+	}
+	
+	@Test
+	public void testFileBasedLongListCorrectness() {
+		FileBasedLongList list = new FileBasedLongList();
+		long n = 100;
+		System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		for ( long i=0; i<n; ++i ) {
+			list.add(i);
+			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		}
+		
+		for ( int i=0; i<n; ++i ) {
+			System.out.println(i+"\t"+list.get(i));
+		}
+	}
+
+	@Test
+	public void testFileBasedLongListEfficiency() {
+		/*
+		add: 8471.3895
+		get (sequential): 3192.141
+		get (random): 5323.4785
+		 */
+		FileBasedLongList list = new FileBasedLongList();
+		Random rn = new Random();
+		int n = 1000000;
+		long[] val = rn.longs().limit(n).toArray();
+		int[] pos = rn.ints(0, n).limit(n).toArray();
+		long ts = System.nanoTime();
+//		System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		for ( int i=0; i<n; ++i ) {
+			list.add(val[i]);
+//			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		}
+		System.out.println("add: "+(System.nanoTime()-ts)*1.0/n);
+
+		ts = System.nanoTime();
+		for ( int i=0; i<n; ++i ) {
+			long v = list.get(i);
+//			System.out.println(i+"\t"+list.get(i));
+		}
+		System.out.println("get (sequential): "+(System.nanoTime()-ts)*1.0/n);
+		
+		ts = System.nanoTime();
+		for ( int i=0; i<n; ++i ) {
+			long v = list.get(pos[i]);
+//			System.out.println(i+"\t"+list.get(i));
+		}
+		System.out.println("get (random): "+(System.nanoTime()-ts)*1.0/n);
 	}
 }
