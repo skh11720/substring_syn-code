@@ -30,17 +30,13 @@ public class DataStatCalculator {
 	@Test
 	public void test() throws IOException {
 		String[] targetList = {
-				"USPS,10000,142",
-				"WIKI,1000000,107836",
-				"WIKI,55940485,107836",
-				"PUBMED,1000000,79011",
-				"PUBMED,40004703,79011",
-				"AMAZON,1000000,107836",
-				"AMAZON,56067732,107836",
+				"WIKI-DOC,7033538,107836",
+				"PUBMED-DOC,2093351,79011",
+				"AMAZON-DOC,14364973,107836"
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
-			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", null);
+			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0");
 			Dataset dataset = Dataset.createInstanceByName(param);
 			extractStat(dataset);
 		}
