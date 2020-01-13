@@ -59,6 +59,8 @@ public final class TransLenLazyCalculator {
 		// eidx: inclusive
 		if ( eidx-sidx >= subrec.size() ) {
 			Exception e = new Exception("Invalid input: subrec.size="+subrec.size()+", sidx="+sidx+", but eidx="+eidx);
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
