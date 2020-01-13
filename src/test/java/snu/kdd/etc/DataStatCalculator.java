@@ -10,6 +10,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -37,7 +38,7 @@ public class DataStatCalculator {
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
 			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0");
-			Dataset dataset = Dataset.createInstanceByName(param);
+			Dataset dataset = DatasetFactory.createInstanceByName(param);
 			extractStat(dataset);
 		}
 	}

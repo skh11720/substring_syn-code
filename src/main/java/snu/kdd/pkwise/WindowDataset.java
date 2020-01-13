@@ -9,7 +9,6 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.RecordStore;
-import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -21,7 +20,6 @@ public class WindowDataset extends Dataset {
 
 	public WindowDataset(DatasetParam param) {
 		super(param);
-		Record.tokenIndex = new TokenIndex();
 	}
 	
 	public final void buildRecordStore() {

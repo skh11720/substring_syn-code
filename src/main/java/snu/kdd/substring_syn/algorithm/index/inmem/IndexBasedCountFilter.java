@@ -12,7 +12,6 @@ import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 

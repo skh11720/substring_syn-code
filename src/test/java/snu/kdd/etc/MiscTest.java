@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
@@ -32,7 +33,7 @@ public class MiscTest {
 	public void testExactVerification() throws IOException {
 		int qidx = 23;
 		int sidx = 287;
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		Record query = null;
 		Record text = null;
 		for ( Record rec : dataset.getSearchedList() ) {
@@ -56,7 +57,7 @@ public class MiscTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testRecord() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
 		for ( Record rec : dataset.getIndexedList() ) {
 			int n1 = 0;
@@ -73,7 +74,7 @@ public class MiscTest {
 	
 	@Test
 	public void testTransformLength() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
 		}
@@ -81,7 +82,7 @@ public class MiscTest {
 
 	@Test
 	public void testQueryCandTokenSet() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
 		}
@@ -109,7 +110,7 @@ public class MiscTest {
 	
 	@Test
 	public void testWindowCount() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("SPROT_long", "1000");
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", "1000");
 		double theta = 0.6;
 		for ( Record rec : dataset.getIndexedList() ) {
 			int nw0 = sumWindowSize(rec);

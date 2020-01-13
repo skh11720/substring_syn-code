@@ -10,7 +10,6 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.IntRange;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;

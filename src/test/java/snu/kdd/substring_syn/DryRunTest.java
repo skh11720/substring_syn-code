@@ -2,15 +2,14 @@ package snu.kdd.substring_syn;
 
 import java.io.IOException;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Stat;
 
 public class DryRunTest {
@@ -37,9 +36,9 @@ public class DryRunTest {
 	}
 	
 	public void runAlgorithm(String algName, String algOption) throws IOException, ParseException {
-		CommandLine cmd = getCmd(algName, algOption);
-		Dataset dataset = Dataset.createInstance(cmd);
-		AbstractSearch alg = AlgorithmFactory.createInstance(cmd);
+		InputArgument arg = getArgument(algName, algOption);
+		Dataset dataset = DatasetFactory.createInstance(arg);
+		AbstractSearch alg = AlgorithmFactory.createInstance(arg);
 		alg.run(dataset);
 		strbld.append(algName+"\t"+getSummary(alg)+"\n");
 	}
@@ -52,10 +51,8 @@ public class DryRunTest {
 				+alg.getStat(Stat.Num_TS_Result);
 	}
 
-	private CommandLine getCmd(String algName, String algOption) throws ParseException {
+	private InputArgument getArgument(String algName, String algOption) throws ParseException {
 		String[] args = ("-data WIKI -alg "+algName+" -nt 1000 -nr 1000 -ql 5 -lr 0.8 -param "+algOption).split(" ");
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse( App.argOptions, args, false );
-		return cmd;
+		return new InputArgument(args);
 	}
 }

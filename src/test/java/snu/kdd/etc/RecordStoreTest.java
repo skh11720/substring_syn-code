@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.DiskBasedDataset;
 import snu.kdd.substring_syn.data.RecordStore;
@@ -26,7 +27,7 @@ public class RecordStoreTest {
 	@Test
 	public void storeAndGetRecords() throws IOException {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
-		Dataset dataset = Dataset.createInstanceByName(param);
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
 		Collections.shuffle(recordList);
 		RecordStore store = new RecordStore(dataset.getIndexedList());
@@ -44,7 +45,7 @@ public class RecordStoreTest {
 		Random rn = new Random();
 		int maxlen = 0;
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
-		Dataset dataset = Dataset.createInstanceByName(param);
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		IntList posList = new IntArrayList();
 		int n = 0;
 		FileOutputStream fos = new FileOutputStream("./tmp/RecordStoreTest");
@@ -80,7 +81,7 @@ public class RecordStoreTest {
 	@Test
 	public void iterableTest() throws IOException {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
-		DiskBasedDataset dataset = (DiskBasedDataset)Dataset.createInstanceByName(param);
+		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<10; ++i ) {
 			System.out.println(dataset.getRecord(i));
 		}

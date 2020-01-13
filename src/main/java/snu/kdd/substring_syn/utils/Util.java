@@ -716,7 +716,7 @@ public class Util {
 	}
 
 //	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-//		return Dataset.createInstanceByName(name, size);
+//		return DatasetFactory.createInstanceByName(name, size);
 //	}
 
 	public static String getGroundTruthPath( String name ) {

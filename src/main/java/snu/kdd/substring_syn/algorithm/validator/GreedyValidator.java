@@ -3,7 +3,6 @@ package snu.kdd.substring_syn.algorithm.validator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;

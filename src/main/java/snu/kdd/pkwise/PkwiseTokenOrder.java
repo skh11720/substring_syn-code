@@ -21,6 +21,7 @@ public class PkwiseTokenOrder {
 
 	public PkwiseTokenOrder( WindowDataset dataset, int w ) {
 		this.w = w;
+		Record.tokenIndex = new TokenIndex();
 		Int2IntOpenHashMap counter = countTokensFromWindows(dataset);
 		Record.tokenIndex = getNewTokenIndex(counter);
 	}

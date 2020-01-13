@@ -14,6 +14,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 import vldb18.PkduckDP;
@@ -24,7 +25,7 @@ public class PkduckDPTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("SPROT", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT", "10000");
 		long ts;
 		long[] tArr = new long[1];
 		for ( double theta : thetaList ) {

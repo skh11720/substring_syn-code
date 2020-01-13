@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.NaiveIndexStore;
 import snu.kdd.substring_syn.algorithm.index.inmem.NaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 
 @SuppressWarnings("unused")
@@ -21,7 +22,7 @@ public class NaiveIndexStoreTest {
 	@Test
 	public void checkCorrectness() throws IOException {
 		long t;
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "1000000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "1000000");
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
 		NaiveInvertedIndex index0 = new NaiveInvertedIndex(dataset);
 		
@@ -64,7 +65,7 @@ public class NaiveIndexStoreTest {
 	public void repeatedConstruction() throws IOException {
 		int retries = 100;
 		for ( int i=0; i<retries; ++i ) {
-			Dataset dataset = Dataset.createInstanceByName("WIKI_3", "100000");
+			Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "100000");
 			NaiveIndexStore store = new NaiveIndexStore(dataset.getIndexedList());
 		}
 	}
@@ -77,7 +78,7 @@ public class NaiveIndexStoreTest {
 
 		for ( int i=0; i<sizeArr.length; ++i ) {
 			String size = sizeArr[i];
-			Dataset dataset = Dataset.createInstanceByName("WIKI_3", size);
+			Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", size);
 			t = System.nanoTime();
 			NaiveIndexStore store = new NaiveIndexStore(dataset.getIndexedList());
 			tArr[i] = System.nanoTime()-t;
@@ -100,7 +101,7 @@ public class NaiveIndexStoreTest {
 
 		for ( int i=0; i<cArr.length; ++i ) {
 			int c = cArr[i];
-			Dataset dataset = Dataset.createInstanceByName("WIKI_3", "1000000");
+			Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "1000000");
 			t = System.nanoTime();
 			NaiveIndexStore store = new NaiveIndexStore(dataset.getIndexedList(), c*1024*1024);
 			tArr[i] = System.nanoTime()-t;

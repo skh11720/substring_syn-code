@@ -2,7 +2,7 @@ package snu.kdd.pkwise;
 
 import java.io.IOException;
 
-import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 
 public class TestUtils {
@@ -21,22 +21,22 @@ public class TestUtils {
 	}
 
 	public static WindowDataset getTestWindowDataset() throws IOException {
-		return Dataset.createWindowInstanceByName(defaultParam);
+		return DatasetFactory.createWindowInstanceByName(defaultParam);
 	}
 	
 	public static WindowDataset getTestTransWindowDataset() throws IOException {
-		return Dataset.createTransWindowInstanceByName(defaultParam, "0.6");
+		return DatasetFactory.createTransWindowInstanceByName(defaultParam, "0.6");
 	}
 
 	public static WindowDataset getTestWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio ) throws IOException {
 		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, lenRatio);
-		WindowDataset dataset = Dataset.createWindowInstanceByName(param);
+		WindowDataset dataset = DatasetFactory.createWindowInstanceByName(param);
 		return dataset;
 	}
 
 	public static TransWindowDataset getTestTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, String theta ) throws IOException {
 		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, lenRatio);
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, theta);
+		TransWindowDataset dataset = DatasetFactory.createTransWindowInstanceByName(param, theta);
 		return dataset;
 	}
 }

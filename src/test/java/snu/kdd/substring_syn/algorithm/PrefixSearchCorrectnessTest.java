@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 
 @RunWith(Parameterized.class)
 public class PrefixSearchCorrectnessTest {
@@ -63,7 +64,7 @@ public class PrefixSearchCorrectnessTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName(param.name, param.size);
+		Dataset dataset = DatasetFactory.createInstanceByName(param.name, param.size);
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;

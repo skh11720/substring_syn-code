@@ -19,6 +19,7 @@ import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -35,7 +36,7 @@ public class PrefixSearchTest {
 	public void testSingle() throws IOException {
 		DatasetParam param = new DatasetParam("AMAZON-DOC", "10000", "1000", "5", "1.0");
 		double theta = 0.6;
-		Dataset dataset = Dataset.createInstanceByName(param);
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		AbstractSearch alg = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
 		alg.run(dataset);
 	}
@@ -44,7 +45,7 @@ public class PrefixSearchTest {
 	public void testLengthFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
-		Dataset dataset = Dataset.createInstanceByName(name, size);
+		Dataset dataset = DatasetFactory.createInstanceByName(name, size);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -66,7 +67,7 @@ public class PrefixSearchTest {
 	public void testIndexFilter() throws IOException {
 		String size = "100";
 		double theta = 0.7;
-		Dataset dataset = Dataset.createInstanceByName(name, size);
+		Dataset dataset = DatasetFactory.createInstanceByName(name, size);
 
 		String[] results = new String[4];
 		int i = 0;
@@ -88,7 +89,7 @@ public class PrefixSearchTest {
 
 	public void test( String name, String size, String nr, String ql, double theta ) throws IOException {
 		DatasetParam param = new DatasetParam(name, size, nr, ql, null);
-		Dataset dataset = Dataset.createInstanceByName(param);
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
@@ -128,7 +129,7 @@ public class PrefixSearchTest {
 		String name = "SPROT_long";
 		String size = "102";
 		double theta = 0.6;
-		Dataset dataset = Dataset.createInstanceByName(name, size);
+		Dataset dataset = DatasetFactory.createInstanceByName(name, size);
 		
 		AbstractSearch prefixSearch = null;
 		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.Count);
