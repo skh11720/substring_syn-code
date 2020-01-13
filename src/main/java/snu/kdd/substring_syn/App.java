@@ -17,7 +17,7 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class App {
 	
-	private static Options argOptions;
+	public static Options argOptions;
 	
 	static {
 		argOptions = new Options();
@@ -31,7 +31,7 @@ public class App {
 		argOptions.addOption("param", true, "");
 	}
 
-	private static CommandLine parseInput( String args[] ) throws ParseException {
+	public static CommandLine parseInput( String args[] ) throws ParseException {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse( argOptions, args, false );
 		Util.printArgsError( cmd );
