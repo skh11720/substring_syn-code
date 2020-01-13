@@ -29,6 +29,7 @@ public class Stat {
 	public static final String Time_Total = "Time_Total";
 	public static final String Time_QS_Total = "Time_QS_Total";
 	public static final String Time_TS_Total = "Time_TS_Total";
+	public static final String Time_SearchPerQuery = "Time_SearchPerQuery";
 	public static final String Time_Prepare_Data = "Time_Prepare_Data";
 	public static final String Time_Preprocess= "Time_Preprocess";
 	public static final String Time_QS_Validation = "Time_QS_Validation";

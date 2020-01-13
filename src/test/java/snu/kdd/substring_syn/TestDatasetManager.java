@@ -73,8 +73,8 @@ public class TestDatasetManager {
 		return (WindowDataset) manager.getDataset(key);
 	}
 
-	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, String theta ) {
-		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, lenRatio, theta);
+	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, double theta ) {
+		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, lenRatio, ""+theta);
 		return (TransWindowDataset) manager.getDataset(key);
 	}
 	
