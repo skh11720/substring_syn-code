@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
@@ -238,15 +238,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				rec.preprocessSuffixApplicableRules();
 				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
-				statContainer.startWatch("Time_TS_IndexFilter.transLen");
-				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
-				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
+//				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+//				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
+//				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
-				ObjectList<MergedRange> segmentRangeList = findSegmentRanges(rec, prefixIdxList, suffixIdxList, tokenList, transLen, modifiedTheta);
+				ObjectList<MergedRange> segmentRangeList = findSegmentRanges(rec, prefixIdxList, suffixIdxList, tokenList, modifiedTheta);
 				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
 //				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
 				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList, prefixIdxList, suffixIdxList, tokenList, transLen, minCount);
+				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList);
 				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
 				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
 				candRecordSet.addAll(segmentList);
@@ -318,12 +318,15 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
-		private ObjectList<MergedRange> findSegmentRanges( Record rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, TransLenCalculator transLen, double theta ) {
+		private ObjectList<MergedRange> findSegmentRanges( Record rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, double theta ) {
 //			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
 			ObjectList<MergedRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
 				int sidx = prefixIdxList.get(i);
 				MergedRange mrange = new MergedRange(sidx);
+				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+				TransLenLazyCalculator transLen = new TransLenLazyCalculator(statContainer, rec, sidx, rec.size()-sidx, theta);
+				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				tokenCounter.clear();
 				for ( int j=0; j<suffixIdxList.size(); ++j ) {
 					int eidx = suffixIdxList.get(j);
@@ -332,8 +335,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					tokenCounter.tryIncrement(token);
 					int num = tokenCounter.sum();
 					final double score;
-					if ( transLen.getLB(sidx, eidx) < num ) score = (double)num/query.size() + EPS;
-					else score = (double)num/(query.size() + transLen.getLB(sidx, eidx) - num) + EPS;
+					if ( transLen.getLB(eidx) < num ) score = (double)num/query.size() + EPS;
+					else score = (double)num/(query.size() + transLen.getLB(eidx) - num) + EPS;
 					if ( score >= theta ) {
 						if ( !useCF || num >= minCount ) {
 							if ( mrange.eidxList.size() == 0 || mrange.eidxList.getInt(mrange.eidxList.size()-1) < eidx+1 ) mrange.eidxList.add(eidx+1);
@@ -347,7 +350,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<MergedRange> segmentRangeList, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, TransLenCalculator transLen, int minCount ) {
+		private ObjectList<Record> splitRecord( Record rec, ObjectList<MergedRange> segmentRangeList ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( MergedRange mrange : segmentRangeList ) {
