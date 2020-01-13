@@ -1,7 +1,6 @@
 package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;

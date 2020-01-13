@@ -15,6 +15,7 @@ import snu.kdd.substring_syn.algorithm.index.inmem.NaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 
+@SuppressWarnings("unused")
 public class NaiveIndexStoreTest {
 
 	@Test

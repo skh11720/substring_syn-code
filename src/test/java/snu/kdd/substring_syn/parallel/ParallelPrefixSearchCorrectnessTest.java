@@ -8,6 +8,7 @@ import snu.kdd.substring_syn.algorithm.PrefixSearchCorrectnessTest;
 
 public class ParallelPrefixSearchCorrectnessTest {
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void test() {
 		Class[] cls = {PrefixSearchCorrectnessTest.class};

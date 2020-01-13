@@ -1,7 +1,5 @@
 package snu.kdd.substring_syn.algorithm.validator;
 
-import java.util.Arrays;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;

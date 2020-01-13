@@ -7,6 +7,7 @@ import org.junit.runner.JUnitCore;
 public class ParallelTest {
 	
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void test() {
 		Class[] cls = {ParameterizedTest.class};

@@ -8,6 +8,7 @@ import snu.kdd.substring_syn.algorithm.NaiveSearchTest;
 
 public class ParallelNaiveSearchTest {
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void test() {
 		Class[] cls = {NaiveSearchTest.class};

@@ -23,6 +23,7 @@ import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIter
 import snu.kdd.substring_syn.utils.window.iterator.SortedSlidingWindowIterator;
 
 @FixMethodOrder
+@SuppressWarnings("unused")
 @Ignore
 public class PrefixOfSlidingWindowTest {
 

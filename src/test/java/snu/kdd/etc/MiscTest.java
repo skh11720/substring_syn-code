@@ -3,7 +3,6 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -372,14 +371,14 @@ public class MiscTest {
 
 		ts = System.nanoTime();
 		for ( int i=0; i<n; ++i ) {
-			long v = list.get(i);
+			list.get(i);
 //			System.out.println(i+"\t"+list.get(i));
 		}
 		System.out.println("get (sequential): "+(System.nanoTime()-ts)*1.0/n);
 		
 		ts = System.nanoTime();
 		for ( int i=0; i<n; ++i ) {
-			long v = list.get(pos[i]);
+			list.get(pos[i]);
 //			System.out.println(i+"\t"+list.get(i));
 		}
 		System.out.println("get (random): "+(System.nanoTime()-ts)*1.0/n);

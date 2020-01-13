@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.data.record.Records;
 
 public class ExpandIteratorTest {
 
+	@SuppressWarnings("unused")
 	@Test
 	public void test() throws IOException {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "1000", "5");

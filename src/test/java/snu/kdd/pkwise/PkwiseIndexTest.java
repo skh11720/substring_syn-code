@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class PkwiseIndexTest {
 
+	@SuppressWarnings("unused")
 	@Test
 	@Deprecated
 	public void visualizeWitvMap() throws IOException {

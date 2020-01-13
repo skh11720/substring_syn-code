@@ -73,6 +73,7 @@ public class WindowDatasetTest {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	@Test
 	public void getTransWindowIteratorTest() throws IOException {
 		WindowDataset dataset = TestUtils.getTestWindowDataset("WIKI", "10000", "107836", "5", "1.0");
