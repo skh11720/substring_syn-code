@@ -16,7 +16,7 @@ public class TestUtils {
 		String qlen = "5";
 		String lenRatio = "1.0";
 		DatasetParam param = new DatasetParam(datasetName, size, nr, qlen, lenRatio);
-		WindowDataset dataset = new WindowDataset(param);
+		WindowDataset dataset = DatasetFactory.createWindowInstanceByName(param);
 		return dataset;
 	}
 

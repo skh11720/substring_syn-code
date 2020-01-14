@@ -66,7 +66,7 @@ public class DataStatCalculator {
 	
 	public static void countNumRule( Dataset dataset, DatasetStat dataStat ) {
 		dataStat.nRule = 0;
-		for ( Rule rule : dataset.ruleSet.get() ) {
+		for ( Rule rule : dataset.ruleset.get() ) {
 			if ( !rule.isSelfRule ) dataStat.nRule++;
 		}
 	}

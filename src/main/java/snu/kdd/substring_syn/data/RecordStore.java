@@ -19,12 +19,12 @@ public class RecordStore {
 	private RandomAccessFile raf;
 	
 	
-	public RecordStore(Dataset dataset) {
+	public RecordStore(Iterable<Record> indexedRecords, Ruleset ruleset) {
 //		Log.log.trace("RecordStore.constructor");
-		ruleset = dataset.ruleSet;
+		this.ruleset = ruleset;
 		posList = new LongArrayList();
 		try {
-			materializeRecords(dataset.getIndexedList());
+			materializeRecords(indexedRecords);
 			raf = new RandomAccessFile(path, "r");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -33,7 +33,7 @@ public class RecordStore {
 		buffer = setBuffer();
 	}
 	
-	private void materializeRecords( Iterable<Record> recordList ) throws IOException {
+	private void materializeRecords(Iterable<Record> recordList) throws IOException {
 		long cur = 0;
 		FileOutputStream fos = new FileOutputStream(path);
 		for ( Record rec : recordList ) {

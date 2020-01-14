@@ -12,15 +12,19 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class TokenIndexBuilder {
 	
-	public static TokenIndex build(Dataset dataset) {
-		TokenIndexBuilder builder = new TokenIndexBuilder();
-		return builder.getTokenIndex(dataset);
+	protected final Iterable<Record> indexedRecords;
+	protected final Iterable<String> ruleStrings;
+	protected final Int2IntOpenHashMap counter;
+
+	public static TokenIndex build(Iterable<Record> indexedRecords, Iterable<String> ruleStrings) {
+		TokenIndexBuilder builder = new TokenIndexBuilder(indexedRecords, ruleStrings);
+		return builder.getTokenIndex();
 	}
 	
-	protected final Int2IntOpenHashMap counter;
-	
-	protected TokenIndexBuilder() {
+	protected TokenIndexBuilder(Iterable<Record> indexedRecords, Iterable<String> ruleStrings) {
 		Log.log.trace("TokenOrder.constructor");
+		this.indexedRecords = indexedRecords;
+		this.ruleStrings = ruleStrings;
 		counter = initCounter();
 	}
 
@@ -30,27 +34,27 @@ public class TokenIndexBuilder {
 		return counter;
 	}
 	
-	public final TokenIndex getTokenIndex(Dataset dataset) {
+	public final TokenIndex getTokenIndex() {
 		Log.log.trace("TokenOrder.getTokenIndex()");
-		countTokens(dataset);
+		countTokens();
 		TokenIndex tokenIndex = buildNewTokenIndex();
 		return tokenIndex;
 	}
 
-	protected void countTokens(Dataset dataset) {
+	protected void countTokens() {
 		Record.tokenIndex = new TokenIndex();
-		countTokensFromRecords(dataset.getIndexedList());
-		countTokensFromRules(dataset.getRuleStrs());
+		countTokensFromRecords();
+		countTokensFromRules();
 	}
 
-	protected final void countTokensFromRecords(Iterable<Record> records) {
-		for ( Record rec : records ) {
+	protected final void countTokensFromRecords() {
+		for ( Record rec : indexedRecords ) {
 			for ( int token : rec.getTokenArray() ) counter.addTo(token, 1);
 		}
 	}
 	
-	protected final void countTokensFromRules(Iterable<String> ruleStrs) {
-		for ( String ruleStr : ruleStrs ) {
+	protected final void countTokensFromRules() {
+		for ( String ruleStr : ruleStrings ) {
 			String[][] rstr = Ruleset.tokenize(ruleStr);
 			int[] rhs = Rule.getTokenIndexArray(rstr[1]);
 			for ( int token : rhs ) counter.addTo(token, 1);

@@ -10,17 +10,19 @@ import snu.kdd.substring_syn.data.IntQGram;
 import snu.kdd.substring_syn.data.IntQGramStore;
 import snu.kdd.substring_syn.data.QGram;
 import snu.kdd.substring_syn.data.RecordStore;
+import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 
 public class TransWindowDataset extends WindowDataset {
 	
-	protected IntQGramStore iqgramStore;
 	protected final double theta;
+	protected final IntQGramStore iqgramStore;
 
-	public TransWindowDataset(DatasetParam param, String theta) {
-		super(param);
+	public TransWindowDataset(DatasetParam param, Ruleset ruleset, RecordStore store, String theta) {
+		super(param, ruleset, store);
 		this.theta = Double.parseDouble(theta);
+		this.iqgramStore = buildIntQGramStore();
 	}
 
 	@Override
@@ -49,8 +51,8 @@ public class TransWindowDataset extends WindowDataset {
 		return l;
 	}
 	
-	public final void buildIntQGramStore() {
-		iqgramStore = new IntQGramStore(getIntQGramsIterable());
+	public final IntQGramStore buildIntQGramStore() {
+		return new IntQGramStore(getIntQGramsIterable());
 	}
 	
 	public final Iterable<Record> getIntQGrams() {
@@ -96,7 +98,7 @@ public class TransWindowDataset extends WindowDataset {
 		QGramGenerator qgen;
 		
 		public IntQGramIterator( int q ) {
-			riter = recordStore.getRecords().iterator();
+			riter = store.getRecords().iterator();
 			this.q = q;
 			findNext();
 		}

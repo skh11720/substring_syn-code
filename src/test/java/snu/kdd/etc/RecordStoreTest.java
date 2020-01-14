@@ -30,7 +30,7 @@ public class RecordStoreTest {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
-		RecordStore store = new RecordStore(dataset);
+		RecordStore store = new RecordStore(dataset.getIndexedList(), dataset.ruleset);
 		
 		for ( Record rec0 : recordList ) {
 			int idx = rec0.getID();
@@ -95,13 +95,6 @@ public class RecordStoreTest {
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<10; ++i ) {
 			System.out.println(dataset.getRecord(i));
-		}
-		
-		int i=0;
-		for ( Record rec : dataset.getRecords() ) {
-			System.out.println(rec);
-			i += 1;
-			if ( i >= 10 ) break;
 		}
 	}
 }

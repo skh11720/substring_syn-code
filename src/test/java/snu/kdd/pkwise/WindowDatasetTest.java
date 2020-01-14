@@ -77,7 +77,7 @@ public class WindowDatasetTest {
 	@Test
 	public void getTransWindowIteratorTest() throws IOException {
 		WindowDataset dataset = TestUtils.getTestWindowDataset("WIKI", "10000", "107836", "5", "1.0");
-		System.out.println(dataset.ruleSet.size());
+		System.out.println(dataset.ruleset.size());
 		int qlen = 5;
 		double theta = 0.6;
 		for ( RecordInterface window : dataset.getTransWindowList(qlen, theta) ) {

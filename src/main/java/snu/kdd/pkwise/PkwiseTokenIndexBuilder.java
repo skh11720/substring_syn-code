@@ -1,6 +1,7 @@
 package snu.kdd.pkwise;
 
-import snu.kdd.substring_syn.data.Dataset;
+import java.util.Iterator;
+
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.TokenIndexBuilder;
 import snu.kdd.substring_syn.data.record.Record;
@@ -8,26 +9,34 @@ import snu.kdd.substring_syn.data.record.RecordInterface;
 
 public class PkwiseTokenIndexBuilder extends TokenIndexBuilder {
 
-	public static TokenIndex build(WindowDataset dataset, int w) {
-		PkwiseTokenIndexBuilder builder = new PkwiseTokenIndexBuilder(w);
-		return builder.getTokenIndex(dataset);
+	private final int w;
+
+	public static TokenIndex build(Iterable<Record> indexedRecords, Iterable<String> ruleStrings, int w) {
+		TokenIndexBuilder builder = new PkwiseTokenIndexBuilder(indexedRecords, ruleStrings, w);
+		return builder.getTokenIndex();
 	}
 	
-	private final int w;
-	
-	private PkwiseTokenIndexBuilder( int w ) {
+	private PkwiseTokenIndexBuilder(Iterable<Record> indexedRecords, Iterable<String> ruleStrings, int w) {
+		super(indexedRecords, ruleStrings);
 		this.w = w;
 	}
 
 	@Override
-	protected void countTokens( Dataset dataset ) {
-		WindowDataset wdataset = (WindowDataset)dataset;
+	protected void countTokens() {
 		Record.tokenIndex = new TokenIndex();
-		countTokensFromRecordWindows(wdataset.getWindowList(w));
-		countTokensFromRules(wdataset.getRuleStrs());
+		countTokensFromRecordWindows();
+		countTokensFromRules();
 	}
 
-	protected final void countTokensFromRecordWindows(Iterable<RecordInterface> windows) {
+	protected final void countTokensFromRecordWindows() {
+		Iterable<RecordInterface> windows = new Iterable<RecordInterface>() {
+			
+			@Override
+			public Iterator<RecordInterface> iterator() {
+				return new WindowDataset.WindowIterator(indexedRecords.iterator(), w);
+			}
+		};
+
 		for ( RecordInterface window : windows ) {
 			for ( int token : window.getTokenArray() ) counter.addTo(token, 1);
 		}

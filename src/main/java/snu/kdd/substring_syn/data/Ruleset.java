@@ -14,10 +14,10 @@ public class Ruleset {
 		this.ruleList = new ObjectArrayList<>();
 	}
 
-	public Ruleset( Dataset dataset ) {
+	public Ruleset(Iterable<Integer> distinctTokens, Iterable<String> ruleStrings) {
 		this.ruleList = new ObjectArrayList<>();
-		createSelfRules(dataset.getDistinctTokens());
-		loadRulesFromDataset(dataset);
+		createSelfRules(distinctTokens);
+		loadRulesFromDataset(ruleStrings);
 		Log.log.info("Ruleset created: %d rules", size());
 	}
 	
@@ -33,8 +33,8 @@ public class Ruleset {
 		return new Rule(id, lhs, rhs);
 	}
 	
-	private void loadRulesFromDataset(Dataset dataset) {
-		for ( String ruleStr : dataset.getRuleStrs() ) {
+	private void loadRulesFromDataset(Iterable<String> ruleStrings) {
+		for ( String ruleStr : ruleStrings ) {
 			ruleList.add(createRule(ruleStr));
 		}
 	}
