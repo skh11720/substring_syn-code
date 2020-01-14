@@ -30,7 +30,7 @@ public class RecordStoreTest {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
-		RecordStore store = new RecordStore(dataset.getIndexedList(), dataset.ruleset);
+		RecordStore store = new RecordStore(recordList, dataset.ruleset);
 		
 		for ( Record rec0 : recordList ) {
 			int idx = rec0.getID();

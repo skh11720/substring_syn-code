@@ -219,13 +219,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokenSet;
 	}
 	
-	public Record getSubrecord( int sidx, int eidx ) {
+	public Record getPartialRecord( int sidx, int eidx ) {
 		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
 		newrec.id = getID();
-		newrec.applicableRules = null;
-		newrec.suffixApplicableRules = null;
+		newrec.applicableRules = new Rule[eidx-sidx][];
+		for ( int i=sidx; i<eidx; ++i ) newrec.applicableRules[i-sidx] = this.applicableRules[i];
+		newrec.suffixApplicableRules = new Rule[eidx-sidx][];
+		for ( int i=sidx; i<eidx; ++i ) newrec.suffixApplicableRules[i-sidx] = this.suffixApplicableRules[i];
 		newrec.transformLengths = null;
-		newrec.suffixRuleLenPairs = null;
+		newrec.suffixRuleLenPairs = new IntPair[eidx-sidx][];
+		for ( int i=sidx; i<eidx; ++i ) newrec.suffixRuleLenPairs[i-sidx] = this.suffixRuleLenPairs[i];
 		return newrec;
 	}
 

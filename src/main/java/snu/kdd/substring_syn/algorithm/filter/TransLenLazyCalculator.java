@@ -1,6 +1,6 @@
 package snu.kdd.substring_syn.algorithm.filter;
 
-import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -82,9 +82,9 @@ public final class TransLenLazyCalculator {
 			eidxCurr += 1;
 			int j = eidxCurr - sidx;
 			ub[j] = lb[j] = j+1;
-			for ( Rule rule : subrec.getSuffixApplicableRules(j) ) {
-				int l = rule.lhsSize();
-				int r = rule.rhsSize();
+			for ( IntPair pair : subrec.getSuperRecord().getSuffixRuleLens(j) ) {
+				int l = pair.i1;
+				int r = pair.i2;
 				if ( j+1 < l ) continue;
 				if ( l <= r ) ub[j] = Math.max(ub[j], r+(j-l>=0? ub[j-l]: 0));
 				if ( l >= r ) lb[j] = Math.min(lb[j], r+(j-l>=0? lb[j-l]: 0));

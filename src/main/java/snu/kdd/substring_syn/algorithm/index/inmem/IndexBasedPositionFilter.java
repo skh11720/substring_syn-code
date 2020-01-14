@@ -229,14 +229,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record rec = dataset.getRecord(ridx).getSubrecord(minPrefixIdx, maxSuffixIdx+1);
+				Record rec = dataset.getRecord(ridx).getPartialRecord(minPrefixIdx, maxSuffixIdx+1);
 				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
 				addToIntList(prefixIdxList, -minPrefixIdx);
 				addToIntList(suffixIdxList, -minPrefixIdx);
-				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
-				rec.preprocessApplicableRules();
-				rec.preprocessSuffixApplicableRules();
-				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
+//				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
+//				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
 				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 //				statContainer.startWatch("Time_TS_IndexFilter.transLen");
 //				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
