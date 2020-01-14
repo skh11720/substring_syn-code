@@ -20,6 +20,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -230,7 +231,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record rec = dataset.getRecord(ridx).getPartialRecord(minPrefixIdx, maxSuffixIdx+1);
+				Record rec = (new Subrecord(dataset.getRecord(ridx), minPrefixIdx, maxSuffixIdx+1)).toRecord();
 				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
 				addToIntList(prefixIdxList, -minPrefixIdx);
 				addToIntList(suffixIdxList, -minPrefixIdx);
@@ -323,9 +324,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
 				int sidx = prefixIdxList.get(i);
 				MergedRange mrange = new MergedRange(sidx);
-				statContainer.startWatch("Time_TS_IndexFilter.transLen");
 				TransLenLazyCalculator transLen = new TransLenLazyCalculator(statContainer, rec, sidx, rec.size()-sidx, theta);
-				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
 				tokenCounter.clear();
 				for ( int j=0; j<suffixIdxList.size(); ++j ) {
 					int eidx = suffixIdxList.get(j);
@@ -353,9 +352,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( MergedRange mrange : segmentRangeList ) {
-					Record subrec = rec.getPartialRecord(mrange.sidx, mrange.eidxList.getInt(mrange.eidxList.size()-1));
+					Subrecord subrec = new Subrecord(rec, mrange.sidx, mrange.eidxList.getInt(mrange.eidxList.size()-1));
 					addToIntList(mrange.eidxList, -mrange.sidx);
-					segmentList.add(new RecordWithEndpoints(subrec, 0, mrange.eidxList));
+					segmentList.add(new RecordWithEndpoints(subrec.toRecord(), 0, mrange.eidxList));
 
 				}
 			}

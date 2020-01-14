@@ -219,18 +219,18 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokenSet;
 	}
 	
-	public Record getPartialRecord( int sidx, int eidx ) {
-		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
-		newrec.id = getID();
-		newrec.applicableRules = new Rule[eidx-sidx][];
-		for ( int i=sidx; i<eidx; ++i ) newrec.applicableRules[i-sidx] = this.applicableRules[i];
-		newrec.suffixApplicableRules = new Rule[eidx-sidx][];
-		for ( int i=sidx; i<eidx; ++i ) newrec.suffixApplicableRules[i-sidx] = this.suffixApplicableRules[i];
-		newrec.transformLengths = null;
-		newrec.suffixRuleLenPairs = new IntPair[eidx-sidx][];
-		for ( int i=sidx; i<eidx; ++i ) newrec.suffixRuleLenPairs[i-sidx] = this.suffixRuleLenPairs[i];
-		return newrec;
-	}
+//	public Record getPartialRecord( int sidx, int eidx ) {
+//		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
+//		newrec.id = getID();
+//		newrec.applicableRules = new Rule[eidx-sidx][];
+//		for ( int i=sidx; i<eidx; ++i ) newrec.applicableRules[i-sidx] = this.applicableRules[i];
+//		newrec.suffixApplicableRules = new Rule[eidx-sidx][];
+//		for ( int i=sidx; i<eidx; ++i ) newrec.suffixApplicableRules[i-sidx] = this.suffixApplicableRules[i];
+//		newrec.transformLengths = null;
+//		newrec.suffixRuleLenPairs = new IntPair[eidx-sidx][];
+//		for ( int i=sidx; i<eidx; ++i ) newrec.suffixRuleLenPairs[i-sidx] = this.suffixRuleLenPairs[i];
+//		return newrec;
+//	}
 
 	public void preprocessAll() {
 		preprocessApplicableRules();

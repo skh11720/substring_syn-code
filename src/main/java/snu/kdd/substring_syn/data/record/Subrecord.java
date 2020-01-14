@@ -177,7 +177,7 @@ public class Subrecord implements RecordInterface {
 	
 	@Override
 	public String toStringDetails() {
-		return toRecord(this).toStringDetails();
+		return toRecord().toStringDetails();
 	}
 	
 	public Record getSuperRecord() {
@@ -267,20 +267,23 @@ public class Subrecord implements RecordInterface {
 		}
 	}
 	
-	public static Record toRecord( Subrecord subrec ) {
-		Record newrec = new Record(subrec.getTokenList().toIntArray());
-		newrec.id = subrec.getID();
+	public Record toRecord() {
+		Record newrec = new Record(this.getTokenList().toIntArray());
+		newrec.id = this.getID();
+		int maxRhsSize = rec.getMaxRhsSize();
 		Rule[][] applicableRules = null;
-		if ( subrec.rec.getApplicableRules() != null ) {
-			applicableRules = new Rule[subrec.size()][];
-			for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-                for ( Rule rule : subrec.getApplicableRules(k-subrec.sidx) ) ruleList.add(rule);
-				applicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-subrec.sidx] );
+		if ( this.rec.getApplicableRules() != null ) {
+			applicableRules = new Rule[this.size()][];
+			int k = this.sidx;
+			for ( ; k<this.eidx-maxRhsSize-1; ++k ) applicableRules[k-this.sidx] = rec.applicableRules[k];
+			for ( ; k<this.eidx; ++k ) {
+				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>(this.getApplicableRules(k-this.sidx).iterator());
+				applicableRules[k-this.sidx] = new Rule[ruleList.size()];
+				ruleList.toArray( applicableRules[k-this.sidx] );
 			}
         }
 		newrec.applicableRules = applicableRules;
+		newrec.preprocessSuffixApplicableRules();
 		return newrec;
 	}
 	

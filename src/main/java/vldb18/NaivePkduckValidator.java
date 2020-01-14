@@ -50,7 +50,7 @@ public class NaivePkduckValidator extends AbstractValidator {
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		if ( areSameString(query, window) ) return true;
-		Record rec = Subrecord.toRecord(window);
+		Record rec = window.toRecord();
 		rec.preprocessAll();
 		for ( Record exp : Records.expands(rec) ) {
 			double sim = Util.subJaccardM(query.getTokenList(), exp.getTokenList());
