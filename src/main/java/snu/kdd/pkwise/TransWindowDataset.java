@@ -13,14 +13,15 @@ import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class TransWindowDataset extends WindowDataset {
 	
 	protected final double theta;
 	protected final IntQGramStore iqgramStore;
 
-	public TransWindowDataset(DatasetParam param, Ruleset ruleset, RecordStore store, String theta) {
-		super(param, ruleset, store);
+	public TransWindowDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store, String theta) {
+		super(statContainer, param, ruleset, store);
 		this.theta = Double.parseDouble(theta);
 		this.iqgramStore = buildIntQGramStore();
 	}

@@ -15,10 +15,14 @@ import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.InputArgument;
+import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class DatasetFactory {
 	
 	private static DatasetParam param;
+	private static StatContainer statContainer;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		param = new DatasetParam(arg);
@@ -38,61 +42,79 @@ public class DatasetFactory {
 		return createInstanceByName(new DatasetParam(name, size, null, null, null));
 	}
 
-//		Log.log.trace("WindowDataset.initTokenIndex()");
-//		statContainer.startWatch("Time_PkwiseTokenIndexBuilder");
-//		Record.tokenIndex = PkwiseTokenIndexBuilder.build(this, qlen);
-//		statContainer.stopWatch("Time_PkwiseTokenIndexBuilder");
-//		Log.log.trace("WindowDataset.initTokenIndex() finished");
-
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
+		statContainer = new StatContainer();
+		statContainer.startWatch(Stat.Time_Prepare_Data);
 		DatasetFactory.param = param;
 		Record.tokenIndex = buildTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
-		DiskBasedDataset dataset = new DiskBasedDataset(param, ruleset, store);
+		DiskBasedDataset dataset = new DiskBasedDataset(statContainer, param, ruleset, store);
+		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
 	}
 	
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
+		statContainer = new StatContainer();
+		statContainer.startWatch(Stat.Time_Prepare_Data);
 		DatasetFactory.param = param;
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
-		WindowDataset dataset = new WindowDataset(param, ruleset, store);
+		WindowDataset dataset = new WindowDataset(statContainer, param, ruleset, store);
+		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
 	}
 
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
+		statContainer = new StatContainer();
+		statContainer.startWatch(Stat.Time_Prepare_Data);
 		DatasetFactory.param = param;
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
-		TransWindowDataset dataset = new TransWindowDataset(param, ruleset, store, theta);
+		TransWindowDataset dataset = new TransWindowDataset(statContainer, param, ruleset, store, theta);
+		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
 	}
 
 	private static TokenIndex buildTokenIndex() {
-		return TokenIndexBuilder.build(indexedRecords(), ruleStrings());
+		Log.log.trace("DataFactory.buildTokenIndex()");
+		statContainer.startWatch("Time_DataFactory.buildTokenIndex");
+		TokenIndex tokenIndex = TokenIndexBuilder.build(indexedRecords(), ruleStrings());
+		statContainer.stopWatch("Time_DataFactory.buildTokenIndex");
+		return tokenIndex;
 	}
 
 	private static TokenIndex buildPkwiseTokenIndex() {
-		return PkwiseTokenIndexBuilder.build(indexedRecords(), ruleStrings(), Integer.parseInt(param.qlen));
+		Log.log.trace("DataFactory.buildPkwiseTokenIndex()");
+		statContainer.startWatch("Time_DataFactory.buildPkwiseTokenIndex");
+		TokenIndex tokenIndex = PkwiseTokenIndexBuilder.build(indexedRecords(), ruleStrings(), Integer.parseInt(param.qlen));
+		statContainer.stopWatch("Time_DataFactory.buildPkwiseTokenIndex");
+		return tokenIndex;
 	}
 
 	private static Ruleset createRuleset() {
+		Log.log.trace("DataFactory.createRuleset()");
+		statContainer.startWatch("Time_DataFactory.createRuleset");
 		Ruleset ruleSet = new Ruleset(getDistinctTokens(), ruleStrings());
 		Rule.automata = new ACAutomataR(ruleSet.get());
+		statContainer.stopWatch("Time_DataFactory.createRuleset");
 		return ruleSet;
 	}
 	
 	private static RecordStore createRecordStore(Ruleset ruleset) {
-		return new RecordStore(indexedRecords(), ruleset);
+		Log.log.trace("DataFactory.createRecordStore()");
+		statContainer.startWatch("Time_DataFactory.createRecordStore");
+		RecordStore store = new RecordStore(indexedRecords(), ruleset);
+		statContainer.stopWatch("Time_DataFactory.createRecordStore");
+		return store;
 	}
 
 	protected static final Iterable<Integer> getDistinctTokens() {

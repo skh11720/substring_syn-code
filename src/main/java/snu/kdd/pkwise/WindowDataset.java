@@ -13,14 +13,15 @@ import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
 public class WindowDataset extends DiskBasedDataset {
 
 	protected final int qlen;
 
-	public WindowDataset(DatasetParam param, Ruleset ruleset, RecordStore store) {
-		super(param, ruleset, store);
+	public WindowDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store) {
+		super(statContainer, param, ruleset, store);
 		qlen = Integer.parseInt(param.qlen);
 	}
 

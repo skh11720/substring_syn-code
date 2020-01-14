@@ -5,13 +5,14 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class DiskBasedDataset extends Dataset {
 	
 	protected RecordStore store;
 	
-	protected DiskBasedDataset(DatasetParam param, Ruleset ruleset, RecordStore store) {
-		super(param, ruleset);
+	protected DiskBasedDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store) {
+		super(statContainer, param, ruleset);
 		this.store = store;
 	}
 	

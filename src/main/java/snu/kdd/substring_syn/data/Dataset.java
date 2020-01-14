@@ -16,15 +16,14 @@ public abstract class Dataset {
 
 
 
-	protected Dataset(DatasetParam param, Ruleset ruleset) {
+	protected Dataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset) {
 		Log.log.trace("Dataset.constructor");
 		this.param = param;
 		this.name = param.getDatasetName();
 		this.size = Integer.parseInt(param.size);
 		this.lenRatio = Double.parseDouble(param.lenRatio);
 		this.ruleset = ruleset;
-		statContainer = new StatContainer();
-		statContainer.startWatch(Stat.Time_Prepare_Data);
+		this.statContainer = statContainer;
 		statContainer.setStat(Stat.Dataset_Name, name);
 		statContainer.setStat(Stat.Dataset_nt, param.size);
 		statContainer.setStat(Stat.Dataset_nr, param.nr);
