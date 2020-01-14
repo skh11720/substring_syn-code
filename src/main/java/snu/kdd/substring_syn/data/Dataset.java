@@ -49,8 +49,7 @@ public abstract class Dataset {
 	protected void initTokenIndex() {
 		Log.log.trace("Dataset.initTokenIndex()");
 		statContainer.startWatch("Time_TokenOrder");
-		TokenOrder order = new TokenOrder(this);
-		Record.tokenIndex = order.getTokenIndex();
+		Record.tokenIndex = TokenIndexBuilder.build(this);
 		statContainer.stopWatch("Time_TokenOrder");
 		Log.log.trace("Dataset.initTokenIndex() finished");
 	}
@@ -111,32 +110,12 @@ public abstract class Dataset {
 
 	public abstract Iterable<Record> getIndexedList();
 	
-	public final Iterable<String> getIndexedStringsFromFile() {
-		return new Iterable<String>() {
-			
-			@Override
-			public Iterator<String> iterator() {
-				return new DiskBasedIndexedStringIterator();
-			}
-		};
-	}
-	
 	public final Iterable<Rule> getRules() {
 		return new Iterable<Rule>() {
 			
 			@Override
 			public Iterator<Rule> iterator() {
 				return new DiskBasedRuleIterator();
-			}
-		};
-	}
-
-	public final Iterable<String> getRuleStrings() {
-		return new Iterable<String>() {
-			
-			@Override
-			public Iterator<String> iterator() {
-				return new DiskBasedRuleStringIterator();
 			}
 		};
 	}
@@ -164,18 +143,6 @@ public abstract class Dataset {
 		}
 	}
 	
-	public abstract class AbstractDiskBasedIndexedDataIterator<T> extends AbstractDiskBasedIterator<T> {
-		
-		public AbstractDiskBasedIndexedDataIterator() {
-			super(indexedPath);
-		}
-
-		@Override
-		public boolean hasNext() {
-			return i < size && iter.hasNext();
-		}
-	}
-	
 	public final class DiskBasedSearchedRecordIterator extends AbstractDiskBasedIterator<Record> {
 
 		public DiskBasedSearchedRecordIterator() {
@@ -189,21 +156,21 @@ public abstract class Dataset {
 		}
 	}
 
-	public final class DiskBasedIndexedStringIterator extends AbstractDiskBasedIndexedDataIterator<String> {
+	public final class DiskBasedIndexedRecordIterator extends AbstractDiskBasedIterator<Record> {
 
-		@Override
-		public String next() {
-			i += 1;
-			return getPrefixWithLengthRatio(iter.next());
+		public DiskBasedIndexedRecordIterator() {
+			super(indexedPath);
 		}
-	}
-
-	public final class DiskBasedIndexedRecordIterator extends AbstractDiskBasedIndexedDataIterator<Record> {
 
 		@Override
 		public Record next() {
 			String line = getPrefixWithLengthRatio(iter.next());
 			return new Record(i++, line);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return i < size && iter.hasNext();
 		}
 	}
 
@@ -218,17 +185,5 @@ public abstract class Dataset {
 			return Rule.createRule(iter.next());
 		}
 
-	}
-
-	public final class DiskBasedRuleStringIterator extends AbstractDiskBasedIterator<String> {
-
-		public DiskBasedRuleStringIterator() {
-			super(rulePath);
-		}
-
-		@Override
-		public String next() {
-			return iter.next();
-		}
 	}
 }

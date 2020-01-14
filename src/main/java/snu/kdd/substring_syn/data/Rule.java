@@ -42,7 +42,7 @@ public class Rule implements Comparable<Rule> {
 	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
 		int[] indexArr = new int[tokenArr.length];
 		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = tokenIndex.getID(tokenArr[i]);
+			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
 		}
 		return indexArr;
 	}
