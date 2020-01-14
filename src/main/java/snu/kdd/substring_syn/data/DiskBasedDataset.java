@@ -10,16 +10,20 @@ import snu.kdd.substring_syn.data.record.Record;
 
 public class DiskBasedDataset extends Dataset {
 	
-	final RecordStore store;
+	RecordStore store;
 	
 	protected DiskBasedDataset(DatasetParam param) throws IOException {
 		super(param);
-		initTokenIndex();
-		store = new RecordStore(getIndexedList());
 	}
 	
 	@Override
-	public void addStat() {
+	protected void buildRecordStore() {
+		store = new RecordStore(getIndexedList());
+		
+	}
+	
+	@Override
+	protected void addStat() {
 		super.addStat();
 		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
 	}

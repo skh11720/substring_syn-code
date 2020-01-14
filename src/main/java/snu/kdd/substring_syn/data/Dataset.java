@@ -48,18 +48,20 @@ public abstract class Dataset {
 	
 	protected void initTokenIndex() {
 		Log.log.trace("Dataset.initTokenIndex()");
-		statContainer.startWatch("Time_TokenOrder");
+		statContainer.startWatch("Time_TokenIndexBuilder");
 		Record.tokenIndex = TokenIndexBuilder.build(this);
-		statContainer.stopWatch("Time_TokenOrder");
+		statContainer.stopWatch("Time_TokenIndexBuilder");
 		Log.log.trace("Dataset.initTokenIndex() finished");
 	}
+	
+	protected abstract void buildRecordStore();
 	
 	protected void createRuleSet() {
 		ruleSet = new Ruleset(this);
 		Rule.automata = new ACAutomataR(ruleSet.get());
 	}
 	
-	public void addStat() {
+	protected void addStat() {
 		Iterable<Record> searchedList = getSearchedList();
 		Iterable<Record> indexedList = getIndexedList();
 		statContainer.setStat(Stat.Dataset_numSearched, Integer.toString(getSize(searchedList)));
@@ -70,7 +72,7 @@ public abstract class Dataset {
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 	}
 	
-	protected Iterable<Integer> getDistinctTokens() {
+	protected final Iterable<Integer> getDistinctTokens() {
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : getSearchedList() ) tokenSet.addAll( rec.getTokens() );
 		for ( Record rec : getIndexedList() ) tokenSet.addAll( rec.getTokens() );
@@ -78,13 +80,13 @@ public abstract class Dataset {
 		return sortedTokenList;
 	}
 	
-	protected long getLengthSum( Iterable<Record> recordList ) {
+	protected final long getLengthSum( Iterable<Record> recordList ) {
 		long sum = 0;
 		for ( Record rec : recordList ) sum += rec.size();
 		return sum;
 	}
 	
-	protected int getSize( Iterable<Record> recordList ) {
+	protected final int getSize( Iterable<Record> recordList ) {
 		int n = 0;
 		for ( @SuppressWarnings("unused") Record rec : recordList ) ++n;
 		return n;

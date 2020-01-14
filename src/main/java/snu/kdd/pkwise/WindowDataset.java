@@ -12,14 +12,26 @@ import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
 public class WindowDataset extends Dataset {
 
 	protected RecordStore recordStore = null;
+	protected final int qlen;
 
 	public WindowDataset(DatasetParam param) {
 		super(param);
+		qlen = Integer.parseInt(param.qlen);
+	}
+
+	@Override
+	public void initTokenIndex() {
+		Log.log.trace("WindowDataset.initTokenIndex()");
+		statContainer.startWatch("Time_PkwiseTokenIndexBuilder");
+		Record.tokenIndex = PkwiseTokenIndexBuilder.build(this, qlen);
+		statContainer.stopWatch("Time_PkwiseTokenIndexBuilder");
+		Log.log.trace("WindowDataset.initTokenIndex() finished");
 	}
 	
 	public final void buildRecordStore() {

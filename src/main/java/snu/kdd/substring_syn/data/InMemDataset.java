@@ -17,6 +17,10 @@ public class InMemDataset extends Dataset {
 		searchedList = new ObjectArrayList<>(new DiskBasedSearchedRecordIterator());
 		indexedList = new ObjectArrayList<>(new DiskBasedIndexedRecordIterator());
 	}
+
+	@Override
+	protected void buildRecordStore() {
+	}
 	
 	@Override
 	public Iterable<Record> getSearchedList() {

@@ -16,13 +16,10 @@ import snu.kdd.substring_syn.utils.QGramGenerator;
 public class TransWindowDataset extends WindowDataset {
 	
 	protected IntQGramStore iqgramStore;
-	public int numIntQGrams;
-	final int qlen;
-	final double theta;
+	protected final double theta;
 
 	public TransWindowDataset(DatasetParam param, String theta) {
 		super(param);
-		this.qlen = Integer.parseInt(param.qlen);
 		this.theta = Double.parseDouble(theta);
 	}
 
@@ -31,7 +28,7 @@ public class TransWindowDataset extends WindowDataset {
 		super.addStat();
 		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
 		statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString());
-		statContainer.setStat("Num_IntQGrams", Integer.toString(((TransWindowDataset)this).numIntQGrams));
+		statContainer.setStat("Num_IntQGrams", Integer.toString(iqgramStore.getNumIntQGrams()));
 	}
 	
 	public final int getMaxQueryTransformLength() {
@@ -54,7 +51,6 @@ public class TransWindowDataset extends WindowDataset {
 	
 	public final void buildIntQGramStore() {
 		iqgramStore = new IntQGramStore(getIntQGramsIterable());
-		numIntQGrams = iqgramStore.getNumIntQGrams();
 	}
 	
 	public final Iterable<Record> getIntQGrams() {

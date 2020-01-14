@@ -2,11 +2,9 @@ package snu.kdd.substring_syn.data;
 
 import java.io.IOException;
 
-import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
 import snu.kdd.pkwise.TransWindowDataset;
 import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.InputArgument;
 
 public class DatasetFactory {
@@ -31,6 +29,8 @@ public class DatasetFactory {
 
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
 		DiskBasedDataset dataset = new DiskBasedDataset(param);
+		dataset.initTokenIndex();
+		dataset.buildRecordStore();
 		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
@@ -39,24 +39,21 @@ public class DatasetFactory {
 	
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		WindowDataset dataset = new WindowDataset(param);
-		Record.tokenIndex = PkwiseTokenIndexBuilder.build(dataset, Integer.parseInt(param.qlen));
+		dataset.initTokenIndex();
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
 		dataset.addStat();
 		dataset.statContainer.finalize();
-//		dataset.ruleSet.writeToFile();
 		return dataset;
 	}
 
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		TransWindowDataset dataset = new TransWindowDataset(param, theta);
-		Record.tokenIndex = PkwiseTokenIndexBuilder.build(dataset, Integer.parseInt(param.qlen));
 		dataset.buildRecordStore();
 		dataset.createRuleSet();
 		dataset.buildIntQGramStore();
 		dataset.addStat();
 		dataset.statContainer.finalize();
-//		dataset.ruleSet.writeToFile();
 		return dataset;
 	}
 }
