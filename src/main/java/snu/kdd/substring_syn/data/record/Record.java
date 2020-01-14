@@ -28,13 +28,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
-	Rule[][] suffixNonselfApplicableRules = null;
 	int[][] transformLengths = null;
 //	long[] estTrans;
 	IntPair[][] suffixRuleLenPairs = null;
 
 	int maxRhsSize = 0;
-	int transSetLB = 0;
 	
 	public Record( int id, String str ) {
 		this.id = id;
@@ -99,10 +97,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokens[i];
 	}
 	
-	public void setToken( int token, int i ) {
-		tokens[i] = token;
-	}
-
 	@Override
 	public int getSidx() {
 		return 0;
@@ -133,11 +127,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return this;
 	}
 	
-	public int getTransSetLB() {
-		if ( transSetLB == 0 ) transSetLB = Records.getTransSetSizeLowerBound(this);
-		return transSetLB;
-	}
-
 	public int getNumApplicableRules() {
 		int count = 0;
 		for( int i = 0; i < applicableRules.length; ++i ) {
@@ -174,10 +163,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		else {
 			return Arrays.asList(Rule.EMPTY_RULE);
 		}
-	}
-
-	public Rule[][] getSuffixApplicableRules() {
-		return suffixApplicableRules;
 	}
 
 	public Iterable<Rule> getSuffixApplicableRules( int k ) {
@@ -221,14 +206,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return maxRhsSize;
 	}
 	
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( Arrays.asList(applicableRules[k]) );
-		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
-		return rules;
-	}
-	
-	@Override
 	public IntOpenHashSet getCandTokenSet() {
 		IntOpenHashSet tokenSet = new IntOpenHashSet();
 		for ( Rule r : getApplicableRuleIterable() ) {

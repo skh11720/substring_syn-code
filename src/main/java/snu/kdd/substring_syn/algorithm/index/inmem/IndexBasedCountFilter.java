@@ -38,7 +38,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	
 	@Override
 	public IntIterable querySideFilter( Record query ) {
-		int minCount = (int)Math.ceil(theta*query.getTransSetLB());
+		int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 //		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		IntSet candTokenSet = query.getCandTokenSet();
