@@ -30,8 +30,8 @@ public class DatasetFactory {
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
 		DiskBasedDataset dataset = new DiskBasedDataset(param);
 		dataset.initTokenIndex();
-		dataset.buildRecordStore();
 		dataset.createRuleSet();
+		dataset.buildRecordStore();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
@@ -40,8 +40,8 @@ public class DatasetFactory {
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		WindowDataset dataset = new WindowDataset(param);
 		dataset.initTokenIndex();
-		dataset.buildRecordStore();
 		dataset.createRuleSet();
+		dataset.buildRecordStore();
 		dataset.addStat();
 		dataset.statContainer.finalize();
 		return dataset;
@@ -49,8 +49,8 @@ public class DatasetFactory {
 
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		TransWindowDataset dataset = new TransWindowDataset(param, theta);
-		dataset.buildRecordStore();
 		dataset.createRuleSet();
+		dataset.buildRecordStore();
 		dataset.buildIntQGramStore();
 		dataset.addStat();
 		dataset.statContainer.finalize();

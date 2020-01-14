@@ -112,12 +112,12 @@ public abstract class Dataset {
 
 	public abstract Iterable<Record> getIndexedList();
 	
-	public final Iterable<Rule> getRules() {
-		return new Iterable<Rule>() {
+	public final Iterable<String> getRuleStrs() {
+		return new Iterable<String>() {
 			
 			@Override
-			public Iterator<Rule> iterator() {
-				return new DiskBasedRuleIterator();
+			public Iterator<String> iterator() {
+				return new DiskBasedRuleStringIterator();
 			}
 		};
 	}
@@ -176,16 +176,15 @@ public abstract class Dataset {
 		}
 	}
 
-	public final class DiskBasedRuleIterator extends AbstractDiskBasedIterator<Rule> {
+	public final class DiskBasedRuleStringIterator extends AbstractDiskBasedIterator<String> {
 		
-		public DiskBasedRuleIterator() {
+		public DiskBasedRuleStringIterator() {
 			super(rulePath);
 		}
 
 		@Override
-		public Rule next() {
-			return Rule.createRule(iter.next());
+		public String next() {
+			return iter.next();
 		}
-
 	}
 }

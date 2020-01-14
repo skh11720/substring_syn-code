@@ -24,7 +24,7 @@ public class PkwiseTokenIndexBuilder extends TokenIndexBuilder {
 		WindowDataset wdataset = (WindowDataset)dataset;
 		Record.tokenIndex = new TokenIndex();
 		countTokensFromRecordWindows(wdataset.getWindowList(w));
-		countTokensFromRules(wdataset.getRules());
+		countTokensFromRules(wdataset.getRuleStrs());
 	}
 
 	protected final void countTokensFromRecordWindows(Iterable<RecordInterface> windows) {

@@ -11,6 +11,7 @@ public class Rule implements Comparable<Rule> {
 	public static ACAutomataR automata;
 	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
+	private final int id;
 	private final int[] lhs;
 	private final int[] rhs;
 //	private final int id;
@@ -18,36 +19,16 @@ public class Rule implements Comparable<Rule> {
 
 	private final int hash;
 
-	public static Rule createRule( String str ) {
-		String[][] rstr = tokenize(str);
-		int[] lhs = getTokenIndexArray(rstr[0], Record.tokenIndex);
-		int[] rhs = getTokenIndexArray(rstr[1], Record.tokenIndex);
-		return new Rule(lhs, rhs);
-	}
-	
-	public static Rule createRule( int from, int to ) {
-		int[] lhs = new int[] {from};
-		int[] rhs = new int[] {to};
-		return new Rule(lhs, rhs);
-	}
-	
-	public static String[][] tokenize( String str ) {
-		String[][] rstr = new String[2][];
-		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
-		rstr[0] = tokens[0].trim().split(" ");
-		rstr[1] = tokens[1].trim().split(" ");
-		return rstr;
-	}
-	
-	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
+	public static int[] getTokenIndexArray( String[] tokenArr ) {
 		int[] indexArr = new int[tokenArr.length];
 		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
+			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenArr[i]);
 		}
 		return indexArr;
 	}
 
-	public Rule( int[] lhs, int[] rhs ) {
+	protected Rule( int id, int[] lhs, int[] rhs ) {
+		this.id = id;
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.hash = computeHash();
@@ -60,6 +41,10 @@ public class Rule implements Comparable<Rule> {
 		for( int i = 0; i < lhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + lhs[ i ];
 		for( int i = 0; i < rhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + rhs[ i ];
 		return hash;
+	}
+	
+	public final int getID() {
+		return id;
 	}
 
 	public int[] getLhs() {

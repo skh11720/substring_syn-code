@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 
 public class Ruleset {
@@ -22,11 +23,48 @@ public class Ruleset {
 	
 	public void createSelfRules( Iterable<Integer> distinctTokens ) {
 		for ( int token : distinctTokens )
-			ruleList.add( Rule.createRule(token, token) );
+			ruleList.add( createSelfRule(token) );
 	}
 
+	protected Rule createSelfRule( int token ) {
+		int[] lhs = new int[] {token};
+		int[] rhs = new int[] {token};
+		int id = ruleList.size();
+		return new Rule(id, lhs, rhs);
+	}
+	
 	private void loadRulesFromDataset(Dataset dataset) {
-		for ( Rule rule : dataset.getRules() ) ruleList.add(rule);
+		for ( String ruleStr : dataset.getRuleStrs() ) {
+			ruleList.add(createRule(ruleStr));
+		}
+	}
+
+	protected Rule createRule( String str ) {
+		String[][] rstr = tokenize(str);
+		int[] lhs = getTokenIndexArray(rstr[0]);
+		int[] rhs = getTokenIndexArray(rstr[1]);
+		int id = ruleList.size();
+		return new Rule(id, lhs, rhs);
+	}
+
+	public static String[][] tokenize( String str ) {
+		String[][] rstr = new String[2][];
+		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
+		rstr[0] = tokens[0].trim().split(" ");
+		rstr[1] = tokens[1].trim().split(" ");
+		return rstr;
+	}
+
+	protected int[] getTokenIndexArray( String[] tokenArr ) {
+		int[] indexArr = new int[tokenArr.length];
+		for ( int i=0; i<tokenArr.length; ++i ) {
+			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenArr[i]);
+		}
+		return indexArr;
+	}
+	
+	public final Rule getRule(int id) {
+		return ruleList.get(id);
 	}
 
 	public Iterable<Rule> get() {

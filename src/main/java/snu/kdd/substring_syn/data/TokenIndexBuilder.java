@@ -40,7 +40,7 @@ public class TokenIndexBuilder {
 	protected void countTokens(Dataset dataset) {
 		Record.tokenIndex = new TokenIndex();
 		countTokensFromRecords(dataset.getIndexedList());
-		countTokensFromRules(dataset.getRules());
+		countTokensFromRules(dataset.getRuleStrs());
 	}
 
 	protected final void countTokensFromRecords(Iterable<Record> records) {
@@ -49,9 +49,11 @@ public class TokenIndexBuilder {
 		}
 	}
 	
-	protected final void countTokensFromRules(Iterable<Rule> rules) {
-		for ( Rule rule : rules ) {
-			for ( int token : rule.getRhs() ) counter.addTo(token, 1);
+	protected final void countTokensFromRules(Iterable<String> ruleStrs) {
+		for ( String ruleStr : ruleStrs ) {
+			String[][] rstr = Ruleset.tokenize(ruleStr);
+			int[] rhs = Rule.getTokenIndexArray(rstr[1]);
+			for ( int token : rhs ) counter.addTo(token, 1);
 		}
 	}
 	
