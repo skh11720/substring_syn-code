@@ -20,7 +20,6 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
-import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -354,9 +353,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( MergedRange mrange : segmentRangeList ) {
-					Subrecord subrec = new Subrecord(rec, mrange.sidx, mrange.eidxList.getInt(mrange.eidxList.size()-1));
+					Record subrec = rec.getPartialRecord(mrange.sidx, mrange.eidxList.getInt(mrange.eidxList.size()-1));
 					addToIntList(mrange.eidxList, -mrange.sidx);
-					segmentList.add(new RecordWithEndpoints(Subrecord.toRecord(subrec), 0, mrange.eidxList));
+					segmentList.add(new RecordWithEndpoints(subrec, 0, mrange.eidxList));
+
 				}
 			}
 			return segmentList;

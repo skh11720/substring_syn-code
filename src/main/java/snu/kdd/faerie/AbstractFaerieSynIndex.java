@@ -40,11 +40,6 @@ public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface 
 		};
 	}
 
-	protected final Iterable<Record> expandIterator(Record rec) {
-		rec.preprocessAll();
-		return Records.expands(rec);
-	}
-
 	protected final IntList buildEntryIdList(Iterable<Record> records) {
 		IntList eidList = new IntArrayList();
 		eidList.add(0);

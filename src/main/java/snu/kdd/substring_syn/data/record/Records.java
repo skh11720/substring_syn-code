@@ -104,7 +104,7 @@ public class Records {
 				}
 				else {
 					rec = rIter.next();
-					rec.preprocessAll();
+					rec.preprocessTransformLength(); // necessary
 					eIter = new ExpandIterator(rec);
 				}
 			}

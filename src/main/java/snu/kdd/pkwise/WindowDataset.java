@@ -123,7 +123,6 @@ public class WindowDataset extends DiskBasedDataset {
 		}
 		
 		protected void preprocessRecord() {
-			rec.preprocessAll();
 			double modifiedTheta = Util.getModifiedTheta(qlen, rec, theta);
 			transLen = new TransLenCalculator(null, rec, modifiedTheta);
 		}

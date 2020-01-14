@@ -68,9 +68,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
 //			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
-			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
-			window.getSuperRecord().preprocessAll();
-			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
 			searchWindowTextSide(query, window);
 		}
 	}

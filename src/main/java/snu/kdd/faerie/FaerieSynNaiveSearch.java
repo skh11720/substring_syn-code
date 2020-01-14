@@ -31,7 +31,6 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 
 	@Override
 	protected void searchRecordTextSide(Record query, Record rec) {
-		rec.preprocessAll();
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		for ( Record recExp : Records.expands(rec) ) {
 			double sim = Util.subJaccardM(query.getTokenArray(), recExp.getTokenArray());

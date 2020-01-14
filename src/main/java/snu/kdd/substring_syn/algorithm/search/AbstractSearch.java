@@ -96,13 +96,10 @@ public abstract class AbstractSearch {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( Record rec : candListTextSide ) {
 			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
-//			if ( rec.getID() != 946 ) continue;
 //			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
+//			if ( rec.getID() != 946 ) continue;
 			statContainer.addCount(Stat.Num_TS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_TS_Retrieved, rec.size());
-			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
-			rec.preprocessAll();
-			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
 			searchRecordTextSide(query, rec);
 		}
 //		Log.log.trace("SearchTextSide.nCand=%d", nCand);

@@ -269,7 +269,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
-	protected void preprocessTransformLength() {
+	public void preprocessTransformLength() {
 		if ( transformLengths != null ) return;
 		transformLengths = new int[ tokens.length ][ 2 ];
 		for( int i = 0; i < tokens.length; ++i )

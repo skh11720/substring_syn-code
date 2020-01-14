@@ -241,6 +241,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 			this.query = query;
 			this.rec = rec;
 			this.theta = theta;
+			rec.preprocessTransformLength();
 			this.maxTransLen = rec.getMaxTransLength();
 			this.g = new int[2][rec.size()+1][maxTransLen+1];
 			this.b = new boolean[rec.size()+1][rec.size()+1];
