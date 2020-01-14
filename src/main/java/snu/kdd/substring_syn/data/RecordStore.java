@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
 
-import org.xerial.snappy.Snappy;
-
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import snu.kdd.substring_syn.data.record.Record;
@@ -15,16 +13,18 @@ import snu.kdd.substring_syn.data.record.Record;
 public class RecordStore {
 
 	public static final String path = "./tmp/RecordStore";
+	private final Ruleset ruleset;
 	private final LongList posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
 	
 	
-	public RecordStore( Iterable<Record> recordList ) {
+	public RecordStore(Dataset dataset) {
 //		Log.log.trace("RecordStore.constructor");
+		ruleset = dataset.ruleSet;
 		posList = new LongArrayList();
 		try {
-			materializeRecords(recordList);
+			materializeRecords(dataset.getIndexedList());
 			raf = new RandomAccessFile(path, "r");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -37,11 +37,14 @@ public class RecordStore {
 		long cur = 0;
 		FileOutputStream fos = new FileOutputStream(path);
 		for ( Record rec : recordList ) {
-//			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, cur=%d", rec.getID(), cur);
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
+			rec.getMaxRhsSize();
 			posList.add(cur);
-			byte[] b = Snappy.compress(rec.getTokenArray());
+			byte[] b = rec.serialize();
 			cur += b.length;
 			fos.write(b);
+//			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, len=%d, cur=%d", rec.getID(), b.length, cur);
 		}
 		fos.close();
 		posList.add(cur);
@@ -67,8 +70,7 @@ public class RecordStore {
 		int len = (int)(posList.get(id+1) - posList.get(id));
 		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);
-		int[] tokens = Snappy.uncompressIntArray(buffer, 0, len);
-		return new Record(id, tokens);
+		return Record.deserialize(buffer, len, ruleset);
 	}
 	
 	public Iterable<Record> getRecords() {
@@ -103,16 +105,7 @@ public class RecordStore {
 
 		@Override
 		public Record next() {
-			int len = (int)(posList.get(i+1) - posList.get(i));
-			int[] tokens = null;
-			try {
-				fis.read(buffer, 0, len);
-				tokens = Snappy.uncompressIntArray(buffer, 0, len);
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			Record rec = new Record(i, tokens);
+			Record rec = getRecord(i);
 			i += 1;
 			return rec;
 		}

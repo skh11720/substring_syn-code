@@ -5,16 +5,17 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Collections;
 import java.util.Random;
 
 import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -26,25 +27,35 @@ public class RecordStoreTest {
 	
 	@Test
 	public void storeAndGetRecords() throws IOException {
-		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
+		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
-		Collections.shuffle(recordList);
-		RecordStore store = new RecordStore(dataset.getIndexedList());
+		RecordStore store = new RecordStore(dataset);
 		
 		for ( Record rec0 : recordList ) {
 			int idx = rec0.getID();
 			Record rec1 = store.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
 		}
+		
+		ObjectListIterator<Record> iter = recordList.iterator();
+		for ( Record rec1 : store.getRecords() ) {
+			Record rec0 = iter.next();
+			rec0.preprocessApplicableRules();
+			rec0.preprocessSuffixApplicableRules();
+			rec0.getMaxRhsSize();
+			boolean[] b = RecordSerializationTest.checkEquivalence(rec0, rec1);
+			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
+		}
 	}
 
+	@Deprecated
 	@SuppressWarnings("unused")
 	@Test
 	public void recordIOWithSnappy() throws IOException {
 		Random rn = new Random();
 		int maxlen = 0;
-		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
+		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		IntList posList = new IntArrayList();
 		int n = 0;
@@ -80,7 +91,7 @@ public class RecordStoreTest {
 	
 	@Test
 	public void iterableTest() throws IOException {
-		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", null);
+		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<10; ++i ) {
 			System.out.println(dataset.getRecord(i));

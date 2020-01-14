@@ -35,7 +35,7 @@ public class WindowDataset extends Dataset {
 	}
 	
 	public final void buildRecordStore() {
-		recordStore = new RecordStore(getIndexedList());
+		recordStore = new RecordStore(this);
 	}
 	
 	@Override

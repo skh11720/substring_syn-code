@@ -18,7 +18,7 @@ public class DiskBasedDataset extends Dataset {
 	
 	@Override
 	protected void buildRecordStore() {
-		store = new RecordStore(getIndexedList());
+		store = new RecordStore(this);
 		
 	}
 	
