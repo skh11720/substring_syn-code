@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -30,5 +32,10 @@ public class DiskBasedNaiveInvertedIndex extends AbstractDiskBasedInvertedIndex<
         IntList rawTrInvList = store.getTrInvList(token);
         if ( rawTrInvList == null ) return null;
         else return new ObjectArrayList<>(rawTrInvList);
+	}
+
+	@Override
+	public BigInteger diskSpaceUsage() {
+		return store.diskSpaceUsage();
 	}
 }

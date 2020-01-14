@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.InvListEntry;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.TransInvListEntry;
@@ -26,5 +28,10 @@ public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedI
 	@Override
 	protected ObjectList<TransInvListEntry> getTinvListFromStore(int token) {
 		return store.getTrInvList(token);
+	}
+
+	@Override
+	public BigInteger diskSpaceUsage() {
+		return store.diskSpaceUsage();
 	}
 }

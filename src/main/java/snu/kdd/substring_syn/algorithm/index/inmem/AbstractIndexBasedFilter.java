@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntIterable;
@@ -26,6 +27,7 @@ public abstract class AbstractIndexBasedFilter {
 	public abstract long transInvListSize();
 	public abstract int getNumInvFault();
 	public abstract int getNumTinvFault();
+	public abstract BigInteger diskSpaceUsage();
 
 	protected abstract IntIterable querySideFilter( Record query );
 	protected abstract IntIterable textSideFilter( Record query );

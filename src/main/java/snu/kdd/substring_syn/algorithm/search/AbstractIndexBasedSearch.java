@@ -43,6 +43,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 		if ( indexFilter != null ) {
 			statContainer.addCount(Stat.Size_Index_InvList, indexFilter.invListSize());
 			statContainer.addCount(Stat.Size_Index_TransInvList, indexFilter.transInvListSize());
+			statContainer.setStat(Stat.Space_Index, indexFilter.diskSpaceUsage().toString());
 		}
 		statContainer.setStat(Stat.Mem_Before_Index, String.format("%.3f", mem_before));
 		statContainer.setStat(Stat.Mem_After_Index, String.format("%.3f", mem_after));

@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -52,5 +54,10 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 			if ( transInvList != null ) candRidxSet.addAll(transInvList);
 		}
 		return candRidxSet;
+	}
+
+	@Override
+	public BigInteger diskSpaceUsage() {
+		return index.diskSpaceUsage();
 	}
 }

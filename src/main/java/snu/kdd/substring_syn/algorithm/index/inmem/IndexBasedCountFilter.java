@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -108,5 +110,10 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			if ( count >= minCount ) candRidxSet.add(ridx);
 		}
 		return candRidxSet;
+	}
+
+	@Override
+	public BigInteger diskSpaceUsage() {
+		return index.diskSpaceUsage();
 	}
 }

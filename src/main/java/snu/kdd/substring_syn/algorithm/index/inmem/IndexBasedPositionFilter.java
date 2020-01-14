@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -396,5 +398,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		public String toString() {
 			return "("+sidx+"\t"+eidxList+")";
 		}
+	}
+
+	@Override
+	public BigInteger diskSpaceUsage() {
+		return index.diskSpaceUsage();
 	}
 }
