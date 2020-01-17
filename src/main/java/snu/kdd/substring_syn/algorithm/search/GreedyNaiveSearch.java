@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
+import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyValidator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -14,7 +15,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 
 	public GreedyNaiveSearch(double theta) {
 		super(theta);
-		validator = new GreedyValidator(theta, statContainer);
+		validator = new ImprovedGreedyValidator(theta, statContainer);
 	}
 
 	@Override

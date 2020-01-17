@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
+import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
@@ -43,7 +44,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		param.put("bLF", Boolean.toString(bLF));
 		param.put("bPF", Boolean.toString(bPF));
 		param.put("index_impl", indexChoice.toString());
-		validator = new GreedyValidator(theta, statContainer);
+		validator = new ImprovedGreedyValidator(theta, statContainer);
 	}
 	
 	@Override
