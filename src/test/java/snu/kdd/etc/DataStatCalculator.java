@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -27,13 +28,13 @@ public class DataStatCalculator {
 			System.exit(1);
 		}
 	}
-
+	
 	@Test
 	public void test() throws IOException {
 		String[] targetList = {
-				"WIKI-DOC,7033538,107836",
-				"PUBMED-DOC,2093351,79011",
-				"AMAZON-DOC,14364973,107836"
+				"WIKI-DOC,"+DatasetInfo.getMaxSize("WIKI-DOC")+",107836",
+				"PUBMED-DOC,"+DatasetInfo.getMaxSize("PUBMED-DOC")+",79011",
+				"AMAZON-DOC,"+DatasetInfo.getMaxSize("AMAZON-DOC")+",107836"
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
