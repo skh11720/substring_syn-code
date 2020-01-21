@@ -12,6 +12,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 
+@Deprecated
 public class TransLenCalculatorTest {
 
 	@Test

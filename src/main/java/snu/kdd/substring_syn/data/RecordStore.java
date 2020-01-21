@@ -66,7 +66,7 @@ public class RecordStore {
 		}
 	}
 	
-	public Record tryGetRecord( int id ) throws IOException {
+	private Record tryGetRecord( int id ) throws IOException {
 		int len = (int)(posList.get(id+1) - posList.get(id));
 		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);

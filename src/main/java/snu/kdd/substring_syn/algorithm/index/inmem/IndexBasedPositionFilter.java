@@ -91,12 +91,16 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( useCF && entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
+				statContainer.startWatch("Time_QS_IndexFilter.getRecord");
 				Record rec = dataset.getRecord(ridx);
+				statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
 				IntList idxList = entry.getValue().idxList;
 				idxList.sort(Integer::compare);
 //				Log.log.trace("idxList=%s", ()->idxList);
 //				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
+				statContainer.startWatch("Time_QS_IndexFilter.pruneSingleRecord");
 				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList);
+				statContainer.stopWatch("Time_QS_IndexFilter.pruneSingleRecord");
 				candRecordSet.addAll(segmentList);
 			}
 			return candRecordSet;

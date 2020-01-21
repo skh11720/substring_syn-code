@@ -14,6 +14,8 @@ import org.junit.Test;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
+import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
@@ -21,6 +23,7 @@ import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
@@ -37,8 +40,22 @@ public class PrefixSearchTest {
 		DatasetParam param = new DatasetParam("AMAZON-DOC", "10000", "1000", "5", "1.0");
 		double theta = 0.6;
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
-		AbstractSearch alg = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+//		AbstractSearch alg = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+		AbstractSearch alg = new PrefixSearch(theta, false, true, IndexChoice.Naive);
 		alg.run(dataset);
+	}
+	
+	@Test
+	public void testExecutionWithEveryOption() throws IOException {
+		DatasetParam param = new DatasetParam("AMAZON-DOC", "10", "1000", "5", "1.0");
+		String argsTmpl = "-data AMAZON-DOC -alg PrefixSearch -nt 10 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
+		for ( AlgorithmFactory.FilterOptionLabel opt : FilterOptionLabel.values() ) {
+			if ( opt == FilterOptionLabel.Fopt_None ) continue;
+			String[] args = String.format(argsTmpl, opt).split(" ");
+			AbstractSearch alg = AlgorithmFactory.createInstance(new InputArgument(args));
+			alg.run(dataset);
+		}
 	}
 	
 	@Ignore

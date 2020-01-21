@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -34,7 +34,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected IntSet expandedPrefix;
 	protected final boolean bLF, bPF;
 	protected final GreedyValidator validator;
-	protected TransLenCalculator transLenCalculator = null;
+	protected TransLenLazyCalculator transLenCalculator = null;
+	protected double modifiedTheta;
 
 	
 	public PrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
@@ -136,20 +137,19 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
 //		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
-		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+		modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
-		if (bLF || bPF) {
-			statContainer.startWatch("Time_TS_searchRecord.transLen");
-			transLenCalculator = new TransLenCalculator(statContainer, rec, modifiedTheta);
-			statContainer.stopWatch("Time_TS_searchRecord.transLen");
-		}
+//		if (bLF || bPF) {
+//			statContainer.startWatch("Time_TS_searchRecord.transLen");
+//			transLenCalculator = new TransLenLazyCalculator(statContainer, rec, 0, rec.size(), modifiedTheta);
+//			statContainer.stopWatch("Time_TS_searchRecord.transLen");
+//		}
 		
 		if (bPF) searchRecordTextSideWithPrefixFilter(query, rec);
 		else searchRecordTextSideWithoutPrefixFilter(query, rec);
 	}
 	
 	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
-		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
@@ -158,6 +158,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		for ( int target : candTokenList ) {
 			pkduckdp.setTarget(target);
 			for ( int widx=0; widx<rec.size(); ++widx ) {
+				transLenCalculator = new TransLenLazyCalculator(statContainer, rec, widx, rec.size()-widx, modifiedTheta);
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
 //					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
@@ -171,6 +172,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
+			transLenCalculator = new TransLenLazyCalculator(statContainer, rec, widx, rec.size()-widx, modifiedTheta);
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
 				if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 				if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
@@ -188,8 +190,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected final ReturnStatus applyLengthFilterTextSide( Record query, int widx, int w ) {
-		if ( transLenCalculator.getLFLB(widx, widx+w-1) > query.size() ) return ReturnStatus.Break;
 		statContainer.addCount(Stat.Len_TS_LF, w);
+		if ( transLenCalculator.getLFLB(widx+w-1) > query.size() ) return ReturnStatus.Break;
 		return ReturnStatus.None;
 	}
 	
@@ -250,7 +252,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 		
 		public void compute( int i, int v ) {
-			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
+			for ( int l=1; l<=transLenCalculator.getUB(i+v-2); ++l ) {
 				for (Rule rule : rec.getSuffixApplicableRules( i+v-2 )) {
 					if ( l - rule.rhsSize() < 0 ) continue;
 					int num_smaller = 0;
@@ -353,7 +355,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		
 		@Override
 		public void compute(int i, int v) {
-			for ( int l=1; l<=transLenCalculator.getUB(i-1, i+v-2); ++l ) {
+			for ( int l=1; l<=transLenCalculator.getUB(i+v-2); ++l ) {
 				for ( Object2IntMap.Entry<IntPair> e : numSmallestThanTarget0.get(i+v-2).object2IntEntrySet() ) {
 					int lhsSize = e.getKey().i1;
 					int rhsSize = e.getKey().i2;
