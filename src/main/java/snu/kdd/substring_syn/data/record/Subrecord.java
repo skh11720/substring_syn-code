@@ -6,6 +6,9 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -270,20 +273,35 @@ public class Subrecord implements RecordInterface {
 	public Record toRecord() {
 		Record newrec = new Record(this.getTokenList().toIntArray());
 		newrec.id = this.getID();
-		int maxRhsSize = rec.getMaxRhsSize();
+
 		Rule[][] applicableRules = null;
-		if ( this.rec.getApplicableRules() != null ) {
-			applicableRules = new Rule[this.size()][];
-			int k = this.sidx;
-			for ( ; k<this.eidx-maxRhsSize-1; ++k ) applicableRules[k-this.sidx] = rec.applicableRules[k];
-			for ( ; k<this.eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>(this.getApplicableRules(k-this.sidx).iterator());
-				applicableRules[k-this.sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-this.sidx] );
+		if ( this.rec.applicableRules != null ) {
+			applicableRules = new Rule[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
 			}
         }
 		newrec.applicableRules = applicableRules;
-		newrec.preprocessSuffixApplicableRules();
+
+		Rule[][] suffixApplicableRules = null;
+		if ( this.rec.suffixApplicableRules != null ) {
+			suffixApplicableRules = new Rule[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
+			}
+		}
+		newrec.suffixApplicableRules = suffixApplicableRules;
+
+		IntPair[][] suffixRuleLenPairs = null;
+		if ( this.rec.suffixApplicableRules != null ) {
+			suffixRuleLenPairs = new IntPair[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
+				for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
+				suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
+			}
+		}
+		newrec.suffixRuleLenPairs = suffixRuleLenPairs;
 		return newrec;
 	}
 	
