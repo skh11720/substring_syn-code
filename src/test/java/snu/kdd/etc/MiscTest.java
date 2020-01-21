@@ -62,7 +62,7 @@ public class MiscTest {
 		for ( Record rec : dataset.getIndexedList() ) {
 			int n1 = 0;
 			for ( int k=0; k<rec.size(); ++k ) {
-				for ( Rule rule : rec.getApplicableRules()[k] ) ++n1;
+				for ( Rule rule : rec.getApplicableRules(k) ) ++n1;
 			}
 			
 			int n2 = 0;

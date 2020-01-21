@@ -164,7 +164,7 @@ public class Records {
 			
 			public State( Record rec ) {
 				this.rec = rec;
-				rules = rec.getApplicableRules();
+				rules = rec.applicableRules;
 				ruleList = new Rule[rec.size()];
 				ridxList = new int[rec.size()];
 				expand = new int[rec.getMaxTransLength()];

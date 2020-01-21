@@ -21,7 +21,7 @@ public class RecordSerializationTest {
 		BooleanArrayList list = new BooleanArrayList();
 		list.add(rec0.getID() == rec1.getID());
 		list.add(rec0.size() == rec1.size());
-		list.add(rec0.getApplicableRules().length == rec1.getApplicableRules().length);
+//		list.add(rec0.getApplicableRules().length == rec1.getApplicableRules().length);
 		for ( int i=0; i<rec0.size(); ++i ) {
 			list.add(rec0.getToken(i) == rec1.getToken(i));
 			Iterator<Rule> iter0;
