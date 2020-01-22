@@ -1,5 +1,6 @@
 package snu.kdd.etc;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileOutputStream;
@@ -36,6 +37,13 @@ public class RecordStoreTest {
 			int idx = rec0.getID();
 			Record rec1 = store.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
+		}
+
+		for ( int i=0; i<dataset.size; ++i ) {
+			Record rec0 = recordList.get(i);
+			Record rec1 = store.getRawRecord(i);
+			assertEquals(rec0.getID(), rec1.getID());
+			assertEquals(rec0, rec1);
 		}
 		
 		ObjectListIterator<Record> iter = recordList.iterator();

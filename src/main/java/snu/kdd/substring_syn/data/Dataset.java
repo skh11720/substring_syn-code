@@ -59,6 +59,8 @@ public abstract class Dataset {
 	}
 
 	public abstract Iterable<Record> getIndexedList();
+
+	public abstract Record getRawRecord(int id);
 	
 	public abstract Record getRecord(int id);
 }
