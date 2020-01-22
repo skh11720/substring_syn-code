@@ -47,15 +47,25 @@ public class PrefixSearchTest {
 	
 	@Test
 	public void testExecutionWithEveryOption() throws IOException {
-		DatasetParam param = new DatasetParam("AMAZON-DOC", "10", "1000", "5", "1.0");
+		DatasetParam param = new DatasetParam("AMAZON-DOC", "100", "1000", "5", "0.2");
 		String argsTmpl = "-data AMAZON-DOC -alg PrefixSearch -nt 10 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
+		String outputTmpl = "%20s%20.6f%20.6f%20.6f%10d%10d%10d\n";
+		StringBuilder strbld = new StringBuilder(String.format("%20s%20s%20s%10s%10s%10s\n", "FilterOption", "T_Total", "T_Qside", "T_Tside", "Num_Result", "Num_QS_Result", "Num_TS_Result"));
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( AlgorithmFactory.FilterOptionLabel opt : FilterOptionLabel.values() ) {
-			if ( opt == FilterOptionLabel.Fopt_None ) continue;
+//			if ( opt == FilterOptionLabel.Fopt_None ) continue;
 			String[] args = String.format(argsTmpl, opt).split(" ");
 			AbstractSearch alg = AlgorithmFactory.createInstance(new InputArgument(args));
 			alg.run(dataset);
+			strbld.append(String.format(outputTmpl, opt, 
+					Double.parseDouble(alg.getStat(Stat.Time_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_QS_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_TS_Total)), 
+					Integer.parseInt(alg.getStat(Stat.Num_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Num_QS_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Result))));
 		}
+		System.out.println(strbld.toString());
 	}
 	
 	@Ignore
