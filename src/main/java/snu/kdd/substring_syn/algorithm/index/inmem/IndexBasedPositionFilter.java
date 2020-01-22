@@ -92,7 +92,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				if ( useCF && entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
 				statContainer.startWatch("Time_QS_IndexFilter.getRecord");
-				Record rec = dataset.getRecord(ridx);
+				Record rec = dataset.getRawRecord(ridx);
 				statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
 				IntList idxList = entry.getValue().idxList;
 				idxList.sort(Integer::compare);
