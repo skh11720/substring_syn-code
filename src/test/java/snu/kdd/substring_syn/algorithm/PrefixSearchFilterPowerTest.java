@@ -47,7 +47,7 @@ public class PrefixSearchFilterPowerTest {
 			this.size = size;
 			this.ql = ql;
 			this.lr = lr;
-			if ( this.name.equals("PUBMED") ) this.nr = "79011";
+			if ( this.name.startsWith("PUBMED") ) this.nr = "79011";
 			else this.nr = "107836";
 			this.bLF = bLF;
 			this.bPF = bPF;
