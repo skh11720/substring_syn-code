@@ -10,7 +10,6 @@ public abstract class Dataset {
 	public final DatasetParam param;
 	public final String name;
 	public final int size;
-	public final double lenRatio;
 	public final Ruleset ruleset;
 	public final StatContainer statContainer;
 
@@ -21,7 +20,6 @@ public abstract class Dataset {
 		this.param = param;
 		this.name = param.getDatasetName();
 		this.size = Integer.parseInt(param.size);
-		this.lenRatio = Double.parseDouble(param.lenRatio);
 		this.ruleset = ruleset;
 		this.statContainer = statContainer;
 		statContainer.setStat(Stat.Dataset_Name, name);
