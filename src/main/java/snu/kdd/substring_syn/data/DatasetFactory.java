@@ -190,12 +190,12 @@ public class DatasetFactory {
 					private final String getPrefixWithLengthRatio(String str) {
 						int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
 						int eidx=0;
-						int len0 = (int)(nTokens*lenRatio);
+						int len0 = (int)Math.max(1, nTokens*lenRatio);
 						int len = 0;
 						for ( ; eidx<str.length(); ++eidx ) {
 							if ( str.charAt(eidx) == ' ' ) {
 								len += 1;
-								if ( len == len0 ) break;
+								if ( len >= len0 ) break;
 							}
 						}
 						return str.substring(0, eidx);
