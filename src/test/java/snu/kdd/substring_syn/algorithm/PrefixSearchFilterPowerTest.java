@@ -36,15 +36,17 @@ public class PrefixSearchFilterPowerTest {
 		final String size;
 		final String ql;
 		final String nr;
+		final String lr;
 		final boolean bLF;
 		final boolean bPF;
 		final IndexChoice index_impl;
 		
-		public Param( double theta, String name, String size, String ql, boolean bLF, boolean bPF, IndexChoice index_impl ) {
+		public Param( double theta, String name, String size, String ql, String lr, boolean bLF, boolean bPF, IndexChoice index_impl ) {
 			this.theta = theta;
 			this.name = name;
 			this.size = size;
 			this.ql = ql;
+			this.lr = lr;
 			if ( this.name.equals("PUBMED") ) this.nr = "79011";
 			else this.nr = "107836";
 			this.bLF = bLF;
@@ -67,9 +69,10 @@ public class PrefixSearchFilterPowerTest {
 	public static Collection<Param> provideParams() {
 		ObjectList<Param> paramList = new ObjectArrayList<>();
 		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-		String[] nameList = {"WIKI", "PUBMED", "AMAZON"};
-		String[] sizeList = {"100000"};
+		String[] nameList = {"WIKI-DOC", "PUBMED-DOC", "AMAZON-DOC"};
+		String[] sizeList = {"10000"};
 		String[] qlList = {"3", "5"};
+		String[] lrList = {"0.2", "0.6", "1.0"};
 		FilterOption[] optionList = {
 				new FilterOption(FilterOptionLabel.Fopt_None),
 				new FilterOption(FilterOptionLabel.Fopt_Index),
@@ -83,12 +86,14 @@ public class PrefixSearchFilterPowerTest {
 				new FilterOption(FilterOptionLabel.Fopt_CPL),
 				new FilterOption(FilterOptionLabel.Fopt_CPLR),
 		};
-		for ( String ql : qlList ) {
-			for ( double theta : thetaList ) {
-				for (String name : nameList ) {
-					for ( String size : sizeList ) {
-						for ( FilterOption opt : optionList ) {
-							paramList.add( new Param(theta, name, size, ql, opt.bLF, opt.bPF, opt.indexChoice) );
+		for ( String lr : lrList ) {
+			for ( String ql : qlList ) {
+				for ( double theta : thetaList ) {
+					for (String name : nameList ) {
+						for ( String size : sizeList ) {
+							for ( FilterOption opt : optionList ) {
+								paramList.add( new Param(theta, name, size, ql, lr, opt.bLF, opt.bPF, opt.indexChoice) );
+							}
 						}
 					}
 				}
@@ -103,7 +108,7 @@ public class PrefixSearchFilterPowerTest {
 
 	@Test
 	public void test() throws IOException {
-		DatasetParam dParam = new DatasetParam(param.name, param.size, param.nr, param.ql, null);
+		DatasetParam dParam = new DatasetParam(param.name, param.size, param.nr, param.ql, param.lr);
 		Dataset dataset = DatasetFactory.createInstanceByName(dParam);
 		
 		AbstractSearch prefixSearch = null;
