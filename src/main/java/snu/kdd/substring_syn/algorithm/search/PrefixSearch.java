@@ -453,7 +453,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.21: fix bug in length filter
 		 * 6.22: fix bug in PF and LF
 		 * 6.23: speedup filters and use maximum matching
+		 * 6.24: use RecordPool
 		 */
-		return "6.23.1";
+		return "6.24";
 	}
 }
