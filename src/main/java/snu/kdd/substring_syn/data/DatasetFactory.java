@@ -51,8 +51,6 @@ public class DatasetFactory {
 		RecordStore store = createRecordStore(ruleset);
 		DiskBasedDataset dataset = new DiskBasedDataset(statContainer, param, ruleset, store);
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
-		dataset.addStat();
-		dataset.statContainer.finalize();
 		return dataset;
 	}
 	
@@ -65,8 +63,6 @@ public class DatasetFactory {
 		RecordStore store = createRecordStore(ruleset);
 		WindowDataset dataset = new WindowDataset(statContainer, param, ruleset, store);
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
-		dataset.addStat();
-		dataset.statContainer.finalize();
 		return dataset;
 	}
 
@@ -79,8 +75,6 @@ public class DatasetFactory {
 		RecordStore store = createRecordStore(ruleset);
 		TransWindowDataset dataset = new TransWindowDataset(statContainer, param, ruleset, store, theta);
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
-		dataset.addStat();
-		dataset.statContainer.finalize();
 		return dataset;
 	}
 

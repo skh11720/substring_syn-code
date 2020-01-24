@@ -29,15 +29,11 @@ public abstract class Dataset {
 		statContainer.setStat(Stat.Dataset_lr, param.lenRatio);
 	}
 	
-	protected void addStat() {
+	public void addStat() {
 		Iterable<Record> searchedList = getSearchedList();
-		Iterable<Record> indexedList = getIndexedList();
 		statContainer.setStat(Stat.Dataset_numSearched, Integer.toString(getSize(searchedList)));
-		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(getSize(indexedList)));
-		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleset.size()));
 		statContainer.setStat(Stat.Len_SearchedAll, Long.toString(getLengthSum(searchedList)));
-		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(getLengthSum(indexedList)));
-		statContainer.stopWatch(Stat.Time_Prepare_Data);
+		statContainer.setStat(Stat.Dataset_numRule, Integer.toString(ruleset.size()));
 	}
 	
 	protected final long getLengthSum( Iterable<Record> recordList ) {

@@ -39,14 +39,15 @@ public abstract class AbstractSearch {
 		StatContainer.global = statContainer;
 	}
 	
-	public void run( Dataset dataset ) {
+	public final void run( Dataset dataset ) {
 		statContainer.setAlgorithm(this);
-		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
 		searchBody(dataset);
 		statContainer.stopWatch(Stat.Time_Total);
 		putResultIntoStat();
+		dataset.addStat();
+		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
 	}
@@ -54,7 +55,7 @@ public abstract class AbstractSearch {
 	protected void prepareSearch( Dataset dataset ) {
 	}
 	
-	protected final void searchBody( Dataset dataset ) {
+	protected void searchBody( Dataset dataset ) {
 		for ( Record query : dataset.getSearchedList() ) {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);

@@ -21,22 +21,14 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		param.put("qlen", Integer.toString(qlen));
 		param.put("kmax", Integer.toString(kmax));
 	}
-
-	@Override
-	public final void run( Dataset dataset ) {
-		statContainer.setAlgorithm(this);
-		statContainer.mergeStatContainer(dataset.statContainer);
-		statContainer.startWatch(Stat.Time_Total);
-		prepareSearch(dataset);
-		pkwiseSearch((WindowDataset)dataset);
-		statContainer.stopWatch(Stat.Time_Total);
-		putResultIntoStat();
-		statContainer.finalizeAndOutput();
-		outputResult(dataset);
-	}
 	
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
+	}
+	
+	@Override
+	protected void searchBody(Dataset dataset) {
+		pkwiseSearch((WindowDataset)dataset);
 	}
 	
 	protected final void pkwiseSearch( WindowDataset dataset ) {

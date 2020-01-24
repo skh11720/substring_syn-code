@@ -21,6 +21,14 @@ public class RecordStore {
 	private final LongList posListTS;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
+	private final RecordPool poolQS;
+	private final RecordPool poolTS;
+	
+	private int nRecFaultQS = 0;
+	private int nRecFaultTS = 0;
+	
+	private int numRecords = 0;
+	private long lenSum = 0;
 	
 	
 	public RecordStore(Iterable<Record> indexedRecords, Ruleset ruleset) {
@@ -36,6 +44,8 @@ public class RecordStore {
 			System.exit(1);
 		}
 		buffer = setBuffer();
+		poolQS = new RecordPool();
+		poolTS = new RecordPool();
 	}
 	
 	private void materializeRecords(Iterable<Record> recordList) throws IOException {
@@ -43,6 +53,8 @@ public class RecordStore {
 		byte[] b;
 		FileOutputStream fos = new FileOutputStream(path);
 		for ( Record rec : recordList ) {
+			numRecords += 1;
+			lenSum += rec.size();
 			rec.preprocessApplicableRules();
 			rec.preprocessSuffixApplicableRules();
 			rec.getMaxRhsSize();
@@ -80,6 +92,16 @@ public class RecordStore {
 	}
 	
 	private Record tryGetRecord( int id ) throws IOException {
+		if ( poolTS.containsKey(id) ) return poolTS.get(id);
+		else {
+			Record rec = getRecordFromStore(id);
+			poolTS.put(id, rec);
+			nRecFaultTS += 1;
+			return rec;
+		}
+	}
+	
+	private Record getRecordFromStore(int id) throws IOException {
 		int len = (int)(posListQS.get(id+1) - posListTS.get(id));
 		raf.seek(posListTS.get(id));
 		raf.read(buffer, 0, len);
@@ -95,8 +117,18 @@ public class RecordStore {
 			return null;
 		}
 	}
+	
+	private Record tryGetRawRecord(int id) throws IOException {
+		if ( poolQS.containsKey(id) ) return poolQS.get(id);
+		else {
+			Record rec = getRawRecordFromStore(id);
+			poolQS.put(id, rec);
+			nRecFaultQS += 1;
+			return rec;
+		}
+	}
 
-	private Record tryGetRawRecord( int id ) throws IOException {
+	private Record getRawRecordFromStore( int id ) throws IOException {
 		int len = (int)(posListTS.get(id) - posListQS.get(id));
 		raf.seek(posListQS.get(id));
 		raf.read(buffer, 0, len);
@@ -113,6 +145,14 @@ public class RecordStore {
 			}
 		};
 	}
+	
+	public final int getNumFaultQS() { return nRecFaultQS; }
+
+	public final int getNumFaultTS() { return nRecFaultTS; }
+	
+	public final int getNumRecords() { return numRecords; }
+
+	public final long getLenSum() { return lenSum; }
 	
 	class RecordIterator implements Iterator<Record> {
 		
