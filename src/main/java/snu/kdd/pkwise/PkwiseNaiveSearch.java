@@ -36,7 +36,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 			long ts = System.nanoTime();
 			pkwiseSearchGivenQuery(query, dataset);
 			double searchTime = (System.nanoTime()-ts)/1e6;
-			statContainer.addSampleValue("Time_SearchPerQuery", searchTime);
+			statContainer.addSampleValue(Stat.Time_SearchPerQuery, searchTime);
 			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->searchTime);
 		}
 	}

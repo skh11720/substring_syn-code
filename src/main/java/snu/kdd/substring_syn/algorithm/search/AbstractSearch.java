@@ -47,6 +47,7 @@ public abstract class AbstractSearch {
 		statContainer.stopWatch(Stat.Time_Total);
 		putResultIntoStat();
 		dataset.addStat();
+		dataset.statContainer.finalize();
 		statContainer.mergeStatContainer(dataset.statContainer);
 		statContainer.finalizeAndOutput();
 		outputResult(dataset);
@@ -60,7 +61,7 @@ public abstract class AbstractSearch {
 			long ts = System.nanoTime();
 			searchGivenQuery(query, dataset);
 			double searchTime = (System.nanoTime()-ts)/1e6;
-			statContainer.addSampleValue("Time_SearchPerQuery", searchTime);
+			statContainer.addSampleValue(Stat.Time_SearchPerQuery, searchTime);
 			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->searchTime);
 		}
 	}
