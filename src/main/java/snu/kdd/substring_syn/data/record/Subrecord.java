@@ -115,6 +115,11 @@ public class Subrecord implements RecordInterface {
 			}
 		};
 	}
+	
+	public IntPair[] getSuffixRuleLens( int k ) {
+		//TODO: subrec.suffixRuleLens should be computed exactly
+		return rec.getSuffixRuleLens(sidx+k);
+	}
 
 	@Override
 	public int getMaxRhsSize() {

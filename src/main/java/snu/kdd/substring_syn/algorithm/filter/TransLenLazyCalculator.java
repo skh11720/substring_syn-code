@@ -82,7 +82,7 @@ public final class TransLenLazyCalculator {
 			eidxCurr += 1;
 			int j = eidxCurr - sidx;
 			ub[j] = lb[j] = j+1;
-			for ( IntPair pair : subrec.getSuperRecord().getSuffixRuleLens(j) ) {
+			for ( IntPair pair : subrec.getSuffixRuleLens(j) ) {
 				int l = pair.i1;
 				int r = pair.i2;
 				if ( j+1 < l ) continue;
