@@ -69,10 +69,10 @@ public class PrefixSearchFilterPowerTest {
 	public static Collection<Param> provideParams() {
 		ObjectList<Param> paramList = new ObjectArrayList<>();
 		double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
-		String[] nameList = {"WIKI-DOC", "PUBMED-DOC", "AMAZON-DOC"};
+		String[] nameList = {"WIKI", "PUBMED", "AMAZON"};
 		String[] sizeList = {"10000"};
 		String[] qlList = {"3", "5"};
-		String[] lrList = {"0.2", "0.6", "1.0"};
+		String[] lrList = {"1.0"};
 		FilterOption[] optionList = {
 				new FilterOption(FilterOptionLabel.Fopt_None),
 				new FilterOption(FilterOptionLabel.Fopt_Index),
