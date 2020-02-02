@@ -48,4 +48,9 @@ public class DatasetParam {
 			System.exit(1);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("DatasetParam(%s, %s, %s, %s, %s)", name ,size, nr, qlen ,lenRatio);
+	}
 }

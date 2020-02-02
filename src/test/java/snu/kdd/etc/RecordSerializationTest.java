@@ -3,6 +3,7 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.junit.Test;
@@ -13,6 +14,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordSerializer;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordSerializationTest {
@@ -48,8 +50,10 @@ public class RecordSerializationTest {
 			rec0.preprocessSuffixApplicableRules();
 			rec0.getMaxRhsSize();
 			
-			byte[] buf = rec0.serialize();
-			Record rec1 = Record.deserialize(buf, buf.length, dataset.ruleset);
+			RecordSerializer.serialize(rec0);
+			byte[] buf = RecordSerializer.bbuf;
+			int blen = RecordSerializer.blen;
+			Record rec1 = RecordSerializer.deserialize(buf, blen, dataset.ruleset);
 			boolean[] b = checkEquivalence(rec0, rec1);
 			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
 		}
@@ -72,14 +76,14 @@ public class RecordSerializationTest {
 			rec.preprocessSuffixApplicableRules();
 			rec.getMaxRhsSize();
 			stat.startWatch("Record.serialize");
-			byte[] b = rec.serialize();
+			RecordSerializer.serialize(rec);
 			stat.stopWatch("Record.serialize");
-			bs[rec.getID()] = b;
+			bs[rec.getID()] = Arrays.copyOf(RecordSerializer.bbuf, RecordSerializer.blen);
 		}
 		
 		for ( int i=0; i<bs.length; ++i ) {
 			stat.startWatch("Record.deserialize");
-			Record rec = Record.deserialize(bs[i], bs[i].length, dataset.ruleset);
+			Record rec = RecordSerializer.deserialize(bs[i], bs[i].length, dataset.ruleset);
 			stat.stopWatch("Record.deserialize");
 		}
 

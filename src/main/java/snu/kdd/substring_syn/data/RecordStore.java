@@ -9,16 +9,17 @@ import java.util.Iterator;
 import org.xerial.snappy.Snappy;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordSerializer;
+import snu.kdd.substring_syn.utils.FileBasedLongList;
+import snu.kdd.substring_syn.utils.Log;
 
 public class RecordStore {
 
 	public static final String path = "./tmp/RecordStore";
 	private final Ruleset ruleset;
-	private final LongList posListQS;
-	private final LongList posListTS;
+	private final FileBasedLongList posListQS;
+	private final FileBasedLongList posListTS;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
 	private final RecordPool poolQS;
@@ -34,8 +35,8 @@ public class RecordStore {
 	public RecordStore(Iterable<Record> indexedRecords, Ruleset ruleset) {
 //		Log.log.trace("RecordStore.constructor");
 		this.ruleset = ruleset;
-		posListQS = new LongArrayList();
-		posListTS = new LongArrayList();
+		posListQS = new FileBasedLongList("posListQS");
+		posListTS = new FileBasedLongList("posListTS");
 		try {
 			materializeRecords(indexedRecords);
 			raf = new RandomAccessFile(path, "r");
@@ -49,8 +50,8 @@ public class RecordStore {
 	}
 	
 	private void materializeRecords(Iterable<Record> recordList) throws IOException {
+		Log.log.trace("recordStore.materializeRecords()");
 		long cur = 0;
-		byte[] b;
 		FileOutputStream fos = new FileOutputStream(path);
 		for ( Record rec : recordList ) {
 			numRecords += 1;
@@ -59,16 +60,13 @@ public class RecordStore {
 			rec.preprocessSuffixApplicableRules();
 			rec.getMaxRhsSize();
 			posListQS.add(cur);
-			IntArrayList idAndTokens = new IntArrayList();
-			idAndTokens.add(rec.getID());
-			idAndTokens.addAll(rec.getTokens());
-			b = Snappy.compress(idAndTokens.toIntArray());
-			cur += b.length;
-			fos.write(b);
+			RecordSerializer.shallowSerialize(rec);
+			cur += RecordSerializer.blen;
+			fos.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
 			posListTS.add(cur);
-			b = rec.serialize();
-			cur += b.length;
-			fos.write(b);
+			RecordSerializer.serialize(rec);
+			cur += RecordSerializer.blen;
+			fos.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
 //			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, len=%d, cur=%d", rec.getID(), b.length, cur);
 		}
 		fos.close();
@@ -105,7 +103,7 @@ public class RecordStore {
 		int len = (int)(posListQS.get(id+1) - posListTS.get(id));
 		raf.seek(posListTS.get(id));
 		raf.read(buffer, 0, len);
-		return Record.deserialize(buffer, len, ruleset);
+		return RecordSerializer.deserialize(buffer, len, ruleset);
 	}
 	
 	public Record getRawRecord( int id ) {
