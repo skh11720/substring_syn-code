@@ -31,7 +31,7 @@ public class Records {
 					expandAll( rslt, rec, idx + 1, t );
 				}
 				else {
-					rslt.add( new Record( t ) );
+					rslt.add( new Record( t, t.length ) );
 				}
 			}
 			else {
@@ -57,7 +57,7 @@ public class Records {
 
 				int new_idx = idx + rule.lhsSize();
 				if( new_idx == rec.size() ) {
-					rslt.add( new Record( new_rec ) );
+					rslt.add( new Record( new_rec, new_rec.length ) );
 				}
 				else {
 					expandAll( rslt, rec, new_idx, new_rec );
@@ -208,7 +208,7 @@ public class Records {
 			}
 			
 			public Record getRecord() {
-				return new Record(rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray());
+				return new Record(rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray(), rhsSize);
 			}
 			
 			public String getExpandString() {

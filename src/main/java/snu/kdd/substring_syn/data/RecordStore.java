@@ -131,7 +131,7 @@ public class RecordStore {
 		raf.seek(posListQS.get(id));
 		raf.read(buffer, 0, len);
 		IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, len));
-		return new Record(list.getInt(0), list.subList(1, list.size()).toIntArray());
+		return new Record(list.getInt(0), list.subList(1, list.size()).toIntArray(), list.size()-1);
 	}
 	
 	public Iterable<Record> getRecords() {
