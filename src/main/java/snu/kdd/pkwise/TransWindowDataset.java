@@ -29,7 +29,7 @@ public class TransWindowDataset extends WindowDataset {
 	@Override
 	public void addStat() {
 		super.addStat();
-		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
+		statContainer.setStat("Size_Recordstore", store.diskSpaceUsage().toString());
 		statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString());
 		statContainer.setStat("Num_IntQGrams", Integer.toString(iqgramStore.getNumIntQGrams()));
 	}

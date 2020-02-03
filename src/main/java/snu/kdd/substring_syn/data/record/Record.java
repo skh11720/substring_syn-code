@@ -331,64 +331,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
-	
-	public final byte[] serialize() throws IOException {
-		IntArrayList list = new IntArrayList();
-		list.add(id);
-		list.add(size());
-		for ( int i=0; i<size(); ++i ) list.add(tokens[i]);
-		for ( int i=0; i<size(); ++i ) list.add(applicableRules[i].length);
-		for ( int i=0; i<size(); ++i ) {
-			for ( Rule rule : getApplicableRules(i) ) list.add(rule.getID());
-		} 
-		for ( int i=0; i<size(); ++i ) list.add(suffixApplicableRules[i].length);
-		for ( int i=0; i<size(); ++i ) {
-			for ( Rule rule : getSuffixApplicableRules(i) ) list.add(rule.getID());
-		}
-		for ( int i=0; i<size(); ++i ) list.add(suffixRuleLenPairs[i].length);
-		for ( int i=0; i<size(); ++i ) {
-			for ( IntPair pair : getSuffixRuleLens(i) ) {
-				list.add(pair.i1);
-				list.add(pair.i2);
-			}
-		}
-		list.add(maxRhsSize);
-		return Snappy.compress(list.toIntArray());
-	}
-	
-	public static Record deserialize(byte[] buf, int len, Ruleset ruleset) throws IOException {
-		int[] arr = Snappy.uncompressIntArray(buf, 0, len);
-		IntIterator iter = IntArrayList.wrap(arr).iterator();
-		int id = iter.nextInt();
-		int size = iter.nextInt();
-		int[] tokens = new int[size];
-		for ( int i=0; i<size; ++i ) tokens[i] = iter.nextInt();
-		Rule[][] applicableRules = new Rule[size][];
-		for ( int i=0; i<size; ++i ) applicableRules[i] = new Rule[iter.next()];
-		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<applicableRules[i].length; ++j ) 
-				applicableRules[i][j] = ruleset.getRule(iter.nextInt());
-		}
-		Rule[][] suffixApplicableRules = new Rule[size][];
-		for ( int i=0; i<size; ++i ) suffixApplicableRules[i] = new Rule[iter.next()];
-		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<suffixApplicableRules[i].length; ++j ) 
-				suffixApplicableRules[i][j] = ruleset.getRule(iter.nextInt());
-		}
-		IntPair[][] suffixRuleLenPairs = new IntPair[size][];
-		for ( int i=0; i<size; ++i ) suffixRuleLenPairs[i] = new IntPair[iter.next()];
-		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<suffixRuleLenPairs[i].length; ++j ) 
-				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
-		}
-		int maxRhsSize = iter.nextInt();
-		Record rec = new Record(id, tokens);
-		rec.applicableRules = applicableRules;
-		rec.suffixApplicableRules = suffixApplicableRules;
-		rec.suffixRuleLenPairs = suffixRuleLenPairs;
-		rec.maxRhsSize = maxRhsSize;
-		return rec;
-	}
+
+
 
 	
 	

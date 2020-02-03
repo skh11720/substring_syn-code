@@ -23,6 +23,7 @@ import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.DiskBasedDataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Log;
 
 public class RecordStoreTest {
 	
@@ -55,6 +56,22 @@ public class RecordStoreTest {
 			boolean[] b = RecordSerializationTest.checkEquivalence(rec0, rec1);
 			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
 		}
+	}
+	
+	@Test
+	public void recordStoreIterator() throws IOException {
+		/*
+		 * recordStore.getRecords():	DatasetParam(AMAZON, 100000, 107836, 3, 1.0)	2037.6584 ms
+		 */
+		DatasetParam param = new DatasetParam("AMAZON", "1000000", "107836", "3", "1.0");
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
+
+		Log.log.trace("recordStoreIterator(): start iteration");
+		long ts = System.nanoTime();
+		for ( Record rec : dataset.getIndexedList() ) {
+			Log.log.trace("recordStoreIterator(): get record "+rec.getID());
+		}
+		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+(System.nanoTime()-ts)/1e6+" ms");
 	}
 
 	@Deprecated

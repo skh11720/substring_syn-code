@@ -1,9 +1,6 @@
 package snu.kdd.pkwise;
 
-import java.io.File;
 import java.util.Iterator;
-
-import org.apache.commons.io.FileUtils;
 
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -28,7 +25,7 @@ public class WindowDataset extends DiskBasedDataset {
 	@Override
 	public void addStat() {
 		super.addStat();
-		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
+		statContainer.setStat("Size_Recordstore", store.diskSpaceUsage().toString());
 	}
 
 	
