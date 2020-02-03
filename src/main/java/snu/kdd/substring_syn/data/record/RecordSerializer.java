@@ -32,15 +32,15 @@ public class RecordSerializer {
 		addToIbuf(rec.id);
 		addToIbuf(rec.size());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.numAppRules[i]);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.applicableRules[i].length);
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( Rule rule : rec.getApplicableRules(i) ) addToIbuf(rule.getID());
 		} 
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.numSuffixAppRules[i]);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.suffixApplicableRules[i].length);
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( Rule rule : rec.getSuffixApplicableRules(i) ) addToIbuf(rule.getID());
 		}
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.numSuffixRuleLen[i]);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.suffixRuleLenPairs[i].length);
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( IntPair pair : rec.getSuffixRuleLens(i) ) {
 				addToIbuf(pair.i1);
@@ -86,36 +86,27 @@ public class RecordSerializer {
 		int[] tokens = new int[size];
 		for ( int i=0; i<size; ++i ) tokens[i] = iter.nextInt();
 		Rule[][] applicableRules = new Rule[size][];
-		int[] numAppRules = new int[size];
-		for ( int i=0; i<size; ++i ) numAppRules[i] = iter.nextInt();
+		for ( int i=0; i<size; ++i ) applicableRules[i] = new Rule[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			applicableRules[i] = new Rule[numAppRules[i]];
 			for ( int j=0; j<applicableRules[i].length; ++j ) 
 				applicableRules[i][j] = ruleset.getRule(iter.nextInt());
 		}
 		Rule[][] suffixApplicableRules = new Rule[size][];
-		int[] numSuffixAppRules = new int[size];
-		for ( int i=0; i<size; ++i ) numSuffixAppRules[i] = iter.nextInt();
+		for ( int i=0; i<size; ++i ) suffixApplicableRules[i] = new Rule[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			suffixApplicableRules[i] = new Rule[numSuffixAppRules[i]];
 			for ( int j=0; j<suffixApplicableRules[i].length; ++j ) 
 				suffixApplicableRules[i][j] = ruleset.getRule(iter.nextInt());
 		}
 		IntPair[][] suffixRuleLenPairs = new IntPair[size][];
-		int[] numSuffixRuleLen = new int[size];
-		for ( int i=0; i<size; ++i ) numSuffixRuleLen[i] = iter.nextInt();
+		for ( int i=0; i<size; ++i ) suffixRuleLenPairs[i] = new IntPair[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			suffixRuleLenPairs[i] = new IntPair[numSuffixRuleLen[i]];
 			for ( int j=0; j<suffixRuleLenPairs[i].length; ++j ) 
 				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
 		}
 		int maxRhsSize = iter.nextInt();
 		Record rec = new Record(id, tokens, size);
-		rec.numAppRules = numAppRules;
 		rec.applicableRules = applicableRules;
-		rec.numSuffixAppRules = numSuffixAppRules;
 		rec.suffixApplicableRules = suffixApplicableRules;
-		rec.numSuffixRuleLen = numSuffixRuleLen;
 		rec.suffixRuleLenPairs = suffixRuleLenPairs;
 		rec.maxRhsSize = maxRhsSize;
 		return rec;

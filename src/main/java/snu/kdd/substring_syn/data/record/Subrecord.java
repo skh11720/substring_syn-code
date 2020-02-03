@@ -197,7 +197,6 @@ public class Subrecord implements RecordInterface {
 		int k;
 		int i = 0;
 		Rule[][] rules;
-		int[] numRules;
 		
 		RuleIterator() {
 			this(sidx, eidx);
@@ -226,7 +225,7 @@ public class Subrecord implements RecordInterface {
 		
 		void findNext() {
 			while ( k < kMax) {
-				while ( i < numRules[k] ) {
+				while ( i < rules[k].length ) {
 					if ( isValid(rules[k][i]) ) return;
 					++i;
 				}
@@ -242,14 +241,12 @@ public class Subrecord implements RecordInterface {
 		
 		PrefixRuleIterator() {
 			rules = rec.applicableRules;
-			numRules = rec.numAppRules;
 			findNext();
 		}
 		
 		PrefixRuleIterator( int k ) {
 			super(k);
 			rules = rec.applicableRules;
-			numRules = rec.numAppRules;
 			findNext();
 		}
 		
@@ -260,16 +257,15 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	class SuffixRuleIterator extends RuleIterator {
+		
 		SuffixRuleIterator() {
 			rules = rec.suffixApplicableRules;
-			numRules = rec.numSuffixAppRules;
 			findNext();
 		}
 		
 		SuffixRuleIterator( int k ) {
 			super(k);
 			rules = rec.suffixApplicableRules;
-			numRules = rec.numSuffixAppRules;
 			findNext();
 		}
 		
@@ -284,44 +280,32 @@ public class Subrecord implements RecordInterface {
 		newrec.id = this.getID();
 
 		Rule[][] applicableRules = null;
-		int[] numAppRules = null;
 		if ( this.rec.applicableRules != null ) {
 			applicableRules = new Rule[size()][];
-			numAppRules = new int[size()];
 			for ( int i=0; i<size(); ++i ) {
 				applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
-				numAppRules[i] = applicableRules[i].length;
 			}
         }
-		newrec.numAppRules = numAppRules;
 		newrec.applicableRules = applicableRules;
 
 		Rule[][] suffixApplicableRules = null;
-		int[] numSuffixAppRules = null;
 		if ( this.rec.suffixApplicableRules != null ) {
 			suffixApplicableRules = new Rule[size()][];
-			numSuffixAppRules = new int[size()];
 			for ( int i=0; i<size(); ++i ) {
 				suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
-				numSuffixAppRules[i] = suffixApplicableRules[i].length;
 			}
 		}
-		newrec.numSuffixAppRules = numSuffixAppRules;
 		newrec.suffixApplicableRules = suffixApplicableRules;
 
 		IntPair[][] suffixRuleLenPairs = null;
-		int[] numSuffixRuleLen = null;
 		if ( this.rec.suffixApplicableRules != null ) {
 			suffixRuleLenPairs = new IntPair[size()][];
-			numSuffixRuleLen = new int[size()];
 			for ( int i=0; i<size(); ++i ) {
 				ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
 				for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
 				suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
-				numSuffixRuleLen[i] = suffixRuleLenPairs[i].length;
 			}
 		}
-		newrec.numSuffixRuleLen = numSuffixRuleLen;
 		newrec.suffixRuleLenPairs = suffixRuleLenPairs;
 		return newrec;
 	}

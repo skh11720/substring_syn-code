@@ -12,12 +12,9 @@ public class RecordWithEndpoints extends Record {
 		this.sp = sp;
 		this.epList = epList;
 		this.applicableRules = rec.applicableRules;
-		this.numAppRules = rec.numAppRules;
 		this.suffixApplicableRules = rec.suffixApplicableRules;
-		this.numSuffixAppRules = rec.numSuffixAppRules;
 		this.transformLengths = rec.transformLengths;
 		this.suffixRuleLenPairs = rec.suffixRuleLenPairs;
-		this.numSuffixRuleLen = rec.numSuffixRuleLen;
 		this.maxRhsSize = rec.maxRhsSize;
 	}
 	

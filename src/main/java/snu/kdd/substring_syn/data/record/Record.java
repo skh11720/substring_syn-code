@@ -27,16 +27,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	protected final int size;
 	private final int hash;
 
-	int[] numAppRules;
 	Rule[][] applicableRules = null;
-	
-	int [] numSuffixAppRules;
 	Rule[][] suffixApplicableRules = null;
-
 	int[][] transformLengths = null;
 //	long[] estTrans;
-	
-	int[] numSuffixRuleLen;
 	IntPair[][] suffixRuleLenPairs = null;
 
 	int maxRhsSize = 0;
@@ -160,8 +154,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		if( applicableRules == null ) {
 			return null;
 		}
-		else if( k < size ) {
-			return ObjectArrayList.wrap(applicableRules[k], numAppRules[k]);
+		else if( k < applicableRules.length ) {
+			return Arrays.asList(applicableRules[k]);
 		}
 		else {
 			return Arrays.asList(Rule.EMPTY_RULE);
@@ -173,8 +167,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		if( suffixApplicableRules == null ) {
 			return null;
 		}
-		else if( k < size ) {
-			return ObjectArrayList.wrap(suffixApplicableRules[k], numSuffixAppRules[k]);
+		else if( k < suffixApplicableRules.length ) {
+			return Arrays.asList(suffixApplicableRules[k]);
 		}
 		else {
 			return Arrays.asList(Rule.EMPTY_RULE);
@@ -185,7 +179,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		if ( suffixRuleLenPairs == null ) {
 			return null;
 		}
-		else if ( k < size ) {
+		else if ( k < suffixRuleLenPairs.length ) {
 			return suffixRuleLenPairs[k];
 		}
 		else return null;
@@ -203,10 +197,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
-			for ( int k=0; k<size; ++k ) {
-				for ( IntPair pair : getSuffixRuleLens(k) ) {
-					maxRhsSize = Math.max(maxRhsSize, pair.i2);
-				}
+			for ( Rule rule : getApplicableRuleIterable() ) {
+				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
 			}
 		}
 		return maxRhsSize;
@@ -229,8 +221,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public void preprocessApplicableRules() {
 		if ( applicableRules != null ) return;
 		applicableRules = Rule.automata.applicableRules(tokens);
-		numAppRules = new int[size];
-		for ( int i=0; i<size; ++i ) numAppRules[i] = applicableRules[i].length;
 	}
 
 	public void preprocessSuffixApplicableRules() {
@@ -252,14 +242,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 
 		suffixApplicableRules = new Rule[size][];
-		numSuffixAppRules = new int[size];
 		suffixRuleLenPairs = new IntPair[size][];
-		numSuffixRuleLen = new int[size];
 		for( int i = 0; i < size; ++i ) {
 			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
-			numSuffixAppRules[i] = tmplist.get(i).size();
 			suffixRuleLenPairs[i] = pairList.get(i).toArray( new IntPair[0] );
-			numSuffixRuleLen[i] = pairList.get(i).size();
 		}
 	}
 
@@ -354,13 +340,13 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 		@Override
 		public boolean hasNext() {
-			return (k < size);
+			return (k < applicableRules.length);
 		}
 
 		@Override
 		public Rule next() {
 			Rule rule = applicableRules[k][i++];
-			if ( i >= numAppRules[k] ) {
+			if ( i >= applicableRules[k].length ) {
 				++k;
 				i = 0;
 			}
