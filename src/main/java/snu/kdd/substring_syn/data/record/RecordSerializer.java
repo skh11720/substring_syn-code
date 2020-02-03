@@ -71,10 +71,16 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(byte[] buf, int len, Ruleset ruleset) throws IOException {
-		int numbytes = Snappy.uncompressedLength(buf, 0, len);
-		setIbuf(numbytes);
-		Snappy.rawUncompress(buf, 0, len, ibuf, 0);
+	public static final Record deserialize(byte[] buf, int len, Ruleset ruleset) {
+		int numbytes = -1;
+		try {
+			numbytes = Snappy.uncompressedLength(buf, 0, len);
+			setIbuf(numbytes);
+			Snappy.rawUncompress(buf, 0, len, ibuf, 0);
+		} catch ( IOException e ) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		IntIterator iter = IntArrayList.wrap(ibuf, numbytes/Integer.BYTES).iterator();
 		int id = iter.nextInt();
 		int size = iter.nextInt();
