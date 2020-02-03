@@ -101,7 +101,8 @@ public class FaerieSynSearch extends FaerieSearch {
 		/*
 		 * 1.00: initial version
 		 * 1.01: fix OOM issue
+		 * 1.02: remodel RecordStore
 		 */
-		return "1.01";
+		return "1.02";
 	}
 }

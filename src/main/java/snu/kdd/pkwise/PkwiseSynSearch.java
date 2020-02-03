@@ -128,7 +128,8 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		 * 1.01: modify IntQGramStore
 		 * 1.02: use disk-based qgram index
 		 * 1.03: fix OOM issue by using FileBasedLongList
+		 * 1.04: remodel RecordStore
 		 */
-		return "1.03";
+		return "1.04";
 	}
 }

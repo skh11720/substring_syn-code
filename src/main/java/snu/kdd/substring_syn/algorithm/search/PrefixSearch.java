@@ -454,7 +454,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.22: fix bug in PF and LF
 		 * 6.23: speedup filters and use maximum matching
 		 * 6.24: use RecordPool
+		 * 6.25: remodel RecordStore
 		 */
-		return "6.24";
+		return "6.25";
 	}
 }
