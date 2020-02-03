@@ -1,7 +1,6 @@
 package snu.kdd.substring_syn.data.record;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.xerial.snappy.Snappy;
 
@@ -71,12 +70,12 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(byte[] buf, int len, Ruleset ruleset) {
+	public static final Record deserialize(byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
 		try {
-			numbytes = Snappy.uncompressedLength(buf, 0, len);
+			numbytes = Snappy.uncompressedLength(buf, offset, len);
 			setIbuf(numbytes);
-			Snappy.rawUncompress(buf, 0, len, ibuf, 0);
+			Snappy.rawUncompress(buf, offset, len, ibuf, 0);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);

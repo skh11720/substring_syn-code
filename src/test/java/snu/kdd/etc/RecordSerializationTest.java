@@ -53,7 +53,7 @@ public class RecordSerializationTest {
 			RecordSerializer.serialize(rec0);
 			byte[] buf = RecordSerializer.bbuf;
 			int blen = RecordSerializer.blen;
-			Record rec1 = RecordSerializer.deserialize(buf, blen, dataset.ruleset);
+			Record rec1 = RecordSerializer.deserialize(buf, 0, blen, dataset.ruleset);
 			boolean[] b = checkEquivalence(rec0, rec1);
 			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
 		}
@@ -83,7 +83,7 @@ public class RecordSerializationTest {
 		
 		for ( int i=0; i<bs.length; ++i ) {
 			stat.startWatch("Record.deserialize");
-			Record rec = RecordSerializer.deserialize(bs[i], bs[i].length, dataset.ruleset);
+			Record rec = RecordSerializer.deserialize(bs[i], 0, bs[i].length, dataset.ruleset);
 			stat.stopWatch("Record.deserialize");
 		}
 
