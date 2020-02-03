@@ -1,10 +1,14 @@
 package snu.kdd.substring_syn.data.record;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.xerial.snappy.Snappy;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -14,18 +18,18 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record implements RecordInterface, Comparable<Record> {
 	
-	public static final Record EMPTY_RECORD = new Record(new int[0], 0);
+	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
 	protected int id;
 	protected int[] tokens;
-	protected final int size;
-	private final int hash;
+	protected final int hash;
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
@@ -44,18 +48,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		
 		hash = getHash();
-		size = tokens.length;
 	}
 	
-	public Record( int id, int[] tokens, int size ) {
+	public Record( int id, int[] tokens ) {
 		this.id = id;
 		this.tokens = tokens;
-		this.size = size;
 		hash = getHash();
 	}
 
-	public Record( int[] tokens, int size ) { // for transformed strings
-		this(-1, tokens, size);
+	public Record( int[] tokens ) { // for transformed strings
+		this(-1, tokens);
 	}
 
 	public int getID() {
@@ -107,12 +109,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	@Override
 	public int compareTo( Record o ) {
-		if( size != o.size ) {
-			return size - o.size;
+		if( tokens.length != o.tokens.length ) {
+			return tokens.length - o.tokens.length;
 		}
 
 		int idx = 0;
-		while( idx < size ) {
+		while( idx < tokens.length ) {
 			int cmp = Integer.compare( tokens[ idx ], o.tokens[ idx ] );
 			if( cmp != 0 ) {
 				return cmp;
@@ -123,7 +125,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	}
 
 	public int size() {
-		return size;
+		return tokens.length;
 	}
 	
 	public Record getSuperRecord() {
@@ -186,11 +188,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 	}
 
 	public final int getMaxTransLength() {
-		return transformLengths[ size - 1 ][ 1 ];
+		return transformLengths[ tokens.length - 1 ][ 1 ];
 	}
 
 	public final int getMinTransLength() {
-		return transformLengths[ size - 1 ][ 0 ];
+		return transformLengths[ tokens.length - 1 ][ 0 ];
 	}
 
 	@Override
@@ -228,12 +230,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();
 		ObjectList<ObjectSet<IntPair>> pairList = new ObjectArrayList<>();
 
-		for( int i = 0; i < size; ++i ) {
+		for( int i = 0; i < tokens.length; ++i ) {
 			tmplist.add( new ObjectArrayList<Rule>() );
 			pairList.add( new ObjectOpenHashSet<>() );
 		}
 
-		for( int i = size - 1; i >= 0; --i ) {
+		for( int i = tokens.length - 1; i >= 0; --i ) {
 			for( Rule rule : applicableRules[ i ] ) {
 				int suffixidx = i + rule.getLhs().length - 1;
 				tmplist.get( suffixidx ).add( rule );
@@ -241,9 +243,9 @@ public class Record implements RecordInterface, Comparable<Record> {
 			}
 		}
 
-		suffixApplicableRules = new Rule[size][];
-		suffixRuleLenPairs = new IntPair[size][];
-		for( int i = 0; i < size; ++i ) {
+		suffixApplicableRules = new Rule[ tokens.length ][];
+		suffixRuleLenPairs = new IntPair[ tokens.length ][];
+		for( int i = 0; i < tokens.length; ++i ) {
 			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
 			suffixRuleLenPairs[i] = pairList.get(i).toArray( new IntPair[0] );
 		}
@@ -251,8 +253,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	public void preprocessTransformLength() {
 		if ( transformLengths != null ) return;
-		transformLengths = new int[size][ 2 ];
-		for( int i = 0; i < size; ++i )
+		transformLengths = new int[ tokens.length ][ 2 ];
+		for( int i = 0; i < tokens.length; ++i )
 			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
 
 		for( Rule rule : applicableRules[ 0 ] ) {
@@ -265,7 +267,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
 			}
 		}
-		for( int i = 1; i < size; ++i ) {
+		for( int i = 1; i < tokens.length; ++i ) {
 			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
 			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
 			for( Rule rule : applicableRules[ i ] ) {

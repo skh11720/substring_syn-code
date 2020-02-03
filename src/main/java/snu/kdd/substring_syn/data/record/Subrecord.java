@@ -276,7 +276,7 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	public Record toRecord() {
-		Record newrec = new Record(this.getTokenList().toIntArray(), size());
+		Record newrec = new Record(this.getTokenList().toIntArray());
 		newrec.id = this.getID();
 
 		Rule[][] applicableRules = null;

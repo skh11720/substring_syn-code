@@ -72,7 +72,7 @@ public class FaerieSynSearch extends FaerieSearch {
 		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getID()) ) {
 			IntList posList = getPosList(queryTokenSet, entry.invIndex);
 			statContainer.startWatch(Stat.Time_TS_Validation);
-			boolean isSim = searchRecord(query, new Record(entry.recExpTokenArr, entry.recExpTokenArr.length), posList, minLenQS, maxLenTS, this::computeSimTextSide);
+			boolean isSim = searchRecord(query, new Record(entry.recExpTokenArr), posList, minLenQS, maxLenTS, this::computeSimTextSide);
 			statContainer.stopWatch(Stat.Time_TS_Validation);
 			if ( isSim ) {
 				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));

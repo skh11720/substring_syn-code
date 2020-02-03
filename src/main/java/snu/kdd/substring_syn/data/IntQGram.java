@@ -25,7 +25,7 @@ public class IntQGram {
 	}
 	
 	public Record toRecord() {
-		return new Record(arr[0], IntArrayList.wrap(arr).subList(1, arr.length).toIntArray(), size());
+		return new Record(arr[0], IntArrayList.wrap(arr).subList(1, arr.length).toIntArray());
 	}
 	
 	@Override

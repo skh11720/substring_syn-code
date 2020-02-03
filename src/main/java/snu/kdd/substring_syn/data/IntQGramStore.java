@@ -125,7 +125,7 @@ public class IntQGramStore {
 			catch (IOException e) {
 				e.printStackTrace();
 			}
-			Record iqgram = new Record(arr, arr.length);
+			Record iqgram = new Record(arr);
 			i += 1;
 			return iqgram;
 		}
