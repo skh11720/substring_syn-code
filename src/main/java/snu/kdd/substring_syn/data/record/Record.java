@@ -1,14 +1,10 @@
 package snu.kdd.substring_syn.data.record;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.xerial.snappy.Snappy;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -18,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -27,8 +22,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	protected int id;
-	protected int[] tokens;
+	protected final int id;
+	protected final int[] tokens;
 	protected final int hash;
 
 	Rule[][] applicableRules = null;
@@ -199,8 +194,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
-			for ( Rule rule : getApplicableRuleIterable() ) {
-				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
+			for ( int k=0; k<tokens.length; ++k) {
+				for ( IntPair pair : suffixRuleLenPairs[k] ) {
+					maxRhsSize = Math.max(maxRhsSize, pair.i2);
+				}
 			}
 		}
 		return maxRhsSize;
