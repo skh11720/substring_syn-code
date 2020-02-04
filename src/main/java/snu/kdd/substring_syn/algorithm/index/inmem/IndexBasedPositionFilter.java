@@ -87,7 +87,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //			Log.log.trace("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
 			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 //			Log.log.trace("minCount=%d", ()->minCount);
+			statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
+			statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
 				if ( useCF && entry.getValue().nToken < minCount ) continue;
 				int ridx = entry.getIntKey();
@@ -95,13 +97,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				Record rec = dataset.getRawRecord(ridx);
 				statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
 				IntList idxList = entry.getValue().idxList;
+				statContainer.startWatch("Time_QS_IndexFilter.idxList.sort");
 				idxList.sort(Integer::compare);
+				statContainer.stopWatch("Time_QS_IndexFilter.idxList.sort");
 //				Log.log.trace("idxList=%s", ()->idxList);
 //				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
 				statContainer.startWatch("Time_QS_IndexFilter.pruneSingleRecord");
 				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList);
 				statContainer.stopWatch("Time_QS_IndexFilter.pruneSingleRecord");
+				statContainer.startWatch("Time_QS_IndexFilter.candRecordSet.addAll");
 				candRecordSet.addAll(segmentList);
+				statContainer.stopWatch("Time_QS_IndexFilter.candRecordSet.addAll");
 			}
 			return candRecordSet;
 		}
