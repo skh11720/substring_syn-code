@@ -119,20 +119,23 @@ public class RecordStore {
 	}
 	
 	private Record tryGetRecord( int id ) throws IOException {
-		if ( secTS.pool.containsKey(id) ) return secTS.pool.get(id);
-		else {
-			Record rec = getRecordFromStore(id);
-			secTS.pool.put(id, rec);
+		if ( !secTS.pool.containsKey(id) ) {
 			secTS.nRecFault += 1;
-			return rec;
+			getRecordFromStore(id);
 		}
+		return secTS.pool.get(id);
 	}
 	
-	private Record getRecordFromStore(int id) throws IOException {
-		int len = (int)( secTS.posList.get(id+1) - secTS.posList.get(id) );
+	private void getRecordFromStore(int id) throws IOException {
 		secTS.raf.seek(secTS.posList.get(id));
-		secTS.raf.read(buffer, 0, len);
-		return RecordSerializer.deserialize(buffer, 0, len, ruleset);
+		secTS.raf.read(buffer, 0, buffer.length);
+		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
+			int len = (int)( -secTS.posList.get(i) + secTS.posList.get(i+1) );
+			if ( lenRead+len > buffer.length ) break;
+			Record rec = RecordSerializer.deserialize(buffer, lenRead, len, ruleset);
+			secTS.pool.put(i, rec);
+			lenRead += len;
+		}
 	}
 	
 	public Record getRawRecord( int id ) {
