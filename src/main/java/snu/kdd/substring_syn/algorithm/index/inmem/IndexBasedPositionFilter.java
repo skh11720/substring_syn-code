@@ -1,6 +1,8 @@
 package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -90,9 +92,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
-			for ( Int2ObjectMap.Entry<PosListPair> entry : rec2idxListMap.int2ObjectEntrySet() ) {
+			Iterator<Entry<Integer, PosListPair>> iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			while ( iter.hasNext() ) {
+				Entry<Integer, PosListPair> entry = iter.next();
 				if ( useCF && entry.getValue().nToken < minCount ) continue;
-				int ridx = entry.getIntKey();
+				int ridx = entry.getKey();
 				statContainer.startWatch("Time_QS_IndexFilter.getRecord");
 				Record rec = dataset.getRawRecord(ridx);
 				statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
