@@ -127,7 +127,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				tokenCounter.clear();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 				if ( invList != null ) {
-					Log.log.trace("QuerySideFilter.getCommonTokenIdxLists: token=%s, invList.size=%d", ()->Record.tokenIndex.getToken(token), ()->invList.size());
+//					Log.log.trace("QuerySideFilter.getCommonTokenIdxLists: token=%s, invList.size=%d", ()->Record.tokenIndex.getToken(token), ()->invList.size());
 					if ( !useCF || countUpperBound >= minCount ) {
 						// there is a chance that a record not seen until now can have at least minCount common tokens.
 						for ( InvListEntry e : invList ) {
@@ -254,9 +254,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
-			for ( Int2ObjectMap.Entry<PosListPair> e : rec2idxListMap.int2ObjectEntrySet() ) {
+			Log.log.trace("rec2idxListMap.size=%d", ()->rec2idxListMap.size());
+			Iterator<Entry<Integer, PosListPair>> iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			while ( iter.hasNext() ) {
+				Entry<Integer, PosListPair> e = iter.next();
 				if ( useCF && e.getValue().nToken < minCount ) continue;
-				int ridx = e.getIntKey();
+				int ridx = e.getKey();
 //				Log.log.trace("ridx=%d", ridx);
 				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
@@ -306,7 +309,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
-					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, invList.size=%d", ()->Record.tokenIndex.getToken(token), ()->invList.size());
+//					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, invList.size=%d", ()->Record.tokenIndex.getToken(token), ()->invList.size());
 					for ( InvListEntry e : invList ) {
 						
 						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap1");
@@ -332,7 +335,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				ObjectList<TransInvListEntry> transInvList = index.getTransInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
 				if ( transInvList != null ) {
-					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, transInvList.size=%d", ()->Record.tokenIndex.getToken(token), ()->transInvList.size());
+//					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, transInvList.size=%d", ()->Record.tokenIndex.getToken(token), ()->transInvList.size());
 					for ( TransInvListEntry e : transInvList ) {
 						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap2");
 						if ( !rec2idxListMap.containsKey(e.ridx) ) rec2idxListMap.put(e.ridx, new PosListPair());
