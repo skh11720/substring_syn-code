@@ -456,6 +456,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.24: use RecordPool
 		 * 6.25: remodel RecordStore
 		 */
-		return "6.25";
+		return "6.251";
 	}
 }

@@ -8,11 +8,13 @@ public class MaxBoundTokenCounter {
 	
 	private final Int2IntMap tokenMaxCountMap;
 	private final Int2IntOpenHashMap counter;
+	private final int sumBounds;
 	private int sum = 0;
 	
 	public MaxBoundTokenCounter( IntIterable iter ) {
 		counter = new Int2IntOpenHashMap();
 		tokenMaxCountMap = Util.getCounter(iter);
+		sumBounds = tokenMaxCountMap.values().stream().mapToInt(Integer::intValue).sum();
 	}
 	
 	public void clear() {
@@ -41,4 +43,6 @@ public class MaxBoundTokenCounter {
 	public int getMax( int key ) { return tokenMaxCountMap.get(key); }
 	
 	public int sum() { return sum; }
+
+	public int sumBounds() { return sumBounds; }
 }
