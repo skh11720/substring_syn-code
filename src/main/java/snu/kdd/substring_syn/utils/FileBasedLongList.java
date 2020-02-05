@@ -12,11 +12,13 @@ import org.apache.commons.io.FileUtils;
 
 public class FileBasedLongList {
 
-	private final byte[] bytes = new byte[Long.BYTES];
+	private final int nMax = 1024;
+	private final byte[] bytes = new byte[nMax*Long.BYTES];
 	private final ByteBuffer buf;
 	private final String path;
 	private FileOutputStream fos;
 	private RandomAccessFile raf;
+	private int i0 = -1;
 	private int size = 0;
 	
 	public FileBasedLongList() {
@@ -38,7 +40,7 @@ public class FileBasedLongList {
 	public final void add(long value) {
 		buf.putLong(0, value);
 		try {
-			fos.write(bytes);
+			fos.write(bytes, 0, Long.BYTES);
 			++size;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -47,15 +49,19 @@ public class FileBasedLongList {
 	}
 	
 	public final long get(int i) {
+		if ( i0 == -1 || i0 + nMax <= i || i < i0 ) readFromFile(i);
+		return buf.getLong((i - i0)*Long.BYTES);
+	}
+	
+	private final void readFromFile(int i) {
 		try {
 			raf.seek(i*Long.BYTES);
 			raf.read(bytes);
-			return buf.getLong(0);
+			i0 = i;
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		return 0;
 	}
 	
 	public final int size() {
