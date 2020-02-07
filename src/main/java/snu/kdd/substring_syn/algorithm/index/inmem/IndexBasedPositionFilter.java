@@ -276,8 +276,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record rec = (new Subrecord(dataset.getRecord(ridx), minPrefixIdx, maxSuffixIdx+1)).toRecord();
+				Record fullRec = dataset.getRecord(ridx);
 				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
+				statContainer.startWatch("Time_TS_IndexFilter.getSubrecord");
+				Record rec = (new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1)).toRecord();
+				statContainer.stopWatch("Time_TS_IndexFilter.getSubrecord");
 				addToIntList(prefixIdxList, -minPrefixIdx);
 				addToIntList(suffixIdxList, -minPrefixIdx);
 //				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
