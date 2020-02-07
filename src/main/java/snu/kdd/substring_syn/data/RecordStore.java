@@ -37,10 +37,10 @@ public class RecordStore {
 		RandomAccessFile raf;
 		int nRecFault = 0;
 		
-		public RecordStoreSection(String name) {
-			path = "./tmp/"+name;
+		public RecordStoreSection(String suffix) {
+			path = "./tmp/RecordStoreSection_"+suffix;
 			pool = new RecordPool();
-			posList = new FileBasedLongList("posList"+name);
+			posList = new FileBasedLongList("posList"+suffix);
 		}
 		
 		public void init() {
