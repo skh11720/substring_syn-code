@@ -72,13 +72,14 @@ public class RecordSerializer {
 	
 	public static final Record deserialize(byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
-		try {
-			numbytes = Snappy.uncompressedLength(buf, offset, len);
-			setIbuf(numbytes);
-			Snappy.rawUncompress(buf, offset, len, ibuf, 0);
-		} catch ( IOException e ) {
-			e.printStackTrace();
-			System.exit(1);
+		while (true) {
+			try {
+//			numbytes = Snappy.uncompressedLength(buf, offset, len);
+				numbytes = Snappy.rawUncompress(buf, offset, len, ibuf, 0);
+				break;
+			} catch ( IOException e ) {
+				setIbuf(ibuf.length+1);
+			}
 		}
 		IntIterator iter = IntArrayList.wrap(ibuf, numbytes/Integer.BYTES).iterator();
 		int id = iter.nextInt();

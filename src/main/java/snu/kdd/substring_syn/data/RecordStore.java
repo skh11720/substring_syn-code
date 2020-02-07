@@ -19,6 +19,7 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class RecordStore {
 
+	private final int MAX_BUF_SIZE = 1 * 1024 * 1024;
 	private final Ruleset ruleset;
 	private final byte[] buffer;
 	
@@ -103,6 +104,7 @@ public class RecordStore {
 	private byte[] setBuffer() {
 		int bufSize = 0;
 		for ( int i=0; i<secTS.posList.size()-1; ++i ) bufSize = Math.max(bufSize, (int)(secTS.posList.get(i+1)-secTS.posList.get(i)));
+		bufSize = Math.max(bufSize, MAX_BUF_SIZE);
 		return new byte[bufSize];
 	}
 	
@@ -117,20 +119,23 @@ public class RecordStore {
 	}
 	
 	private Record tryGetRecord( int id ) throws IOException {
-		if ( secTS.pool.containsKey(id) ) return secTS.pool.get(id);
-		else {
-			Record rec = getRecordFromStore(id);
-			secTS.pool.put(id, rec);
+		if ( !secTS.pool.containsKey(id) ) {
 			secTS.nRecFault += 1;
-			return rec;
+			getRecordFromStore(id);
 		}
+		return secTS.pool.get(id);
 	}
 	
-	private Record getRecordFromStore(int id) throws IOException {
-		int len = (int)( secTS.posList.get(id+1) - secTS.posList.get(id) );
+	private void getRecordFromStore(int id) throws IOException {
 		secTS.raf.seek(secTS.posList.get(id));
-		secTS.raf.read(buffer, 0, len);
-		return RecordSerializer.deserialize(buffer, 0, len, ruleset);
+		secTS.raf.read(buffer, 0, buffer.length);
+		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
+			int len = (int)( -secTS.posList.get(i) + secTS.posList.get(i+1) );
+			if ( lenRead+len > buffer.length ) break;
+			Record rec = RecordSerializer.deserialize(buffer, lenRead, len, ruleset);
+			secTS.pool.put(i, rec);
+			lenRead += len;
+		}
 	}
 	
 	public Record getRawRecord( int id ) {
@@ -144,21 +149,23 @@ public class RecordStore {
 	}
 	
 	private Record tryGetRawRecord(int id) throws IOException {
-		if ( secQS.pool.containsKey(id) ) return secQS.pool.get(id);
-		else {
-			Record rec = getRawRecordFromStore(id);
-			secQS.pool.put(id, rec);
+		if ( !secQS.pool.containsKey(id) ) {
 			secQS.nRecFault += 1;
-			return rec;
+			getRawRecordFromStore(id);
 		}
+		return secQS.pool.get(id);
 	}
 
-	private Record getRawRecordFromStore( int id ) throws IOException {
-		int len = (int)( secQS.posList.get(id+1) - secQS.posList.get(id) );
+	private void getRawRecordFromStore( int id ) throws IOException {
 		secQS.raf.seek(secQS.posList.get(id));
-		secQS.raf.read(buffer, 0, len);
-		IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, len));
-		return new Record(list.getInt(0), list.subList(1, list.size()).toIntArray());
+		secQS.raf.read(buffer, 0, buffer.length);
+		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
+			int len = (int)( -secQS.posList.get(i) + secQS.posList.get(i+1) );
+			if ( lenRead+len > buffer.length ) break;
+			IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, lenRead, len));
+			secQS.pool.put(i, new Record(list.getInt(0), list.subList(1, list.size()).toIntArray()));
+			lenRead += len;
+		}
 	}
 	
 	public Iterable<Record> getRecords() {
@@ -229,7 +236,7 @@ public class RecordStore {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			len = (int)(secTS.posList.get(id+1) - secTS.posList.get(id));
+			len = (int)(-secTS.posList.get(id) + secTS.posList.get(id+1));
 		}
 
 		@Override

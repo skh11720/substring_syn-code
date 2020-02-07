@@ -6,6 +6,7 @@ import java.lang.management.ManagementFactory;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -841,5 +842,20 @@ public class Util {
 			if ( cur[lidx] < intLists.get(lidx).size() ) heap.insert(intLists.get(lidx).getInt(cur[lidx]), lidx);
 		}
 		return mergedList;
+	}
+	
+	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
+		int l = 0;
+		int r = list.size();
+		while ( r-l > 1 ) {
+			int m = (l+r)/2;
+			T center = list.get(m);
+			int o = comp.compare(key, center);
+			if ( o == 1 ) l = m;
+			else r = m;
+		}
+		if ( comp.compare(key, list.get(l)) == 0 ) return l;
+		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
+		else return -1;
 	}
 }
