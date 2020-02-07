@@ -455,8 +455,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.23: speedup filters and use maximum matching
 		 * 6.24: use RecordPool
 		 * 6.25: remodel RecordStore
-		 * 6.25.1: improve query-side count filter
+		 * 6.26: improve count filter
 		 */
-		return "6.25.1";
+		return "6.26";
 	}
 }
