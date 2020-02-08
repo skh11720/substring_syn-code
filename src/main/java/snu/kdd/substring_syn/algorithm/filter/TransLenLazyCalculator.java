@@ -1,7 +1,7 @@
 package snu.kdd.substring_syn.algorithm.filter;
 
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -17,7 +17,7 @@ public final class TransLenLazyCalculator {
 	private int eidxCurr; // ub[eidx], lb[eidx] are computed for all eidx <= eidxCurr
 
 
-	public TransLenLazyCalculator( StatContainer statContainer, Record rec, int sidx, int maxlen, double theta ) {
+	public TransLenLazyCalculator( StatContainer statContainer, RecordInterface rec, int sidx, int maxlen, double theta ) {
 		// sidx: inclusive
 		this.statContainer = statContainer;
 //		this.subrec = initRecord(rec, sidx, maxlen);

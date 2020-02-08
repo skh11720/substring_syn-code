@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
@@ -277,10 +278,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
 				Record fullRec = dataset.getRecord(ridx);
+				Subrecord rec = new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1);
 				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
-				statContainer.startWatch("Time_TS_IndexFilter.getSubrecord");
-				Record rec = (new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1)).toRecord();
-				statContainer.stopWatch("Time_TS_IndexFilter.getSubrecord");
 				addToIntList(prefixIdxList, -minPrefixIdx);
 				addToIntList(suffixIdxList, -minPrefixIdx);
 //				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
@@ -416,7 +415,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
-		private ObjectList<MergedRange> findSegmentRanges( Record rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, double theta ) {
+		private ObjectList<MergedRange> findSegmentRanges( RecordInterface rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, double theta ) {
 //			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
 			ObjectList<MergedRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
@@ -446,7 +445,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<MergedRange> segmentRangeList ) {
+		private ObjectList<Record> splitRecord( RecordInterface rec, ObjectList<MergedRange> segmentRangeList ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( MergedRange mrange : segmentRangeList ) {
