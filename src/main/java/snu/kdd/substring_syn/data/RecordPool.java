@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
 
 public class RecordPool {
 
-	private final int BUFFER_SIZE = (int)(1e8);
+	final static int BUFFER_SIZE = (int)(1e4);
 	
 	private final Int2ObjectMap<Record> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;
@@ -17,9 +17,13 @@ public class RecordPool {
 	private long tic;
 	
 	public RecordPool() {
+		this(BUFFER_SIZE);
+	}
+	
+	public RecordPool(int capacity) {
 		map = new Int2ObjectOpenHashMap<>();
 		tic2tokMap = new Long2IntHashBasedBinaryHeap();
-		capacity = BUFFER_SIZE;
+		this.capacity = capacity;
 		size = 0;
 		tic = 0;
 	}
