@@ -457,6 +457,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.25: remodel RecordStore
 		 * 6.26: improve count filter
 		 */
-		return "6.26.2";
+		return "6.26.3";
 	}
 }
