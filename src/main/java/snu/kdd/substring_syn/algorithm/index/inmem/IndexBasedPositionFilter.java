@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
@@ -58,17 +59,25 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	protected IntIterable textSideFilter(Record query) { return null; }
 	
 	@Override
-	public ObjectList<Record> getCandRecordsQuerySide( Record query ) {
-		QuerySideFilter filter = new QuerySideFilter(query);
-		return filter.run();
+	public Iterable<Record> getCandRecordsQuerySide( Record query ) {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new QuerySideFilter(query);
+			}
+		};
 	}
 	
-	private class QuerySideFilter {
+	private class QuerySideFilter implements Iterator<Record> {
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
 		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
+		final Iterator<Entry<Integer, PosListPair>> iter;
+		Iterator<Record> segmentIter = null;
+		Record thisRec = null;
 		
 		public QuerySideFilter( Record query ) {
 			this.query = query;
@@ -83,37 +92,52 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			candTokenSet = new IntArrayList(intSet.stream().sorted().iterator());
 			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.getMinTransLength());
-		}
-		
-		public ObjectList<Record> run() {
+
 //			Log.log.trace("PositionalIndexBasedFilter.querySideFilter(%d)", ()->query.getID());
-			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 //			Log.log.trace("minCount=%d", ()->minCount);
 			statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
-			Iterator<Entry<Integer, PosListPair>> iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
-			while ( iter.hasNext() ) {
-				Entry<Integer, PosListPair> entry = iter.next();
-				if ( useCF && entry.getValue().nToken < minCount ) continue;
-				int ridx = entry.getKey();
-				statContainer.startWatch("Time_QS_IndexFilter.getRecord");
-				Record rec = dataset.getRawRecord(ridx);
-				statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
-				IntList idxList = entry.getValue().idxList;
-				statContainer.startWatch("Time_QS_IndexFilter.idxList.sort");
-				idxList.sort(Integer::compare);
-				statContainer.stopWatch("Time_QS_IndexFilter.idxList.sort");
-//				Log.log.trace("idxList=%s", ()->idxList);
-//				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
-				statContainer.startWatch("Time_QS_IndexFilter.pruneSingleRecord");
-				ObjectList<Record> segmentList =  pruneSingleRecord(rec, idxList);
-				statContainer.stopWatch("Time_QS_IndexFilter.pruneSingleRecord");
-				statContainer.startWatch("Time_QS_IndexFilter.candRecordSet.addAll");
-				candRecordSet.addAll(segmentList);
-				statContainer.stopWatch("Time_QS_IndexFilter.candRecordSet.addAll");
+			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			thisRec = findNext();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext() && segmentIter != null;
+		}
+
+		@Override
+		public Record next() {
+			Record rec = thisRec;
+			thisRec = findNext();
+			return rec;
+		}
+		
+		public Record findNext() {
+			if ( segmentIter == null || !segmentIter.hasNext() ) {
+				segmentIter = null;
+				while ( iter.hasNext() ) {
+					Entry<Integer, PosListPair> entry = iter.next();
+					if ( useCF && entry.getValue().nToken < minCount ) continue;
+					int ridx = entry.getKey();
+					statContainer.startWatch("Time_QS_IndexFilter.getRecord");
+					Record rec = dataset.getRawRecord(ridx);
+					statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
+					IntList idxList = entry.getValue().idxList;
+					statContainer.startWatch("Time_QS_IndexFilter.idxList.sort");
+					idxList.sort(Integer::compare);
+					statContainer.stopWatch("Time_QS_IndexFilter.idxList.sort");
+	//				Log.log.trace("idxList=%s", ()->idxList);
+	//				Log.log.trace("visualizeCandRecord(%d): %s", ()->rec.getID(), ()->visualizeCandRecord(rec, idxList));
+					statContainer.startWatch("Time_QS_IndexFilter.pruneSingleRecord");
+					segmentIter =  pruneSingleRecord(rec, idxList).iterator();
+					statContainer.stopWatch("Time_QS_IndexFilter.pruneSingleRecord");
+					if ( segmentIter.hasNext() ) break;
+				}
+				if ( segmentIter == null || !segmentIter.hasNext() ) return null;
 			}
-			return candRecordSet;
+			return segmentIter.next();
 		}
 		
 		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
@@ -221,17 +245,25 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	} // end class QuerySideFilter
 	
 	@Override
-	public ObjectList<Record> getCandRecordsTextSide( Record query ) {
-		TextSideFilter filter = new TextSideFilter(query);
-		return filter.run();
+	public Iterable<Record> getCandRecordsTextSide( Record query ) {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new TextSideFilter(query);
+			}
+		};
 	}
 	
-	private class TextSideFilter {
+	private class TextSideFilter implements Iterator<Record> {
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
 		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
+		final Iterator<Entry<Integer, PosListPair>> iter;
+		Iterator<Record> segmentIter = null;
+		Record thisRec = null;
 		
 		public TextSideFilter( Record query ) {
 			this.query = query;;
@@ -244,63 +276,76 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			candTokenSet = new IntArrayList(intSet.stream().sorted().iterator());
 			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.size());
-		}
-		
-		public ObjectList<Record> run() {
+
 //			Log.log.trace("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
-			ObjectList<Record> candRecordSet = new ObjectArrayList<>();
 //			Log.log.trace("minCount=%d", ()->minCount);
 			statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 //			Log.log.trace("rec2idxListMap.size=%d", ()->rec2idxListMap.size());
-			Iterator<Entry<Integer, PosListPair>> iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
-			while ( iter.hasNext() ) {
-				Entry<Integer, PosListPair> e = iter.next();
-				if ( useCF && e.getValue().nToken < minCount ) continue;
-				int ridx = e.getKey();
-//				Log.log.trace("ridx=%d", ridx);
-				statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
-				IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
-				ObjectList<IntPair> suffixTokenList = e.getValue().suffixTokenList;
-//				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
-				statContainer.stopWatch("Time_TS_IndexFilter.getIdxList");
-				statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
-				prefixIdxList.sort(Integer::compareTo);
-				suffixTokenList.sort((x,y)->Integer.compare(x.i1, y.i1));
-				IntList suffixIdxList = new IntArrayList();
-				IntList tokenList = new IntArrayList();
-				Util.unzip(suffixTokenList, suffixIdxList, tokenList);
-//				suffixIdxList.sort(Integer::compareTo);
-				int minPrefixIdx = prefixIdxList.getInt(0);
-				int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
-				statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
-				statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-				Record fullRec = dataset.getRecord(ridx);
-				statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
-				statContainer.startWatch("Time_TS_IndexFilter.getSubrecord");
-				Record rec = (new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1)).toRecord();
-				statContainer.stopWatch("Time_TS_IndexFilter.getSubrecord");
-				addToIntList(prefixIdxList, -minPrefixIdx);
-				addToIntList(suffixIdxList, -minPrefixIdx);
-//				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
-//				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
-				double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
-//				statContainer.startWatch("Time_TS_IndexFilter.transLen");
-//				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
-//				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
-				statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
-				ObjectList<MergedRange> segmentRangeList = findSegmentRanges(rec, prefixIdxList, suffixIdxList, tokenList, modifiedTheta);
-				statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
-//				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
-				statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
-				ObjectList<Record> segmentList = splitRecord(rec, segmentRangeList);
-				statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
-				statContainer.startWatch("Time_TS_IndexFilter.addAllCands");
-				candRecordSet.addAll(segmentList);
-				statContainer.stopWatch("Time_TS_IndexFilter.addAllCands");
+			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			thisRec = findNext();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext() && segmentIter != null;
+		}
+
+		@Override
+		public Record next() {
+			Record rec = thisRec;
+			thisRec = findNext();
+			return rec;
+		}
+		
+		public Record findNext() {
+			if ( segmentIter == null || !segmentIter.hasNext() ) {
+				segmentIter = null;
+				while ( iter.hasNext() ) {
+					Entry<Integer, PosListPair> e = iter.next();
+					if ( useCF && e.getValue().nToken < minCount ) continue;
+					int ridx = e.getKey();
+	//				Log.log.trace("ridx=%d", ridx);
+					statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
+					IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
+					ObjectList<IntPair> suffixTokenList = e.getValue().suffixTokenList;
+	//				IntList suffixIdxList = IntArrayList.wrap(e.getValue().suffixList.toIntArray());
+					statContainer.stopWatch("Time_TS_IndexFilter.getIdxList");
+					statContainer.startWatch("Time_TS_IndexFilter.sortIdxList");
+					prefixIdxList.sort(Integer::compareTo);
+					suffixTokenList.sort((x,y)->Integer.compare(x.i1, y.i1));
+					IntList suffixIdxList = new IntArrayList();
+					IntList tokenList = new IntArrayList();
+					Util.unzip(suffixTokenList, suffixIdxList, tokenList);
+	//				suffixIdxList.sort(Integer::compareTo);
+					int minPrefixIdx = prefixIdxList.getInt(0);
+					int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
+					statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
+					statContainer.startWatch("Time_TS_IndexFilter.getRecord");
+					Record fullRec = dataset.getRecord(ridx);
+					Subrecord rec = new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1);
+					statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
+					addToIntList(prefixIdxList, -minPrefixIdx);
+					addToIntList(suffixIdxList, -minPrefixIdx);
+	//				statContainer.startWatch("Time_TS_IndexFilter.preprocess");
+	//				statContainer.stopWatch("Time_TS_IndexFilter.preprocess");
+					double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+	//				statContainer.startWatch("Time_TS_IndexFilter.transLen");
+	//				TransLenCalculator transLen = new TransLenCalculator(null, rec, modifiedTheta);
+	//				statContainer.stopWatch("Time_TS_IndexFilter.transLen");
+					statContainer.startWatch("Time_TS_IndexFilter.findSegmentRanges");
+					ObjectList<MergedRange> segmentRangeList = findSegmentRanges(rec, prefixIdxList, suffixIdxList, tokenList, modifiedTheta);
+					statContainer.stopWatch("Time_TS_IndexFilter.findSegmentRanges");
+	//				Log.log.trace("segmentRangeList=%s", ()->segmentRangeList);
+					statContainer.startWatch("Time_TS_IndexFilter.splitRecord");
+					segmentIter = splitRecord(rec, segmentRangeList).iterator();
+					statContainer.stopWatch("Time_TS_IndexFilter.splitRecord");
+					if ( segmentIter.hasNext() ) break;
+				}
+				if ( segmentIter == null || !segmentIter.hasNext() ) return null;
 			}
-			return candRecordSet;
+			return segmentIter.next();
 		}
 		
 		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
@@ -416,7 +461,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
 		}
 
-		private ObjectList<MergedRange> findSegmentRanges( Record rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, double theta ) {
+		private ObjectList<MergedRange> findSegmentRanges( RecordInterface rec, IntList prefixIdxList, IntList suffixIdxList, IntList tokenList, double theta ) {
 //			System.out.println("minPrefixIdx: "+minPrefixIdx+", maxSuffixIdx: "+maxSuffixIdx);
 			ObjectList<MergedRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<prefixIdxList.size(); ++i ) {
@@ -446,7 +491,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			return rangeList;
 		}
 
-		private ObjectList<Record> splitRecord( Record rec, ObjectList<MergedRange> segmentRangeList ) {
+		private ObjectList<Record> splitRecord( RecordInterface rec, ObjectList<MergedRange> segmentRangeList ) {
 			ObjectList<Record> segmentList = new ObjectArrayList<>();
 			if ( segmentRangeList != null ) {
 				for ( MergedRange mrange : segmentRangeList ) {
