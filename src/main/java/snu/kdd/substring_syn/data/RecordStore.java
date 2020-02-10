@@ -19,7 +19,7 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class RecordStore {
 
-	private final int MAX_BUF_SIZE = 1 * 1024 * 1024;
+	private final int MAX_BUF_SIZE = -1;
 	private final Ruleset ruleset;
 	private final byte[] buffer;
 	
