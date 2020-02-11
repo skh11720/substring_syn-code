@@ -107,7 +107,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		@Override
 		public boolean hasNext() {
-			return iter.hasNext() && segmentIter != null;
+			return thisRec != null;
 		}
 
 		@Override
@@ -296,7 +296,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		@Override
 		public boolean hasNext() {
-			return iter.hasNext() && segmentIter != null;
+			return thisRec != null;
 		}
 
 		@Override
