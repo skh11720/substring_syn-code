@@ -3,6 +3,7 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -84,18 +85,18 @@ public class RecordStoreTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		IntList posList = new IntArrayList();
 		int n = 0;
-		FileOutputStream fos = new FileOutputStream("./tmp/RecordStoreTest");
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("./tmp/RecordStoreTest"));
 		int cur = 0;
 		for ( Record rec : dataset.getIndexedList() ) {
 			posList.add(cur);
 			byte[] b = Snappy.compress(rec.getTokenArray());
 			cur += b.length;
 			maxlen = Math.max(maxlen, b.length);
-			fos.write(b);
+			bos.write(b);
 			++n;
 		}
 		posList.add(cur);
-		fos.close();
+		bos.close();
 		System.out.println("max(b.length)="+maxlen);
 		
 		long t;

@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.object.indexstore;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -19,7 +20,7 @@ public class IndexBuilder {
 	static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
 	protected final Iterable<IntPair> kvList;
-	protected FileOutputStream fos = null;
+	protected BufferedOutputStream bos = null;
 	protected int inmem_max_size;
 	protected int nFlush;
 	protected int bufSize;
@@ -85,7 +86,7 @@ public class IndexBuilder {
 			}
 		}
 		flushInmemMap(invListMap, key2segList);
-		fos.close();
+		bos.close();
 		return key2segList;
 	}
 	
@@ -99,7 +100,7 @@ public class IndexBuilder {
 			if ( curTmp.offset > FILE_MAX_LEN ) openNextTmpFile();
 
 			key2segList.get(token).add(new SegmentInfo(curTmp.fileOffset, curTmp.offset, b.length));
-			fos.write(b);
+			bos.write(b);
 			curTmp.offset += b.length;
 			bufSize = Math.max(bufSize, b.length);
 		}
@@ -110,7 +111,7 @@ public class IndexBuilder {
 		Int2ObjectMap<SegmentInfo> key2segMap = new Int2ObjectOpenHashMap<>();
 		RandomAccessFile[] rafList = new RandomAccessFile[curTmp.fileOffset+1];
 		for ( int i=0; i<rafList.length; ++i ) rafList[i] = new RandomAccessFile(getTmpPath(i), "r");
-		FileOutputStream fos = new FileOutputStream(path+"."+curOut.fileOffset);
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 		byte[] buffer = new byte[bufSize];
 		for ( Int2ObjectMap.Entry<ObjectList<SegmentInfo>> entry : key2segList.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
@@ -125,30 +126,30 @@ public class IndexBuilder {
 			bufSize = Math.max(bufSize, b.length);
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
-				fos.flush();
-				fos.close();
+				bos.flush();
+				bos.close();
 				curOut.fileOffset += 1;
 				curOut.offset = 0;
-				fos = new FileOutputStream(path+"."+curOut.fileOffset);
+				bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 			}
 
 			key2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, b.length));
-			fos.write(b);
+			bos.write(b);
 			curOut.offset += b.length;
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
-		fos.close();
+		bos.close();
 		return key2segMap;
 	}
 	
 	final void openNextTmpFile() throws IOException {
-		if ( fos != null ) {
-			fos.flush();
-			fos.close();
+		if ( bos != null ) {
+			bos.flush();
+			bos.close();
 			curTmp.fileOffset += 1;
 			curTmp.offset = 0;
 		}
-		fos = new FileOutputStream(getTmpPath(curTmp.fileOffset));
+		bos = new BufferedOutputStream(new FileOutputStream(getTmpPath(curTmp.fileOffset)));
 	}
 
 	final String getInvPath() { return "./tmp/"+getIndexStoreName()+".inv"; }
