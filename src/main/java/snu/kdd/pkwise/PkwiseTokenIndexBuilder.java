@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.TokenIndexBuilder;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 

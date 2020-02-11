@@ -12,6 +12,7 @@ import org.junit.runners.MethodSorters;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntQGram;
+import snu.kdd.substring_syn.data.TransWindowDataset;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TransWindowDatasetTest {

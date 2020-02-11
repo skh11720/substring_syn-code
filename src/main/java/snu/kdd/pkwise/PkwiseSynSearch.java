@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Level;
 
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.TransWindowDataset;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
