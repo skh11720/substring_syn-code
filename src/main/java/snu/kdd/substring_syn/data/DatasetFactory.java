@@ -24,9 +24,11 @@ public class DatasetFactory {
 	
 	private static DatasetParam param;
 	private static StatContainer statContainer;
+	private static boolean isDocInput;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		param = new DatasetParam(arg);
+		isDocInput = param.name.endsWith("-DOC");
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -51,7 +53,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		DiskBasedDataset dataset = new DiskBasedDataset(statContainer, param, ruleset, store);
-		dataset.rid2idpairMap = getRid2IdpairMap();
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -64,7 +66,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		WindowDataset dataset = new WindowDataset(statContainer, param, ruleset, store);
-		dataset.rid2idpairMap = getRid2IdpairMap();
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -77,7 +79,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		TransWindowDataset dataset = new TransWindowDataset(statContainer, param, ruleset, store, theta);
-		dataset.rid2idpairMap = getRid2IdpairMap();
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -211,7 +213,7 @@ public class DatasetFactory {
 	}
 	
 	private static final Iterable<Record> indexedRecords() {
-		if ( !param.name.endsWith("-DOC") ) 
+		if (!isDocInput)
 			return indexedRecordsInSnt();
 		else 
 			return indexedRecordsInDocs();
