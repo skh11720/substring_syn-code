@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
 import snu.kdd.pkwise.TransWindowDataset;
 import snu.kdd.pkwise.WindowDataset;
@@ -141,6 +142,52 @@ public class DatasetFactory {
 			return iter.hasNext();
 		}
 	}
+
+	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
+		
+		Iterator<String> docIter = null;
+		String thisSnt = findNext();
+		int nd = 0;
+		int did;
+		int sid;
+		final int size;
+
+		public DocRecordIterator(String path) {
+			super(path);
+			size = Integer.parseInt(param.size);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return nd < size && thisSnt != null;
+		}
+
+		@Override
+		public Record next() {
+			String snt = thisSnt;
+			thisSnt = findNext();
+			return new Record(i++, snt);
+		}
+		
+		private final String findNext() {
+			while ( iter.hasNext() && (docIter == null || !docIter.hasNext()) ) {
+				nd += 1;
+				docIter = parseDocument(iter.next());
+			}
+			if ( docIter != null && docIter.hasNext() ) {
+				sid += 1;
+				return docIter.next();
+			}
+			else return null;
+		}
+
+		private final Iterator<String> parseDocument(String line) {
+			String[] strs = line.split("\t", 2);
+			did = Integer.parseInt(strs[0]);
+			sid = -1;
+			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
+		}
+	}
 	
 	static final Iterable<Record> searchedRecords() {
 		String searchedPath = DatasetInfo.getSearchedPath(param.name, param.qlen);
@@ -161,6 +208,13 @@ public class DatasetFactory {
 	}
 	
 	private static final Iterable<Record> indexedRecords() {
+		if ( !param.name.endsWith("-DOC") ) 
+			return indexedRecordsInSnt();
+		else 
+			return indexedRecordsInDocs();
+	}
+	
+	private static final Iterable<Record> indexedRecordsInSnt() {
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		int size = Integer.parseInt(param.size);
 		double lenRatio = Double.parseDouble(param.lenRatio);
@@ -195,6 +249,17 @@ public class DatasetFactory {
 						return str.substring(0, eidx);
 					}
 				};
+			}
+		};
+	}
+
+	private static final Iterable<Record> indexedRecordsInDocs() {
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		return new Iterable<Record>() {
+
+			@Override
+			public Iterator<Record> iterator() {
+				return new DocRecordIterator(indexedPath);
 			}
 		};
 	}
