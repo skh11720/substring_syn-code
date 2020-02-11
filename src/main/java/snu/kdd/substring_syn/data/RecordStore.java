@@ -119,6 +119,8 @@ public class RecordStore {
 		}
 	}
 	
+	@Deprecated
+	@SuppressWarnings("unused")
 	private Record tryGetRecord( int id ) throws IOException {
 		if ( !secTS.pool.containsKey(id) ) {
 			secTS.nRecFault += 1;
@@ -157,6 +159,8 @@ public class RecordStore {
 		}
 	}
 	
+	@Deprecated
+	@SuppressWarnings("unused")
 	private Record tryGetRawRecord(int id) throws IOException {
 		if ( !secQS.pool.containsKey(id) ) {
 			secQS.nRecFault += 1;
