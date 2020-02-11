@@ -227,7 +227,7 @@ public class StatContainer {
 		}
 		
 		public void stop() {
-			t += System.nanoTime() - dt;
+			if (active) t += System.nanoTime() - dt;
 			active = false;
 		}
 		

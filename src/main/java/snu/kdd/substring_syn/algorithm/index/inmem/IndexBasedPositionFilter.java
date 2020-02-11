@@ -25,6 +25,7 @@ import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
+import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -80,6 +81,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		Record thisRec = null;
 		
 		public QuerySideFilter( Record query ) {
+			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			this.query = query;
 			IntArrayList candTokenList = new IntArrayList();
 			IntSet intSet = new IntOpenHashSet();
@@ -100,6 +102,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
 			thisRec = findNext();
+			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 		}
 
 		@Override
@@ -109,8 +112,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		@Override
 		public Record next() {
+			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			Record rec = thisRec;
 			thisRec = findNext();
+			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return rec;
 		}
 		
@@ -266,6 +271,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		Record thisRec = null;
 		
 		public TextSideFilter( Record query ) {
+			statContainer.startWatch(Stat.Time_TS_IndexFilter);
 			this.query = query;;
 			IntArrayList candTokenList = new IntArrayList();
 			IntSet intSet = new IntOpenHashSet();
@@ -285,6 +291,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //			Log.log.trace("rec2idxListMap.size=%d", ()->rec2idxListMap.size());
 			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
 			thisRec = findNext();
+			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 		}
 
 		@Override
@@ -294,8 +301,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		@Override
 		public Record next() {
+			statContainer.startWatch(Stat.Time_TS_IndexFilter);
 			Record rec = thisRec;
 			thisRec = findNext();
+			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return rec;
 		}
 		

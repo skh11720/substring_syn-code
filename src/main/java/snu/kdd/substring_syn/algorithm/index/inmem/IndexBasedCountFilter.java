@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -40,6 +41,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 	
 	@Override
 	public IntIterable querySideFilter( Record query ) {
+		statContainer.startWatch(Stat.Time_QS_IndexFilter);
 		int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 //		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
@@ -67,11 +69,13 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		}
 		
 		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 		return candRidxSet;
 	}
 	
 	@Override
 	public IntIterable textSideFilter( Record query ) {
+		statContainer.startWatch(Stat.Time_TS_IndexFilter);
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
 		Int2IntMap tokenMaxCountMap = Util.getCounter(query.getTokenArray());
@@ -99,6 +103,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		}
 
 		IntIterable candRidxSet = pruneRecordsByCount(commonTokenCounter, minCount);
+		statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 		return candRidxSet;
 	}
 	

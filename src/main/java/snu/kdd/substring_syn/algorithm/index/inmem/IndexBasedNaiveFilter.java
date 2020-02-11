@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
@@ -35,17 +36,20 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 	
 	@Override
 	public IntIterable querySideFilter( Record query ) {
+		statContainer.startWatch(Stat.Time_QS_IndexFilter);
 		IntSet candRidxSet = new IntOpenHashSet();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) candRidxSet.addAll(invList);
 		}
+		statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 		return candRidxSet;
 	}
 	
 	@Override
 	public IntIterable textSideFilter( Record query ) {
+		statContainer.startWatch(Stat.Time_TS_IndexFilter);
 		IntSet candRidxSet = new IntOpenHashSet();
 		for ( int token : query.getDistinctTokens() ) {
 			ObjectList<Integer> invList = index.getInvList(token);
@@ -53,6 +57,7 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) candRidxSet.addAll(transInvList);
 		}
+		statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 		return candRidxSet;
 	}
 

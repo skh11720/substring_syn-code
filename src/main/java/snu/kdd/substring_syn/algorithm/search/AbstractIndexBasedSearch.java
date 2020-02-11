@@ -65,9 +65,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	@Override
 	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
-			statContainer.startWatch(Stat.Time_QS_IndexFilter);
 			Iterable<Record> candRecordSet = indexFilter.getCandRecordsQuerySide(query);
-			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 			return candRecordSet;
 		}
 		else return dataset.getIndexedList();
