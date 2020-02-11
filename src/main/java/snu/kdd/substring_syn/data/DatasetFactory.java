@@ -7,12 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
-import snu.kdd.pkwise.TransWindowDataset;
-import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.InputArgument;
@@ -51,6 +51,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		DiskBasedDataset dataset = new DiskBasedDataset(statContainer, param, ruleset, store);
+		dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -63,6 +64,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		WindowDataset dataset = new WindowDataset(statContainer, param, ruleset, store);
+		dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -75,6 +77,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		TransWindowDataset dataset = new TransWindowDataset(statContainer, param, ruleset, store, theta);
+		dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -149,7 +152,7 @@ public class DatasetFactory {
 		String thisSnt = findNext();
 		int nd = 0;
 		int did;
-		int sid;
+		int sid = -1;
 		final int size;
 
 		public DocRecordIterator(String path) {
@@ -279,5 +282,16 @@ public class DatasetFactory {
 				};
 			}
 		};
+	}
+	
+	private static final Int2ObjectMap<IntPair> getRid2IdpairMap() {
+		Int2ObjectMap<IntPair> map = new Int2ObjectOpenHashMap<IntPair>();
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		DocRecordIterator iter = new DocRecordIterator(indexedPath);
+		while (iter.hasNext()) {
+			Record rec = iter.next();
+			map.put(rec.getID(), new IntPair(iter.did, iter.sid));
+		}
+		return map;
 	}
 }
