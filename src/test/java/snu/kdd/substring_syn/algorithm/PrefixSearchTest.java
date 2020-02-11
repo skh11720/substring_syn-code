@@ -46,8 +46,8 @@ public class PrefixSearchTest {
 	
 	@Test
 	public void testExecutionWithEveryOption() throws IOException {
-		DatasetParam param = new DatasetParam("AMAZON-DOC", "100", "1000", "5", "0.2");
-		String argsTmpl = "-data AMAZON-DOC -alg PrefixSearch -nt 10 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
+		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
+		String argsTmpl = "-data WIKI -alg PrefixSearch -nt 100 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
 		String outputTmpl = "%20s%20.6f%20.6f%20.6f%10d%10d%10d\n";
 		StringBuilder strbld = new StringBuilder(String.format("%20s%20s%20s%10s%10s%10s\n", "FilterOption", "T_Total", "T_Qside", "T_Tside", "Num_Result", "Num_QS_Result", "Num_TS_Result"));
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
