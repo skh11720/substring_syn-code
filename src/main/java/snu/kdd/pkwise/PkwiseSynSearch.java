@@ -92,7 +92,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 //		Log.log.trace("sim=%f", ()->sim);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
-			rsltTextSide.add(new IntPair(query.getID(), window.getID()));
+			addResultTextSide(query, window);
 			return;
 		}
 	}

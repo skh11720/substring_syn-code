@@ -2,7 +2,6 @@ package snu.kdd.substring_syn.algorithm.search;
 
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyValidator;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Log;
@@ -30,7 +29,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 				statContainer.stopWatch(Stat.Time_QS_Validation);
 				if ( sim >= theta ) {
 					Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+					addResultQuerySide(query, rec);
 					return;
 				}
 			}
@@ -49,7 +48,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 				statContainer.stopWatch(Stat.Time_TS_Validation);
 				if ( sim >= theta ) {
 					Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-					rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+					addResultTextSide(query, rec);
 					return;
 				}
 			}

@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -114,6 +115,14 @@ public abstract class AbstractSearch {
 
 	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
 		return dataset.getIndexedList();
+	}
+	
+	protected final void addResultQuerySide(Record query, RecordInterface rec) {
+		rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+	}
+
+	protected final void addResultTextSide(Record query, RecordInterface rec) {
+		rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected final void putResultIntoStat() {

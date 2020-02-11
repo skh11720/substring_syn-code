@@ -72,7 +72,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 //		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
 //		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
-			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
+			addResultQuerySide(query, window);
 //			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}
