@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.utils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,7 +17,7 @@ public class FileBasedLongList {
 	private final byte[] bytes = new byte[nMax*Long.BYTES];
 	private final ByteBuffer buf;
 	private final String path;
-	private FileOutputStream fos;
+	private BufferedOutputStream bos;
 	private RandomAccessFile raf;
 	private int i0 = -1;
 	private int size = 0;
@@ -29,7 +30,7 @@ public class FileBasedLongList {
 		buf = ByteBuffer.wrap(bytes);
 		path = "./tmp/"+name;
 		try {
-			fos = new FileOutputStream(path);
+			bos = new BufferedOutputStream(new FileOutputStream(path));
 			raf = new RandomAccessFile(path, "r");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -40,8 +41,18 @@ public class FileBasedLongList {
 	public final void add(long value) {
 		buf.putLong(0, value);
 		try {
-			fos.write(bytes, 0, Long.BYTES);
+			bos.write(bytes, 0, Long.BYTES);
 			++size;
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	public final void finalize() {
+		try {
+			bos.flush();
+			bos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,18 +39,19 @@ public class IntQGramStore {
 	
 	private void materializeIntQGrams( Iterable<IntQGram> iqgramList ) throws IOException {
 		long cur = 0;
-		FileOutputStream fos = new FileOutputStream(path);
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path));
 		for ( IntQGram iqgram : iqgramList ) {
 			posList.add(cur);
 			byte[] b = Snappy.compress(iqgram.arr);
 			cur += b.length;
-			fos.write(b);
+			bos.write(b);
 			if ( (posList.size() % 1_000_000) == 0 ) Log.log.info("materializeIntQGrams: posList.size="+
 					NumberFormat.getNumberInstance().format(posList.size())+"\tcur="+
 					NumberFormat.getNumberInstance().format(cur));
 		}
-		fos.close();
+		bos.close();
 		posList.add(cur);
+		posList.finalize();
 	}
 	
 	private byte[] setBuffer() {

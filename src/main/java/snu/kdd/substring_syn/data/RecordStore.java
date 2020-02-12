@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -75,8 +76,8 @@ public class RecordStore {
 		Log.log.trace("recordStore.materializeRecords()");
 		long curQS = 0;
 		long curTS = 0;
-		FileOutputStream fosQS = new FileOutputStream(secQS.path);
-		FileOutputStream fosTS = new FileOutputStream(secTS.path);
+		BufferedOutputStream bosQS = new BufferedOutputStream(new FileOutputStream(secQS.path));
+		BufferedOutputStream bosTS = new BufferedOutputStream(new FileOutputStream(secTS.path));
 		for ( Record rec : recordList ) {
 			numRecords += 1;
 			lenSum += rec.size();
@@ -87,18 +88,20 @@ public class RecordStore {
 			secQS.posList.add(curQS);
 			RecordSerializer.shallowSerialize(rec);
 			curQS += RecordSerializer.blen;
-			fosQS.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
+			bosQS.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
 
 			secTS.posList.add(curTS);
 			RecordSerializer.serialize(rec);
 			curTS += RecordSerializer.blen;
-			fosTS.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
+			bosTS.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
 //			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, len=%d, cur=%d", rec.getID(), b.length, cur);
 		}
-		fosQS.close();
+		bosQS.close();
 		secQS.posList.add(curQS);
-		fosTS.close();
+		secQS.posList.finalize();
+		bosTS.close();
 		secTS.posList.add(curTS);
+		secTS.posList.finalize();
 	}
 	
 	private byte[] setBuffer() {

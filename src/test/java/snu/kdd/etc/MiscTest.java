@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -347,6 +346,7 @@ public class MiscTest {
 			list.add(i);
 			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
 		}
+		list.finalize();
 		
 		for ( int i=0; i<n; ++i ) {
 			System.out.println(i+"\t"+list.get(i));
@@ -356,9 +356,9 @@ public class MiscTest {
 	@Test
 	public void testFileBasedLongListEfficiency() {
 		/*
-		add: 8471.3895
-		get (sequential): 3192.141
-		get (random): 5323.4785
+		add: 44.003
+		get (sequential): 13.8895
+		get (random): 6455.7184
 		 */
 		FileBasedLongList list = new FileBasedLongList();
 		Random rn = new Random();
@@ -371,6 +371,7 @@ public class MiscTest {
 			list.add(val[i]);
 //			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
 		}
+		list.finalize();
 		System.out.println("add: "+(System.nanoTime()-ts)*1.0/n);
 
 		ts = System.nanoTime();
