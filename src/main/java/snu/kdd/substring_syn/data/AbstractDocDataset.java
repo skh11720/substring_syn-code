@@ -9,4 +9,8 @@ public abstract class AbstractDocDataset {
 	public final Int2ObjectMap<IntPair> getRid2idpairMap() {
 		return rid2idpairMap;
 	}
+	
+	public final boolean isDocInput() {
+		return rid2idpairMap != null;
+	}
 }

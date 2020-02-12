@@ -27,6 +27,8 @@ public abstract class AbstractSearch {
 	protected final Set<IntPair> rsltTextSide;
 	protected final StatContainer statContainer;
 	
+	protected Dataset dataset;
+	
 	public AbstractSearch( double theta ) {
 		id = FilenameUtils.getBaseName(Log.logpath);
 
@@ -41,6 +43,7 @@ public abstract class AbstractSearch {
 	}
 	
 	public final void run( Dataset dataset ) {
+		this.dataset = dataset;
 		statContainer.setAlgorithm(this);
 		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
@@ -110,11 +113,13 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final boolean rsltQuerySideContains(Record query, RecordInterface rec) {
-		return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
+		if (dataset.isDocInput()) return rsltQuerySide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
 	}
 
 	protected final boolean rsltTextSideContains(Record query, RecordInterface rec) {
-		return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
+		if (dataset.isDocInput()) return rsltTextSide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
@@ -126,11 +131,13 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final void addResultQuerySide(Record query, RecordInterface rec) {
-		rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+		if (dataset.isDocInput()) rsltQuerySide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 	}
 
 	protected final void addResultTextSide(Record query, RecordInterface rec) {
-		rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+		if (dataset.isDocInput()) rsltTextSide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected final void putResultIntoStat() {
