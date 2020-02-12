@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Level;
 
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.TransWindowDataset;
 import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
@@ -57,7 +56,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltQuerySideContains(query, window)) continue;
 //			if ( window.getID() >= 0 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
@@ -67,7 +66,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
-			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltTextSideContains(query, window)) continue;
 //			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
 			searchWindowTextSide(query, window);

@@ -86,7 +86,7 @@ public abstract class AbstractSearch {
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		for ( Record rec : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			if (rsltQuerySideContains(query, rec)) continue;
 			statContainer.addCount(Stat.Num_QS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
@@ -98,7 +98,7 @@ public abstract class AbstractSearch {
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( Record rec : candListTextSide ) {
-			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			if (rsltTextSideContains(query, rec)) continue;
 //			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 //			if ( rec.getID() != 946 ) continue;
 			statContainer.addCount(Stat.Num_TS_Retrieved, 1);
@@ -107,6 +107,14 @@ public abstract class AbstractSearch {
 		}
 //		Log.log.trace("SearchTextSide.nCand=%d", nCand);
 //		Log.log.trace("SearchTextSide.sumLen=%d", sumLen);
+	}
+	
+	protected final boolean rsltQuerySideContains(Record query, RecordInterface rec) {
+		return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
+	}
+
+	protected final boolean rsltTextSideContains(Record query, RecordInterface rec) {
+		return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {

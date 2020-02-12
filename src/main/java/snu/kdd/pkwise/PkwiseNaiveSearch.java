@@ -2,7 +2,6 @@ package snu.kdd.pkwise;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
@@ -53,7 +52,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltQuerySideContains(query, window)) continue;
 //			if ( window.getID() != 7324 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
