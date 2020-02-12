@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -25,6 +26,8 @@ public abstract class AbstractSearch {
 	protected final Set<IntPair> rsltQuerySide;
 	protected final Set<IntPair> rsltTextSide;
 	protected final StatContainer statContainer;
+	
+	protected Dataset dataset;
 	
 	public AbstractSearch( double theta ) {
 		id = FilenameUtils.getBaseName(Log.logpath);
@@ -40,6 +43,7 @@ public abstract class AbstractSearch {
 	}
 	
 	public final void run( Dataset dataset ) {
+		this.dataset = dataset;
 		statContainer.setAlgorithm(this);
 		statContainer.startWatch(Stat.Time_Total);
 		prepareSearch(dataset);
@@ -85,7 +89,7 @@ public abstract class AbstractSearch {
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
 		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
 		for ( Record rec : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			if (rsltQuerySideContains(query, rec)) continue;
 			statContainer.addCount(Stat.Num_QS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
 			searchRecordQuerySide(query, rec);
@@ -97,7 +101,7 @@ public abstract class AbstractSearch {
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( Record rec : candListTextSide ) {
-			if ( rsltTextSide.contains(new IntPair(query.getID(), rec.getID())) ) continue;
+			if (rsltTextSideContains(query, rec)) continue;
 //			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 //			if ( rec.getID() != 946 ) continue;
 			statContainer.addCount(Stat.Num_TS_Retrieved, 1);
@@ -108,12 +112,32 @@ public abstract class AbstractSearch {
 //		Log.log.trace("SearchTextSide.sumLen=%d", sumLen);
 	}
 	
+	protected final boolean rsltQuerySideContains(Record query, RecordInterface rec) {
+		if (dataset.isDocInput()) return rsltQuerySide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
+	}
+
+	protected final boolean rsltTextSideContains(Record query, RecordInterface rec) {
+		if (dataset.isDocInput()) return rsltTextSide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
+	}
+	
 	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
 		return dataset.getIndexedList();
 	}
 
 	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
 		return dataset.getIndexedList();
+	}
+	
+	protected final void addResultQuerySide(Record query, RecordInterface rec) {
+		if (dataset.isDocInput()) rsltQuerySide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+	}
+
+	protected final void addResultTextSide(Record query, RecordInterface rec) {
+		if (dataset.isDocInput()) rsltTextSide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getID()).i1));
+		else rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected final void putResultIntoStat() {

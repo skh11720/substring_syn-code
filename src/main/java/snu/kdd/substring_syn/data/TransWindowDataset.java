@@ -1,16 +1,11 @@
-package snu.kdd.pkwise;
+package snu.kdd.substring_syn.data;
 
 import java.io.File;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import snu.kdd.substring_syn.data.DatasetParam;
-import snu.kdd.substring_syn.data.IntQGram;
-import snu.kdd.substring_syn.data.IntQGramStore;
-import snu.kdd.substring_syn.data.QGram;
-import snu.kdd.substring_syn.data.RecordStore;
-import snu.kdd.substring_syn.data.Ruleset;
+import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -32,6 +27,10 @@ public class TransWindowDataset extends WindowDataset {
 		statContainer.setStat("Size_Recordstore", store.diskSpaceUsage().toString());
 		statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString());
 		statContainer.setStat("Num_IntQGrams", Integer.toString(iqgramStore.getNumIntQGrams()));
+	}
+	
+	public final IntQGramStore getIqgramStore() {
+		return iqgramStore;
 	}
 	
 	public final int getMaxQueryTransformLength() {

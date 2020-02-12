@@ -18,20 +18,20 @@ public class DryRunTest {
 	String size = "1000";
 	String nr = "1000";
 	String qlen = "5";
-	String lenRatio = "0.8";
-	double theta = 0.6;
+	String lenRatio = "1.0";
+	String theta = "0.6";
 	StringBuilder strbld = new StringBuilder();
 
 	@Test
 	public void test() throws IOException, ParseException {
 		/*
-		PrefixSearch	515.758	2.542	35	36
-		PkwiseSynSearch	3808.977	1.143	35	36
-		FaerieSynSearch	9712.986	95.176	35	36
+		PrefixSearch	544.388	2.900	60	60
+		PkwiseSynSearch	4450.524	3.354	60	60
+		FaerieSynSearch	9679.844	95.270	60	60
 		 */
-		runAlgorithm("PrefixSearch", "theta:0.6,filter:Fopt_CPLR");
-		runAlgorithm("PkwiseSynSearch", "theta:0.6,kmax:2");
-		runAlgorithm("FaerieSynSearch", "theta:0.6,isDiskBased:true");
+		runAlgorithm("PrefixSearch", "theta:"+theta+",filter:Fopt_CPLR");
+		runAlgorithm("PkwiseSynSearch", "theta:"+theta+",kmax:2");
+		runAlgorithm("FaerieSynSearch", "theta:"+theta+",isDiskBased:true");
 		System.out.println(strbld.toString());
 	}
 	
@@ -52,7 +52,7 @@ public class DryRunTest {
 	}
 
 	private InputArgument getArgument(String algName, String algOption) throws ParseException {
-		String[] args = ("-data WIKI -alg "+algName+" -nt 1000 -nr 1000 -ql 5 -lr 0.8 -param "+algOption).split(" ");
+		String[] args = (String.format("-data %s -alg %s -nt %s -nr %s -ql %s -lr %s -param %s", datasetName, algName, size, nr, qlen, lenRatio, algOption)).split(" ");
 		return new InputArgument(args);
 	}
 }

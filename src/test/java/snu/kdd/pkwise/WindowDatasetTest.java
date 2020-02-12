@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 

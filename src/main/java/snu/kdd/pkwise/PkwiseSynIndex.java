@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.data.TransWindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -107,7 +108,7 @@ public class PkwiseSynIndex {
 	}
 
 	public final BigInteger diskSpaceUsage() {
-		return dataset.iqgramStore.diskSpaceUsage().add(new BigInteger(""+qgramIndexStore.storeSize));
+		return dataset.getIqgramStore().diskSpaceUsage().add(new BigInteger(""+qgramIndexStore.storeSize));
 	}
 	
 	public final void writeToFile( KwiseSignatureMap sigMap ) {

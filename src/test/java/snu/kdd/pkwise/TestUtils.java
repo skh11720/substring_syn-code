@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.TransWindowDataset;
+import snu.kdd.substring_syn.data.WindowDataset;
 
 public class TestUtils {
 

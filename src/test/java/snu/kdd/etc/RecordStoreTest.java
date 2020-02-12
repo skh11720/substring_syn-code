@@ -117,10 +117,12 @@ public class RecordStoreTest {
 	
 	@Test
 	public void iterableTest() throws IOException {
-		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
+		DatasetParam param = new DatasetParam("WIKI-DOC", "30", "107836", "3", "1.0");
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
-		for ( int i=0; i<10; ++i ) {
-			System.out.println(dataset.getRecord(i));
+		for ( int i=0; i<30; ++i ) {
+			Record rec = dataset.getRecord(i);
+			System.out.println(dataset.getRid2idpairMap().get(rec.getID()));
+			System.out.println(rec.toOriginalString());
 		}
 	}
 }

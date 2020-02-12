@@ -5,7 +5,7 @@ import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public abstract class Dataset {
+public abstract class Dataset extends AbstractDocDataset {
 	
 	public final DatasetParam param;
 	public final String name;

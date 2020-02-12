@@ -1,12 +1,9 @@
-package snu.kdd.pkwise;
+package snu.kdd.substring_syn.data;
 
 import java.util.Iterator;
 
+import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.data.DatasetParam;
-import snu.kdd.substring_syn.data.DiskBasedDataset;
-import snu.kdd.substring_syn.data.RecordStore;
-import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;

@@ -7,11 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
-import snu.kdd.pkwise.TransWindowDataset;
-import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.InputArgument;
@@ -23,9 +24,11 @@ public class DatasetFactory {
 	
 	private static DatasetParam param;
 	private static StatContainer statContainer;
+	private static boolean isDocInput;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		param = new DatasetParam(arg);
+		isDocInput = param.name.endsWith("-DOC");
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -50,6 +53,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		DiskBasedDataset dataset = new DiskBasedDataset(statContainer, param, ruleset, store);
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -62,6 +66,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		WindowDataset dataset = new WindowDataset(statContainer, param, ruleset, store);
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -74,6 +79,7 @@ public class DatasetFactory {
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
 		TransWindowDataset dataset = new TransWindowDataset(statContainer, param, ruleset, store, theta);
+		if (isDocInput) dataset.rid2idpairMap = getRid2IdpairMap();
 		statContainer.stopWatch(Stat.Time_Prepare_Data);
 		return dataset;
 	}
@@ -141,6 +147,52 @@ public class DatasetFactory {
 			return iter.hasNext();
 		}
 	}
+
+	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
+		
+		Iterator<String> docIter = null;
+		String thisSnt = findNext();
+		int nd = 0;
+		int did;
+		int sid = -1;
+		final int size;
+
+		public DocRecordIterator(String path) {
+			super(path);
+			size = Integer.parseInt(param.size);
+		}
+
+		@Override
+		public boolean hasNext() {
+			return nd < size && thisSnt != null;
+		}
+
+		@Override
+		public Record next() {
+			String snt = thisSnt;
+			thisSnt = findNext();
+			return new Record(i++, snt);
+		}
+		
+		private final String findNext() {
+			while ( iter.hasNext() && (docIter == null || !docIter.hasNext()) ) {
+				nd += 1;
+				docIter = parseDocument(iter.next());
+			}
+			if ( docIter != null && docIter.hasNext() ) {
+				sid += 1;
+				return docIter.next();
+			}
+			else return null;
+		}
+
+		private final Iterator<String> parseDocument(String line) {
+			String[] strs = line.split("\t", 2);
+			did = Integer.parseInt(strs[0]);
+			sid = -1;
+			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
+		}
+	}
 	
 	static final Iterable<Record> searchedRecords() {
 		String searchedPath = DatasetInfo.getSearchedPath(param.name, param.qlen);
@@ -161,6 +213,13 @@ public class DatasetFactory {
 	}
 	
 	private static final Iterable<Record> indexedRecords() {
+		if (!isDocInput)
+			return indexedRecordsInSnt();
+		else 
+			return indexedRecordsInDocs();
+	}
+	
+	private static final Iterable<Record> indexedRecordsInSnt() {
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		int size = Integer.parseInt(param.size);
 		double lenRatio = Double.parseDouble(param.lenRatio);
@@ -198,6 +257,17 @@ public class DatasetFactory {
 			}
 		};
 	}
+
+	private static final Iterable<Record> indexedRecordsInDocs() {
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		return new Iterable<Record>() {
+
+			@Override
+			public Iterator<Record> iterator() {
+				return new DocRecordIterator(indexedPath);
+			}
+		};
+	}
 	
 	private static final Iterable<String> ruleStrings() {
 		String rulePath = DatasetInfo.getRulePath(param.name, param.nr);
@@ -214,5 +284,16 @@ public class DatasetFactory {
 				};
 			}
 		};
+	}
+	
+	private static final Int2ObjectMap<IntPair> getRid2IdpairMap() {
+		Int2ObjectMap<IntPair> map = new Int2ObjectOpenHashMap<IntPair>();
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		DocRecordIterator iter = new DocRecordIterator(indexedPath);
+		while (iter.hasNext()) {
+			Record rec = iter.next();
+			map.put(rec.getID(), new IntPair(iter.did, iter.sid));
+		}
+		return map;
 	}
 }

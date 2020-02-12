@@ -110,7 +110,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		boolean isSim = verifyQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		if ( isSim ) {
-			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
+			addResultQuerySide(query, window);
 //					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 //					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 			return ReturnStatus.Terminate;
@@ -213,7 +213,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
-			rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+			addResultTextSide(query, rec);
 //			Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
 //			Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 			return ReturnStatus.Terminate;

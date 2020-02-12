@@ -5,11 +5,11 @@ import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import snu.kdd.pkwise.TransWindowDataset;
-import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.TransWindowDataset;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.utils.Util;
 
 public class TestDatasetManager {

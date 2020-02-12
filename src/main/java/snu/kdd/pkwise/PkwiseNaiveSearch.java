@@ -2,7 +2,7 @@ package snu.kdd.pkwise;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
@@ -52,7 +52,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltQuerySideContains(query, window)) continue;
 //			if ( window.getID() != 7324 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
@@ -71,7 +71,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 //		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
 //		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
-			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
+			addResultQuerySide(query, window);
 //			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}
