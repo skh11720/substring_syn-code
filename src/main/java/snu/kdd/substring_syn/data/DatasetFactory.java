@@ -27,8 +27,7 @@ public class DatasetFactory {
 	private static boolean isDocInput;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
-		param = new DatasetParam(arg);
-		isDocInput = param.name.endsWith("-DOC");
+		setParam(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -41,6 +40,11 @@ public class DatasetFactory {
 			return createInstanceByName(param);
 	}
 	
+	private static void setParam(DatasetParam param) {
+		DatasetFactory.param = param;
+		isDocInput = param.name.endsWith("-DOC");
+	}
+	
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
 		return createInstanceByName(new DatasetParam(name, size, null, null, null));
 	}
@@ -48,7 +52,7 @@ public class DatasetFactory {
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		DatasetFactory.param = param;
+		setParam(param);
 		Record.tokenIndex = buildTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -61,7 +65,7 @@ public class DatasetFactory {
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		DatasetFactory.param = param;
+		setParam(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -74,7 +78,7 @@ public class DatasetFactory {
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		DatasetFactory.param = param;
+		setParam(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
