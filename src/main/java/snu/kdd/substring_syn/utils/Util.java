@@ -843,6 +843,20 @@ public class Util {
 		}
 		return mergedList;
 	}
+
+	public static int binarySearch(ObjectList<Integer> invList, int key) {
+		int l = 0;
+		int r = invList.size();
+		while ( r-l > 1 ) {
+			int m = (l+r)/2;
+			int center = invList.get(m);
+			if ( key > center ) l = m;
+			else r = m;
+		}
+		if ( key == invList.get(l) ) return l;
+		else if ( r < invList.size() && key == invList.get(r) ) return r;
+		else return -1;
+	}
 	
 	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
 		int l = 0;
