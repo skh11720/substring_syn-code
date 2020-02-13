@@ -68,7 +68,6 @@ public class DataStatCalculator {
 			counter.addTo(val.i1, 1);
 		}
 		dataStat.nDoc = counter.keySet().size();
-		counter.entrySet().stream().forEach(x->{System.out.println(x);});
 
 		long n = 0;
 		long sum = 0;
