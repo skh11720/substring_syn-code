@@ -25,8 +25,8 @@ public class MaxBoundTokenCounter {
 		}
 	}
 	
-	public boolean tryIncrement( int key ) {
-		if ( counter.get(key) < tokenMaxCountMap.get(key) ) {
+	public boolean tryIncrement( int key, int token ) {
+		if ( counter.get(key) < tokenMaxCountMap.get(token) ) {
 			increment(key);
 			return true;
 		}

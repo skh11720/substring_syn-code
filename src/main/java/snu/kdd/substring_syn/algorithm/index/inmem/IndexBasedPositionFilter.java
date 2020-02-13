@@ -213,7 +213,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				for ( int j=i; j<m; ++j ) {
 					int eidx = idxList.get(j);
 					int token = rec.getToken(eidx);
-					tokenCounter.tryIncrement(token);
+					tokenCounter.tryIncrement(token, token);
 					int num = tokenCounter.sum();
 					final double score;
 					if ( query.getMinTransLength() < num ) score = (double)num/(eidx-sidx+1) + EPS;
@@ -482,7 +482,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					int eidx = suffixIdxList.get(j);
 					if ( eidx < sidx ) continue;
 					int token = tokenList.get(j);
-					tokenCounter.tryIncrement(token);
+					tokenCounter.tryIncrement(token, token);
 					int num = tokenCounter.sum();
 					final double score;
 					if ( transLen.getLB(eidx) < num ) score = (double)num/query.size() + EPS;

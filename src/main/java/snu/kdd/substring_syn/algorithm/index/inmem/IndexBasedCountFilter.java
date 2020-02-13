@@ -14,9 +14,9 @@ import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
-import snu.kdd.substring_syn.utils.Util;
 
 public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 
@@ -45,23 +45,20 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		int minCount = (int)Math.ceil(theta*query.getMinTransLength());
 //		Log.log.trace("query.size()=%d, query.getTransSetLB()=%d", ()->query.size(), ()->query.getTransSetLB());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
-		IntSet candTokenSet = query.getCandTokenSet();
 		IntList candTokenList = new IntArrayList();
 		for ( Rule r : query.getApplicableRuleIterable() ) {
-			for ( int token : r.getRhs() ) {
-				candTokenSet.add(token);
-				candTokenList.add(token);
-			}
+			for ( int token : r.getRhs() ) candTokenList.add(token);
 		}
-		Int2IntMap tokenMaxCountMap = Util.getCounter(candTokenList);
+		IntList candTokenSet = new IntArrayList(candTokenList.stream().sorted().distinct().iterator());
+		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(candTokenList);
+
+		int countUpperBound = tokenCounter.sumBounds();
 		for ( int token : candTokenSet ) {
-			int nMax = tokenMaxCountMap.get(token);
-			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+			tokenCounter.clear();
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
 				for ( int ridx : invList ) {
-					if ( counter.get(ridx) < nMax ) {
-						counter.addTo(ridx, 1);
+					if ( tokenCounter.tryIncrement(ridx, token) ) {
 						commonTokenCounter.addTo(ridx, 1);
 					}
 				}
@@ -78,15 +75,16 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		statContainer.startWatch(Stat.Time_TS_IndexFilter);
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
-		Int2IntMap tokenMaxCountMap = Util.getCounter(query.getTokenArray());
-		for ( int token : query.getDistinctTokens() ) {
-			int nMax = tokenMaxCountMap.get(token);
-			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(query.getTokenList());
+		IntList candTokenSet = new IntArrayList(query.getTokens().stream().sorted().distinct().iterator());
+
+		int countUpperBound = tokenCounter.sumBounds();
+		for ( int token : candTokenSet ) {
+			tokenCounter.clear();
 			ObjectList<Integer> invList = index.getInvList(token);
 			if ( invList != null ) {
 				for ( int ridx : invList ) {
-					if ( counter.get(ridx) < nMax ) {
-						counter.addTo(ridx, 1);
+					if ( tokenCounter.tryIncrement(ridx, token) ) {
 						commonTokenCounter.addTo(ridx, 1);
 					}
 				}
@@ -94,8 +92,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			ObjectList<Integer> transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
 				for ( int ridx : transInvList ) {
-					if ( counter.get(ridx) < nMax ) {
-						counter.addTo(ridx, 1);
+					if ( tokenCounter.tryIncrement(ridx, token) ) {
 						commonTokenCounter.addTo(ridx, 1);
 					}
 				}
@@ -122,3 +119,4 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		return index.diskSpaceUsage();
 	}
 }
+
