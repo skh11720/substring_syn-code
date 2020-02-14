@@ -60,7 +60,7 @@ public class RecordStore {
 //		Log.log.trace("RecordStore.constructor");
 		this.ruleset = ruleset;
 		secQS = new RecordStoreSection("QS", RecordPool.BUFFER_SIZE);
-		secTS = new RecordStoreSection("TS", 10*RecordPool.BUFFER_SIZE);
+		secTS = new RecordStoreSection("TS", RecordPool.BUFFER_SIZE);
 		try {
 			materializeRecords(indexedRecords);
 		} catch (IOException e) {
@@ -113,8 +113,8 @@ public class RecordStore {
 	
 	public Record getRecord( int id ) {
 		try {
-//			return tryGetRecord(id);
-			return getRecordFromStore(id);
+			return tryGetRecord(id);
+//			return getRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -122,27 +122,25 @@ public class RecordStore {
 		}
 	}
 	
-	@Deprecated
-	@SuppressWarnings("unused")
 	private Record tryGetRecord( int id ) throws IOException {
 		if ( !secTS.pool.containsKey(id) ) {
 			secTS.nRecFault += 1;
-			loadRecordsFromStore(id);
+			secTS.pool.put(id, getRecordFromStore(id));
 		}
 		return secTS.pool.get(id);
 	}
 	
-	private void loadRecordsFromStore(int id) throws IOException {
-		secTS.raf.seek(secTS.posList.get(id));
-		secTS.raf.read(buffer, 0, buffer.length);
-		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
-			int len = (int)( -secTS.posList.get(i) + secTS.posList.get(i+1) );
-			if ( lenRead+len > buffer.length ) break;
-			Record rec = RecordSerializer.deserialize(buffer, lenRead, len, ruleset);
-			secTS.pool.put(i, rec);
-			lenRead += len;
-		}
-	}
+//	private void loadRecordsFromStore(int id) throws IOException {
+//		secTS.raf.seek(secTS.posList.get(id));
+//		secTS.raf.read(buffer, 0, buffer.length);
+//		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
+//			int len = (int)( -secTS.posList.get(i) + secTS.posList.get(i+1) );
+//			if ( lenRead+len > buffer.length ) break;
+//			Record rec = RecordSerializer.deserialize(buffer, lenRead, len, ruleset);
+//			secTS.pool.put(i, rec);
+//			lenRead += len;
+//		}
+//	}
 	
 	private Record getRecordFromStore(int id) throws IOException {
 		secTS.raf.seek(secTS.posList.get(id));
@@ -153,8 +151,8 @@ public class RecordStore {
 	
 	public Record getRawRecord( int id ) {
 		try {
-//			return tryGetRawRecord(id);
-			return getRawRecordFromStore(id);
+			return tryGetRawRecord(id);
+//			return getRawRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -162,27 +160,25 @@ public class RecordStore {
 		}
 	}
 	
-	@Deprecated
-	@SuppressWarnings("unused")
 	private Record tryGetRawRecord(int id) throws IOException {
 		if ( !secQS.pool.containsKey(id) ) {
 			secQS.nRecFault += 1;
-			loadRawRecordsFromStore(id);
+			secQS.pool.put(id, getRawRecordFromStore(id));
 		}
 		return secQS.pool.get(id);
 	}
 
-	private void loadRawRecordsFromStore( int id ) throws IOException {
-		secQS.raf.seek(secQS.posList.get(id));
-		secQS.raf.read(buffer, 0, buffer.length);
-		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
-			int len = (int)( -secQS.posList.get(i) + secQS.posList.get(i+1) );
-			if ( lenRead+len > buffer.length ) break;
-			IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, lenRead, len));
-			secQS.pool.put(i, new Record(list.getInt(0), list.subList(1, list.size()).toIntArray()));
-			lenRead += len;
-		}
-	}
+//	private void loadRawRecordsFromStore( int id ) throws IOException {
+//		secQS.raf.seek(secQS.posList.get(id));
+//		secQS.raf.read(buffer, 0, buffer.length);
+//		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
+//			int len = (int)( -secQS.posList.get(i) + secQS.posList.get(i+1) );
+//			if ( lenRead+len > buffer.length ) break;
+//			IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, lenRead, len));
+//			secQS.pool.put(i, new Record(list.getInt(0), list.subList(1, list.size()).toIntArray()));
+//			lenRead += len;
+//		}
+//	}
 	
 	private Record getRawRecordFromStore(int id) throws IOException {
 		secQS.raf.seek(secQS.posList.get(id));

@@ -8,7 +8,7 @@ import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
 
 public class RecordPool {
 
-	final static int BUFFER_SIZE = (int)(1e4);
+	public static int BUFFER_SIZE = (int)(1e8);
 	
 	private final Int2ObjectMap<Record> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;

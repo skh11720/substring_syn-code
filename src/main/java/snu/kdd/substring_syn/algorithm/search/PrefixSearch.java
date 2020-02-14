@@ -458,7 +458,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.26: improve count filter
 		 * 6.27: not use RecordPool
 		 * 6.28: fix bug in modified count filter, speedup preprocessing
+		 * 6.29: use RecordPool
 		 */
-		return "6.28";
+		return "6.29";
 	}
 }
