@@ -100,7 +100,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
-			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			iter = rec2idxListMap.entrySet().iterator();
 			thisRec = findNext();
 			statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 		}
@@ -289,7 +289,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			Int2ObjectMap<PosListPair> rec2idxListMap = getCommonTokenIdxLists();
 			statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
 //			Log.log.trace("rec2idxListMap.size=%d", ()->rec2idxListMap.size());
-			iter = rec2idxListMap.entrySet().stream().sorted((x,y)->Integer.compare(x.getKey(), y.getKey())).iterator();
+			iter = rec2idxListMap.entrySet().iterator();
 			thisRec = findNext();
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 		}
