@@ -360,6 +360,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<>();
 			int countUpperBound = tokenCounter.sumBounds();
 			for ( int token : candTokenSet ) {
+				tokenCounter.clear();
 				ObjectList<InvListEntry> invList = index.getInvList(token);
 //				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
 				if ( invList != null ) {
