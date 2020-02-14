@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntIterable;
 public class MaxBoundTokenCounter {
 	
 	private final Int2IntMap tokenMaxCountMap;
-	private final Int2IntOpenHashMap counter;
+	private Int2IntOpenHashMap counter;
 	private final int sumBounds;
 	private int sum = 0;
 	
@@ -19,10 +19,7 @@ public class MaxBoundTokenCounter {
 	
 	public void clear() {
 		sum = 0;
-		if ( counter.size() >= 1e6 ) counter.clear();
-		else {
-			for ( int key : counter.keySet() ) counter.put(key, 0);
-		}
+		counter = new Int2IntOpenHashMap();
 	}
 	
 	public boolean tryIncrement( int key, int token ) {
