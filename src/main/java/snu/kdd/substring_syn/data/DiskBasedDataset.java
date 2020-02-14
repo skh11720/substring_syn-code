@@ -21,6 +21,8 @@ public class DiskBasedDataset extends Dataset {
 		statContainer.setStat("Space_Recordstore", store.diskSpaceUsage().toString());
 		statContainer.setStat("Num_QS_RecordFault", ""+store.getNumFaultQS());
 		statContainer.setStat("Num_TS_RecordFault", ""+store.getNumFaultTS());
+		statContainer.setStat("RecordPool_QS.capacity", ""+store.secQS.pool.capacity());
+		statContainer.setStat("RecordPool_TS.capacity", ""+store.secTS.pool.capacity());
 	}
 
 	@Override

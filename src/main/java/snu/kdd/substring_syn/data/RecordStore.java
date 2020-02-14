@@ -24,8 +24,8 @@ public class RecordStore {
 	private final Ruleset ruleset;
 	private final byte[] buffer;
 	
-	private final RecordStoreSection secQS;
-	private final RecordStoreSection secTS;
+	final RecordStoreSection secQS;
+	final RecordStoreSection secTS;
 	
 	private int numRecords = 0;
 	private long lenSum = 0;
