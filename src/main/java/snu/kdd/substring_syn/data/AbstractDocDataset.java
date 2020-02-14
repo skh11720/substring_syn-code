@@ -13,4 +13,8 @@ public abstract class AbstractDocDataset {
 	public final boolean isDocInput() {
 		return rid2idpairMap != null;
 	}
+	
+	protected final long getNumDoc() {
+		return rid2idpairMap.values().stream().map(x->x.i1).distinct().count();
+	}
 }

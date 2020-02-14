@@ -16,6 +16,7 @@ public class DiskBasedDataset extends Dataset {
 	@Override
 	public void addStat() {
 		super.addStat();
+		if (isDocInput()) statContainer.setStat(Stat.Dataset_numDoc, Long.toString(getNumDoc()));
 		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(store.getNumRecords()));
 		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(store.getLenSum()));
 		statContainer.setStat("Space_Recordstore", store.diskSpaceUsage().toString());
