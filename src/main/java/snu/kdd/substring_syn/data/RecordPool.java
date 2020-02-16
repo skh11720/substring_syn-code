@@ -5,10 +5,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordPool {
 
-	public static int BUFFER_SIZE = (int)(1e8);
+	public static int BUFFER_SIZE = (int)(1e4);
 	
 	private final Int2ObjectMap<Record> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;
@@ -58,10 +59,12 @@ public class RecordPool {
 	}
 	
 	private void getSpace( int required ) {
+		StatContainer.global.startWatch("RecordPool.getSpace");
 		while ( size > 0 && size+required > capacity ) {
 			int token = chooseVictim();
 			deallocate(token);
 		}
+		StatContainer.global.stopWatch("RecordPool.getSpace");
 	}
 	
 	private int chooseVictim() {
@@ -69,9 +72,11 @@ public class RecordPool {
 	}
 	
 	private void deallocate( int token ) {
+		StatContainer.global.startWatch("RecordPool.deallocate");
 		size -= map.get(token).size();
 		tic2tokMap.poll();
 		map.remove(token);
+		StatContainer.global.stopWatch("RecordPool.deallocate");
 	}
 
 }
