@@ -34,9 +34,9 @@ public class DataStatCalculator {
 	@Test
 	public void test() throws IOException {
 		String[] targetList = {
-				"WIKI,"+DatasetInfo.getMaxSize("WIKI")+",107836",
-				"PUBMED,"+DatasetInfo.getMaxSize("PUBMED")+",79011",
-				"AMAZON,"+DatasetInfo.getMaxSize("AMAZON")+",107836"
+				"WIKI-DOC,"+DatasetInfo.getMaxSize("WIKI-DOC")+",107836",
+				"PUBMED-DOC,"+DatasetInfo.getMaxSize("PUBMED-DOC")+",79011",
+				"AMAZON-DOC,"+DatasetInfo.getMaxSize("AMAZON-DOC")+",107836"
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
