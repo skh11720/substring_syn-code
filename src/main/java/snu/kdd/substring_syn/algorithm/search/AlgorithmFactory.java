@@ -38,6 +38,7 @@ public class AlgorithmFactory {
 		Fopt_CL,
 		Fopt_PL,
 		Fopt_CPL,
+		Fopt_CPR,
 		Fopt_CPLR,
 	}
 
@@ -62,6 +63,7 @@ public class AlgorithmFactory {
 			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
 			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
 			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CPR: bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			default: throw new RuntimeException("Unexpected error");
 			}

@@ -84,6 +84,7 @@ public class PrefixSearchFilterPowerTest {
 				new FilterOption(FilterOptionLabel.Fopt_CL),
 				new FilterOption(FilterOptionLabel.Fopt_PL),
 				new FilterOption(FilterOptionLabel.Fopt_CPL),
+				new FilterOption(FilterOptionLabel.Fopt_CPR),
 				new FilterOption(FilterOptionLabel.Fopt_CPLR),
 		};
 		for ( String lr : lrList ) {
