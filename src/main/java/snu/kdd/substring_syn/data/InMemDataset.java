@@ -5,22 +5,15 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class InMemDataset extends Dataset {
 	
-	private final List<Record> searchedList;
 	private final List<Record> indexedList;
 	
-	protected InMemDataset(DatasetParam param) throws IOException {
-		super(param);
-		initTokenIndex();
-		searchedList = new ObjectArrayList<>(new DiskBasedSearchedRecordIterator());
-		indexedList = new ObjectArrayList<>(new DiskBasedIndexedRecordIterator());
-	}
-	
-	@Override
-	public Iterable<Record> getSearchedList() {
-		return searchedList;
+	protected InMemDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, Iterable<Record> indexedRecords) throws IOException {
+		super(statContainer, param, ruleset);
+		indexedList = new ObjectArrayList<>(indexedRecords.iterator());
 	}
 
 	@Override
@@ -29,7 +22,14 @@ public class InMemDataset extends Dataset {
 	}
 
 	@Override
-	public Record getRecord(int id) {
+	public Record getRawRecord(int id) {
 		return indexedList.get(id);
+	}
+
+	@Override
+	public Record getRecord(int id) {
+		Record rec = indexedList.get(id);
+		rec.preprocessAll();
+		return rec;
 	}
 }

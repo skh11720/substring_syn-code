@@ -1,7 +1,6 @@
 package snu.kdd.faerie;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.utils.Stat;
@@ -22,7 +21,7 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 //			statContainer.addCount(Stat.Len_QS_Verified, rec.size());
 			if ( sim >= theta ) {
 //					Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-				rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+				addResultQuerySide(query, rec);
 				break;
 			}
 		}
@@ -31,7 +30,6 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 
 	@Override
 	protected void searchRecordTextSide(Record query, Record rec) {
-		rec.preprocessAll();
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		for ( Record recExp : Records.expands(rec) ) {
 			double sim = Util.subJaccardM(query.getTokenArray(), recExp.getTokenArray());
@@ -39,7 +37,7 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 //			statContainer.addCount(Stat.Len_TS_Verified, rec.size());
 			if ( sim >= theta ) {
 //					Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+				addResultTextSide(query, rec);
 				break;
 			}
 		}

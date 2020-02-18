@@ -19,7 +19,6 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.object.indexstore.EntryStore;
 import snu.kdd.substring_syn.object.indexstore.IndexStore;
-import snu.kdd.substring_syn.utils.Util;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class IndexStoreTest {

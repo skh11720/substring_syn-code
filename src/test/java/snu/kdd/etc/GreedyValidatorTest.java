@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import vldb18.GreedyPkduckValidator;
@@ -13,7 +14,7 @@ public class GreedyValidatorTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("SPROT", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT", "10000");
 		long ts;
 		long[] tArr = new long[2];
 		GreedyPkduckValidator validator0 = new GreedyPkduckValidator(0.0, null);

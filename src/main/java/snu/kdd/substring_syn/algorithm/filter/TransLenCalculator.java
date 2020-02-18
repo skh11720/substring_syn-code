@@ -3,7 +3,6 @@ package snu.kdd.substring_syn.algorithm.filter;
 import java.util.Arrays;
 
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
 

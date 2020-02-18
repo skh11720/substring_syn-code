@@ -4,6 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
@@ -15,10 +19,12 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
@@ -29,7 +35,7 @@ public class MiscTest {
 	public void testExactVerification() throws IOException {
 		int qidx = 23;
 		int sidx = 287;
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		Record query = null;
 		Record text = null;
 		for ( Record rec : dataset.getSearchedList() ) {
@@ -53,12 +59,12 @@ public class MiscTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testRecord() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
 		for ( Record rec : dataset.getIndexedList() ) {
 			int n1 = 0;
 			for ( int k=0; k<rec.size(); ++k ) {
-				for ( Rule rule : rec.getApplicableRules()[k] ) ++n1;
+				for ( Rule rule : rec.getApplicableRules(k) ) ++n1;
 			}
 			
 			int n2 = 0;
@@ -70,7 +76,7 @@ public class MiscTest {
 	
 	@Test
 	public void testTransformLength() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
 		}
@@ -78,7 +84,7 @@ public class MiscTest {
 
 	@Test
 	public void testQueryCandTokenSet() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
 			System.out.println(rec.getID()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
 		}
@@ -106,7 +112,7 @@ public class MiscTest {
 	
 	@Test
 	public void testWindowCount() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("SPROT_long", "1000");
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", "1000");
 		double theta = 0.6;
 		for ( Record rec : dataset.getIndexedList() ) {
 			int nw0 = sumWindowSize(rec);
@@ -284,7 +290,7 @@ public class MiscTest {
 	}
 
 	@Test
-	public void test() {
+	public void testPrefixWithLengthRatio() {
 		String str = "aaa bbbb cc ddd eeeee f g hh i jj kkk";
 		int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
 		for ( double lenRatio : new double[] {0.2, 0.4, 0.6, 0.8, 1.0} ) {
@@ -317,5 +323,106 @@ public class MiscTest {
 			}
 		}
 		return str.substring(0, eidx);
+	}
+	
+	@Test
+	public void testLongToByteArray() {
+		int n = 100;
+		long v = 1;
+		ByteBuffer buf = ByteBuffer.allocate(Long.BYTES);
+		for ( int i=0; i<n; ++i ) {
+			buf.putLong(0, v);
+			System.out.println(v+"\t"+Arrays.toString(buf.array())+buf.getLong(0));
+			v *= 2.1;
+		}
+	}
+	
+	@Test
+	public void testFileBasedLongListCorrectness() {
+		FileBasedLongList list = new FileBasedLongList();
+		long n = 100;
+		System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		for ( long i=0; i<n; ++i ) {
+			list.add(i);
+			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		}
+		list.finalize();
+		
+		for ( int i=0; i<n; ++i ) {
+			System.out.println(i+"\t"+list.get(i));
+		}
+	}
+
+	@Test
+	public void testFileBasedLongListEfficiency() {
+		/*
+		add: 44.003
+		get (sequential): 13.8895
+		get (random): 6455.7184
+		 */
+		FileBasedLongList list = new FileBasedLongList();
+		Random rn = new Random();
+		int n = 1000000;
+		long[] val = rn.longs().limit(n).toArray();
+		int[] pos = rn.ints(0, n).limit(n).toArray();
+		long ts = System.nanoTime();
+//		System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		for ( int i=0; i<n; ++i ) {
+			list.add(val[i]);
+//			System.out.println(list.size()+"\t"+list.diskSpaceUsage());
+		}
+		list.finalize();
+		System.out.println("add: "+(System.nanoTime()-ts)*1.0/n);
+
+		ts = System.nanoTime();
+		for ( int i=0; i<n; ++i ) {
+			list.get(i);
+//			System.out.println(i+"\t"+list.get(i));
+		}
+		System.out.println("get (sequential): "+(System.nanoTime()-ts)*1.0/n);
+		
+		ts = System.nanoTime();
+		for ( int i=0; i<n; ++i ) {
+			list.get(pos[i]);
+//			System.out.println(i+"\t"+list.get(i));
+		}
+		System.out.println("get (random): "+(System.nanoTime()-ts)*1.0/n);
+	}
+	
+	@Test
+	public void testBinarySearch() {
+		Random rn = new Random(0);
+		int nMax = 1000;
+		int triesMax = 1000000;
+		
+		for ( int tries=0; tries<triesMax; ++tries ) {
+			List<Integer> list = new ArrayList<>();
+			int n = rn.nextInt(nMax)+1;
+			list.add(0);
+			for ( int i=1; i<n; ++i ) list.add(list.get(i-1)+rn.nextInt(4));
+			assertEquals(-1, Util.binarySearch(list, Integer.valueOf(-1), Integer::compare));
+			for ( int j=list.size()-1; j>=0; --j ) {
+				while ( j > 0 && list.get(j-1).equals(list.get(j)) ) j -= 1;
+				try {
+					assertEquals(j, Util.binarySearch(list, list.get(j), Integer::compare));
+				}
+				catch ( AssertionError e ) {
+					System.err.println(list);
+					System.err.println(list.size());
+					System.err.println(j);
+					System.err.println(Util.binarySearch(list, list.get(j), Integer::compare));
+					throw e;
+				}
+			}
+			
+			for ( int i=0, v=0; i<list.size(); ) {
+				if ( list.get(i) == v ) i += 1;
+				else if ( list.get(i) > v ) {
+					v += 1;
+					if ( list.get(i) > v ) assertEquals(-1, Util.binarySearch(list, v, Integer::compare));
+				}
+			}
+//			System.out.println((tries+1)+"/"+triesMax);
+		}
 	}
 }

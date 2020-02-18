@@ -1,57 +1,43 @@
 package snu.kdd.substring_syn.data;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-
-import org.apache.commons.io.FileUtils;
-
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.Stat;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class DiskBasedDataset extends Dataset {
 	
-	final RecordStore store;
+	protected RecordStore store;
 	
-	protected DiskBasedDataset(DatasetParam param) throws IOException {
-		super(param);
-		initTokenIndex();
-		store = new RecordStore(getIndexedList());
+	protected DiskBasedDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store) {
+		super(statContainer, param, ruleset);
+		this.store = store;
 	}
 	
 	@Override
 	public void addStat() {
 		super.addStat();
-		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
-	}
-	
-	@Override
-	public Iterable<Record> getSearchedList() {
-		return new Iterable<Record>() {
-			
-			@Override
-			public Iterator<Record> iterator() {
-				return new DiskBasedSearchedRecordIterator();
-			}
-		};
+		if (isDocInput()) statContainer.setStat(Stat.Dataset_numDoc, Long.toString(getNumDoc()));
+		statContainer.setStat(Stat.Dataset_numIndexed, Integer.toString(store.getNumRecords()));
+		statContainer.setStat(Stat.Len_IndexedAll, Long.toString(store.getLenSum()));
+		statContainer.setStat("Space_Recordstore", store.diskSpaceUsage().toString());
+		statContainer.setStat("Num_QS_RecordFault", ""+store.getNumFaultQS());
+		statContainer.setStat("Num_TS_RecordFault", ""+store.getNumFaultTS());
+		statContainer.setStat("RecordPool_QS.capacity", ""+store.secQS.pool.capacity());
+		statContainer.setStat("RecordPool_TS.capacity", ""+store.secTS.pool.capacity());
 	}
 
 	@Override
 	public Iterable<Record> getIndexedList() {
-		return new Iterable<Record>() {
-			
-			@Override
-			public Iterator<Record> iterator() {
-				return new DiskBasedIndexedRecordIterator();
-			}
-		};
+		return store.getRecords();
+	}
+
+	@Override
+	public Record getRawRecord(int id) {
+		return store.getRawRecord(id);
 	}
 
 	@Override
 	public Record getRecord(int id) {
 		return store.getRecord(id);
-	}
-	
-	public Iterable<Record> getRecords() {
-		return store.getRecords();
 	}
 }

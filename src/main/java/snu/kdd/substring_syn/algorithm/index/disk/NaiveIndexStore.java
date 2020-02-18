@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.Record;
@@ -30,5 +32,9 @@ public class NaiveIndexStore {
 		int[] arr = tinvListAccessor.getList(token);
 		if ( arr == null ) return null;
 		else return IntArrayList.wrap(arr);
+	}
+	
+	public final BigInteger diskSpaceUsage() {
+		return new BigInteger(""+(invListAccessor.size + tinvListAccessor.size));
 	}
 }

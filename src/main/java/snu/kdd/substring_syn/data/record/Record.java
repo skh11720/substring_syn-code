@@ -22,19 +22,17 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	int id;
-	int[] tokens;
-	int hash;
+	protected final int id;
+	protected final int[] tokens;
+	protected final int hash;
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
-	Rule[][] suffixNonselfApplicableRules = null;
 	int[][] transformLengths = null;
 //	long[] estTrans;
 	IntPair[][] suffixRuleLenPairs = null;
 
 	int maxRhsSize = 0;
-	int transSetLB = 0;
 	
 	public Record( int id, String str ) {
 		this.id = id;
@@ -99,10 +97,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokens[i];
 	}
 	
-	public void setToken( int token, int i ) {
-		tokens[i] = token;
-	}
-
 	@Override
 	public int getSidx() {
 		return 0;
@@ -133,24 +127,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return this;
 	}
 	
-	public int getTransSetLB() {
-		if ( transSetLB == 0 ) transSetLB = Records.getTransSetSizeLowerBound(this);
-		return transSetLB;
-	}
-
 	public int getNumApplicableRules() {
 		int count = 0;
-		for( int i = 0; i < applicableRules.length; ++i ) {
-			for( Rule rule : applicableRules[ i ] ) {
-				if( rule.isSelfRule ) {
-					continue;
-				}
-				++count;
-			}
+		for ( Rule rule : getApplicableRuleIterable() ) {
+			if( rule.isSelfRule ) continue;
+			count += 1;
 		}
 		return count;
 	}
 
+	@Override
 	public Iterable<Rule> getApplicableRuleIterable() {
 		return new Iterable<Rule>() {
 			@Override
@@ -160,10 +146,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		};
 	}
 
-	public Rule[][] getApplicableRules() {
-		return applicableRules;
-	}
-	
+	@Override
 	public Iterable<Rule> getApplicableRules( int k ) {
 		if( applicableRules == null ) {
 			return null;
@@ -176,10 +159,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
-	public Rule[][] getSuffixApplicableRules() {
-		return suffixApplicableRules;
-	}
-
+	@Override
 	public Iterable<Rule> getSuffixApplicableRules( int k ) {
 		if( suffixApplicableRules == null ) {
 			return null;
@@ -202,11 +182,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 		else return null;
 	}
 
-	public int getMaxTransLength() {
+	public final int getMaxTransLength() {
 		return transformLengths[ tokens.length - 1 ][ 1 ];
 	}
 
-	public int getMinTransLength() {
+	public final int getMinTransLength() {
 		return transformLengths[ tokens.length - 1 ][ 0 ];
 	}
 
@@ -214,22 +194,16 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
-			for ( Rule rule : getApplicableRuleIterable() ) {
-				maxRhsSize = Math.max(maxRhsSize, rule.rhsSize());
+			for ( int k=0; k<tokens.length; ++k) {
+				for ( IntPair pair : suffixRuleLenPairs[k] ) {
+					maxRhsSize = Math.max(maxRhsSize, pair.i2);
+				}
 			}
 		}
 		return maxRhsSize;
 	}
 	
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( Arrays.asList(applicableRules[k]) );
-		rules.addAll( Arrays.asList(suffixApplicableRules[k]) );
-		return rules;
-	}
-	
-	@Override
-	public IntOpenHashSet getCandTokenSet() {
+	public final IntOpenHashSet getCandTokenSet() {
 		IntOpenHashSet tokenSet = new IntOpenHashSet();
 		for ( Rule r : getApplicableRuleIterable() ) {
 			for ( int token : r.getRhs() ) tokenSet.add(token);
@@ -237,16 +211,6 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return tokenSet;
 	}
 	
-	public Record getSubrecord( int sidx, int eidx ) {
-		Record newrec = new Record(getTokenList().subList(sidx, eidx).toIntArray());
-		newrec.id = getID();
-		newrec.applicableRules = null;
-		newrec.suffixApplicableRules = null;
-		newrec.transformLengths = null;
-		newrec.suffixRuleLenPairs = null;
-		return newrec;
-	}
-
 	public void preprocessAll() {
 		preprocessApplicableRules();
 		preprocessSuffixApplicableRules();
@@ -284,7 +248,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
-	protected void preprocessTransformLength() {
+	public void preprocessTransformLength() {
 		if ( transformLengths != null ) return;
 		transformLengths = new int[ tokens.length ][ 2 ];
 		for( int i = 0; i < tokens.length; ++i )
@@ -319,6 +283,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		StringBuilder rslt = new StringBuilder();
 		for( int id : tokens ) {
@@ -329,7 +294,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		return rslt.toString();
 	}
-
+	
+	@Override
 	public String toOriginalString() {
 		StringBuilder rslt = new StringBuilder();
 		for( int id : tokens ) {
@@ -338,6 +304,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return rslt.toString();
 	}
 	
+	@Override
 	public String toStringDetails() {
 		StringBuilder rslt = new StringBuilder();
 		rslt.append("ID: "+id+"\n");
@@ -361,6 +328,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
+
+
 
 	
 	

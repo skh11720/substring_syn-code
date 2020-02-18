@@ -14,13 +14,14 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.InvertedListPool;
 import snu.kdd.substring_syn.algorithm.index.disk.NaiveIndexStore;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class InvertedListPoolTest {
 
 	@Test
 	public void putSpeed() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("WIKI_3", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
 		NaiveIndexStore store = new NaiveIndexStore(recordList);
 		IntSet tokenSet = new IntOpenHashSet();

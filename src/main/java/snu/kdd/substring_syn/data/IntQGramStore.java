@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.data;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,9 +11,8 @@ import java.util.Iterator;
 
 import org.xerial.snappy.Snappy;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -20,13 +20,13 @@ public class IntQGramStore {
 
 	public static final String path = "./tmp/IntQGramStore";
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
-	private final ObjectList<BigInteger> posList;
+	private final FileBasedLongList posList;
 	private final byte[] buffer;
 	private RandomAccessFile raf;
 	
 	
 	public IntQGramStore( Iterable<IntQGram> iqgramList ) {
-		posList = new ObjectArrayList<>();
+		posList = new FileBasedLongList("IntQGramStore.posList");
 		try {
 			materializeIntQGrams(iqgramList);
 			raf = new RandomAccessFile(path, "r");
@@ -38,24 +38,25 @@ public class IntQGramStore {
 	}
 	
 	private void materializeIntQGrams( Iterable<IntQGram> iqgramList ) throws IOException {
-		BigInteger cur = BigInteger.ZERO;
-		FileOutputStream fos = new FileOutputStream(path);
+		long cur = 0;
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path));
 		for ( IntQGram iqgram : iqgramList ) {
 			posList.add(cur);
 			byte[] b = Snappy.compress(iqgram.arr);
-			cur = cur.add(BigInteger.valueOf(b.length));
-			fos.write(b);
+			cur += b.length;
+			bos.write(b);
 			if ( (posList.size() % 1_000_000) == 0 ) Log.log.info("materializeIntQGrams: posList.size="+
 					NumberFormat.getNumberInstance().format(posList.size())+"\tcur="+
 					NumberFormat.getNumberInstance().format(cur));
 		}
-		fos.close();
+		bos.close();
 		posList.add(cur);
+		posList.finalize();
 	}
 	
 	private byte[] setBuffer() {
 		int bufSize = 0;
-		for ( int i=0; i<posList.size()-1; ++i ) bufSize = Math.max(bufSize, posList.get(i+1).subtract(posList.get(i)).intValueExact());
+		for ( int i=0; i<posList.size()-1; ++i ) bufSize = Math.max(bufSize, (int)(posList.get(i+1)-(posList.get(i))));
 		return new byte[bufSize];
 	}
 	
@@ -70,8 +71,8 @@ public class IntQGramStore {
 	}
 	
 	public IntQGram tryGetIntQGram( int id ) throws IOException {
-		int len = posList.get(id+1).subtract(posList.get(id)).intValueExact();
-		raf.seek(posList.get(id).longValueExact());
+		int len = (int)(posList.get(id+1)-(posList.get(id)));
+		raf.seek(posList.get(id));
 		raf.read(buffer, 0, len);
 		int[] arr = Snappy.uncompressIntArray(buffer, 0, len);
 		return new IntQGram(arr);
@@ -117,7 +118,7 @@ public class IntQGramStore {
 
 		@Override
 		public Record next() {
-			int len = posList.get(i+1).subtract(posList.get(i)).intValueExact();
+			int len = (int)(posList.get(i+1)-(posList.get(i)));
 			int[] arr = null;
 			try {
 				fis.read(buffer, 0, len);

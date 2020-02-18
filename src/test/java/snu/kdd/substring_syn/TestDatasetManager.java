@@ -5,10 +5,11 @@ import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import snu.kdd.pkwise.TransWindowDataset;
-import snu.kdd.pkwise.WindowDataset;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.TransWindowDataset;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.utils.Util;
 
 public class TestDatasetManager {
@@ -73,8 +74,8 @@ public class TestDatasetManager {
 		return (WindowDataset) manager.getDataset(key);
 	}
 
-	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, String theta ) {
-		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, lenRatio, theta);
+	public static final TransWindowDataset getTransWindowDataset( String datasetName, String size, String nr, String qlen, String lenRatio, double theta ) {
+		DatasetKey key = new DatasetKey(2, datasetName, size, nr, qlen, lenRatio, ""+theta);
 		return (TransWindowDataset) manager.getDataset(key);
 	}
 	
@@ -102,17 +103,17 @@ public class TestDatasetManager {
 	
 	private final Dataset createPlainDataset( DatasetKey key ) throws IOException {
 		DatasetParam param = new DatasetParam(key.getName(),key.getSize(), key.getNr(), key.getQlen(), key.getLenRatio());
-		return Dataset.createInstanceByName(param);
+		return DatasetFactory.createInstanceByName(param);
 	}
 	
 	private final WindowDataset createWindowDataset( DatasetKey key ) throws IOException {
 		DatasetParam param = new DatasetParam(key.getName(),key.getSize(), key.getNr(), key.getQlen(), key.getLenRatio());
-		return Dataset.createWindowInstanceByName(param);
+		return DatasetFactory.createWindowInstanceByName(param);
 	}
 	
 	private final TransWindowDataset createTransWindowDataset( DatasetKey key ) throws IOException {
 		DatasetParam param = new DatasetParam(key.getName(),key.getSize(), key.getNr(), key.getQlen(), key.getLenRatio());
-		return Dataset.createTransWindowInstanceByName(param, key.getTheta());
+		return DatasetFactory.createTransWindowInstanceByName(param, key.getTheta());
 	}
 	
 	

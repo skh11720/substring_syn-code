@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -20,7 +21,7 @@ public abstract class AbstractIndexStoreBuilder {
 	public static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
 	protected final Iterable<Record> recordList;
-	protected FileOutputStream fos = null;
+	protected BufferedOutputStream bos = null;
 	protected int inmem_max_size;
 	protected int nFlush;
 	protected int bufSize;
@@ -93,7 +94,7 @@ public abstract class AbstractIndexStoreBuilder {
 			}
 		}
 		flushInmemMap(invListMap, tok2segList);
-		fos.close();
+		bos.close();
 		return tok2segList;
 	}
 	
@@ -122,7 +123,7 @@ public abstract class AbstractIndexStoreBuilder {
 			}
 		}
 		flushInmemMap(invListMap, tok2segList);
-		fos.close();
+		bos.close();
 		return tok2segList;
 	}
 
@@ -136,7 +137,7 @@ public abstract class AbstractIndexStoreBuilder {
 			if ( curTmp.offset > FILE_MAX_LEN ) openNextTmpFile();
 
 			tok2segList.get(token).add(new SegmentInfo(curTmp.fileOffset, curTmp.offset, b.length));
-			fos.write(b);
+			bos.write(b);
 			curTmp.offset += b.length;
 			bufSize = Math.max(bufSize, b.length);
 		}
@@ -147,7 +148,7 @@ public abstract class AbstractIndexStoreBuilder {
 		Int2ObjectMap<SegmentInfo> tok2segMap = new Int2ObjectOpenHashMap<>();
 		RandomAccessFile[] rafList = new RandomAccessFile[curTmp.fileOffset+1];
 		for ( int i=0; i<rafList.length; ++i ) rafList[i] = new RandomAccessFile(getTmpPath(i), "r");
-		FileOutputStream fos = new FileOutputStream(path+"."+curOut.fileOffset);
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 		byte[] buffer = new byte[bufSize];
 		for ( Int2ObjectMap.Entry<ObjectList<SegmentInfo>> entry : tok2segList.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
@@ -162,31 +163,31 @@ public abstract class AbstractIndexStoreBuilder {
 			bufSize = Math.max(bufSize, b.length);
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
-				fos.flush();
-				fos.close();
+				bos.flush();
+				bos.close();
 				curOut.fileOffset += 1;
 				curOut.offset = 0;
-				fos = new FileOutputStream(path+"."+curOut.fileOffset);
+				bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 			}
 
 			tok2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, b.length));
-			fos.write(b);
+			bos.write(b);
 			curOut.offset += b.length;
 			storeSize += b.length;
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
-		fos.close();
+		bos.close();
 		return tok2segMap;
 	}
 	
 	protected void openNextTmpFile() throws IOException {
-		if ( fos != null ) {
-			fos.flush();
-			fos.close();
+		if ( bos != null ) {
+			bos.flush();
+			bos.close();
 			curTmp.fileOffset += 1;
 			curTmp.offset = 0;
 		}
-		fos = new FileOutputStream(getTmpPath(curTmp.fileOffset));
+		bos = new BufferedOutputStream(new FileOutputStream(getTmpPath(curTmp.fileOffset)));
 	}
 
 	protected String getInvPath() { return "./tmp/"+getIndexStoreName()+".inv"; }

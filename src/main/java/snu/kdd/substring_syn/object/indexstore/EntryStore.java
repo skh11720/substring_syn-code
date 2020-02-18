@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.object.indexstore;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,7 +11,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
@@ -193,7 +193,7 @@ public class EntryStore<E extends Serializable> {
 	private final class Cursor {
 		int fileOffset;
 		long offset;
-		FileOutputStream fos = null;
+		BufferedOutputStream bos = null;
 		int numEntries;
 		long storeSize;
 		
@@ -202,19 +202,19 @@ public class EntryStore<E extends Serializable> {
 		}
 		
 		public final void open() throws FileNotFoundException {
-			fos = new FileOutputStream(path+"."+fileOffset);
+			bos = new BufferedOutputStream(new FileOutputStream(path+"."+fileOffset));
 		}
 		
 		public final void write(byte[] b) throws IOException {
 			offset += b.length;
-			fos.write(b);
+			bos.write(b);
 			numEntries += 1;
 			storeSize += b.length;
 		}
 		
 		public final void close() throws IOException {
-			fos.flush();
-			fos.close();
+			bos.flush();
+			bos.close();
 			maxIdList.add(numEntries);
 			rafList.add(new RandomAccessFile(new File(path+"."+fileOffset), "r"));
 		}

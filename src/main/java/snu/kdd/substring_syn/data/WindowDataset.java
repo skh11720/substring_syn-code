@@ -1,67 +1,37 @@
-package snu.kdd.pkwise;
+package snu.kdd.substring_syn.data;
 
-import java.io.File;
 import java.util.Iterator;
 
-import org.apache.commons.io.FileUtils;
-
+import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.DatasetParam;
-import snu.kdd.substring_syn.data.RecordStore;
-import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class WindowDataset extends Dataset {
+public class WindowDataset extends DiskBasedDataset {
 
-	protected RecordStore recordStore = null;
+	protected final int qlen;
 
-	public WindowDataset(DatasetParam param) {
-		super(param);
-		Record.tokenIndex = new TokenIndex();
+	public WindowDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store) {
+		super(statContainer, param, ruleset, store);
+		qlen = Integer.parseInt(param.qlen);
 	}
-	
-	public final void buildRecordStore() {
-		recordStore = new RecordStore(getIndexedList());
-	}
-	
+
 	@Override
 	public void addStat() {
 		super.addStat();
-		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
+		statContainer.setStat("Size_Recordstore", store.diskSpaceUsage().toString());
 	}
 
-	@Override
-	public Iterable<Record> getSearchedList() {
-		return new Iterable<Record>() {
-			
-			@Override
-			public Iterator<Record> iterator() {
-				return new DiskBasedSearchedRecordIterator();
-			}
-		};
-	}
-
-	@Override
-	public Iterable<Record> getIndexedList() {
-		return new Iterable<Record>() {
-			
-			@Override
-			public Iterator<Record> iterator() {
-				return new DiskBasedIndexedRecordIterator();
-			}
-		};
-	}
 	
 	public Iterable<RecordInterface> getWindowList( int w ) {
 		return new Iterable<RecordInterface>() {
 			
 			@Override
 			public Iterator<RecordInterface> iterator() {
-				return new WindowIterator(w);
+				return new WindowIterator(store.getRecords().iterator(), w);
 			}
 		};
 	}
@@ -77,25 +47,21 @@ public class WindowDataset extends Dataset {
 			
 			@Override
 			public Iterator<RecordInterface> iterator() {
-				return new TransWindowIterator(qlen, theta);
+				return new TransWindowIterator(store.getRecords().iterator(), qlen, theta);
 			}
 		};
 	}
 
-	@Override
-	public Record getRecord(int id) {
-		return recordStore.getRecord(id);
-	}
+	public static class WindowIterator implements Iterator<RecordInterface> {
 
-	class WindowIterator implements Iterator<RecordInterface> {
-
-		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator();
+		final Iterator<Record> rIter;
 		Record rec = null;
 		Record recNext = null;
 		int widx = -1;
 		final int w;
 		
-		public WindowIterator( int w ) {
+		public WindowIterator( Iterator<Record> rIter, int w ) {
+			this.rIter = rIter;
 			this.w = w;
 			while ( rIter.hasNext() ) {
 				rec = rIter.next();
@@ -134,14 +100,15 @@ public class WindowDataset extends Dataset {
 
 	class TransWindowIterator implements Iterator<RecordInterface> {
 
-		Iterator<Record> rIter = new DiskBasedIndexedRecordIterator();
+		final Iterator<Record> rIter;
 		Record rec = null;
 		TransLenCalculator transLen;
 		int sidx, eidx;
 		final int qlen;
 		final double theta;
 		
-		public TransWindowIterator( int qlen, double theta ) {
+		public TransWindowIterator( Iterator<Record> rIter, int qlen, double theta ) {
+			this.rIter = rIter;
 			this.qlen = qlen;
 			this.theta = theta;
 			sidx = 0;
@@ -150,7 +117,6 @@ public class WindowDataset extends Dataset {
 		}
 		
 		protected void preprocessRecord() {
-			rec.preprocessAll();
 			double modifiedTheta = Util.getModifiedTheta(qlen, rec, theta);
 			transLen = new TransLenCalculator(null, rec, modifiedTheta);
 		}

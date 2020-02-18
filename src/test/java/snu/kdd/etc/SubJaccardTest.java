@@ -59,6 +59,7 @@ public class SubJaccardTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void compareSubjaccard() {
 		long[] tArr = new long[4];

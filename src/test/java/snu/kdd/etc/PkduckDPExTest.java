@@ -24,6 +24,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 import vldb18.PkduckDPEx;
 
@@ -68,7 +69,7 @@ public class PkduckDPExTest {
 
 	@Test
 	public void testCorrectness() throws IOException {
-		Dataset dataset = Dataset.createInstanceByName("SPROT_long", param.size);
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", param.size);
 		ObjectList<Record> searchedList = new ObjectArrayList<>(dataset.getSearchedList().iterator());
 		ObjectList<Record> indexedList = new ObjectArrayList<>(dataset.getIndexedList().iterator());
 		ObjectList<String> outputList = new ObjectArrayList<>();

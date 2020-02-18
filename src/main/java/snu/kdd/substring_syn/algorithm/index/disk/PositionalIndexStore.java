@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
@@ -42,5 +44,9 @@ public class PositionalIndexStore implements DiskBasedPositionalIndexInterface {
 		ObjectList<TransInvListEntry> invList = new ObjectArrayList<>();
 		for ( int i=0; i<arr.length; i+=3 ) invList.add(new TransInvListEntry(arr[i], arr[i+1], arr[i+2]));
 		return invList;
+	}
+	
+	public final BigInteger diskSpaceUsage() {
+		return new BigInteger(""+(invListAccessor.size + tinvListAccessor.size));
 	}
 }

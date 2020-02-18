@@ -1,11 +1,8 @@
 package snu.kdd.substring_syn.algorithm.validator;
 
-import java.util.Arrays;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -27,9 +24,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 	}
 
 	public double simQuerySide( Record query, RecordInterface window ) {
-		State state = new State(query, window);
-		state.findBestTransform();
-		int[] transformedQuery = state.getTransformedString(query);
+		int[] transformedQuery = getTransform(query, window); 
 //		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedQuery)).toOriginalString());
 		double sim = Util.jaccardM( transformedQuery, window.getTokenArray());
 		statContainer.increment(Stat.Num_QS_Verified);
@@ -38,23 +33,19 @@ public class GreedyValidator extends AbstractGreedyValidator {
 	}
 
 	public double simTextSide( Record query, RecordInterface window ) {
-		statContainer.startWatch("Time_TS_GreedyValidator.InitState");
-		State state = new State(window, query);
-		statContainer.stopWatch("Time_TS_GreedyValidator.InitState");
-		statContainer.startWatch("Time_TS_GreedyValidator.findBestTransform");
-		state.findBestTransform();
-		statContainer.stopWatch("Time_TS_GreedyValidator.findBestTransform");
-		statContainer.startWatch("Time_TS_GreedyValidator.getTransformedString");
-		int[] transformedText = state.getTransformedString(window);
-		statContainer.stopWatch("Time_TS_GreedyValidator.getTransformedString");
+		int[] transformedText = getTransform(window, query);
 //		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedText)).toOriginalString());
-		statContainer.startWatch("Time_TS_GreedyValidator.subJaccardM");
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
 //		Log.log.trace("sim=%.3f", sim);
-		statContainer.stopWatch("Time_TS_GreedyValidator.subJaccardM");
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		return sim;
+	}
+	
+	public int[] getTransform(RecordInterface trans, RecordInterface target) {
+		State state = new State(trans, target);
+		state.findBestTransform();
+		return state.getTransformedString(trans);
 	}
 
 	@Override

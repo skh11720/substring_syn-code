@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,14 +55,22 @@ public class DatasetInfo {
 		else return String.format(path, nr);
 	}
 	
+	public static String getMaxSize(String name) {
+		return map.get(name).maxSize;
+	}
+	
 	private final String searchedPath;
 	private final String indexedPath;
 	private final String rulePath;
+	private final String maxSize;
 	
 	public DatasetInfo( Map<String, ?> map ) {
 		searchedPath = String.join(File.separator, prefix, (String)map.get("searchedPath"));
 		indexedPath = String.join(File.separator, prefix, (String)map.get("indexedPath"));
 		rulePath = String.join(File.separator, prefix, (String)map.get("rulePath"));
+		@SuppressWarnings("unchecked")
+		ArrayList<String> sizeList = (ArrayList<String>)map.get("nt");
+		maxSize = sizeList.get(sizeList.size()-1);
 	}
 	
 	@Override

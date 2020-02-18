@@ -5,7 +5,8 @@ import java.math.BigInteger;
 import org.apache.logging.log4j.Level;
 
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.TransWindowDataset;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
@@ -55,7 +56,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltQuerySideContains(query, window)) continue;
 //			if ( window.getID() >= 0 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
@@ -65,12 +66,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
-			if ( rsltTextSide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltTextSideContains(query, window)) continue;
 //			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
-			statContainer.startWatch("Time_TS_searchTextSide.preprocess");
-			window.getSuperRecord().preprocessAll();
-			statContainer.stopWatch("Time_TS_searchTextSide.preprocess");
 			searchWindowTextSide(query, window);
 		}
 	}
@@ -93,7 +91,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 //		Log.log.trace("sim=%f", ()->sim);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
-			rsltTextSide.add(new IntPair(query.getID(), window.getID()));
+			addResultTextSide(query, window);
 			return;
 		}
 	}
@@ -130,7 +128,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		 * 1.00: initial version
 		 * 1.01: modify IntQGramStore
 		 * 1.02: use disk-based qgram index
+		 * 1.03: fix OOM issue by using FileBasedLongList
+		 * 1.04: remodel RecordStore
 		 */
-		return "1.02";
+		return "1.04";
 	}
 }

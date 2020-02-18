@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
@@ -23,6 +24,7 @@ import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIter
 import snu.kdd.substring_syn.utils.window.iterator.SortedSlidingWindowIterator;
 
 @FixMethodOrder
+@SuppressWarnings("unused")
 @Ignore
 public class PrefixOfSlidingWindowTest {
 
@@ -34,7 +36,7 @@ public class PrefixOfSlidingWindowTest {
 	
 	@BeforeClass
 	public static void init() throws IOException {
-		dataset = Dataset.createInstanceByName("SPROT_long", "10000");
+		dataset = DatasetFactory.createInstanceByName("SPROT_long", "10000");
 	}
 
 	@Test

@@ -9,9 +9,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntQGram;
+import snu.kdd.substring_syn.data.TransWindowDataset;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TransWindowDatasetTest {
@@ -30,13 +31,13 @@ public class TransWindowDatasetTest {
 	@Test
 	public void test002_Construction() throws IOException {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "1000", "5", null);
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, "0.6");
+		TransWindowDataset dataset = DatasetFactory.createTransWindowInstanceByName(param, "0.6");
 	}
 	
 	@Test
 	public void test003_getIQGram() throws IOException {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "1000", "5", null);
-		TransWindowDataset dataset = Dataset.createTransWindowInstanceByName(param, "0.6");
+		TransWindowDataset dataset = DatasetFactory.createTransWindowInstanceByName(param, "0.6");
 		Iterator<IntQGram> iter = dataset.getIntQGramsIterable().iterator();
 		for ( int i=0; iter.hasNext() && i < 20; ++i ) {
 			IntQGram iqgram0 = iter.next();

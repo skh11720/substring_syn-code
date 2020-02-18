@@ -1,7 +1,6 @@
 package snu.kdd.faerie;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -16,7 +15,7 @@ public class FaerieNaiveSearch extends AbstractSearch {
 		double sim = Util.subJaccardM(query.getTokenArray(), rec.getTokenArray());
 		if ( sim >= theta ) {
 //			Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
-			rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+			addResultQuerySide(query, rec);
 		}
 	}
 

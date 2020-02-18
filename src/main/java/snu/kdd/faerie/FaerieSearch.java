@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
@@ -48,7 +47,7 @@ public class FaerieSearch extends AbstractSearch {
 	protected void searchRecordQuerySide(Record query, Record rec) {
 		IntList posList = getPosList(query, rec);
 		boolean isSim = searchRecord(query, rec, posList, minLenQS, maxLenTS, this::computeSim);
-		if ( isSim ) rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+		if ( isSim ) addResultQuerySide(query, rec);
 	}
 
 	@Override

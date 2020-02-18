@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -55,7 +54,7 @@ public class FaerieSynSearch extends FaerieSearch {
 			boolean isSim = searchRecord(queryExp, rec, posList, minLen, maxLen, this::computeSimQuerySide);
 			statContainer.stopWatch(Stat.Time_QS_Validation);
 			if ( isSim ) {
-				rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+				addResultQuerySide(query, rec);
 				break;
 			}
 		}
@@ -75,7 +74,7 @@ public class FaerieSynSearch extends FaerieSearch {
 			boolean isSim = searchRecord(query, new Record(entry.recExpTokenArr), posList, minLenQS, maxLenTS, this::computeSimTextSide);
 			statContainer.stopWatch(Stat.Time_TS_Validation);
 			if ( isSim ) {
-				rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+				addResultTextSide(query, rec);
 				break;
 			}
 		}
@@ -101,7 +100,8 @@ public class FaerieSynSearch extends FaerieSearch {
 		/*
 		 * 1.00: initial version
 		 * 1.01: fix OOM issue
+		 * 1.02: remodel RecordStore
 		 */
-		return "1.01";
+		return "1.02";
 	}
 }

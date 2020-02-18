@@ -13,6 +13,7 @@ import snu.kdd.faerie.FaerieSynNaiveSearch;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.TransWindowDataset;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
@@ -24,7 +25,7 @@ public class PkwiseSynSearchTest {
 		double theta = 1.0;
 		int qlen = 5;
 		int kmax = 1;
-		Dataset dataset = TestDatasetManager.getTransWindowDataset("AMAZON", "10000", "1000", ""+qlen, "1.0", ""+theta);
+		Dataset dataset = TestDatasetManager.getTransWindowDataset("AMAZON", "10000", "1000", ""+qlen, "1.0", theta);
 		AbstractSearch alg1 = new PkwiseSynSearch(theta, qlen, kmax);
 		alg1.run(dataset);
 	}
@@ -53,7 +54,7 @@ public class PkwiseSynSearchTest {
 			for ( String name : new String[] {"WIKI", "PUBMED", "AMAZON"} ) {
 				for ( int qlen : new int[] {1, 3, 5} ) {
 					int kmax = qlen>1 ? 2 : 1;
-					TransWindowDataset dataset = TestDatasetManager.getTransWindowDataset(name, "10000", "1000", ""+qlen, "1.0", ""+theta);
+					TransWindowDataset dataset = TestDatasetManager.getTransWindowDataset(name, "10000", "1000", ""+qlen, "1.0", theta);
 					AbstractSearch alg0 = new FaerieSynNaiveSearch(theta);
 					alg0.run(dataset);
 					AbstractSearch alg1 = new PkwiseSynSearch(theta, qlen, kmax);
@@ -95,7 +96,7 @@ public class PkwiseSynSearchTest {
 		int kmax= 2;
 		for ( double theta : new double[] {0.6, 1.0} ) {
 			for ( String lenRatio : new String[] {"0.6", "1.0"} ) {
-				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, ""+theta);
+				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, theta);
 				PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 				alg.run(dataset);
 				System.out.println(dataset.name+"\ttheta="+theta+"\tlenRatio="+lenRatio+"\tindexSize="+alg.diskSpaceUsage());
@@ -122,7 +123,7 @@ public class PkwiseSynSearchTest {
 		int kmax = 2;
 		for ( double theta : new double[] {0.6, 1.0} ) {
 			for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
-				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, ""+theta);
+				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, theta);
 				AbstractSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 				alg.run(dataset);
 				System.out.println(dataset.name+"\ttheta="+theta+"\tkmax="+kmax

@@ -1,7 +1,6 @@
 package snu.kdd.substring_syn.data;
 
-import org.apache.commons.cli.CommandLine;
-
+import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Log;
 
 public class DatasetParam {
@@ -11,12 +10,12 @@ public class DatasetParam {
 	public final String qlen;
 	public final String lenRatio;
 
-	public DatasetParam(CommandLine cmd) {
-		name = Dataset.getOptionValue(cmd, "data");
-		size = Dataset.getOptionValue(cmd, "nt");
-		nr = Dataset.getOptionValue(cmd, "nr");
-		qlen = Dataset.getOptionValue(cmd, "ql");
-		lenRatio = Dataset.getOptionValue(cmd, "lr");
+	public DatasetParam(InputArgument arg) {
+		name = arg.getOptionValue("data");
+		size = arg.getOptionValue("nt");
+		nr = arg.getOptionValue("nr");
+		qlen = arg.getOptionValue("ql");
+		lenRatio = arg.getOptionValue("lr");
 	}
 	
 	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
@@ -48,5 +47,10 @@ public class DatasetParam {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("DatasetParam(%s, %s, %s, %s, %s)", name ,size, nr, qlen ,lenRatio);
 	}
 }

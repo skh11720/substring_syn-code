@@ -6,7 +6,9 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -113,6 +115,11 @@ public class Subrecord implements RecordInterface {
 			}
 		};
 	}
+	
+	public IntPair[] getSuffixRuleLens( int k ) {
+		//TODO: subrec.suffixRuleLens should be computed exactly
+		return rec.getSuffixRuleLens(sidx+k);
+	}
 
 	@Override
 	public int getMaxRhsSize() {
@@ -178,7 +185,7 @@ public class Subrecord implements RecordInterface {
 	
 	@Override
 	public String toStringDetails() {
-		return toRecord(this).toStringDetails();
+		return toRecord().toStringDetails();
 	}
 	
 	public Record getSuperRecord() {
@@ -268,20 +275,37 @@ public class Subrecord implements RecordInterface {
 		}
 	}
 	
-	public static Record toRecord( Subrecord subrec ) {
-		Record newrec = new Record(subrec.getTokenList().toIntArray());
-		newrec.id = subrec.getID();
+	public Record toRecord() {
+		Record newrec = new Record(this.getID(), this.getTokenList().toIntArray());
+
 		Rule[][] applicableRules = null;
-		if ( subrec.rec.getApplicableRules() != null ) {
-			applicableRules = new Rule[subrec.size()][];
-			for ( int k=subrec.sidx; k<subrec.eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-                for ( Rule rule : subrec.getApplicableRules(k-subrec.sidx) ) ruleList.add(rule);
-				applicableRules[k-subrec.sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-subrec.sidx] );
+		if ( this.rec.applicableRules != null ) {
+			applicableRules = new Rule[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
 			}
         }
 		newrec.applicableRules = applicableRules;
+
+		Rule[][] suffixApplicableRules = null;
+		if ( this.rec.suffixApplicableRules != null ) {
+			suffixApplicableRules = new Rule[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
+			}
+		}
+		newrec.suffixApplicableRules = suffixApplicableRules;
+
+		IntPair[][] suffixRuleLenPairs = null;
+		if ( this.rec.suffixApplicableRules != null ) {
+			suffixRuleLenPairs = new IntPair[size()][];
+			for ( int i=0; i<size(); ++i ) {
+				ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
+				for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
+				suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
+			}
+		}
+		newrec.suffixRuleLenPairs = suffixRuleLenPairs;
 		return newrec;
 	}
 	

@@ -11,6 +11,11 @@ public class RecordWithEndpoints extends Record {
 		super(rec.id, rec.tokens);
 		this.sp = sp;
 		this.epList = epList;
+		this.applicableRules = rec.applicableRules;
+		this.suffixApplicableRules = rec.suffixApplicableRules;
+		this.transformLengths = rec.transformLengths;
+		this.suffixRuleLenPairs = rec.suffixRuleLenPairs;
+		this.maxRhsSize = rec.maxRhsSize;
 	}
 	
 	public int getStartPoint() {

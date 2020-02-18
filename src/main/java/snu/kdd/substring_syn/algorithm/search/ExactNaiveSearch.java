@@ -1,7 +1,6 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
-import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
@@ -24,7 +23,7 @@ public class ExactNaiveSearch extends AbstractSearch {
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		if ( isSim ) {
 			Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-			rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
+			addResultQuerySide(query, rec);
 			return;
 		}
 	}
@@ -37,7 +36,7 @@ public class ExactNaiveSearch extends AbstractSearch {
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
 			Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
-			rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
+			addResultTextSide(query, rec);
 			return;
 		}
 	}

@@ -19,6 +19,7 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 
 @RunWith(Parameterized.class)
@@ -97,7 +98,7 @@ public class MultipleOptionTest {
 	@Test
 	public void test() throws IOException {
 		DatasetParam dParam = new DatasetParam(param.name, param.size, param.nr, param.ql, null);
-		Dataset dataset = Dataset.createInstanceByName(dParam);
+		Dataset dataset = DatasetFactory.createInstanceByName(dParam);
 		
 		AbstractSearch prefixSearch = null;
 		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new PositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);

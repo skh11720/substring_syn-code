@@ -10,6 +10,7 @@ import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -33,7 +34,7 @@ public class VerificationHeuristicTest {
 	public void singleTest( String data, String nt, String nr, String ql ) throws IOException {
 		int[][] output = new int[optArr.length][3];
 		DatasetParam param = new DatasetParam(data, nt, nr, ql, null);
-		Dataset dataset = Dataset.createInstanceByName(param);
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<optArr.length; ++i ) {
 			AbstractGreedyValidator.optScore = optArr[i];
 			AbstractSearch prefixSearch = new PositionPrefixSearchWithVerifyOption(0.6, true, true, IndexChoice.CountPosition);

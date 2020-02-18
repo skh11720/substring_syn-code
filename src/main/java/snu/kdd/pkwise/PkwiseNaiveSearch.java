@@ -2,7 +2,7 @@ package snu.kdd.pkwise;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Log;
@@ -21,22 +21,14 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		param.put("qlen", Integer.toString(qlen));
 		param.put("kmax", Integer.toString(kmax));
 	}
-
-	@Override
-	public final void run( Dataset dataset ) {
-		statContainer.setAlgorithm(this);
-		statContainer.mergeStatContainer(dataset.statContainer);
-		statContainer.startWatch(Stat.Time_Total);
-		prepareSearch(dataset);
-		pkwiseSearch((WindowDataset)dataset);
-		statContainer.stopWatch(Stat.Time_Total);
-		putResultIntoStat();
-		statContainer.finalizeAndOutput();
-		outputResult(dataset);
-	}
 	
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
+	}
+	
+	@Override
+	protected void searchBody(Dataset dataset) {
+		pkwiseSearch((WindowDataset)dataset);
 	}
 	
 	protected final void pkwiseSearch( WindowDataset dataset ) {
@@ -44,7 +36,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 			long ts = System.nanoTime();
 			pkwiseSearchGivenQuery(query, dataset);
 			double searchTime = (System.nanoTime()-ts)/1e6;
-			statContainer.addSampleValue("Time_SearchPerQuery", searchTime);
+			statContainer.addSampleValue(Stat.Time_SearchPerQuery, searchTime);
 			Log.log.info("search(query=%d, ...)\t%.3f ms", ()->query.getID(), ()->searchTime);
 		}
 	}
@@ -60,7 +52,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	protected void pkwiseSearchQuerySide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
-			if ( rsltQuerySide.contains(new IntPair(query.getID(), window.getID())) ) continue;
+			if (rsltQuerySideContains(query, window)) continue;
 //			if ( window.getID() != 7324 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
@@ -79,7 +71,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 //		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
 //		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
-			rsltQuerySide.add(new IntPair(query.getID(), window.getID()));
+			addResultQuerySide(query, window);
 //			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}

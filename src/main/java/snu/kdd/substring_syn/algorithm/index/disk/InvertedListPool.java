@@ -8,8 +8,7 @@ import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
 
 public class InvertedListPool<E> {
 
-	private static final int BUFFER_SIZE = 1 * 1024;
-	private static final int ENTRY_SIZE = 4;
+	private static final int BUFFER_SIZE = 10 * 1024 * 1024;
 	
 	private final Int2ObjectMap<ObjectList<E>> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;
@@ -20,7 +19,7 @@ public class InvertedListPool<E> {
 	public InvertedListPool() {
 		map = new Int2ObjectOpenHashMap<>();
 		tic2tokMap = new Long2IntHashBasedBinaryHeap();
-		capacity = BUFFER_SIZE/ENTRY_SIZE;
+		capacity = BUFFER_SIZE;
 		size = 0;
 		tic = 0;
 	}

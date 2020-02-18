@@ -24,11 +24,13 @@ public class Stat {
 	public static final String Dataset_lr = "Dataset_lr";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
+	public static final String Dataset_numDoc = "Dataset_numDoc";
 	public static final String Dataset_numRule= "Dataset_numRule";
 	
 	public static final String Time_Total = "Time_Total";
 	public static final String Time_QS_Total = "Time_QS_Total";
 	public static final String Time_TS_Total = "Time_TS_Total";
+	public static final String Time_SearchPerQuery = "Time_SearchPerQuery";
 	public static final String Time_Prepare_Data = "Time_Prepare_Data";
 	public static final String Time_Preprocess= "Time_Preprocess";
 	public static final String Time_QS_Validation = "Time_QS_Validation";

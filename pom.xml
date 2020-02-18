@@ -69,7 +69,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.1.1</version>
+		<version>3.1.1</version><!--$NO-MVN-MAN-VER$-->
         <configuration>
           <attach>false</attach>
           <appendAssemblyId>false</appendAssemblyId>

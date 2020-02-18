@@ -68,6 +68,7 @@ public class StatContainer {
 		for ( String key : counterBuffer.keySet() ) statMap.put(key, Long.toString(counterBuffer.get(key).get()));
 		for ( String key : stopwatchBuffer.keySet() ) statMap.put(key, String.format("%.3f", stopwatchBuffer.get(key).get()/1e6));
 		for ( String key : statBuffer.keySet() ) {
+			statMap.put(key, String.format("%.3f", statBuffer.get(key).mean()));
 			statMap.put(key+"_MIN", String.format("%.3f", statBuffer.get(key).min()));
 			statMap.put(key+"_MAX", String.format("%.3f", statBuffer.get(key).max()));
 			statMap.put(key+"_MEAN", String.format("%.3f", statBuffer.get(key).mean()));
@@ -226,7 +227,7 @@ public class StatContainer {
 		}
 		
 		public void stop() {
-			t += System.nanoTime() - dt;
+			if (active) t += System.nanoTime() - dt;
 			active = false;
 		}
 		

@@ -1,7 +1,5 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import org.apache.commons.cli.CommandLine;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.faerie.FaerieSynNaiveSearch;
 import snu.kdd.faerie.FaerieSynSearch;
@@ -9,6 +7,7 @@ import snu.kdd.pkwise.PkwiseNaiveSearch;
 import snu.kdd.pkwise.PkwiseSearch;
 import snu.kdd.pkwise.PkwiseSynSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
+import snu.kdd.substring_syn.utils.InputArgument;
 
 public class AlgorithmFactory {
 
@@ -39,6 +38,7 @@ public class AlgorithmFactory {
 		Fopt_CL,
 		Fopt_PL,
 		Fopt_CPL,
+		Fopt_CPR,
 		Fopt_CPLR,
 	}
 
@@ -63,6 +63,7 @@ public class AlgorithmFactory {
 			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
 			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
 			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CPR: bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
@@ -72,9 +73,9 @@ public class AlgorithmFactory {
 		}
 	}
 	
-	public static AbstractSearch createInstance( CommandLine cmd ) {
-		AlgorithmName algName = AlgorithmName.valueOf( cmd.getOptionValue("alg") );
-		String paramStr = cmd.getOptionValue("param");
+	public static AbstractSearch createInstance( InputArgument arg ) {
+		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
+		String paramStr = arg.getOptionValue("param");
 		DictParam param = new DictParam(paramStr);
 		switch ( algName ) {
 		case ExactNaiveSearch: return createExactNaiveSearch(param);
@@ -83,9 +84,9 @@ public class AlgorithmFactory {
 		case ExactPrefixSearch: return createPrefixSearch(param, true);
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
-		case PkwiseSynSearch: return createPkwiseSynSearch(param, cmd);
-		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param, cmd);
-		case FaerieSynSearch: return createFaerieSynSearch(param, cmd);
+		case PkwiseSynSearch: return createPkwiseSynSearch(param, arg);
+		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param, arg);
+		case FaerieSynSearch: return createFaerieSynSearch(param, arg);
 		case ZeroPrefixSearch: return createZeroPrefixSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
@@ -152,19 +153,19 @@ public class AlgorithmFactory {
 		return new PkwiseSearch(theta, qlen, kmax);
 	}
 	
-	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, CommandLine cmd ) {
+	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, InputArgument arg ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		int qlen = Integer.parseInt(cmd.getOptionValue("ql"));
+		int qlen = Integer.parseInt(arg.getOptionValue("ql"));
 		int kmax = Integer.parseInt(param.get("kmax"));
 		return new PkwiseSynSearch(theta, qlen, kmax);
 	}
 
-	private static FaerieSynNaiveSearch createFaerieSynNaiveSearch( DictParam param, CommandLine cmd ) {
+	private static FaerieSynNaiveSearch createFaerieSynNaiveSearch( DictParam param, InputArgument arg ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		return new FaerieSynNaiveSearch(theta);
 	}
 	
-	private static FaerieSynSearch createFaerieSynSearch( DictParam param, CommandLine cmd ) {
+	private static FaerieSynSearch createFaerieSynSearch( DictParam param, InputArgument arg ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		boolean isDiskBased = Boolean.parseBoolean(param.get("isDiskBased"));
 		return new FaerieSynSearch(theta, isDiskBased);

@@ -67,7 +67,7 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 			ridx += 1;
 		}
 		flushInmemMap(invListMap, tok2segList);
-		fos.close();
+		bos.close();
 		return tok2segList;
 	}
 	

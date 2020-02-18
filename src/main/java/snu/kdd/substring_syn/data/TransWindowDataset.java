@@ -1,37 +1,36 @@
-package snu.kdd.pkwise;
+package snu.kdd.substring_syn.data;
 
 import java.io.File;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import snu.kdd.substring_syn.data.DatasetParam;
-import snu.kdd.substring_syn.data.IntQGram;
-import snu.kdd.substring_syn.data.IntQGramStore;
-import snu.kdd.substring_syn.data.QGram;
-import snu.kdd.substring_syn.data.RecordStore;
+import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.QGramGenerator;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class TransWindowDataset extends WindowDataset {
 	
-	protected IntQGramStore iqgramStore;
-	public int numIntQGrams;
-	final int qlen;
-	final double theta;
+	protected final double theta;
+	protected final IntQGramStore iqgramStore;
 
-	public TransWindowDataset(DatasetParam param, String theta) {
-		super(param);
-		this.qlen = Integer.parseInt(param.qlen);
+	public TransWindowDataset(StatContainer statContainer, DatasetParam param, Ruleset ruleset, RecordStore store, String theta) {
+		super(statContainer, param, ruleset, store);
 		this.theta = Double.parseDouble(theta);
+		this.iqgramStore = buildIntQGramStore();
 	}
 
 	@Override
 	public void addStat() {
 		super.addStat();
-		statContainer.setStat("Size_Recordstore", FileUtils.sizeOfAsBigInteger(new File(RecordStore.path)).toString());
+		statContainer.setStat("Size_Recordstore", store.diskSpaceUsage().toString());
 		statContainer.setStat("Size_IntQGramStore", FileUtils.sizeOfAsBigInteger(new File(IntQGramStore.path)).toString());
-		statContainer.setStat("Num_IntQGrams", Integer.toString(((TransWindowDataset)this).numIntQGrams));
+		statContainer.setStat("Num_IntQGrams", Integer.toString(iqgramStore.getNumIntQGrams()));
+	}
+	
+	public final IntQGramStore getIqgramStore() {
+		return iqgramStore;
 	}
 	
 	public final int getMaxQueryTransformLength() {
@@ -52,9 +51,8 @@ public class TransWindowDataset extends WindowDataset {
 		return l;
 	}
 	
-	public final void buildIntQGramStore() {
-		iqgramStore = new IntQGramStore(getIntQGramsIterable());
-		numIntQGrams = iqgramStore.getNumIntQGrams();
+	public final IntQGramStore buildIntQGramStore() {
+		return new IntQGramStore(getIntQGramsIterable());
 	}
 	
 	public final Iterable<Record> getIntQGrams() {
@@ -100,7 +98,7 @@ public class TransWindowDataset extends WindowDataset {
 		QGramGenerator qgen;
 		
 		public IntQGramIterator( int q ) {
-			riter = recordStore.getRecords().iterator();
+			riter = store.getRecords().iterator();
 			this.q = q;
 			findNext();
 		}

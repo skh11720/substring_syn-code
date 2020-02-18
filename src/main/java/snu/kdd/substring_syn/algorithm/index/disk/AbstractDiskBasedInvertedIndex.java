@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.algorithm.index.disk;
 
+import java.math.BigInteger;
+
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -19,6 +21,8 @@ public abstract class AbstractDiskBasedInvertedIndex<S, T> {
 	public final int getNumInvFault() { return nInvFault; }
 
 	public final int getNumTinvFault() { return nTinvFault; }
+	
+	public abstract BigInteger diskSpaceUsage();
 	
 	protected abstract ObjectList<S> getInvListFromStore( int token );
 
