@@ -13,7 +13,7 @@ PrefixSearch:
 
 PkwiseSynSearch:
   theta: *theta_list
-  kmax: ['1', '2', '3']
+  kmax: ['opt']
 
 FaerieSynSearch:
    theta: *theta_list

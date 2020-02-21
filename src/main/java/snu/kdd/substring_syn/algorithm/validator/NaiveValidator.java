@@ -2,7 +2,6 @@ package snu.kdd.substring_syn.algorithm.validator;
 
 import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
@@ -51,91 +50,73 @@ public class NaiveValidator extends AbstractValidator {
 		return simMax;
 	}
 	
-	class QuerySideIterator implements Iterator<Double> {
+	protected class QuerySideIterator implements Iterator<Double> {
 
 		final RecordInterface rec;
-		SortedRecordSlidingWindowIterator witer;
-		ObjectList<Record> queryExpArr;
+		Iterator<Subrecord> witer;
+		Iterator<Record> eiter;
 		int w = 1;
-		Subrecord window;
+		Record exp;
+		Subrecord nw;
 		int qidx = 0;
 		
 		public QuerySideIterator( Record query, RecordInterface rec ) {
 			this.rec = rec;
-			queryExpArr = Records.expandAll(query);
-			witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
-			window = witer.next();
+			eiter = Records.expandAll(query).iterator();
+			nw = findNext();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return w <= rec.size();
+			return eiter.hasNext() || nw != null;
 		}
 
 		@Override
 		public Double next() {
-			double sim = Util.jaccardM( queryExpArr.get(qidx).getTokenArray(), window.getTokenArray());
-			++qidx;
+			Subrecord w = nw;
+			nw = findNext();
+			double sim = Util.jaccardM(exp.getTokenArray(), w.getTokenArray());
 			if ( statContainer != null ) {
-				statContainer.addCount(Stat.Len_QS_Verified, window.size());
+				statContainer.addCount(Stat.Len_QS_Verified, w.size());
 				statContainer.increment(Stat.Num_QS_Verified);
-			}
-			if ( qidx >= queryExpArr.size() ) {
-				qidx = 0;
-				if ( witer.hasNext() ) window = witer.next();
-				else {
-					++w;
-					if ( w <= rec.size() ) {
-						witer = new SortedRecordSlidingWindowIterator(rec, w, theta);
-						window = witer.next();
-					}
-					else witer = null;
-				}
 			}
 			return sim;
 		}
+		
+		private Subrecord findNext() {
+			while ( witer == null || !witer.hasNext() ) {
+				if ( !eiter.hasNext() ) return null;
+				exp = eiter.next();
+				witer = Records.getSubrecords(rec).iterator();
+			}
+			return witer.next();
+		}
 	}
 
-	class TextSideIterator implements Iterator<Double> {
+	protected class TextSideIterator implements Iterator<Double> {
 		
 		final Record query;
-		final ObjectList<Record> expList;
+		Iterator<Record> expIter;
 		SortedRecordSlidingWindowIterator witer;
-		int eidx = 0;
-		int w = 1;
-		Subrecord window;
 		
 		public TextSideIterator( Record query, Record rec ) {
 			this.query = query;
-			expList = Records.expandAll(rec);
-			witer = new SortedRecordSlidingWindowIterator(expList.get(eidx), w, theta);
-			window = witer.next();
+			expIter = Records.expands(rec).iterator();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return eidx < expList.size();
+			return expIter.hasNext();
 		}
 
 		@Override
 		public Double next() {
-			double sim = Util.jaccardM(window.getTokenArray(), query.getTokenArray());
+			Record exp = expIter.next();
+			double sim = Util.subJaccardM(query.getTokenArray(), exp.getTokenArray());
 			if ( statContainer != null ) {
-				statContainer.addCount(Stat.Len_TS_Verified, window.size());
+				statContainer.addCount(Stat.Len_TS_Verified, exp.size());
 				statContainer.increment(Stat.Num_TS_Verified);
 			}
-//			System.out.println("LINE0\t"+"eidx: "+eidx+"\thasNext: "+witer.hasNext()+"\tw: "+w+"/"+expList.get(eidx).size()+"\twidx: "+window.sidx+"/"+(expList.get(eidx).size()-1));
-			if ( !witer.hasNext() ) {
-				++w;
-				if ( w > expList.get(eidx).size() ) {
-					w = 1;
-					++eidx;
-				}
-				if ( eidx < expList.size() ) witer = new SortedRecordSlidingWindowIterator(expList.get(eidx), w, theta);
-				else witer = null;
-			}
-//			System.out.println("LINE1\t"+"eidx: "+eidx+"\thasNext: "+witer.hasNext()+"\tw: "+w+"/"+expList.get(eidx).size()+"\twidx: "+window.sidx+"/"+(expList.get(eidx).size()-1));
-			if ( witer != null ) window = witer.next();
 			return sim;
 		}
 	}

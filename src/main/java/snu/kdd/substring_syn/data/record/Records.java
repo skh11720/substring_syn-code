@@ -248,4 +248,38 @@ public class Records {
 			return 1;
 		}
 	}
+	
+	public static Iterable<Subrecord> getSubrecords(RecordInterface rec) {
+		return new Iterable<Subrecord>() {
+			
+			@Override
+			public Iterator<Subrecord> iterator() {
+				return new Iterator<Subrecord>() {
+					
+					int w = 1;
+					int i = 0;
+					
+					@Override
+					public Subrecord next() {
+						Subrecord window = new Subrecord(rec,i, i+w);
+						findNext();
+						return window;
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return w <= rec.size();
+					}
+					
+					private final void findNext() {
+						i += 1;
+						if ( i+w > rec.size() ) {
+							w += 1;
+							i = 0;
+						}
+					}
+				};
+			}
+		};
+	}
 }

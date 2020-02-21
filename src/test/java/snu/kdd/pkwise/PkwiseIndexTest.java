@@ -21,7 +21,7 @@ public class PkwiseIndexTest {
 	public void visualizeWitvMap() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;
-		int kmax = 3;
+		String kmax = "3";
 		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
@@ -43,7 +43,7 @@ public class PkwiseIndexTest {
 	public void testBuildIndex() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;
-		int kmax = 3;
+		String kmax = "3";
 		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 		PkwiseIndex index = new PkwiseIndex(alg, dataset, qlen, theta);
@@ -55,7 +55,7 @@ public class PkwiseIndexTest {
 	public void testWitvMapCorrectness() throws IOException {
 		double theta = 0.6;
 		int qlen = 5;
-		int kmax = 1;
+		String kmax = "3";
 		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		PkwiseSynSearch alg = new PkwiseSynSearch(theta, qlen, kmax);
 		Int2ObjectMap<ObjectList<WindowInterval>> map = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, qlen, qlen, theta);
