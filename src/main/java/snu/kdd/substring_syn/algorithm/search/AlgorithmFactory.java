@@ -142,21 +142,20 @@ public class AlgorithmFactory {
 	private static PkwiseNaiveSearch createPkwiseNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		int qlen = Integer.parseInt(param.get("qlen"));
-		int kmax = Integer.parseInt(param.get("kmax"));
-		return new PkwiseNaiveSearch(theta, qlen, kmax);
+		return new PkwiseNaiveSearch(theta, qlen);
 	}
 	
 	private static PkwiseSearch createPkwiseSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		int qlen = Integer.parseInt(param.get("qlen"));
-		int kmax = Integer.parseInt(param.get("kmax"));
+		String kmax = param.get("kmax");
 		return new PkwiseSearch(theta, qlen, kmax);
 	}
 	
 	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, InputArgument arg ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		int qlen = Integer.parseInt(arg.getOptionValue("ql"));
-		int kmax = Integer.parseInt(param.get("kmax"));
+		String kmax = param.get("kmax");
 		return new PkwiseSynSearch(theta, qlen, kmax);
 	}
 

@@ -16,14 +16,50 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSynSearch extends PkwiseSearch {
 
+	private static final int KMAX = 2;
 	private PkwiseSynIndex index;
+
+
+
+	public static int getMinTransQueryLen( Dataset dataset ) {
+		int len = Integer.MAX_VALUE;
+		for ( Record query : dataset.getSearchedList() ) {
+			query.preprocessAll();
+			len = Math.min(len, query.getMinTransLength());
+		}
+		return len;
+	}
 	
-	public PkwiseSynSearch( double theta, int qlen, int kmax ) {
+	public static int computeMaxK( int minQueryTransLen, double theta ) {
+		return Math.min(KMAX, (int)(Math.sqrt(2*(Math.ceil(theta*minQueryTransLen)-1)+0.25)+0.5));
+	}
+
+
+	
+	public PkwiseSynSearch( double theta, int qlen, String kmax ) {
 		super(theta, qlen, kmax);
 	}
 
 	@Override
-	protected void prepareSearch(Dataset dataset) {
+	protected int getKMaxValue() {
+		if ( kmax.equals("opt") ) {
+			int minQueryTransLen = getMinTransQueryLen(dataset);
+			int kmax = computeMaxK(minQueryTransLen, theta);
+			statContainer.setStat("Chosen_Kmax", ""+kmax);
+			return kmax;
+		}
+		else {
+			try {
+				return Integer.parseInt(kmax);
+			}
+			catch(NumberFormatException e) {
+				return 0;
+			}
+		}
+	}
+	
+	@Override
+	protected void buildIndex() {
 		statContainer.startWatch(Stat.Time_BuildIndex);
         index = new PkwiseSynIndex(this, ((TransWindowDataset)dataset), qlen, theta);
 		statContainer.stopWatch(Stat.Time_BuildIndex);
@@ -130,7 +166,8 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		 * 1.02: use disk-based qgram index
 		 * 1.03: fix OOM issue by using FileBasedLongList
 		 * 1.04: remodel RecordStore
+		 * 2.00: choose optimal k automatically
 		 */
-		return "1.04";
+		return "2.00";
 	}
 }

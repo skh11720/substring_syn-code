@@ -12,14 +12,11 @@ import snu.kdd.substring_syn.utils.Util;
 public class PkwiseNaiveSearch extends AbstractSearch {
 	
 	protected final int qlen;
-	protected final int kmax;
 
-	public PkwiseNaiveSearch( double theta, int qlen, int kmax ) {
+	public PkwiseNaiveSearch( double theta, int qlen ) {
 		super(theta);
 		this.qlen = qlen;
-		this.kmax = kmax;
 		param.put("qlen", Integer.toString(qlen));
-		param.put("kmax", Integer.toString(kmax));
 	}
 	
 	@Override

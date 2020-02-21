@@ -2,6 +2,7 @@ package snu.kdd.pkwise;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -59,6 +60,10 @@ public class PkwiseIndex {
 		return witvMap;
 	}
 	
+	public final BigInteger diskSpaceUsage() {
+		return BigInteger.ZERO;
+	}
+
 	public final void writeToFile( KwiseSignatureMap sigMap ) {
 		try {
 			PrintStream ps = null;

@@ -24,7 +24,7 @@ public class PkwiseSynSearchTest {
 	public void test00SingleRun() {
 		double theta = 1.0;
 		int qlen = 5;
-		int kmax = 1;
+		String kmax = "1";
 		Dataset dataset = TestDatasetManager.getTransWindowDataset("AMAZON", "10000", "1000", ""+qlen, "1.0", theta);
 		AbstractSearch alg1 = new PkwiseSynSearch(theta, qlen, kmax);
 		alg1.run(dataset);
@@ -49,11 +49,11 @@ public class PkwiseSynSearchTest {
 //				Stat.Len_TS_PF,
 		};
 		StringBuilder strbld = new StringBuilder();
+		String kmax = "opt";
 
 		for ( double theta : new double[] {0.6, 1.0} ) {
 			for ( String name : new String[] {"WIKI", "PUBMED", "AMAZON"} ) {
 				for ( int qlen : new int[] {1, 3, 5} ) {
-					int kmax = qlen>1 ? 2 : 1;
 					TransWindowDataset dataset = TestDatasetManager.getTransWindowDataset(name, "10000", "1000", ""+qlen, "1.0", theta);
 					AbstractSearch alg0 = new FaerieSynNaiveSearch(theta);
 					alg0.run(dataset);
@@ -93,7 +93,7 @@ public class PkwiseSynSearchTest {
 		 */
 		Log.disable();
 		int qlen = 5;
-		int kmax= 2;
+		String kmax = "2";
 		for ( double theta : new double[] {0.6, 1.0} ) {
 			for ( String lenRatio : new String[] {"0.6", "1.0"} ) {
 				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, theta);
@@ -120,7 +120,7 @@ public class PkwiseSynSearchTest {
 		 */
 		Log.disable();
 		int qlen = 5;
-		int kmax = 2;
+		String kmax = "2";
 		for ( double theta : new double[] {0.6, 1.0} ) {
 			for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
 				Dataset dataset = TestDatasetManager.getTransWindowDataset("WIKI", "10000", "3162", ""+qlen, lenRatio, theta);
@@ -133,6 +133,30 @@ public class PkwiseSynSearchTest {
 						+"\t"+alg.getStatContainer().getStat(Stat.Num_QS_Result)
 						+"\t"+alg.getStatContainer().getStat(Stat.Num_TS_Result));
 			}
+		}
+	}
+	
+	@Test
+	public void testComputeMaxK() {
+		Log.disable();
+		double[] thetaArray = new double[] {0.6, 0.7, 0.8, 0.9, 1.0};
+		for ( String name : new String[] {"WIKI", "PUBMED", "AMAZON"} ) {
+			String nr = (name.equals("PUBMED")? "79011":"107836");
+			System.out.println(name);
+			System.out.print("     ");
+			for ( double theta : thetaArray ) System.out.printf("%5.1f", theta);
+			System.out.println();
+			for ( int qlen : new int[] {1, 3, 5, 7, 9} ) {
+				System.out.printf("%5d", qlen);
+				Dataset dataset = TestDatasetManager.getTransWindowDataset(name, "1", nr, ""+qlen, "1.0", 1.0);
+				int minQueryTransLen = PkwiseSynSearch.getMinTransQueryLen(dataset);
+				for ( double theta : thetaArray ) {
+					int maxK = PkwiseSynSearch.computeMaxK(minQueryTransLen, theta);
+					System.out.printf("%5d", maxK);
+				}
+				System.out.println();
+			}
+			System.out.println();
 		}
 	}
 }
