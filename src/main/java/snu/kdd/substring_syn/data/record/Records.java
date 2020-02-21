@@ -249,7 +249,7 @@ public class Records {
 		}
 	}
 	
-	public static Iterable<Subrecord> getSubrecords(Record rec) {
+	public static Iterable<Subrecord> getSubrecords(RecordInterface rec) {
 		return new Iterable<Subrecord>() {
 			
 			@Override

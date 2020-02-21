@@ -17,12 +17,12 @@ public class ExactNaiveSearch extends AbstractSearch {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		boolean isSim = validator.isOverThresholdQuerySide(query, rec); 
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		if ( isSim ) {
-			Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+			Log.log.trace("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 			addResultQuerySide(query, rec);
 			return;
 		}
@@ -30,12 +30,13 @@ public class ExactNaiveSearch extends AbstractSearch {
 	
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		rec.preprocessTransformLength();
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = validator.isOverThresholdTextSide(query, rec);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
-			Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+			Log.log.trace("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
 			addResultTextSide(query, rec);
 			return;
 		}
