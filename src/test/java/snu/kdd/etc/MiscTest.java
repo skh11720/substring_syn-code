@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
@@ -423,6 +424,18 @@ public class MiscTest {
 				}
 			}
 //			System.out.println((tries+1)+"/"+triesMax);
+		}
+	}
+	
+	@Test
+	public void testGetSubstrings() throws IOException {
+		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "1000", "1000", "5", "1.0"));
+		for ( Record rec : dataset.getIndexedList() ) {
+			System.out.println(rec.size());
+			for ( Subrecord window : Records.getSubrecords(rec) ) {
+				System.out.println(window.sidx+", "+window.eidx);
+			}
+			System.in.read();
 		}
 	}
 }
