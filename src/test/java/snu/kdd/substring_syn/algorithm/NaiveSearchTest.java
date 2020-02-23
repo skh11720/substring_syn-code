@@ -65,9 +65,7 @@ public class NaiveSearchTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		
-		long ts = System.nanoTime();
 		naiveSearch.run(dataset);
-		long t = System.nanoTime() - ts;
 		StatContainer stat = naiveSearch.getStatContainer();
 
 		System.out.printf("%4.1f\t%s\t%s\t%s\n", param.theta, stat.getStat(Stat.Num_Result), stat.getStat(Stat.Num_QS_Result), stat.getStat(Stat.Num_TS_Result));

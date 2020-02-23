@@ -9,7 +9,6 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
-import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 
 public class NaiveValidator extends AbstractValidator {
 	
@@ -97,7 +96,6 @@ public class NaiveValidator extends AbstractValidator {
 		
 		final Record query;
 		Iterator<Record> expIter;
-		SortedRecordSlidingWindowIterator witer;
 		
 		public TextSideIterator( Record query, Record rec ) {
 			this.query = query;
