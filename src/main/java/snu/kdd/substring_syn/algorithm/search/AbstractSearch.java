@@ -195,6 +195,10 @@ public abstract class AbstractSearch {
 		return "output/"+getOutputName(dataset)+".txt";
 	}
 	
+	public final Set<IntPair> getResultTextSide() {
+		return rsltTextSide;
+	}
+	
 	public final Param getParam() {
 		return param;
 	}
