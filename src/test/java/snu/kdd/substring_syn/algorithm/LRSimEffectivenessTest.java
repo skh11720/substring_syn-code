@@ -124,12 +124,14 @@ public class LRSimEffectivenessTest {
 					Set<IntPair> rslt0 = alg0.getResultTextSide();
 					Set<IntPair> rslt1 = alg1.getResultTextSide();
 					rslt0.removeAll(rslt1);
+					ps.append(String.format("E\t%s_%s_%d_%.1f\t%d\n", dataName, qlen, nr, theta, rslt1.size()));
 					for ( IntPair pair : rslt0 ) {
 						System.out.printf("%8s%4s%8d%8.1f%8d%8d\n", dataName, qlen, nr, theta, pair.i1, pair.i2);
-						ps.printf("%8s%4s%8d%8.1f%8d%8d\n", dataName, qlen, nr, theta, pair.i1, pair.i2);
+						ps.append(String.format("N_%s_%s_%d_%.1f\t%d\t%d\n", dataName, qlen, nr, theta, pair.i1, pair.i2));
 					}
 				}
 			}
 		}
+		ps.flush();
 	}
 }
