@@ -1,31 +1,33 @@
 package snu.kdd.substring_syn.algorithm.search;
 
+import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
-import vldb18.NaivePkduckValidator;
 
 public class ExactPositionPrefixSearch extends PositionPrefixSearch {
 
-	protected final NaivePkduckValidator validator;
+	protected final NaiveValidator validator;
 
 	
 	public ExactPositionPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
-		validator = new NaivePkduckValidator(theta, statContainer);
+		validator = new NaiveValidator(theta, statContainer);
 	}
 
 	@Override
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		return validator.verifyQuerySide(query, window, theta);
+		return validator.isOverThresholdQuerySide(query, window);
 	}
 
 	@Override
 	protected boolean verifyTextSide( Record query, Subrecord window ) {
-		return validator.verifyTextSide(query, window, theta);
+		Record rec = window.toRecord();
+		rec.preprocessAll();
+		return validator.isOverThresholdTextSide(query, rec);
 	}
 
 	@Override
 	public String getName() {
-		return "ExactPrefixSearch";
+		return "ExactPositionPrefixSearch";
 	}
 }

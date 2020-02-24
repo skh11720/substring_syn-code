@@ -16,12 +16,12 @@ public class NaiveValidator extends AbstractValidator {
 		super(theta, statContainer);
 	}
 	
-	public boolean isOverThresholdQuerySide( Record query, Record rec ) {
+	public boolean isOverThresholdQuerySide( Record query, RecordInterface rec ) {
 		QuerySideIterator iter = new QuerySideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
 
-	public double simQuerySide( Record query, Record rec ) {
+	public double simQuerySide( Record query, RecordInterface rec ) {
 		QuerySideIterator iter = new QuerySideIterator(query, rec);
 		return sim(iter);
 	}
