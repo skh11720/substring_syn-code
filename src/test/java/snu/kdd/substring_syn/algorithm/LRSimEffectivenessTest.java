@@ -1,8 +1,9 @@
 package snu.kdd.substring_syn.algorithm;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Set;
 
 import org.junit.BeforeClass;
@@ -29,7 +30,7 @@ public class LRSimEffectivenessTest {
 	 */
 
 	static StatContainer statContainer = new StatContainer();
-	static PrintStream ps;
+	static PrintWriter pw;
 	
 	String[] dataNameArray = {"WIKI", "PUBMED", "AMAZON"};
 //	String[] qlenArray = {"1", "3", "5", "7", "9"};
@@ -49,8 +50,8 @@ public class LRSimEffectivenessTest {
 	
 
 	@BeforeClass
-	public static void setup() throws FileNotFoundException {
-		ps = new PrintStream("tmp/LRSimEffectivenessTest.txt");
+	public static void setup() throws IOException {
+		pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/LRSimEffectivenessTest.txt", true)));
 	}
 
 	@Test
@@ -95,7 +96,7 @@ public class LRSimEffectivenessTest {
 				double simT1 = val1.simTextSide(query, rec);
 				if ( simT0 != simT1 ) {
 					System.out.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getID(), rec.getID(), simT0, simT1, simT0!=simT1?"*":"");
-					ps.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getID(), rec.getID(), simT0, simT1, simT0!=simT1?"*":"");
+					pw.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getID(), rec.getID(), simT0, simT1, simT0!=simT1?"*":"");
 				}
 			}
 		}
@@ -124,14 +125,14 @@ public class LRSimEffectivenessTest {
 					Set<IntPair> rslt0 = alg0.getResultTextSide();
 					Set<IntPair> rslt1 = alg1.getResultTextSide();
 					rslt0.removeAll(rslt1);
-					ps.append(String.format("E\t%s_%s_%d_%.1f\t%d\n", dataName, qlen, nr, theta, rslt1.size()));
+					pw.printf("E\t%s_%s_%s_%.1f\t%d\n", dataName, qlen, nr, theta, rslt1.size());
 					for ( IntPair pair : rslt0 ) {
-						System.out.printf("%8s%4s%8d%8.1f%8d%8d\n", dataName, qlen, nr, theta, pair.i1, pair.i2);
-						ps.append(String.format("N_%s_%s_%d_%.1f\t%d\t%d\n", dataName, qlen, nr, theta, pair.i1, pair.i2));
+						System.out.printf("%8s%4s%8s%8.1f%8d%8d\n", dataName, qlen, nr, theta, pair.i1, pair.i2);
+						pw.printf("N_%s_%s_%s_%.1f\t%d\t%d\n", dataName, qlen, nr, theta, pair.i1, pair.i2);
 					}
 				}
 			}
 		}
-		ps.flush();
+		pw.flush();
 	}
 }
