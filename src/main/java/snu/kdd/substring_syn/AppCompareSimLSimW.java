@@ -78,7 +78,7 @@ public class AppCompareSimLSimW {
 				if ( sim1 < 0 ) continue;
 
 				if( Math.abs(sim0-sim1) < 1e-5 ) pw.println("E");
-				else pw.printf("N\t%d %d\n", query.getID(), rec.getID());
+				else pw.printf("N\t%d %d %.6f %.6f\n", query.getID(), rec.getID(), sim0, sim1);
 //				Log.log.info("rec.id=%d query.id=%d", rec.getID(), query.getID());
 				if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
 			}
