@@ -26,13 +26,17 @@ public class NaiveValidator extends AbstractValidator {
 		return sim(iter);
 	}
 	
+	protected AbstractTextSideIterator getTextSideIterator(Record query, Record rec) {
+		return new TextSideIterator(query, rec);
+	}
+	
 	public boolean isOverThresholdTextSide( Record query, Record rec ) {
-		TextSideIterator iter = new TextSideIterator(query, rec);
+		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
 	
 	public double simTextSide( Record query, Record rec ) {
-		TextSideIterator iter = new TextSideIterator(query, rec);
+		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
 		return sim(iter);
 	}
 	
@@ -91,14 +95,21 @@ public class NaiveValidator extends AbstractValidator {
 			return witer.next();
 		}
 	}
+	
+	protected abstract class AbstractTextSideIterator implements Iterator<Double> {
 
-	protected class TextSideIterator implements Iterator<Double> {
-		
 		final Record query;
 		Iterator<Record> expIter;
 		
-		public TextSideIterator( Record query, Record rec ) {
+		public AbstractTextSideIterator(Record query) {
 			this.query = query;
+		}
+	}
+
+	protected class TextSideIterator extends AbstractTextSideIterator {
+		
+		public TextSideIterator( Record query, Record rec ) {
+			super(query);
 			expIter = Records.expands(rec).iterator();
 		}
 

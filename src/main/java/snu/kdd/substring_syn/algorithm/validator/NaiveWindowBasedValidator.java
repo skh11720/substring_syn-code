@@ -15,16 +15,19 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 		super(theta, statContainer);
 	}
 
-	protected class TextSideIterator implements Iterator<Double> {
+	@Override
+	protected AbstractTextSideIterator getTextSideIterator(Record query, Record rec) {
+		return new TextSideIterator(query, rec);
+	}
+
+	protected class TextSideIterator extends AbstractTextSideIterator {
 		
-		final Record query;
 		Iterator<Subrecord> wIter;
-		Iterator<Record> eIter;
 		Record w;
 		Record thisExp;
 		
 		public TextSideIterator( Record query, Record rec ) {
-			this.query = query;
+			super(query);
 			wIter = Records.getSubrecords(rec).iterator();
 			thisExp = findNext();
 		}
@@ -49,13 +52,13 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 		}
 		
 		private Record findNext() {
-			while ( eIter == null || !eIter.hasNext() ) {
+			while ( expIter == null || !expIter.hasNext() ) {
 				if ( wIter == null || !wIter.hasNext() ) return null;
 				else w = wIter.next().toRecord();
 				w.preprocessAll();
-				eIter = Records.expands(w).iterator();
+				expIter = Records.expands(w).iterator();
 			}
-			return eIter.next();
+			return expIter.next();
 		}
 	}
 	
