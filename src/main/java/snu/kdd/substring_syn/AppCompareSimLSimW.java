@@ -35,7 +35,7 @@ import snu.kdd.substring_syn.utils.Log;
 public class AppCompareSimLSimW {
 
 	static final double EPS = 1e-5;
-	static final int TIMEOUT = 5;
+	static final int TIMEOUT = 1;
 	static ExecutorService executor = Executors.newSingleThreadExecutor();
 	static PrintWriter pw = null;
 	static NaiveValidator val0 = new NaiveValidator(0, null);
@@ -98,7 +98,7 @@ public class AppCompareSimLSimW {
 				verifyPair(query, rec);
 				if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
 			}
-			if ((query.getID()+1)%10000 == 0) {
+			if ((query.getID()+1)%1000 == 0) {
 				Log.log.info("query.id=%d", query.getID());
 				pw.flush();
 			}
