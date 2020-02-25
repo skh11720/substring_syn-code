@@ -71,11 +71,12 @@ public class AppCompareSimLSimW {
 				double sim0 = -1, sim1 = -1;
 				Future<Double> future = null;
 				future = executor.submit(new Task0(query, rec));
-				try { sim0 = future.get(1, TimeUnit.SECONDS); }
+				try { sim0 = future.get(5, TimeUnit.SECONDS); }
 				catch (TimeoutException e) { future.cancel(true); }
 				if ( sim0 < 0 ) continue;
+				if ( sim0 < theta-1e-5 ) continue;
 				future = executor.submit(new Task1(query, rec));
-				try { sim1 = future.get(1, TimeUnit.SECONDS); }
+				try { sim1 = future.get(5, TimeUnit.SECONDS); }
 				catch (TimeoutException e) { future.cancel(true); }
 				if ( sim1 < 0 ) continue;
 
