@@ -1,19 +1,25 @@
 package snu.kdd.etc;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.junit.Test;
 
+import snu.kdd.substring_syn.algorithm.validator.GreedyQueryContainmentValidator;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.utils.StatContainer;
 import vldb18.GreedyPkduckValidator;
 
-public class GreedyValidatorTest {
+public class ValidatorTest {
 
 	@Test
-	public void test() throws IOException {
+	public void testGreedyPkduckValidator() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("SPROT", "10000");
 		long ts;
 		long[] tArr = new long[2];
@@ -43,5 +49,31 @@ public class GreedyValidatorTest {
 		for ( long t : tArr ) {
 			System.out.println(t/1e6);
 		}
+	}
+	
+	@Test
+	public void testGreedyQueryContainmentValidator() throws IOException {
+		String dataName = "WIKI";
+		String size = "10";
+		String nr = "10000";
+		String qlen = "5";
+		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0");
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
+		StatContainer stat = new StatContainer();
+		GreedyQueryContainmentValidator val = new GreedyQueryContainmentValidator(0, stat);
+		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/testGreedyQueryContainmentValidator.txt")));
+		
+		for ( Record query : dataset.getSearchedList() ) {
+			query.preprocessAll();
+			for ( Record rec : dataset.getIndexedList() ) {
+				rec.preprocessAll();
+				pw.println(query.toStringDetails());
+				pw.println(rec.toStringDetails());
+				double simQ = val.simQuerySide(query, rec);
+				double simT = val.simTextSide(query, rec);
+				pw.println("simQ="+simQ+"\tsimT="+simT+"\t"+(simQ==simT?"SAME":"DIFF"));
+			}
+		}
+		pw.close();
 	}
 }
