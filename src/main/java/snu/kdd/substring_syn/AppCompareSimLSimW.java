@@ -73,6 +73,7 @@ public class AppCompareSimLSimW {
 		if (theta < EPS ) runNaive(dataset, nq);
 		else runAlg(dataset, nq, theta);
 		pw.close();
+		executor.shutdown();
     }
 
     public static void runNaive(Dataset dataset, String nq) throws InterruptedException, ExecutionException {
@@ -96,12 +97,12 @@ public class AppCompareSimLSimW {
 				Record rec = dataset.getRecord(rid);
 				rec.preprocessAll();
 				verifyPair(query, rec);
-				if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
 			}
 			if ((query.getID()+1)%1000 == 0) {
-				Log.log.info("query.id=%d", query.getID());
+				Log.log.info("num processed queries: %d", query.getID()+1);
 				pw.flush();
 			}
+			if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
 		}
 		pw.flush();
     }
