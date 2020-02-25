@@ -46,7 +46,6 @@ public class AppCompareSimLSimW {
 		argOptions.addOption("nq", true, "");
 		argOptions.addOption("ql", true, "");
 		argOptions.addOption("nr", true, "");
-		argOptions.addOption("theta", true, "");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(argOptions, args, false);
@@ -56,9 +55,8 @@ public class AppCompareSimLSimW {
 		String nq = cmd.getOptionValue("nq");
 		String qlen = cmd.getOptionValue("ql");
 		String nr = cmd.getOptionValue("nr");
-		double theta = Double.parseDouble(cmd.getOptionValue("theta"));
 
-		String outputName = String.format("output/AppCompareSimLSimW_%s_%s_%s_%s_%s_%.1f.txt", dataName, size, nq, qlen, nr, theta);
+		String outputName = String.format("output/AppCompareSimLSimW_%s_%s_%s_%s_%s.txt", dataName, size, nq, qlen, nr);
 		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, false)));
 		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
