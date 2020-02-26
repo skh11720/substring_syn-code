@@ -20,6 +20,7 @@ public class InputArgument {
 		argOptions.addOption("lr", true, "");
 		argOptions.addOption("alg", true, "");
 		argOptions.addOption("param", true, "");
+		argOptions.addOption("pool", true, "");
 	}
 	
 	private final CommandLine cmd;

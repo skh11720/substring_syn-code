@@ -27,6 +27,7 @@ public class DatasetFactory {
 	private static boolean isDocInput;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
+		setRecordPoolSize(arg);
 		setParam(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
@@ -38,6 +39,13 @@ public class DatasetFactory {
 		}
 		else
 			return createInstanceByName(param);
+	}
+	
+	private static void setRecordPoolSize(InputArgument arg) {
+		try {
+			RecordPool.BUFFER_SIZE = Integer.parseInt(arg.getOptionValue("pool"));
+		}
+		catch (Exception e) {}
 	}
 	
 	private static void setParam(DatasetParam param) {
