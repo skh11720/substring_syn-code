@@ -40,7 +40,6 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 		@Override
 		public Double next() {
 			Record exp = thisExp;
-			thisExp = findNext();
 			double sim = Util.jaccardM(query.getTokenArray(), exp.getTokenArray());
 			if ( statContainer != null ) {
 				statContainer.addCount(Stat.Len_TS_Verified, exp.size());
@@ -48,6 +47,7 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 			}
 //			System.out.println("LINE0\t"+"eidx: "+eidx+"\thasNext: "+witer.hasNext()+"\tw: "+w+"/"+expList.get(eidx).size()+"\twidx: "+window.sidx+"/"+(expList.get(eidx).size()-1));
 //			System.out.println("LINE1\t"+"eidx: "+eidx+"\thasNext: "+witer.hasNext()+"\tw: "+w+"/"+expList.get(eidx).size()+"\twidx: "+window.sidx+"/"+(expList.get(eidx).size()-1));
+			thisExp = findNext();
 			return sim;
 		}
 		
