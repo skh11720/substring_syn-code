@@ -77,12 +77,12 @@ public class NaiveValidator extends AbstractValidator {
 		@Override
 		public Double next() {
 			Subrecord w = nw;
-			nw = findNext();
 			double sim = Util.jaccardM(exp.getTokenArray(), w.getTokenArray());
 			if ( statContainer != null ) {
 				statContainer.addCount(Stat.Len_QS_Verified, w.size());
 				statContainer.increment(Stat.Num_QS_Verified);
 			}
+			nw = findNext();
 			return sim;
 		}
 		
