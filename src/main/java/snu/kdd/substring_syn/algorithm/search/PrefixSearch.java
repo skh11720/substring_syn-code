@@ -33,7 +33,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected IntSet queryCandTokenSet;
 	protected IntSet expandedPrefix;
 	protected final boolean bLF, bPF;
-	protected final GreedyValidator validator;
+	private final GreedyValidator validator;
 	protected TransLenLazyCalculator transLenCalculator = null;
 	protected double modifiedTheta;
 
@@ -460,8 +460,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.28: fix bug in modified count filter, speedup preprocessing
 		 * 6.29: use RecordPool
 		 * 6.30: Reduce pool size=1e4
-		 * 6.30.03: Reduce pool size=1e7
 		 */
-		return "6.30.03";
+		return "6.30";
 	}
 }

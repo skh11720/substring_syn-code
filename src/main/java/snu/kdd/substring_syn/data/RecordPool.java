@@ -9,7 +9,7 @@ import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordPool {
 
-	public static int BUFFER_SIZE = (int)(1e7);
+	public static int BUFFER_SIZE = (int)(1e4);
 	
 	private final Int2ObjectMap<Record> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;

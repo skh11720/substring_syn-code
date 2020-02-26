@@ -716,9 +716,42 @@ public class Util {
 		}
 	}
 
-//	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-//		return DatasetFactory.createInstanceByName(name, size);
-//	}
+	public static double jaccardContainmentM( int[] q, int[] s ) {
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		Int2IntOpenHashMap sCounter = new Int2IntOpenHashMap();
+		for ( int token : s ) sCounter.addTo(token, 1);
+		int num = 0;
+		for ( int token : qCounter.keySet() ) {
+			num += Math.min(qCounter.get(token), sCounter.get(token));
+		}
+		return (double)num/q.length;
+	}
+	
+	public static double jaccardContainmentM( Int2IntOpenHashMap q, Int2IntOpenHashMap s, int qlen ) {
+		IntSet tokenSet = new IntOpenHashSet(q.keySet());
+		tokenSet.addAll(s.keySet());
+		int num = 0;
+		for ( int token : tokenSet ) {
+			num += Math.min(q.get(token), s.get(token));
+		}
+		return (double)num/qlen;
+	}
+
+	public static double subJaccardContainmentM( IntList q, IntList s ) {
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		Int2IntOpenHashMap sCounter = new Int2IntOpenHashMap();
+		sCounter.defaultReturnValue(0);
+		for ( int token : s ) sCounter.addTo(token, 1);
+
+		int num = 0;
+		for ( int token : qCounter.keySet() ) {
+			num += Math.min(qCounter.get(token), sCounter.get(token));
+		}
+		
+		return (double)num/q.size();
+	}
 
 	public static String getGroundTruthPath( String name ) {
 

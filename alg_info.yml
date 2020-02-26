@@ -22,3 +22,9 @@ FaerieSynSearch:
 ZeroPrefixSearch:
   theta: *theta_list
   filter: *filter_list
+
+NaiveContainmentSearch:
+  theta: *theta_list
+
+ContainmentPrefixSearch:
+  theta: *theta_list

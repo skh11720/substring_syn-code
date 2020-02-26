@@ -94,3 +94,57 @@ AMAZON-DOC:
    ql: ['1', '3', '5', '7', '9']
    nr: ['1000', '3162', '10000', '31622', '107836']
    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-Q1M:
+    searchedPath: 'wiki/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'wiki/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-Q1M:
+    searchedPath: 'PubMed/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'PubMed/records_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-Q1M:
+   searchedPath: 'Amazon/queries/queries_for_comp_%s_1M.txt'
+   indexedPath: 'Amazon/records_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-Q10M:
+    searchedPath: 'wiki/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'wiki/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-Q10M:
+    searchedPath: 'PubMed/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'PubMed/records_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-Q10M:
+   searchedPath: 'Amazon/queries/queries_for_comp_%s_10M.txt'
+   indexedPath: 'Amazon/records_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
