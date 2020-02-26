@@ -7,7 +7,7 @@ import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class GreedyQueryContainmentValidator extends AbstractGreedyValidator {
+public class GreedyQueryContainmentValidator extends ImprovedGreedyValidator {
 
 //	public double simQuerySide( Record query, Record text ) {
 //		double simMax = 0;
