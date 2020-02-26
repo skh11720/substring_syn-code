@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.faerie.FaerieSynContainmentSearch;
 import snu.kdd.faerie.FaerieSynNaiveSearch;
 import snu.kdd.faerie.FaerieSynSearch;
 import snu.kdd.pkwise.PkwiseNaiveSearch;
@@ -27,6 +28,7 @@ public class AlgorithmFactory {
 		ExactNaiveContainmentSearch,
 		NaiveContainmentSearch,
 		ContainmentPrefixSearch,
+		FaerieSynContainmentSearch,
 	}
 	
 	public enum FilterOptionLabel {
@@ -96,11 +98,12 @@ public class AlgorithmFactory {
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
 		case PkwiseSynSearch: return createPkwiseSynSearch(param, arg);
-		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param, arg);
-		case FaerieSynSearch: return createFaerieSynSearch(param, arg);
+		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param);
+		case FaerieSynSearch: return createFaerieSynSearch(param);
 		case ZeroPrefixSearch: return createPrefixSearch(param, GoalOption.Zero);
 		case NaiveContainmentSearch: return createNaiveContainmentSearch(param);
 		case ContainmentPrefixSearch: return createPrefixSearch(param, GoalOption.Contain);
+		case FaerieSynContainmentSearch: return createFaerieSynContainmentSearch(param);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -170,17 +173,22 @@ public class AlgorithmFactory {
 		return new PkwiseSynSearch(theta, qlen, kmax);
 	}
 
-	private static FaerieSynNaiveSearch createFaerieSynNaiveSearch( DictParam param, InputArgument arg ) {
+	private static FaerieSynNaiveSearch createFaerieSynNaiveSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		return new FaerieSynNaiveSearch(theta);
 	}
 	
-	private static FaerieSynSearch createFaerieSynSearch( DictParam param, InputArgument arg ) {
+	private static FaerieSynSearch createFaerieSynSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		boolean isDiskBased = Boolean.parseBoolean(param.get("isDiskBased"));
 		return new FaerieSynSearch(theta, isDiskBased);
 	}
 	
+	private static FaerieSynContainmentSearch createFaerieSynContainmentSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		boolean isDiskBased = Boolean.parseBoolean(param.get("isDiskBased"));
+		return new FaerieSynContainmentSearch(theta, isDiskBased);
+	}
 	
 	
 	private static class DictParam {

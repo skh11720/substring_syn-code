@@ -17,7 +17,7 @@ PkwiseSynSearch:
 
 FaerieSynSearch:
    theta: *theta_list
-   isDiskBased: ['false', 'true']
+   isDiskBased: ['true']
 
 ZeroPrefixSearch:
   theta: *theta_list
@@ -29,3 +29,7 @@ NaiveContainmentSearch:
 ContainmentPrefixSearch:
   theta: *theta_list
   filter: ['Fopt_C']
+
+FaerieSynContainmentSearch:
+   theta: *theta_list
+   isDiskBased: ['true']
