@@ -67,11 +67,13 @@ public class ValidatorTest {
 			query.preprocessAll();
 			for ( Record rec : dataset.getIndexedList() ) {
 				rec.preprocessAll();
-				pw.println(query.toStringDetails());
-				pw.println(rec.toStringDetails());
 				double simQ = val.simQuerySide(query, rec);
 				double simT = val.simTextSide(query, rec);
-				pw.println("simQ="+simQ+"\tsimT="+simT+"\t"+(simQ==simT?"SAME":"DIFF"));
+				if (simQ >=0.6 || simT >= 0.6) {
+					pw.println(query.toStringDetails());
+					pw.println(rec.toStringDetails());
+					pw.println("simQ="+simQ+"\tsimT="+simT+"\t"+(simQ==simT?"SAME":"DIFF"));
+				}
 			}
 		}
 		pw.close();
