@@ -33,7 +33,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected IntSet queryCandTokenSet;
 	protected IntSet expandedPrefix;
 	protected final boolean bLF, bPF;
-	protected final GreedyValidator validator;
+	private final GreedyValidator validator;
 	protected TransLenLazyCalculator transLenCalculator = null;
 	protected double modifiedTheta;
 
