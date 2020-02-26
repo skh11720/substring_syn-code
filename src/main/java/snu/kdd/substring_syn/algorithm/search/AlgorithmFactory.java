@@ -25,6 +25,7 @@ public class AlgorithmFactory {
 		ZeroPrefixSearch,
 		
 		ExactNaiveContainmentSearch,
+		NaiveContainmentSearch,
 		ContainmentPrefixSearch,
 	}
 	
@@ -98,6 +99,7 @@ public class AlgorithmFactory {
 		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param, arg);
 		case FaerieSynSearch: return createFaerieSynSearch(param, arg);
 		case ZeroPrefixSearch: return createPrefixSearch(param, GoalOption.Zero);
+		case NaiveContainmentSearch: return createNaiveContainmentSearch(param);
 		case ContainmentPrefixSearch: return createPrefixSearch(param, GoalOption.Contain);
 		default: throw new RuntimeException("Unexpected error");
 		}
@@ -133,15 +135,19 @@ public class AlgorithmFactory {
 		if ( indexChoice == IndexChoice.CountPosition || indexChoice == IndexChoice.Position ) {
 			if ( goal == GoalOption.Zero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( goal == GoalOption.Exact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
-//			if ( goal == GoalOption.Contain ) return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
 		}
 		else {
 			if ( goal == GoalOption.Zero ) return new ZeroPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( goal == GoalOption.Exact ) return new ExactPrefixSearch(theta, bLF, bPF, indexChoice);
-//			if ( goal == GoalOption.Contain ) return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
+			if ( goal == GoalOption.Contain ) return new ContainmentPrefixSearch(theta, indexChoice);
 			else return new PrefixSearch(theta, bLF, bPF, indexChoice);
 		}
+	}
+	
+	private static NaiveContainmentSearch createNaiveContainmentSearch( DictParam param ) {
+		double theta = Double.parseDouble(param.get("theta"));
+		return new NaiveContainmentSearch(theta);
 	}
 
 	private static PkwiseNaiveSearch createPkwiseNaiveSearch( DictParam param ) {

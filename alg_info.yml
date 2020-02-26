@@ -28,3 +28,4 @@ NaiveContainmentSearch:
 
 ContainmentPrefixSearch:
   theta: *theta_list
+  filter: ['Fopt_C']
