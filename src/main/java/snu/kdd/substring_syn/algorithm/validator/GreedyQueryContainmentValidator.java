@@ -9,18 +9,16 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyQueryContainmentValidator extends ImprovedGreedyValidator {
 
-//	public double simQuerySide( Record query, Record text ) {
-//		double simMax = 0;
-//		for ( Record queryExp : query.expandAll() ) {
-//			double sim = Util.jaccard(queryExp.getTokenArray(), text.getTokenArray());
-//			if ( sim > simMax ) log.trace("GreedyValidator.simQuerySide: sim=%.3f, queryExp=%s", sim, queryExp);
-//			simMax = Math.max(simMax, sim);
-//		}
-//		return simMax;
-//	}
-
 	public GreedyQueryContainmentValidator(double theta, StatContainer statContainer) {
 		super(theta, statContainer);
+	}
+	
+	public boolean isOverThresholdQuerySide( Record query, Record rec ) {
+		return simQuerySide(query, rec) >= theta;
+	}
+
+	public boolean isOverThresholdTextSide( Record query, Record rec ) {
+		return simTextSide(query, rec) >= theta;
 	}
 
 	public double simQuerySide( Record query, RecordInterface window ) {

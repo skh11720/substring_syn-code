@@ -5,14 +5,13 @@ import java.util.Iterator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
-import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
-public class NaiveValidator extends AbstractValidator {
+public class NaiveQueryContainmentValidator extends AbstractValidator {
 	
-	public NaiveValidator( double theta, StatContainer statContainer ) {
+	public NaiveQueryContainmentValidator( double theta, StatContainer statContainer ) {
 		super(theta, statContainer);
 	}
 	
@@ -26,17 +25,13 @@ public class NaiveValidator extends AbstractValidator {
 		return sim(iter);
 	}
 	
-	protected AbstractTextSideIterator getTextSideIterator(Record query, Record rec) {
-		return new TextSideIterator(query, rec);
-	}
-	
 	public boolean isOverThresholdTextSide( Record query, Record rec ) {
-		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
+		TextSideIterator iter = new TextSideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
 	
 	public double simTextSide( Record query, Record rec ) {
-		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
+		TextSideIterator iter = new TextSideIterator(query, rec);
 		return sim(iter);
 	}
 	
@@ -56,72 +51,49 @@ public class NaiveValidator extends AbstractValidator {
 	protected class QuerySideIterator implements Iterator<Double> {
 
 		final RecordInterface rec;
-		Iterator<Subrecord> witer;
 		Iterator<Record> eiter;
-		int w = 1;
-		Record exp;
-		Subrecord nw;
-		int qidx = 0;
 		
 		public QuerySideIterator( Record query, RecordInterface rec ) {
 			this.rec = rec;
 			eiter = Records.expands(query).iterator();
-			nw = findNext();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return eiter.hasNext() || nw != null;
+			return eiter.hasNext();
 		}
 
 		@Override
 		public Double next() {
-			Subrecord w = nw;
-			double sim = Util.jaccardM(exp.getTokenArray(), w.getTokenArray());
+			Record exp = eiter.next();
+			double sim = Util.jaccardContainmentM(exp.getTokenArray(), rec.getTokenArray());
 			if ( statContainer != null ) {
-				statContainer.addCount(Stat.Len_QS_Verified, w.size());
+				statContainer.addCount(Stat.Len_QS_Verified, rec.size());
 				statContainer.increment(Stat.Num_QS_Verified);
 			}
-			nw = findNext();
 			return sim;
-		}
-		
-		private Subrecord findNext() {
-			while ( witer == null || !witer.hasNext() ) {
-				if ( !eiter.hasNext() ) return null;
-				exp = eiter.next();
-				witer = Records.getSubrecords(rec).iterator();
-			}
-			return witer.next();
 		}
 	}
 	
-	protected abstract class AbstractTextSideIterator implements Iterator<Double> {
+	protected class TextSideIterator implements Iterator<Double> {
 
 		final Record query;
-		Iterator<Record> expIter;
-		
-		public AbstractTextSideIterator(Record query) {
-			this.query = query;
-		}
-	}
-
-	protected class TextSideIterator extends AbstractTextSideIterator {
+		Iterator<Record> eiter;
 		
 		public TextSideIterator( Record query, Record rec ) {
-			super(query);
-			expIter = Records.expands(rec).iterator();
+			this.query = query;
+			eiter = Records.expands(rec).iterator();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return expIter.hasNext();
+			return eiter.hasNext();
 		}
 
 		@Override
 		public Double next() {
-			Record exp = expIter.next();
-			double sim = Util.subJaccardM(query.getTokenArray(), exp.getTokenArray());
+			Record exp = eiter.next();
+			double sim = Util.jaccardContainmentM(query.getTokenArray(), exp.getTokenArray());
 			if ( statContainer != null ) {
 				statContainer.addCount(Stat.Len_TS_Verified, exp.size());
 				statContainer.increment(Stat.Num_TS_Verified);
@@ -132,6 +104,6 @@ public class NaiveValidator extends AbstractValidator {
 
 	@Override
 	public String getName() {
-		return "NaiveValidator";
+		return "NaiveQueryContainmentValidator";
 	}
 }

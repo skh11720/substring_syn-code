@@ -24,7 +24,8 @@ public class AlgorithmFactory {
 
 		ZeroPrefixSearch,
 		
-		PrefixContainSearch,
+		ExactNaiveContainmentSearch,
+		ContainmentPrefixSearch,
 	}
 	
 	public enum FilterOptionLabel {
@@ -97,7 +98,7 @@ public class AlgorithmFactory {
 		case FaerieSynNaiveSearch: return createFaerieSynNaiveSearch(param, arg);
 		case FaerieSynSearch: return createFaerieSynSearch(param, arg);
 		case ZeroPrefixSearch: return createPrefixSearch(param, GoalOption.Zero);
-		case PrefixContainSearch: return createPrefixSearch(param, GoalOption.Contain);
+		case ContainmentPrefixSearch: return createPrefixSearch(param, GoalOption.Contain);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
