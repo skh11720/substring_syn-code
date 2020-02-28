@@ -1,9 +1,8 @@
 package snu.kdd.pkwise;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.algorithm.index.disk.AbstractIndexStoreBuilder;
 import snu.kdd.substring_syn.algorithm.index.disk.IndexStoreAccessor;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class PkwiseQGramIndexStore {
@@ -22,9 +21,9 @@ public class PkwiseQGramIndexStore {
 		storeSize = builder.diskSpaceUsage();
 	}
 
-	public IntList getInvList( int token ) {
-		int[] arr = invListAccessor.getList(token);
-		if ( arr == null ) return null;
-		else return IntArrayList.wrap(arr);
+	public NaiveInvList getInvList( int token ) {
+		int len = invListAccessor.getList(token);
+		if ( invListAccessor.arr == null ) return null;
+		else return new NaiveInvList(invListAccessor.arr, len);
 	}
 }

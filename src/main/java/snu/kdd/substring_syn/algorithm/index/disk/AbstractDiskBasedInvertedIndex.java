@@ -2,11 +2,11 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.BytesMeasurableInterface;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public abstract class AbstractDiskBasedInvertedIndex<S, T> {
+public abstract class AbstractDiskBasedInvertedIndex<S extends BytesMeasurableInterface, T extends BytesMeasurableInterface> {
 
 	protected int nInvFault = 0;
 	protected int nTinvFault = 0;
@@ -24,30 +24,34 @@ public abstract class AbstractDiskBasedInvertedIndex<S, T> {
 	
 	public abstract BigInteger diskSpaceUsage();
 	
-	protected abstract ObjectList<S> getInvListFromStore( int token );
+	protected abstract S copyInvList(S obj);
 
-	protected abstract ObjectList<T> getTinvListFromStore( int token );
+	protected abstract T copyTransInvList(T obj);
+	
+	protected abstract S getInvListFromStore( int token );
 
-	public ObjectList<S> getInvList( int token ) {
+	protected abstract T getTinvListFromStore( int token );
+
+	public S getInvList( int token ) {
 		if ( invPool.containsKey(token) ) 
 			return invPool.get(token);
 		else {
 			++nInvFault;
 			StatContainer.global.increment("Num_InvFault");
-			ObjectList<S> invList = getInvListFromStore(token);
-			if ( invList != null ) invPool.put(token, invList);
+			S invList = getInvListFromStore(token);
+			if ( invList != null ) invPool.put(token, copyInvList(invList));
 			return invList;
 		}
 	}
 	
-	public ObjectList<T> getTransInvList( int token ) {
+	public T getTransInvList( int token ) {
 		if ( tinvPool.containsKey(token) )
 			return tinvPool.get(token);
 		else {
 			++nTinvFault;
 			StatContainer.global.increment("Num_TinvFault");
-			ObjectList<T> tinvList = getTinvListFromStore(token);
-			if ( tinvList != null ) tinvPool.put(token, tinvList);
+			T tinvList = getTinvListFromStore(token);
+			if ( tinvList != null ) tinvPool.put(token, copyTransInvList(tinvList));
 			return tinvList;
 		}
 	}

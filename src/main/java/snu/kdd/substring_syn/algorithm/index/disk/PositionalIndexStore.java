@@ -2,11 +2,11 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class PositionalIndexStore implements DiskBasedPositionalIndexInterface {
+public class PositionalIndexStore {
 
 	final IndexStoreAccessor invListAccessor;
 	final IndexStoreAccessor tinvListAccessor;
@@ -22,30 +22,18 @@ public class PositionalIndexStore implements DiskBasedPositionalIndexInterface {
 		tinvListAccessor = builder.buildTrInvList();
 	}
 
-	public ObjectList<InvListEntry> getInvList( int token ) {
-		int[] arr = invListAccessor.getList(token);
-		if ( arr == null ) return null;
-		else return getInvListFromArr(arr);
+	public PositionInvList getInvList( int token ) {
+		int length = invListAccessor.getList(token);
+		if ( length == 0 ) return null;
+		else return new PositionInvList(invListAccessor.arr, length/2);
 	}
 	
-	protected ObjectList<InvListEntry> getInvListFromArr( int[] arr ) {
-		ObjectList<InvListEntry> invList = new ObjectArrayList<>();
-		for ( int i=0; i<arr.length; i+=2 ) invList.add(new InvListEntry(arr[i], arr[i+1]));
-		return invList;
+	public PositionTrInvList getTrInvList( int token ) {
+		int length = tinvListAccessor.getList(token);
+		if ( length == 0 ) return null;
+		else return new PositionTrInvList(tinvListAccessor.arr, length/3);
 	}
 
-	public ObjectList<TransInvListEntry> getTrInvList( int token ) {
-		int[] arr = tinvListAccessor.getList(token);
-		if ( arr == null ) return null;
-		else return getTrInvListFromArr(arr);
-	}
-
-	protected ObjectList<TransInvListEntry> getTrInvListFromArr( int[] arr ) {
-		ObjectList<TransInvListEntry> invList = new ObjectArrayList<>();
-		for ( int i=0; i<arr.length; i+=3 ) invList.add(new TransInvListEntry(arr[i], arr[i+1], arr[i+2]));
-		return invList;
-	}
-	
 	public final BigInteger diskSpaceUsage() {
 		return new BigInteger(""+(invListAccessor.size + tinvListAccessor.size));
 	}

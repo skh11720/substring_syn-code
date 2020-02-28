@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class PositionalIndexStoreBuilder extends AbstractIndexStoreBuilder implements DiskBasedPositionalIndexInterface {
+public class PositionalIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	public PositionalIndexStoreBuilder(Iterable<Record> recordList) {
 		super(recordList);

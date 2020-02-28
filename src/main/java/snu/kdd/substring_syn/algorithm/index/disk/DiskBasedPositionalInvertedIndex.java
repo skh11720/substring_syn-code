@@ -2,12 +2,11 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.InvListEntry;
-import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.TransInvListEntry;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedIndex<InvListEntry, TransInvListEntry> {
+public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedIndex<PositionInvList, PositionTrInvList> {
 
 	protected final PositionalIndexStore store;
 
@@ -19,14 +18,24 @@ public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedI
 	public long invListSize() { return store.invListAccessor.size; }
 
 	public long transInvListSize() { return store.tinvListAccessor.size; }
+	
+	@Override
+	protected PositionInvList copyInvList(PositionInvList obj) {
+		return new PositionInvList(obj);
+	}
+	
+	@Override
+	protected PositionTrInvList copyTransInvList(PositionTrInvList obj) {
+		return new PositionTrInvList(obj);
+	}
 
 	@Override
-	protected ObjectList<InvListEntry> getInvListFromStore(int token) {
+	protected PositionInvList getInvListFromStore(int token) {
 		return store.getInvList(token);
 	}
 
 	@Override
-	protected ObjectList<TransInvListEntry> getTinvListFromStore(int token) {
+	protected PositionTrInvList getTinvListFromStore(int token) {
 		return store.getTrInvList(token);
 	}
 

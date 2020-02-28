@@ -10,8 +10,8 @@ import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
@@ -57,10 +57,11 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		int countUpperBound = tokenCounter.sumBounds();
 		for ( int token : candTokenSet ) {
 			tokenCounter.clear();
-			ObjectList<Integer> invList = index.getInvList(token);
+			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
 				if ( countUpperBound >= minCount ) {
-					for ( int ridx : invList ) {
+					for ( int i=0; i<invList.size(); ++i ) {
+						int ridx = invList.getId(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -73,7 +74,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(invList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < invList.size() && invList.get(idx) == ridx ) {
+								while ( idx < invList.size() && invList.getId(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}
@@ -103,10 +104,11 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		int countUpperBound = tokenCounter.sumBounds();
 		for ( int token : candTokenSet ) {
 			tokenCounter.clear();
-			ObjectList<Integer> invList = index.getInvList(token);
+			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
 				if ( countUpperBound >= minCount ) {
-					for ( int ridx : invList ) {
+					for ( int i=0; i<invList.size(); ++i ) {
+						int ridx = invList.getId(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -119,7 +121,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(invList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < invList.size() && invList.get(idx) == ridx ) {
+								while ( idx < invList.size() && invList.getId(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}
@@ -130,10 +132,11 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 					}
 				}
 			}
-			ObjectList<Integer> transInvList = index.getTransInvList(token);
+			NaiveInvList transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
 				if ( countUpperBound >= minCount ) {
-					for ( int ridx : transInvList ) {
+					for ( int i=0; i<transInvList.size(); ++i ) {
+						int ridx = transInvList.getId(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -146,7 +149,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(transInvList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < transInvList.size() && transInvList.get(idx) == ridx ) {
+								while ( idx < transInvList.size() && transInvList.getId(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}

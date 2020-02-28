@@ -6,7 +6,6 @@ import java.lang.management.ManagementFactory;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +26,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
@@ -877,32 +877,32 @@ public class Util {
 		return mergedList;
 	}
 
-	public static int binarySearch(ObjectList<Integer> invList, int key) {
+	public static int binarySearch(PostingListInterface invList, int key) {
 		int l = 0;
 		int r = invList.size();
 		while ( r-l > 1 ) {
 			int m = (l+r)/2;
-			int center = invList.get(m);
+			int center = invList.getId(m);
 			if ( key > center ) l = m;
 			else r = m;
 		}
-		if ( key == invList.get(l) ) return l;
-		else if ( r < invList.size() && key == invList.get(r) ) return r;
+		if ( key == invList.getId(l) ) return l;
+		else if ( r < invList.size() && key == invList.getId(r) ) return r;
 		else return -1;
 	}
 	
-	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
-		int l = 0;
-		int r = list.size();
-		while ( r-l > 1 ) {
-			int m = (l+r)/2;
-			T center = list.get(m);
-			int o = comp.compare(key, center);
-			if ( o == 1 ) l = m;
-			else r = m;
-		}
-		if ( comp.compare(key, list.get(l)) == 0 ) return l;
-		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
-		else return -1;
-	}
+//	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
+//		int l = 0;
+//		int r = list.size();
+//		while ( r-l > 1 ) {
+//			int m = (l+r)/2;
+//			T center = list.get(m);
+//			int o = comp.compare(key, center);
+//			if ( o == 1 ) l = m;
+//			else r = m;
+//		}
+//		if ( comp.compare(key, list.get(l)) == 0 ) return l;
+//		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
+//		else return -1;
+//	}
 }

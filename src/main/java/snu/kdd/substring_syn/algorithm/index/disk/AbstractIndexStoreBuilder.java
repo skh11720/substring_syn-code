@@ -28,6 +28,7 @@ public abstract class AbstractIndexStoreBuilder {
 	protected long storeSize;
 	protected Cursor curTmp;
 	protected Cursor curOut;
+	protected int[] ibuf = new int[1024*1024];
 	
 
 	public AbstractIndexStoreBuilder( Iterable<Record> recordList ) {
@@ -131,7 +132,7 @@ public abstract class AbstractIndexStoreBuilder {
 		for ( Int2ObjectMap.Entry<IntList> entry : invListMap.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
 			int[] arr = entry.getValue().toIntArray();
-			byte[] b = Snappy.compress(arr);
+			byte[] b = Snappy.rawCompress(arr, arr.length*Integer.BYTES);
 			if ( !tok2segList.containsKey(token) ) tok2segList.put(token, new ObjectArrayList<>());
 			
 			if ( curTmp.offset > FILE_MAX_LEN ) openNextTmpFile();
@@ -157,9 +158,12 @@ public abstract class AbstractIndexStoreBuilder {
 			for ( SegmentInfo seg : segList ) {
 				rafList[seg.fileOffset].seek(seg.offset);
 				rafList[seg.fileOffset].read(buffer, 0, seg.len);
-				invList.addAll(IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, seg.len)));
+				int bytes = Snappy.uncompressedLength(buffer, 0, seg.len);
+				while (ibuf.length < bytes/Integer.BYTES) doubleBuffer();
+				bytes = Snappy.rawUncompress(buffer, 0, seg.len, ibuf, 0);
+				invList.addAll(IntArrayList.wrap(ibuf, bytes/Integer.BYTES));
 			}
-			byte[] b = Snappy.compress(invList.toIntArray());
+			byte[] b = Snappy.rawCompress(invList.toIntArray(), invList.size()*Integer.BYTES);
 			bufSize = Math.max(bufSize, b.length);
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
@@ -198,6 +202,9 @@ public abstract class AbstractIndexStoreBuilder {
 	
 	public final long diskSpaceUsage() { return storeSize; }
 
+	private void doubleBuffer() {
+		ibuf = new int[2*ibuf.length];
+	}
 
 	private class Cursor {
 		int fileOffset;

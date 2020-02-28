@@ -5,8 +5,8 @@ import java.math.BigInteger;
 import it.unimi.dsi.fastutil.ints.IntIterable;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedNaiveInvertedIndex;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Stat;
@@ -40,8 +40,10 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 		IntSet candRidxSet = new IntOpenHashSet();
 		IntSet candTokenSet = query.getCandTokenSet();
 		for ( int token : candTokenSet ) {
-			ObjectList<Integer> invList = index.getInvList(token);
-			if ( invList != null ) candRidxSet.addAll(invList);
+			NaiveInvList invList = index.getInvList(token);
+			if ( invList != null ) {
+				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getId(i));
+			}
 		}
 		statContainer.stopWatch(Stat.Time_QS_IndexFilter);
 		return candRidxSet;
@@ -52,10 +54,14 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 		statContainer.startWatch(Stat.Time_TS_IndexFilter);
 		IntSet candRidxSet = new IntOpenHashSet();
 		for ( int token : query.getDistinctTokens() ) {
-			ObjectList<Integer> invList = index.getInvList(token);
-			if ( invList != null ) candRidxSet.addAll(invList);
-			ObjectList<Integer> transInvList = index.getTransInvList(token);
-			if ( transInvList != null ) candRidxSet.addAll(transInvList);
+			NaiveInvList invList = index.getInvList(token);
+			if ( invList != null ) {
+				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getId(i));
+			}
+			NaiveInvList transInvList = index.getTransInvList(token);
+			if ( transInvList != null ) {
+				for ( int i=0; i<transInvList.size(); ++i ) candRidxSet.add(transInvList.getId(i));
+			}
 		}
 		statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 		return candRidxSet;

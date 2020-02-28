@@ -2,8 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.record.Record;
 
 public class NaiveIndexStore {
@@ -22,16 +21,16 @@ public class NaiveIndexStore {
 		tinvListAccessor = builder.buildTrInvList();
 	}
 
-	public IntList getInvList( int token ) {
-		int[] arr = invListAccessor.getList(token);
-		if ( arr == null ) return null;
-		else return IntArrayList.wrap(arr);
+	public NaiveInvList getInvList( int token ) {
+		int num = invListAccessor.getList(token);
+		if ( invListAccessor.arr == null ) return null;
+		else return new NaiveInvList(invListAccessor.arr, num);
 	}
 
-	public IntList getTrInvList( int token ) {
-		int[] arr = tinvListAccessor.getList(token);
-		if ( arr == null ) return null;
-		else return IntArrayList.wrap(arr);
+	public NaiveInvList getTrInvList( int token ) {
+		int num = tinvListAccessor.getList(token);
+		if ( tinvListAccessor.arr == null ) return null;
+		else return new NaiveInvList(tinvListAccessor.arr, num);
 	}
 	
 	public final BigInteger diskSpaceUsage() {

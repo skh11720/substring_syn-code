@@ -5,9 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
@@ -18,6 +16,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -397,30 +397,31 @@ public class MiscTest {
 		int triesMax = 1000000;
 		
 		for ( int tries=0; tries<triesMax; ++tries ) {
-			List<Integer> list = new ArrayList<>();
+			IntArrayList intList = new IntArrayList();
 			int n = rn.nextInt(nMax)+1;
-			list.add(0);
-			for ( int i=1; i<n; ++i ) list.add(list.get(i-1)+rn.nextInt(4));
-			assertEquals(-1, Util.binarySearch(list, Integer.valueOf(-1), Integer::compare));
+			intList.add(0);
+			for ( int i=1; i<n; ++i ) intList.add(intList.getInt(i-1)+rn.nextInt(4));
+			PostingListInterface list = new NaiveInvList(intList.toIntArray(), n);
+			assertEquals(-1, Util.binarySearch(list, -1));
 			for ( int j=list.size()-1; j>=0; --j ) {
-				while ( j > 0 && list.get(j-1).equals(list.get(j)) ) j -= 1;
+				while ( j > 0 && list.getId(j-1) == list.getId(j) ) j -= 1;
 				try {
-					assertEquals(j, Util.binarySearch(list, list.get(j), Integer::compare));
+					assertEquals(j, Util.binarySearch(list, list.getId(j)));
 				}
 				catch ( AssertionError e ) {
 					System.err.println(list);
 					System.err.println(list.size());
 					System.err.println(j);
-					System.err.println(Util.binarySearch(list, list.get(j), Integer::compare));
+					System.err.println(Util.binarySearch(list, list.getId(j)));
 					throw e;
 				}
 			}
 			
 			for ( int i=0, v=0; i<list.size(); ) {
-				if ( list.get(i) == v ) i += 1;
-				else if ( list.get(i) > v ) {
+				if ( list.getId(i) == v ) i += 1;
+				else if ( list.getId(i) > v ) {
 					v += 1;
-					if ( list.get(i) > v ) assertEquals(-1, Util.binarySearch(list, v, Integer::compare));
+					if ( list.getId(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
 				}
 			}
 //			System.out.println((tries+1)+"/"+triesMax);

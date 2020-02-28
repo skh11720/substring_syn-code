@@ -8,9 +8,8 @@ import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.TransWindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
@@ -187,10 +186,10 @@ public class PkwiseSynIndex {
 	
 	class TwitvIterator implements Iterator<RecordInterface> {
 
-		IntListIterator iter;
+		Iterator<Integer> iter;
 
 		public TwitvIterator( int token ) {
-			IntList list = qgramIndexStore.getInvList(token);
+			NaiveInvList list = qgramIndexStore.getInvList(token);
 			if ( list == null ) iter = null;
 			else iter = qgramIndexStore.getInvList(token).iterator();
 		}

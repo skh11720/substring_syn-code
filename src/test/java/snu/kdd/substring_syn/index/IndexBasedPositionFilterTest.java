@@ -16,10 +16,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.InvListEntry;
-import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalIndexInterface.TransInvListEntry;
 import snu.kdd.substring_syn.algorithm.index.disk.DiskBasedPositionalInvertedIndex;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -44,36 +43,45 @@ public class IndexBasedPositionFilterTest {
 //		filter = new IndexBasedPositionFilter(dataset, theta, false, statContainer);
 		
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
-			ObjectList<InvListEntry> list = index.getInvList(token);
+			PositionInvList list = index.getInvList(token);
 			if ( list == null ) continue;
-			InvListEntry e0 = null;
-			InvListEntry e1 = list.get(0);
+			int id0 = -1;
+			int pos0 = -1;
+			int id1 = list.getId(0);
+			int pos1 = list.getPos(0);
 			for ( int i=1; i<list.size(); ++i ) {
-				e0 = e1;
-				e1 = list.get(i);
-				assertTrue( e0.ridx <= e1.ridx );
-				if ( e0.ridx == e1.ridx ) {
-					assertTrue( e0.pos <= e1.pos );
+				id0 = id1;
+				pos0 = pos1;
+				id1 = list.getId(i);
+				pos1 = list.getPos(i);
+				assertTrue( id0 <= id1 );
+				if ( id0 == id1 ) {
+					assertTrue( pos0 <= pos1 );
 				}
 			}
 		}
 
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
-			ObjectList<TransInvListEntry> list = index.getTransInvList(token);
+			PositionTrInvList list = index.getTransInvList(token);
 			if ( list == null ) continue;
-			TransInvListEntry e0 = null;
-			TransInvListEntry e1 = list.get(0);
+			int id0 = -1;
+			int left0 = -1;
+			int id1 = list.getId(0);
+			int left1 = list.getLeft(0);
 			for ( int i=1; i<list.size(); ++i ) {
-				e0 = e1;
-				e1 = list.get(i);
-				assertTrue( e0.ridx <= e1.ridx );
-				if ( e0.ridx == e1.ridx ) {
-					assertTrue( e0.left <= e1.left );
+				id0 = id1;
+				left0 = left1;
+				id1 = list.getId(i);
+				left1 = list.getLeft(i);
+				assertTrue( id0 <= id1 );
+				if ( id0 == id1 ) {
+					assertTrue( left0 <= left1 );
 				}
 			}
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void testEfficiency() throws IOException {
 		/*
@@ -109,11 +117,11 @@ public class IndexBasedPositionFilterTest {
 			int nMax = tokenCounter.getMax(token);
 			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 			tokenCounter.clear();
-			ObjectList<InvListEntry> invList = index.getInvList(token);
+			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
-			for ( InvListEntry e : invList ) {
-				int ridx = e.ridx;
-				int pos = e.pos;
+			for ( int i=0; i<invList.size(); ++i ) {
+				int ridx = invList.getId(i);
+				int pos = invList.getPos(i);
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);
 				if ( counter.get(ridx) < nMax ) {
@@ -126,6 +134,7 @@ public class IndexBasedPositionFilterTest {
 		return rec2idxListMap;
 	}
 
+	@SuppressWarnings("unused")
 	private Int2ObjectMap<PosListPair> getCommonTokenIdxLists1( Record query, DiskBasedPositionalInvertedIndex index ) {
 
 		IntOpenHashSet candTokenSet = new IntOpenHashSet();
@@ -143,11 +152,11 @@ public class IndexBasedPositionFilterTest {
 			int nMax = tokenCounter.getMax(token);
 			Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
 			tokenCounter.clear();
-			ObjectList<InvListEntry> invList = index.getInvList(token);
+			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
-			for ( InvListEntry e : invList ) {
-				int ridx = e.ridx;
-				int pos = e.pos;
+			for ( int i=0; i<invList.size; ++i ) {
+				int ridx = invList.getId(i);
+				int pos = invList.getPos(i);
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);
 				if ( counter.get(ridx) < nMax ) {
@@ -165,6 +174,7 @@ public class IndexBasedPositionFilterTest {
 		IntList idxList = new IntArrayList();
 	}
 	
+	@SuppressWarnings("unused")
 	private IntArrayList toIntList(Int2ObjectMap<PosListPair> map) {
 		IntArrayList list = new IntArrayList();
 		Iterator<Integer> iter = map.keySet().stream().iterator();

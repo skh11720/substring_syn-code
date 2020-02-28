@@ -3,14 +3,14 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.BytesMeasurableInterface;
 import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
 
-public class InvertedListPool<E> {
+public class InvertedListPool<E extends BytesMeasurableInterface> {
 
 	private static final int BUFFER_SIZE = 10 * 1024 * 1024;
 	
-	private final Int2ObjectMap<ObjectList<E>> map;
+	private final Int2ObjectMap<E> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;
 	private final int capacity;
 	private int size;
@@ -36,7 +36,7 @@ public class InvertedListPool<E> {
 		return map.containsKey(token);
 	}
 	
-	public ObjectList<E> get( int token ) {
+	public E get( int token ) {
 		if ( map.containsKey(token) ) {
 			tic2tokMap.decreaseKeyOfValue(token, tic);
 			++tic;
@@ -45,12 +45,12 @@ public class InvertedListPool<E> {
 		else return null;
 	}
 	
-	public void put( int token, ObjectList<E> list ) {
+	public void put( int token, E list ) {
 		if ( map.containsKey(token) ) return;
-		if ( size+list.size() > capacity ) getSpace(list.size());
+		if ( size+list.bytes() > capacity ) getSpace(list.bytes());
 		map.put(token, list);
 		tic2tokMap.insert(tic, token);
-		size += list.size();
+		size += list.bytes();
 	}
 	
 	private void getSpace( int required ) {
@@ -65,7 +65,7 @@ public class InvertedListPool<E> {
 	}
 	
 	private void deallocate( int token ) {
-		size -= map.get(token).size();
+		size -= map.get(token).bytes();
 		tic2tokMap.poll();
 		map.remove(token);
 	}
