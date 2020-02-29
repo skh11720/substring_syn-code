@@ -62,8 +62,8 @@ public class AppCompareSimLSimW {
 		double theta = Double.parseDouble(cmd.getOptionValue("theta"));
 		nAppRuleMax = Integer.parseInt(cmd.getOptionValue("nAppRuleMax"));
 
-		String outputName = String.format("output/AppCompareSimLSimW_%s_%s_%s_%s_%s_%.1f.txt", dataName, size, nq, qlen, nr, theta);
-		pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, false)));
+		String outputName = String.format("output/AppCompareSimLSimW.txt");
+		pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, true)));
 		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 //		if (theta < EPS ) runNaive(dataset, nq);
@@ -106,9 +106,9 @@ public class AppCompareSimLSimW {
 
 				if( Math.abs(sim0-sim1) < EPS ) {
 					nW += 1;
-					pw.printf("E\t%d %d %.6f\n", query.getID(), rec.getID(), sim0);
+//					pw.printf("E\t%d %d %.6f\n", query.getID(), rec.getID(), sim0);
 				}
-				else pw.printf("N\t%d %d %.6f %.6f\n", query.getID(), rec.getID(), sim0, sim1);
+//				else pw.printf("N\t%d %d %.6f %.6f\n", query.getID(), rec.getID(), sim0, sim1);
 			}
 			if (nL > 0) {
 				nQ += 1;
@@ -117,14 +117,15 @@ public class AppCompareSimLSimW {
 			}
 			if ((query.getID()+1)%1000 == 0) {
 				Log.log.info("num processed queries: %d", query.getID()+1);
-				pw.flush();
+//				pw.flush();
 			}
 			if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
 		}
-		pw.flush();
 		int nLsum = nL_List.stream().mapToInt(Integer::intValue).sum();
 		int nWsum = nW_List.stream().mapToInt(Integer::intValue).sum();
-		Log.log.info("OUTPUT: nQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nL-nW)/nQ=%.3f", nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ);
+		Log.log.info("dataset=%s\tnq=%s\ttheta=%.1f\tnAppRuleMax=%d\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nL-nW)/nQ=%.3f", dataset.name, nq, theta, nAppRuleMax, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ);
+		pw.println(String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnAppRuleMax=%d\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nL-nW)/nQ=%.3f", dataset.name, nq, theta, nAppRuleMax, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ));
+		pw.flush();
     }
     
 //    private static void verifyPair(Record query, Record rec) throws InterruptedException, ExecutionException {
