@@ -28,7 +28,7 @@ public abstract class AbstractIndexStoreBuilder {
 	protected long storeSize;
 	protected Cursor curTmp;
 	protected Cursor curOut;
-	protected int[] ibuf = new int[1024*1024];
+	protected int[] ibuf = new int[1024];
 	
 
 	public AbstractIndexStoreBuilder( Iterable<Record> recordList ) {

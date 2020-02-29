@@ -22,9 +22,9 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	protected final int id;
-	protected final int[] tokens;
-	protected final int hash;
+	protected int id;
+	protected int[] tokens;
+	protected int hash;
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
@@ -318,7 +318,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return rslt.toString();
 	}
 
-	private int getHash() {
+	protected int getHash() {
 		// djb2-like
 		int hash = Util.bigprime + id;
 		for( int token : tokens ) {
