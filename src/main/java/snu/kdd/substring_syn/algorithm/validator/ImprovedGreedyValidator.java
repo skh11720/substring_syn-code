@@ -29,14 +29,14 @@ public class ImprovedGreedyValidator extends GreedyValidator {
 		else return super.getTransform(trans, target);
 	}
 	
-	private static final boolean isSingleTokenTransform(RecordInterface rec) {
+	protected static final boolean isSingleTokenTransform(RecordInterface rec) {
 		for ( Rule rule : rec.getApplicableRuleIterable() ) {
 			if ( rule.lhsSize() > 1 || rule.rhsSize() > 1 ) return false;
 		}
 		return true;
 	}
 
-	private static final int[] getTransformForSingleTokenTransform(RecordInterface trans, RecordInterface target) {
+	protected static final int[] getTransformForSingleTokenTransform(RecordInterface trans, RecordInterface target) {
 		BipartiteGraph G = buildGraph(trans, target);
 		HopcroftKarpAlgorithm alg = new HopcroftKarpAlgorithm(G);
 		ObjectList<IntPair> pairList = alg.run();
@@ -45,7 +45,7 @@ public class ImprovedGreedyValidator extends GreedyValidator {
 		return transformed;
 	}
 
-	private static final BipartiteGraph buildGraph(RecordInterface trans, RecordInterface target) {
+	protected static final BipartiteGraph buildGraph(RecordInterface trans, RecordInterface target) {
 		Int2IntMap map = getTok2posMap(target);
 		int[] L = IntStream.range(0, trans.size()).toArray();
 		int[] R = IntStream.range(trans.size(), trans.size()+target.size()).toArray();
@@ -63,7 +63,7 @@ public class ImprovedGreedyValidator extends GreedyValidator {
 		return new BipartiteGraph(L, R, adjList);
 	}
 	
-	private static final Int2IntMap getTok2posMap(RecordInterface rec) {
+	protected static final Int2IntMap getTok2posMap(RecordInterface rec) {
 		Int2IntMap tok2posMap = new Int2IntOpenHashMap();
 		for ( int i=0; i<rec.size(); ++i ) tok2posMap.put(rec.getToken(i), i);
 		return tok2posMap;
