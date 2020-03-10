@@ -38,7 +38,7 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		DatasetParam param = new DatasetParam("AMAZON", "300000", "107836", "5", "1.0");
+		DatasetParam param = new DatasetParam("AMAZON", "100000", "107836", "5", "1.0");
 		double theta = 0.6;
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);

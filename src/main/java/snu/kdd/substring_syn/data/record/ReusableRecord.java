@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data.record;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
@@ -129,6 +130,46 @@ public class ReusableRecord extends Record {
 							transformLengths[ i - 1 ][ 1 ] + toSize );
 				}
 			}
+		}
+	}
+	
+	@Override
+	public int getNumApplicableRules() {
+		return Arrays.stream(nApp).sum();
+	}
+
+	@Override
+	public Iterable<Rule> getApplicableRuleIterable() {
+		return new Iterable<Rule>() {
+			@Override
+			public Iterator<Rule> iterator() {
+				return new RuleIterator();
+			}
+		};
+	}
+
+
+
+
+
+
+	private class RuleIterator implements Iterator<Rule> {
+		int k = 0;
+		int i = 0;
+
+		@Override
+		public boolean hasNext() {
+			return (k < applicableRules.length);
+		}
+
+		@Override
+		public Rule next() {
+			Rule rule = applicableRules[k][i++];
+			if ( i >= applicableRules[k].length ) {
+				++k;
+				i = 0;
+			}
+			return rule;
 		}
 	}
 }

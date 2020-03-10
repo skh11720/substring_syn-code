@@ -333,7 +333,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	
 	
-	class RuleIterator implements Iterator<Rule> {
+	private class RuleIterator implements Iterator<Rule> {
 		int k = 0;
 		int i = 0;
 
