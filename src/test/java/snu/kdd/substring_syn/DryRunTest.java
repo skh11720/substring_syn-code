@@ -30,7 +30,7 @@ public class DryRunTest {
 		FaerieSynSearch	9679.844	95.270	60	60
 		 */
 		runAlgorithm("PrefixSearch", "theta:"+theta+",filter:Fopt_CPLR");
-		runAlgorithm("PkwiseSynSearch", "theta:"+theta+",kmax:2");
+		runAlgorithm("PkwiseSynSearch", "theta:"+theta+",kmax:opt");
 		runAlgorithm("FaerieSynSearch", "theta:"+theta+",isDiskBased:true");
 		System.out.println(strbld.toString());
 	}
