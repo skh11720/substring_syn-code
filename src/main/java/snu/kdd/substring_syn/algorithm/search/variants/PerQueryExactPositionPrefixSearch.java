@@ -2,16 +2,14 @@ package snu.kdd.substring_syn.algorithm.search.variants;
 
 import java.util.Set;
 
-import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactPositionPrefixSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 
-public class PerQueryPositionPrefixSearch extends PositionPrefixSearch{
-	
-	
+public class PerQueryExactPositionPrefixSearch extends ExactPositionPrefixSearch {
 
-	public PerQueryPositionPrefixSearch(Dataset dataset, double theta, boolean bLF, boolean bPF, IndexChoice indexChoice) {
+	public PerQueryExactPositionPrefixSearch(Dataset dataset, double theta, boolean bLF, boolean bPF, IndexChoice indexChoice) {
 		super(theta, bLF, bPF, indexChoice);
 		this.dataset = dataset;
 		buildIndex(dataset);

@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
-import snu.kdd.substring_syn.algorithm.search.variants.PerQueryPositionPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.variants.PerQueryExactPositionPrefixSearch;
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.algorithm.validator.NaiveWindowBasedValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -37,7 +37,7 @@ public class AppCompareSimLSimW {
 	static PrintWriter pw = null;
 	static NaiveValidator val0 = new NaiveValidator(0, null);
 	static NaiveWindowBasedValidator val1 = new NaiveWindowBasedValidator(0, null);
-	static int nAppRuleMax = 10;
+	static int nar = 10;
 	static double theta;
 	
 	private static void initialize() {
@@ -54,7 +54,7 @@ public class AppCompareSimLSimW {
 		argOptions.addOption("ql", true, "");
 		argOptions.addOption("nr", true, "");
 		argOptions.addOption("theta", true, "");
-		argOptions.addOption("nAppRuleMax", true, "");
+		argOptions.addOption("nar", true, "");
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(argOptions, args, false);
@@ -65,7 +65,7 @@ public class AppCompareSimLSimW {
 		String qlen = cmd.getOptionValue("ql");
 		String nr = cmd.getOptionValue("nr");
 		theta = Double.parseDouble(cmd.getOptionValue("theta"));
-		nAppRuleMax = Integer.parseInt(cmd.getOptionValue("nAppRuleMax"));
+		nar = Integer.parseInt(cmd.getOptionValue("nar"));
 
 		String outputName = String.format("output/AppCompareSimLSimW.txt");
 		pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, true)));
@@ -93,7 +93,7 @@ public class AppCompareSimLSimW {
     public static void runAlg(DatasetContainer datasetContainer, String nq, double theta) throws InterruptedException, ExecutionException {
     	Dataset dataset = datasetContainer.dataset;
     	Log.log.info(dataset.name);
-		PerQueryPositionPrefixSearch alg = new PerQueryPositionPrefixSearch(dataset, theta, true, false, IndexChoice.CountPosition);
+		PerQueryExactPositionPrefixSearch alg = new PerQueryExactPositionPrefixSearch(dataset, theta, true, false, IndexChoice.CountPosition);
 		IntArrayList nL_List = new IntArrayList();
 		IntArrayList nW_List = new IntArrayList();
 		int nQ = 0;
@@ -120,7 +120,7 @@ public class AppCompareSimLSimW {
 		}
 		int nLsum = nL_List.stream().mapToInt(Integer::intValue).sum();
 		int nWsum = nW_List.stream().mapToInt(Integer::intValue).sum();
-		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnAppRuleMax=%d\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nLsum-nWsum)/nQ=%.3f\t(nLsum-nWsum)/nLsum=%.3f", dataset.name, nq, theta, nAppRuleMax, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ, 1.0*(nLsum-nWsum)/nLsum);
+		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnAppRuleMax=%d\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nLsum-nWsum)/nQ=%.3f\t(nLsum-nWsum)/nLsum=%.3f", dataset.name, nq, theta, nar, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ, 1.0*(nLsum-nWsum)/nLsum);
 		Log.log.info(summary);
 		pw.println(summary);
 		pw.flush();
@@ -136,7 +136,7 @@ public class AppCompareSimLSimW {
     private static int compareSimLSimWSnt(DatasetContainer datasetContainer, Record query, int rid) {
 		Record rec = datasetContainer.dataset.getRecord(rid);
 		rec.preprocessAll();
-		if ( rec.getNumApplicableRules() > nAppRuleMax ) return 0;
+		if ( rec.getNumApplicableRules() > nar ) return 0;
 		
 		double sim0 = val0.simTextSide(query, rec);
 		double sim1 = val1.simTextSide(query, rec);
@@ -151,7 +151,7 @@ public class AppCompareSimLSimW {
     	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
     		Record rec = datasetContainer.dataset.getRecord(rid);
     		rec.preprocessAll();
-    		if ( rec.getNumApplicableRules() > nAppRuleMax ) continue;
+    		if ( rec.getNumApplicableRules() > nar ) continue;
     		compOut = 1;
     		break;
     	}
@@ -160,7 +160,7 @@ public class AppCompareSimLSimW {
     	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
     		Record rec = datasetContainer.dataset.getRecord(rid);
     		rec.preprocessAll();
-    		if ( rec.getNumApplicableRules() > nAppRuleMax ) continue;
+    		if ( rec.getNumApplicableRules() > nar ) continue;
     		double sim1 = val1.simTextSide(query, rec);
     		if( compOut == 1 && sim1-EPS >= theta ) return 2; // nL += 1, nW += 1
     	}

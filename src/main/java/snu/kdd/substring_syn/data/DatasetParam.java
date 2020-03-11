@@ -20,19 +20,18 @@ public class DatasetParam {
 		nar = arg.getOptionValue("nar");
 	}
 	
-	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
-		checkValue(name, "name");
-		checkValue(size, "size");
-		checkValue(nr, "nr");
-		checkValue(qlen, "qlen");
-		checkValue(lenRatio, "lenRatio");
-		this.name = name;
-		this.size = size;
-		this.nr = nr;
-		this.qlen = qlen;
-		this.lenRatio = lenRatio;
-		this.nar = "0";
+	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio, String nar) {
+		this.name = checkAndAssign(name, "name");
+		this.size = checkAndAssign(size, "size");
+		this.nr = checkAndAssign(nr, "nr");
+		this.qlen = checkAndAssign(qlen, "qlen");
+		this.lenRatio = checkAndAssign(lenRatio, "lenRatio");
+		this.nar = checkAndAssign(nar, "nar");
 		Log.log.info("DatasetParam: "+getDatasetName());
+	}
+
+	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
+		this(name, size, nr, qlen, lenRatio, "0");
 	}
 	
 	public final String getDatasetName() {
@@ -43,6 +42,11 @@ public class DatasetParam {
 		if ( lenRatio != null ) strbld.append("_l"+lenRatio);
 		if ( nar != null && Integer.parseInt(nar) > 0 ) strbld.append("_a"+nar);
 		return strbld.toString();
+	}
+	
+	private final String checkAndAssign(String val, String name) {
+		checkValue(val, name);
+		return val;
 	}
 	
 	private final void checkValue(String val, String name) {
