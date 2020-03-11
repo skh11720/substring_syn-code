@@ -19,6 +19,7 @@ public class DryRunTest {
 	String nr = "1000";
 	String qlen = "5";
 	String lenRatio = "1.0";
+	String nar = "0";
 	String theta = "0.6";
 	StringBuilder strbld = new StringBuilder();
 
@@ -52,7 +53,7 @@ public class DryRunTest {
 	}
 
 	private InputArgument getArgument(String algName, String algOption) throws ParseException {
-		String[] args = (String.format("-data %s -alg %s -nt %s -nr %s -ql %s -lr %s -param %s", datasetName, algName, size, nr, qlen, lenRatio, algOption)).split(" ");
+		String[] args = (String.format("-data %s -alg %s -nt %s -nr %s -ql %s -lr %s -nar %s -param %s", datasetName, algName, size, nr, qlen, lenRatio, nar, algOption)).split(" ");
 		return new InputArgument(args);
 	}
 }
