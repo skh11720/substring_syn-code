@@ -136,7 +136,7 @@ public class AppCompareSimLSimW {
     private static int compareSimLSimWSnt(DatasetContainer datasetContainer, Record query, int rid) {
 		Record rec = datasetContainer.dataset.getRecord(rid);
 		rec.preprocessAll();
-		if ( rec.getNumApplicableRules() > nar ) return 0;
+		if ( rec.getNumApplicableNonselfRules() > nar ) return 0;
 		
 		double sim0 = val0.simTextSide(query, rec);
 		double sim1 = val1.simTextSide(query, rec);
@@ -151,7 +151,7 @@ public class AppCompareSimLSimW {
     	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
     		Record rec = datasetContainer.dataset.getRecord(rid);
     		rec.preprocessAll();
-    		if ( rec.getNumApplicableRules() > nar ) continue;
+    		if ( rec.getNumApplicableNonselfRules() > nar ) continue;
     		compOut = 1;
     		break;
     	}
@@ -160,7 +160,7 @@ public class AppCompareSimLSimW {
     	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
     		Record rec = datasetContainer.dataset.getRecord(rid);
     		rec.preprocessAll();
-    		if ( rec.getNumApplicableRules() > nar ) continue;
+    		if ( rec.getNumApplicableNonselfRules() > nar ) continue;
     		double sim1 = val1.simTextSide(query, rec);
     		if( compOut == 1 && sim1-EPS >= theta ) return 2; // nL += 1, nW += 1
     	}

@@ -128,7 +128,7 @@ public class DataStatCalculator {
 		long sqsum = 0;
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessApplicableRules();
-			int nr = rec.getNumApplicableRules(); // do not count the self rules
+			int nr = rec.getNumApplicableNonselfRules(); // do not count the self rules
 			dataStat.nApp.max = Math.max(dataStat.nApp.max, nr);
 			dataStat.nApp.min = Math.min(dataStat.nApp.min, nr);
 			++n;

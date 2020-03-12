@@ -331,7 +331,7 @@ public class DatasetFactory {
 				rec.preprocessApplicableRules();
 				for ( int j=0; j<rec.size(); ++j ) System.out.print("\t"+(new ObjectArrayList<>(rec.getApplicableRules(j).iterator()).size()));
 				System.out.println();
-				if ( nar <= 0 || rec.getNumApplicableRules() <= nar ) return rec;
+				if ( nar <= 0 || rec.getNumApplicableNonselfRules() <= nar ) return rec;
 			}
 			return null;
 		}

@@ -129,6 +129,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 	
 	public int getNumApplicableRules() {
 		int count = 0;
+		for ( Rule rule : getApplicableRuleIterable() ) count += 1;
+		return count;
+	}
+	
+	public int getNumApplicableNonselfRules() {
+		int count = 0;
 		for ( Rule rule : getApplicableRuleIterable() ) {
 			if( rule.isSelfRule ) continue;
 			count += 1;
@@ -310,7 +316,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		rslt.append("ID: "+id+"\n");
 		rslt.append("rec: "+toOriginalString()+"\n");
 		rslt.append("tokens: "+toString()+"\n");
-		rslt.append("nRules: "+getNumApplicableRules()+"\n");
+		rslt.append("nRules: "+getNumApplicableNonselfRules()+"\n");
 		for ( Rule rule : getApplicableRuleIterable() ) {
 			if ( rule.isSelfRule ) continue;
 			rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
