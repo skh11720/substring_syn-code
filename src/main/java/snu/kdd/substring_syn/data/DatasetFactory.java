@@ -160,11 +160,40 @@ public class DatasetFactory {
 		};
 	}
 	
+//	private static final Iterable<Record> rawIndexedRecords() {
+//		if (!isDocInput)
+//			return rawIndexedRecordsInSnt();
+//		else 
+//			return indexedRecordsInDocs();
+//	}
+	
 	private static final Iterable<Record> indexedRecords() {
 		if (!isDocInput)
 			return indexedRecordsInSnt();
 		else 
 			return indexedRecordsInDocs();
+	}
+
+//	private static final Iterable<Record> rawIndexedRecordsInSnt() {
+//		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+//		return new Iterable<Record>() {
+//			
+//			@Override
+//			public Iterator<Record> iterator() {
+//				return new SntRecordIterator(indexedPath);
+//			}
+//		};
+//	}
+
+	private static final Iterable<Record> indexedRecordsInDocs() {
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		return new Iterable<Record>() {
+
+			@Override
+			public Iterator<Record> iterator() {
+				return new DocRecordIterator(indexedPath);
+			}
+		};
 	}
 
 	private static final Iterable<Record> indexedRecordsInSnt() {
@@ -174,17 +203,6 @@ public class DatasetFactory {
 			@Override
 			public Iterator<Record> iterator() {
 				return new SntRecordIterator(indexedPath);
-			}
-		};
-	}
-
-	private static final Iterable<Record> indexedRecordsInDocs() {
-		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		return new Iterable<Record>() {
-
-			@Override
-			public Iterator<Record> iterator() {
-				return new DocRecordIterator(indexedPath);
 			}
 		};
 	}
@@ -269,7 +287,6 @@ public class DatasetFactory {
 		@Override
 		public Record next() {
 			Record thisObj = nextObj;
-			i += 1;
 			nextObj = findNext();
 			return thisObj;
 		}
@@ -293,11 +310,33 @@ public class DatasetFactory {
 			if ( !iter.hasNext() ) return null;
 			else {
 				String line = getPrefixWithLengthRatio(iter.next());
-				return new Record(i, line);
+				return new Record(i++, line);
 			}
 		}
 	}
 	
+	protected static class SntRecordWithLessRulesIterator extends SntRecordIterator {
+		
+		final int nar = Integer.parseInt(param.nar);
+		
+		public SntRecordWithLessRulesIterator(String path) {
+			super(path);
+		}
+		
+		@Override
+		protected Record findNext() {
+			while (iter.hasNext()) {
+				String line = getPrefixWithLengthRatio(iter.next());
+				Record rec = new Record(i++, line);
+				rec.preprocessApplicableRules();
+				for ( int j=0; j<rec.size(); ++j ) System.out.print("\t"+(new ObjectArrayList<>(rec.getApplicableRules(j).iterator()).size()));
+				System.out.println();
+				if ( nar <= 0 || rec.getNumApplicableRules() <= nar ) return rec;
+			}
+			return null;
+		}
+	}
+
 	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
 		
 		Iterator<String> docIter = null;
@@ -321,7 +360,6 @@ public class DatasetFactory {
 		@Override
 		public Record next() {
 			Record thisObj = nextObj;
-			i += 1;
 			nextObj = findNext();
 			return thisObj;
 		}
@@ -330,7 +368,7 @@ public class DatasetFactory {
 		protected Record findNext() {
 			String snt = findNextStr();
 			if ( snt == null ) return null;
-			else return new Record(i, snt);
+			else return new Record(i++, snt);
 		}
 		
 		private final String findNextStr() {
