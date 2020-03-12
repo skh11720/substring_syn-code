@@ -281,7 +281,7 @@ public class DatasetFactory {
 
 		@Override
 		public boolean hasNext() {
-			return i < size && nextObj != null;
+			return i <= size && nextObj != null;
 		}
 
 		@Override
@@ -354,7 +354,7 @@ public class DatasetFactory {
 
 		@Override
 		public boolean hasNext() {
-			return nd < size && nextObj != null;
+			return nd <= size && nextObj != null;
 		}
 
 		@Override
