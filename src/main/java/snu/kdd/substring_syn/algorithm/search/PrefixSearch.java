@@ -461,6 +461,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.29: use RecordPool
 		 * 6.30: Reduce pool size=1e4
 		 */
-		return "6.30.01";
+		return "6.30";
 	}
 }
