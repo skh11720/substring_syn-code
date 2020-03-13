@@ -21,7 +21,7 @@ public class RecordSerializationTest {
 	
 	public static boolean[] checkEquivalence(Record rec0, Record rec1) {
 		BooleanArrayList list = new BooleanArrayList();
-		list.add(rec0.getID() == rec1.getID());
+		list.add(rec0.getIdx() == rec1.getIdx());
 		list.add(rec0.size() == rec1.size());
 //		list.add(rec0.getApplicableRules().length == rec1.getApplicableRules().length);
 		for ( int i=0; i<rec0.size(); ++i ) {
@@ -78,7 +78,7 @@ public class RecordSerializationTest {
 			stat.startWatch("Record.serialize");
 			RecordSerializer.serialize(rec);
 			stat.stopWatch("Record.serialize");
-			bs[rec.getID()] = Arrays.copyOf(RecordSerializer.bbuf, RecordSerializer.blen);
+			bs[rec.getIdx()] = Arrays.copyOf(RecordSerializer.bbuf, RecordSerializer.blen);
 		}
 		
 		for ( int i=0; i<bs.length; ++i ) {

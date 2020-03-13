@@ -29,7 +29,7 @@ public class Subrecord implements RecordInterface {
 	
 	protected int getHash() {
 		// djb2-like
-		int hash = Util.bigprime + rec.getID();
+		int hash = Util.bigprime + rec.getIdx();
 		for( int i=sidx; i<eidx; ++i ) {
 			int token = rec.tokens[i];
 			hash = ( hash << 5 ) + Util.bigprime + token;
@@ -40,8 +40,8 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	@Override
-	public int getID() {
-		return rec.getID();
+	public int getIdx() {
+		return rec.getIdx();
 	}
 	
 	@Override
@@ -276,7 +276,7 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	public Record toRecord() {
-		Record newrec = new Record(this.getID(), this.getTokenList().toIntArray());
+		Record newrec = new Record(this.getIdx(), this.getTokenList().toIntArray());
 
 		Rule[][] applicableRules = null;
 		if ( this.rec.applicableRules != null ) {

@@ -60,9 +60,9 @@ public class IntQGramStore {
 		return new byte[bufSize];
 	}
 	
-	public IntQGram getIntQGram( int id ) {
+	public IntQGram getIntQGram( int idx ) {
 		try {
-			return tryGetIntQGram(id);
+			return tryGetIntQGram(idx);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -70,9 +70,9 @@ public class IntQGramStore {
 		}
 	}
 	
-	public IntQGram tryGetIntQGram( int id ) throws IOException {
-		int len = (int)(posList.get(id+1)-(posList.get(id)));
-		raf.seek(posList.get(id));
+	public IntQGram tryGetIntQGram( int idx ) throws IOException {
+		int len = (int)(posList.get(idx+1)-(posList.get(idx)));
+		raf.seek(posList.get(idx));
 		raf.read(buffer, 0, len);
 		int[] arr = Snappy.uncompressIntArray(buffer, 0, len);
 		return new IntQGram(arr);

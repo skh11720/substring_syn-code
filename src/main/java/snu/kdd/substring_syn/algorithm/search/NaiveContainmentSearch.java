@@ -17,12 +17,12 @@ public class NaiveContainmentSearch extends AbstractSearch {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.trace("searchRecordFromQuery(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		boolean isSim = validator.isOverThresholdQuerySide(query, rec); 
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		if ( isSim ) {
-			Log.log.trace("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+			Log.log.trace("rsltFromQuery.add(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 			addResultQuerySide(query, rec);
 			return;
 		}
@@ -30,13 +30,13 @@ public class NaiveContainmentSearch extends AbstractSearch {
 	
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
-		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		rec.preprocessTransformLength();
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = validator.isOverThresholdTextSide(query, rec);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
-			Log.log.trace("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+			Log.log.trace("rsltFromText.add(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 			addResultTextSide(query, rec);
 			return;
 		}

@@ -8,7 +8,7 @@ public class RecordWithPos extends Record {
 	protected final IntList suffixIdxList;
 
 	public RecordWithPos( Record rec, IntList prefixIdxList, IntList suffixIdxList ) {
-		super(rec.id, rec.tokens);
+		super(rec.idx, rec.tokens);
 		this.applicableRules = rec.applicableRules;
 		this.suffixApplicableRules = rec.suffixApplicableRules;
 		this.transformLengths = rec.transformLengths;

@@ -22,7 +22,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	protected final int id;
+	protected final int idx;
 	protected final int[] tokens;
 	protected final int hash;
 
@@ -34,8 +34,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	int maxRhsSize = 0;
 	
-	public Record( int id, String str ) {
-		this.id = id;
+	public Record( int idx, String str ) {
+		this.idx = idx;
 		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
@@ -45,8 +45,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		hash = getHash();
 	}
 	
-	public Record( int id, int[] tokens ) {
-		this.id = id;
+	public Record( int idx, int[] tokens ) {
+		this.idx = idx;
 		this.tokens = tokens;
 		hash = getHash();
 	}
@@ -55,8 +55,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 		this(-1, tokens);
 	}
 
-	public int getID() {
-		return id;
+	public int getIdx() {
+		return idx;
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		if( o != null ) {
 			Record orec = (Record) o;
 			if( this == orec ) return true;
-			if( id == orec.id || id == -1 || orec.id == -1 ) {
+			if( idx == orec.idx || idx == -1 || orec.idx == -1 ) {
 				return Records.compare( tokens, orec.tokens ) == 0;
 			}
 			return false;
@@ -127,6 +127,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return this;
 	}
 	
+	@SuppressWarnings("unused")
 	public int getNumApplicableRules() {
 		int count = 0;
 		for ( Rule rule : getApplicableRuleIterable() ) count += 1;
@@ -292,11 +293,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 	@Override
 	public String toString() {
 		StringBuilder rslt = new StringBuilder();
-		for( int id : tokens ) {
+		for( int token : tokens ) {
 			if( rslt.length() != 0 ) {
 				rslt.append(" ");
 			}
-			rslt.append(id);
+			rslt.append(token);
 		}
 		return rslt.toString();
 	}
@@ -304,8 +305,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 	@Override
 	public String toOriginalString() {
 		StringBuilder rslt = new StringBuilder();
-		for( int id : tokens ) {
-			rslt.append(tokenIndex.getToken( id ) + " ");
+		for( int token : tokens ) {
+			rslt.append(tokenIndex.getToken( token ) + " ");
 		}
 		return rslt.toString();
 	}
@@ -313,7 +314,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 	@Override
 	public String toStringDetails() {
 		StringBuilder rslt = new StringBuilder();
-		rslt.append("ID: "+id+"\n");
+		rslt.append("ID: "+idx+"\n");
 		rslt.append("rec: "+toOriginalString()+"\n");
 		rslt.append("tokens: "+toString()+"\n");
 		rslt.append("nRules: "+getNumApplicableNonselfRules()+"\n");
@@ -326,7 +327,7 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	private int getHash() {
 		// djb2-like
-		int hash = Util.bigprime + id;
+		int hash = Util.bigprime + idx;
 		for( int token : tokens ) {
 			hash = ( hash << 5 ) + Util.bigprime + token;
 //                tmp = 0x1f1f1f1f ^ tmp + token;

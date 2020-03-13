@@ -84,7 +84,7 @@ public class PkduckDPExTest {
 				for ( int i=0; i<rec.size(); ++i ) {
 					for ( int v=1; v<=rec.size()-i; ++v ) {
 						boolean isInSigU = pkduckdp.isInSigU(i, v);
-						outputList.add(String.format("%d %d %d %d %d %d", query.getID(), rec.getID(), token, i, v, isInSigU?1:0));
+						outputList.add(String.format("%d %d %d %d %d %d", query.getIdx(), rec.getIdx(), token, i, v, isInSigU?1:0));
 					}
 				}
 			}

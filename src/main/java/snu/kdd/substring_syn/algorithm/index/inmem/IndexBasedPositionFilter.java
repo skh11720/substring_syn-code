@@ -158,7 +158,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists.scan");
 						// there is a chance that a record not seen until now can have at least minCount common tokens.
 						for ( int i=0; i<invList.size(); ++i ) {
-							int ridx = invList.getId(i);
+							int ridx = invList.getIdx(i);
 							int pos = invList.getPos(i);
 							if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 							PosListPair pair = rec2idxListMap.get(ridx);
@@ -178,7 +178,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 							if ( pair.nToken + countUpperBound >= minCount ) {
 								int idx = Util.binarySearch(invList, ridx);
 								if ( idx >= 0 ) {
-									while ( idx < invList.size() && invList.getId(idx) == ridx ) {
+									while ( idx < invList.size() && invList.getIdx(idx) == ridx ) {
 										if ( tokenCounter.tryIncrement(ridx, token) ) {
 											pair.nToken += 1;
 										}
@@ -370,7 +370,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( !useCF || countUpperBound >= minCount ) {
 						statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.scan");
 						for ( int i=0; i<invList.size(); ++i ) {
-							int ridx = invList.getId(i);
+							int ridx = invList.getIdx(i);
 							int pos = invList.getPos(i);
 							//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap1");
 							if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
@@ -399,7 +399,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 							if ( pair.nToken + countUpperBound >= minCount ) {
 								int idx = Util.binarySearch(invList, ridx);
 								if ( idx >= 0 ) {
-									while ( idx < invList.size() && invList.getId(idx) == ridx ) {
+									while ( idx < invList.size() && invList.getIdx(idx) == ridx ) {
 										if ( tokenCounter.tryIncrement(ridx, token) ) {
 											pair.nToken += 1;
 										}
@@ -422,7 +422,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( !useCF || countUpperBound >= minCount ) {
 						statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.scan");
 						for ( int i=0; i<transInvList.size(); ++i ) {
-							int ridx = transInvList.getId(i);
+							int ridx = transInvList.getIdx(i);
 							int left = transInvList.getLeft(i);
 							int right = transInvList.getRight(i);
 							//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap2");
@@ -452,7 +452,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 							if ( pair.nToken + countUpperBound >= minCount ) {
 								int idx = Util.binarySearch(transInvList, ridx);
 								if ( idx >= 0 ) {
-									while ( idx < transInvList.size() && transInvList.getId(idx) == ridx ) {
+									while ( idx < transInvList.size() && transInvList.getIdx(idx) == ridx ) {
 										if ( tokenCounter.tryIncrement(ridx, token) ) {
 											pair.nToken += 1;
 										}

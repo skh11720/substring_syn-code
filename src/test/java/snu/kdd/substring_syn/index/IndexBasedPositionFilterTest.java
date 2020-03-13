@@ -45,17 +45,17 @@ public class IndexBasedPositionFilterTest {
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
 			PositionInvList list = index.getInvList(token);
 			if ( list == null ) continue;
-			int id0 = -1;
+			int idx0 = -1;
 			int pos0 = -1;
-			int id1 = list.getId(0);
+			int idx1 = list.getIdx(0);
 			int pos1 = list.getPos(0);
 			for ( int i=1; i<list.size(); ++i ) {
-				id0 = id1;
+				idx0 = idx1;
 				pos0 = pos1;
-				id1 = list.getId(i);
+				idx1 = list.getIdx(i);
 				pos1 = list.getPos(i);
-				assertTrue( id0 <= id1 );
-				if ( id0 == id1 ) {
+				assertTrue( idx0 <= idx1 );
+				if ( idx0 == idx1 ) {
 					assertTrue( pos0 <= pos1 );
 				}
 			}
@@ -64,17 +64,17 @@ public class IndexBasedPositionFilterTest {
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
 			PositionTrInvList list = index.getTransInvList(token);
 			if ( list == null ) continue;
-			int id0 = -1;
+			int idx0 = -1;
 			int left0 = -1;
-			int id1 = list.getId(0);
+			int idx1 = list.getIdx(0);
 			int left1 = list.getLeft(0);
 			for ( int i=1; i<list.size(); ++i ) {
-				id0 = id1;
+				idx0 = idx1;
 				left0 = left1;
-				id1 = list.getId(i);
+				idx1 = list.getIdx(i);
 				left1 = list.getLeft(i);
-				assertTrue( id0 <= id1 );
-				if ( id0 == id1 ) {
+				assertTrue( idx0 <= idx1 );
+				if ( idx0 == idx1 ) {
 					assertTrue( left0 <= left1 );
 				}
 			}
@@ -120,7 +120,7 @@ public class IndexBasedPositionFilterTest {
 			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
 			for ( int i=0; i<invList.size(); ++i ) {
-				int ridx = invList.getId(i);
+				int ridx = invList.getIdx(i);
 				int pos = invList.getPos(i);
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);
@@ -155,7 +155,7 @@ public class IndexBasedPositionFilterTest {
 			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
 			for ( int i=0; i<invList.size; ++i ) {
-				int ridx = invList.getId(i);
+				int ridx = invList.getIdx(i);
 				int pos = invList.getPos(i);
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);

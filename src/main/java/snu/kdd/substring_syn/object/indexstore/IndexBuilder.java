@@ -75,9 +75,9 @@ public class IndexBuilder {
 		int size = 0;
 		for ( IntPair entry : kvList ) {
 			int key = entry.i1;
-			int id = entry.i2;
+			int idx = entry.i2;
 			if ( !invListMap.containsKey(key) ) invListMap.put(key, new IntArrayList());
-			invListMap.get(key).add(id);
+			invListMap.get(key).add(idx);
 			size += 1;
 			if ( size >= inmem_max_size ) {
 				flushInmemMap(invListMap, key2segList);

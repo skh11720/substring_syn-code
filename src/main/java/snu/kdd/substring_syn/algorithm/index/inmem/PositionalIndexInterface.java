@@ -15,7 +15,7 @@ public interface PositionalIndexInterface {
 		
 		@Override
 		public String toString() {
-			return String.format("(%d, %d)", rec.getID(), pos);
+			return String.format("(%d, %d)", rec.getIdx(), pos);
 		}
 	}
 	
@@ -32,7 +32,7 @@ public interface PositionalIndexInterface {
 		
 		@Override
 		public String toString() {
-			return String.format("(%d, %d, %d)", rec.getID(), left, right);
+			return String.format("(%d, %d, %d)", rec.getIdx(), left, right);
 		}
 	}
 }

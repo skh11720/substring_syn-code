@@ -53,7 +53,7 @@ public class PkduckDPTest {
 			IntOpenHashSet tokenSet = rec.getCandTokenSet();
 			
 			for ( int token : tokenSet ) {
-				int rid = rec.getID();
+				int rid = rec.getIdx();
 				boolean inSig = pkduckDP.isInSigU(token);
 				ps.println(rid+"\t"+token+"\t"+(inSig?1:0));
 			}

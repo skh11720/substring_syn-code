@@ -34,7 +34,7 @@ public class NaiveIndexStoreTest {
 		for ( int token=0; token<500000; ++token ) {
 			ObjectList<Record> recList = index0.getInvList(token);
 			IntList invList0 = null;
-			if ( recList != null ) invList0 = new IntArrayList(recList.stream().map(rec->rec.getID()).iterator());
+			if ( recList != null ) invList0 = new IntArrayList(recList.stream().map(rec->rec.getIdx()).iterator());
 			NaiveInvList invList1 = store.getInvList(token);
 			
 //			try {
@@ -48,7 +48,7 @@ public class NaiveIndexStoreTest {
 			
 			ObjectList<Record> trecList = index0.getTransInvList(token);
 			IntList tinvList0 = null;
-			if ( trecList != null ) tinvList0 = new IntArrayList(trecList.stream().map(rec->rec.getID()).iterator());
+			if ( trecList != null ) tinvList0 = new IntArrayList(trecList.stream().map(rec->rec.getIdx()).iterator());
 			NaiveInvList tinvList1 = store.getTrInvList(token);
 			
 //			try {

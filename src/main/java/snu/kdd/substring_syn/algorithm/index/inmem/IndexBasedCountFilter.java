@@ -61,7 +61,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			if ( invList != null ) {
 				if ( countUpperBound >= minCount ) {
 					for ( int i=0; i<invList.size(); ++i ) {
-						int ridx = invList.getId(i);
+						int ridx = invList.getIdx(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -74,7 +74,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(invList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < invList.size() && invList.getId(idx) == ridx ) {
+								while ( idx < invList.size() && invList.getIdx(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}
@@ -108,7 +108,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			if ( invList != null ) {
 				if ( countUpperBound >= minCount ) {
 					for ( int i=0; i<invList.size(); ++i ) {
-						int ridx = invList.getId(i);
+						int ridx = invList.getIdx(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -121,7 +121,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(invList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < invList.size() && invList.getId(idx) == ridx ) {
+								while ( idx < invList.size() && invList.getIdx(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}
@@ -136,7 +136,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			if ( transInvList != null ) {
 				if ( countUpperBound >= minCount ) {
 					for ( int i=0; i<transInvList.size(); ++i ) {
-						int ridx = transInvList.getId(i);
+						int ridx = transInvList.getIdx(i);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -149,7 +149,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 						if ( count + countUpperBound >= minCount ) {
 							int idx = Util.binarySearch(transInvList, ridx);
 							if ( idx >= 0 ) {
-								while ( idx < transInvList.size() && transInvList.getId(idx) == ridx ) {
+								while ( idx < transInvList.size() && transInvList.getIdx(idx) == ridx ) {
 									if ( tokenCounter.tryIncrement(ridx, token) ) {
 										commonTokenCounter.addTo(ridx, 1);
 									}

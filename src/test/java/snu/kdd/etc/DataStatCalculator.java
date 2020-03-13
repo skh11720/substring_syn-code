@@ -84,6 +84,7 @@ public class DataStatCalculator {
 		dataStat.nSnt.std = Math.sqrt(1.0*sqsum/n - mean*mean);
 	}
 	
+	@SuppressWarnings("unused")
 	public static void countRecord(Dataset dataset, DatasetStat dataStat) {
 		for ( Record rec : dataset.getIndexedList() ) {
 			dataStat.nRecord += 1;

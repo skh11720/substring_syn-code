@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Rule;
 
 public interface RecordInterface {
-	int getID();
+	int getIdx();
 	int size();
 	int getToken(int i);
 

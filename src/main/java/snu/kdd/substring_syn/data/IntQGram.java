@@ -8,9 +8,9 @@ public class IntQGram {
 	public final int arr[];
 	private final int hash;
 	
-	public IntQGram( int id, QGram qgram ) {
+	public IntQGram( int idx, QGram qgram ) {
 		arr = new int[qgram.tokens.length+1];
-		arr[0] = id;
+		arr[0] = idx;
 		for ( int i=1; i<=qgram.tokens.length; ++i ) arr[i] = qgram.tokens[i-1];
 		hash = getHash();
 	}

@@ -36,7 +36,7 @@ public class RecordStoreTest {
 		RecordStore store = new RecordStore(recordList, dataset.ruleset);
 		
 		for ( Record rec0 : recordList ) {
-			int idx = rec0.getID();
+			int idx = rec0.getIdx();
 			Record rec1 = store.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
 		}
@@ -44,7 +44,7 @@ public class RecordStoreTest {
 		for ( int i=0; i<dataset.size; ++i ) {
 			Record rec0 = recordList.get(i);
 			Record rec1 = store.getRawRecord(i);
-			assertEquals(rec0.getID(), rec1.getID());
+			assertEquals(rec0.getIdx(), rec1.getIdx());
 			assertEquals(rec0, rec1);
 		}
 		
@@ -70,7 +70,7 @@ public class RecordStoreTest {
 		Log.log.trace("recordStoreIterator(): start iteration");
 		long ts = System.nanoTime();
 		for ( Record rec : dataset.getIndexedList() ) {
-			Log.log.trace("recordStoreIterator(): get record "+rec.getID());
+			Log.log.trace("recordStoreIterator(): get record "+rec.getIdx());
 		}
 		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+(System.nanoTime()-ts)/1e6+" ms");
 	}
@@ -106,10 +106,10 @@ public class RecordStoreTest {
 		RandomAccessFile raf = new RandomAccessFile("./tmp/RecordStoreTest", "r");
 		byte[] b = new byte[378];
 		for ( int i=0; i<retries; ++i ) {
-			int id = rn.nextInt(n);
-			raf.seek(posList.get(id));
+			int idx = rn.nextInt(n);
+			raf.seek(posList.get(idx));
 			raf.read(b);
-			int[] tokens = Snappy.uncompressIntArray(b, 0, posList.get(id+1)-posList.get(id));
+			int[] tokens = Snappy.uncompressIntArray(b, 0, posList.get(idx+1)-posList.get(idx));
 		}
 		raf.close();
 		System.out.println("recordIOWithSnappy: "+(System.nanoTime()-t)/1e6);
@@ -121,7 +121,7 @@ public class RecordStoreTest {
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<30; ++i ) {
 			Record rec = dataset.getRecord(i);
-			System.out.println(dataset.getRid2idpairMap().get(rec.getID()));
+			System.out.println(dataset.getRid2idpairMap().get(rec.getIdx()));
 			System.out.println(rec.toOriginalString());
 		}
 	}

@@ -4,6 +4,6 @@ import java.math.BigInteger;
 
 public interface FaerieIndexInterface {
 	
-	FaerieIndexEntry getEntry(int id);
+	FaerieIndexEntry getEntry(int idx);
 	BigInteger diskSpaceUsage();
 }

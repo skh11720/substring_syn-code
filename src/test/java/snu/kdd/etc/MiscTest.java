@@ -40,14 +40,14 @@ public class MiscTest {
 		Record query = null;
 		Record text = null;
 		for ( Record rec : dataset.getSearchedList() ) {
-			if ( rec.getID() == qidx ) {
+			if ( rec.getIdx() == qidx ) {
 				query = rec;
 				break;
 			}
 		}
 		
 		for ( Record rec : dataset.getIndexedList() ) {
-			if ( rec.getID() == sidx ) {
+			if ( rec.getIdx() == sidx ) {
 				text = rec;
 				break;
 			}
@@ -79,7 +79,7 @@ public class MiscTest {
 	public void testTransformLength() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
-			System.out.println(rec.getID()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
+			System.out.println(rec.getIdx()+"\t"+rec.getMinTransLength()+"\t"+rec.getMaxTransLength());
 		}
 	}
 
@@ -87,7 +87,7 @@ public class MiscTest {
 	public void testQueryCandTokenSet() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		for ( Record rec : dataset.getSearchedList() ) {
-			System.out.println(rec.getID()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
+			System.out.println(rec.getIdx()+"\t"+(new IntArrayList(rec.getCandTokenSet().stream().sorted().iterator())));
 		}
 	}
 	
@@ -404,24 +404,24 @@ public class MiscTest {
 			PostingListInterface list = new NaiveInvList(intList.toIntArray(), n);
 			assertEquals(-1, Util.binarySearch(list, -1));
 			for ( int j=list.size()-1; j>=0; --j ) {
-				while ( j > 0 && list.getId(j-1) == list.getId(j) ) j -= 1;
+				while ( j > 0 && list.getIdx(j-1) == list.getIdx(j) ) j -= 1;
 				try {
-					assertEquals(j, Util.binarySearch(list, list.getId(j)));
+					assertEquals(j, Util.binarySearch(list, list.getIdx(j)));
 				}
 				catch ( AssertionError e ) {
 					System.err.println(list);
 					System.err.println(list.size());
 					System.err.println(j);
-					System.err.println(Util.binarySearch(list, list.getId(j)));
+					System.err.println(Util.binarySearch(list, list.getIdx(j)));
 					throw e;
 				}
 			}
 			
 			for ( int i=0, v=0; i<list.size(); ) {
-				if ( list.getId(i) == v ) i += 1;
-				else if ( list.getId(i) > v ) {
+				if ( list.getIdx(i) == v ) i += 1;
+				else if ( list.getIdx(i) > v ) {
 					v += 1;
-					if ( list.getId(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
+					if ( list.getIdx(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
 				}
 			}
 //			System.out.println((tries+1)+"/"+triesMax);

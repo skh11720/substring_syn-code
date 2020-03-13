@@ -22,8 +22,8 @@ public class FaerieMemBasedIndex implements FaerieIndexInterface {
 	}
 	
 	@Override
-	public final FaerieIndexEntry getEntry(int id) {
-		return store.get(id);
+	public final FaerieIndexEntry getEntry(int idx) {
+		return store.get(idx);
 	}
 	
 	@Override

@@ -19,7 +19,7 @@ public class DryRunTest {
 	String nr = "1000";
 	String qlen = "5";
 	String lenRatio = "1.0";
-	String nar = "0";
+	String nar = "-1";
 	String theta = "0.6";
 	StringBuilder strbld = new StringBuilder();
 

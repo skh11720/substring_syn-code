@@ -20,7 +20,7 @@ public class RecordSerializer {
 
 	public static final void shallowSerialize(Record rec) throws IOException {
 		ilen = 0;
-		addToIbuf(rec.getID());
+		addToIbuf(rec.getIdx());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
 		setBbuf(Snappy.maxCompressedLength(ilen*Integer.BYTES));
 		blen = Snappy.rawCompress(ibuf, 0, ilen*Integer.BYTES, bbuf, 0);
@@ -29,7 +29,7 @@ public class RecordSerializer {
 	public static final void serialize(Record rec) throws IOException {
 		ilen = 0;
 
-		addToIbuf(rec.id);
+		addToIbuf(rec.idx);
 		addToIbuf(rec.size());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.applicableRules[i].length);

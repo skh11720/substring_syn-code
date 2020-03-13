@@ -32,8 +32,8 @@ public class WindowDatasetTest {
 		
 		ridx = 0;
 		for ( RecordInterface window : dataset.getWindowList(w) ) {
-			if ( window.getID() == ridx ) {
-				if ( window.getID() >= n ) break;
+			if ( window.getIdx() == ridx ) {
+				if ( window.getIdx() >= n ) break;
 				System.out.println(String.format("\nrec[%d]: "+recList[ridx], ridx));
 				ridx += 1;
 			}

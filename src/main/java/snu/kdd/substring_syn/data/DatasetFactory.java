@@ -238,7 +238,7 @@ public class DatasetFactory {
 		DocRecordIterator iter = new DocRecordIterator(indexedPath);
 		while (iter.hasNext()) {
 			Record rec = iter.next();
-			map.put(rec.getID(), new IntPair(iter.did, iter.sid));
+			map.put(rec.getIdx(), new IntPair(iter.did, iter.sid));
 		}
 		return map;
 	}

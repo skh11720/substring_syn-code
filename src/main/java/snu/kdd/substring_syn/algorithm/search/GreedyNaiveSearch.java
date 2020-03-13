@@ -19,7 +19,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 
 	@Override
 	protected void searchRecordQuerySide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
@@ -28,7 +28,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 				double sim = validator.simQuerySide(query, window);
 				statContainer.stopWatch(Stat.Time_QS_Validation);
 				if ( sim >= theta ) {
-					Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+					Log.log.debug("rsltFromQuery.add(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 					addResultQuerySide(query, rec);
 					return;
 				}
@@ -38,7 +38,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 	
 	@Override
 	protected void searchRecordTextSide( Record query, Record rec ) {
-		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
@@ -47,7 +47,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 				double sim = validator.simTextSide(query, window);
 				statContainer.stopWatch(Stat.Time_TS_Validation);
 				if ( sim >= theta ) {
-					Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getID(), ()->rec.getID());
+					Log.log.debug("rsltFromText.add(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 					addResultTextSide(query, rec);
 					return;
 				}

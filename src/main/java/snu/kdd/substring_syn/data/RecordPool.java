@@ -41,20 +41,20 @@ public class RecordPool {
 		return map.containsKey(token);
 	}
 	
-	public Record get( int id ) {
-		if ( map.containsKey(id) ) {
-			tic2tokMap.decreaseKeyOfValue(id, tic);
+	public Record get( int idx ) {
+		if ( map.containsKey(idx) ) {
+			tic2tokMap.decreaseKeyOfValue(idx, tic);
 			++tic;
-			return map.get(id);
+			return map.get(idx);
 		}
 		else return null;
 	}
 	
-	public void put( int id, Record rec ) {
-		if ( map.containsKey(id) ) return;
+	public void put( int idx, Record rec ) {
+		if ( map.containsKey(idx) ) return;
 		if ( size+rec.size() > capacity ) getSpace(rec.size());
-		map.put(id, rec);
-		tic2tokMap.insert(tic, id);
+		map.put(idx, rec);
+		tic2tokMap.insert(tic, idx);
 		size += rec.size();
 	}
 	
