@@ -25,10 +25,11 @@ public class DatasetFactory {
 	private static DatasetParam param;
 	private static StatContainer statContainer;
 	private static boolean isDocInput;
+	private static ACAutomataS ac;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		setRecordPoolSize(arg);
-		setParam(new DatasetParam(arg));
+//		initCreationProcess(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -48,9 +49,10 @@ public class DatasetFactory {
 		catch (Exception e) {}
 	}
 	
-	private static void setParam(DatasetParam param) {
+	private static void initCreationProcess(DatasetParam param) {
 		DatasetFactory.param = param;
 		isDocInput = param.name.endsWith("-DOC");
+		ac = new ACAutomataS(ruleStrings());
 	}
 	
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
@@ -60,7 +62,7 @@ public class DatasetFactory {
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -73,7 +75,7 @@ public class DatasetFactory {
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -86,7 +88,7 @@ public class DatasetFactory {
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -271,9 +273,11 @@ public class DatasetFactory {
 //		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		final double lenRatio;
 		final int size;
+		final int narMax;
 		
 		public SntRecordIterator(String path) {
 			super(path);
+			narMax = Integer.parseInt(param.nar);
 			size = Integer.parseInt(param.size);
 			lenRatio = Double.parseDouble(param.lenRatio);
 			nextObj = findNext();
@@ -307,17 +311,23 @@ public class DatasetFactory {
 
 		@Override
 		protected Record findNext() {
-			if ( !iter.hasNext() ) return null;
-			else {
+			Record rec = null;
+			while ( iter.hasNext() ) {
 				String line = getPrefixWithLengthRatio(iter.next());
-				return new Record(i++, line);
+				int nar = ac.getNumApplicableRules(line.split(" "));
+				if ( narMax < 0 || nar <= narMax ) {
+					rec = new Record(i++, line);
+					break;
+				}
+				else i += 1;
 			}
+			return rec;
 		}
 	}
 	
 	protected static class SntRecordWithLessRulesIterator extends SntRecordIterator {
 		
-		final int nar = Integer.parseInt(param.nar);
+		final int narMax = Integer.parseInt(param.nar);
 		
 		public SntRecordWithLessRulesIterator(String path) {
 			super(path);
@@ -331,7 +341,7 @@ public class DatasetFactory {
 				rec.preprocessApplicableRules();
 				for ( int j=0; j<rec.size(); ++j ) System.out.print("\t"+(new ObjectArrayList<>(rec.getApplicableRules(j).iterator()).size()));
 				System.out.println();
-				if ( nar <= 0 || rec.getNumApplicableNonselfRules() <= nar ) return rec;
+				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) return rec;
 			}
 			return null;
 		}

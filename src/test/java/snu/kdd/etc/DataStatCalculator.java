@@ -40,7 +40,7 @@ public class DataStatCalculator {
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
-			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0");
+			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0", "-1");
 			Dataset dataset = DatasetFactory.createInstanceByName(param);
 			extractStat(dataset);
 		}

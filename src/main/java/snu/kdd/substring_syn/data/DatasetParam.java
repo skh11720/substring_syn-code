@@ -31,7 +31,7 @@ public class DatasetParam {
 	}
 
 	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
-		this(name, size, nr, qlen, lenRatio, "0");
+		this(name, size, nr, qlen, lenRatio, "-1");
 	}
 	
 	public final String getDatasetName() {
@@ -40,7 +40,7 @@ public class DatasetParam {
 		if ( nr != null ) strbld.append("_r"+nr);
 		if ( qlen != null ) strbld.append("_q"+qlen);
 		if ( lenRatio != null ) strbld.append("_l"+lenRatio);
-		if ( nar != null && Integer.parseInt(nar) > 0 ) strbld.append("_a"+nar);
+		if ( nar != null && Integer.parseInt(nar) >= 0 ) strbld.append("_a"+nar);
 		return strbld.toString();
 	}
 	
