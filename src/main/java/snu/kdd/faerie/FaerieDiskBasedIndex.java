@@ -6,6 +6,7 @@ import java.util.stream.StreamSupport;
 
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.object.indexstore.EntryStore;
+import snu.kdd.substring_syn.utils.Log;
 
 public class FaerieDiskBasedIndex implements FaerieIndexInterface {
 	
@@ -16,6 +17,7 @@ public class FaerieDiskBasedIndex implements FaerieIndexInterface {
 	}
 
 	public FaerieDiskBasedIndex(Iterable<Record> records, String name) {
+		Log.log.trace("FaerieDiskBasedIndex.constructor");
 		Stream<FaerieIndexEntry> stream = StreamSupport.stream(records.spliterator(), false).map(rec->new FaerieIndexEntry(rec));
 		store = new EntryStore<FaerieIndexEntry>(stream::iterator, name);
 	}

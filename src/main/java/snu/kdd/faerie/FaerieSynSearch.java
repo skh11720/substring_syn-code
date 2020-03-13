@@ -8,6 +8,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -22,6 +23,8 @@ public class FaerieSynSearch extends FaerieSearch {
 
 	@Override
 	protected final void prepareSearch( Dataset dataset ) {
+		Log.log.trace("FaerieSynSearch.prepareSearch");
+		Log.log.trace("isDiskBased=%s", ()->isDiskBased);
 		statContainer.startWatch(Stat.Time_BuildIndex);
 		if (isDiskBased) {
 			index = new FaerieDiskBasedIndex(dataset.getIndexedList(), "FaerieSynDiskBasedSearch_index");
@@ -38,12 +41,14 @@ public class FaerieSynSearch extends FaerieSearch {
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
 		super.prepareSearchGivenQuery(query);
+		Log.log.trace("FaerieSynSearch.prepareSearchGivenQuery: query.idx=%d", ()->query.getIdx());
 		query.preprocessAll();
 		queryTokenSet = query.getDistinctTokens();
 	}
 	
 	@Override
 	protected void searchRecordQuerySide(Record query, Record rec) {
+		Log.log.trace("FaerieSynSearch.searchRecordQuerySide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		for ( Record queryExp : Records.expands(query) ) {
 			int minLen = (int)Math.ceil(queryExp.size()*theta);
@@ -68,6 +73,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	
 	@Override
 	protected void searchRecordTextSide(Record query, Record rec) {
+		Log.log.trace("FaerieSynSearch.searchRecordTextSide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getIdx()) ) {
 			IntList posList = getPosList(queryTokenSet, entry.invIndex);
 			statContainer.startWatch(Stat.Time_TS_Validation);

@@ -26,7 +26,7 @@ public class FaerieSynSearchTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		double theta = 0.6;
 		Log.log.trace("run FaerieSynSearch");
-		AbstractSearch alg1 = new FaerieSynSearch(theta, false);
+		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
 		alg1.run(dataset);
 	}
 
