@@ -30,14 +30,12 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 
 
-// TODO: to be updated
 public class AppCompareSimLSimW {
 
 	static final double EPS = 1e-5;
 	static PrintWriter pw = null;
 	static NaiveValidator val0 = new NaiveValidator(0, null);
 	static NaiveWindowBasedValidator val1 = new NaiveWindowBasedValidator(0, null);
-	static int nar = 10;
 	static double theta;
 	
 	private static void initialize() {
@@ -64,12 +62,12 @@ public class AppCompareSimLSimW {
 		String nq = cmd.getOptionValue("nq");
 		String qlen = cmd.getOptionValue("ql");
 		String nr = cmd.getOptionValue("nr");
+		String nar = cmd.getOptionValue("nar");
 		theta = Double.parseDouble(cmd.getOptionValue("theta"));
-		nar = Integer.parseInt(cmd.getOptionValue("nar"));
 
 		String outputName = String.format("output/AppCompareSimLSimW.txt");
 		pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, true)));
-		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0");
+		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0", nar);
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		DatasetContainer datasetContainer = new DatasetContainer(dataset);
 //		if (theta < EPS ) runNaive(dataset, nq);
@@ -102,10 +100,9 @@ public class AppCompareSimLSimW {
 			int nW = 0;
 			Set<IntPair> rslt = alg.searchTextSideGivenQuery(query);
 			for ( IntPair pair : rslt ) {
+				nL += 1;
 				int id = pair.i2;
-				int compOut = compareSimLSimW(datasetContainer, query, id);
-				if ( compOut >= 1 ) nL += 1;
-				if ( compOut >= 2 ) nW += 1;
+				if ( checkSimW(datasetContainer, query, id) ) nW += 1;
 			}
 			if (nL > 0) {
 				nQ += 1;
@@ -120,51 +117,34 @@ public class AppCompareSimLSimW {
 		}
 		int nLsum = nL_List.stream().mapToInt(Integer::intValue).sum();
 		int nWsum = nW_List.stream().mapToInt(Integer::intValue).sum();
-		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnAppRuleMax=%d\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nLsum-nWsum)/nQ=%.3f\t(nLsum-nWsum)/nLsum=%.3f", dataset.name, nq, theta, nar, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ, 1.0*(nLsum-nWsum)/nLsum);
+		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnarMax=%s\tnQ=%d\tnL_sum=%d\tnW_sum=%d\tnL_sum/nQ=%.3f\t(nLsum-nWsum)/nQ=%.3f\t(nLsum-nWsum)/nLsum=%.3f", dataset.name, nq, theta, dataset.param.nar, nQ, nLsum, nWsum, 1.0*nLsum/nQ, 1.0*(nLsum-nWsum)/nQ, 1.0*(nLsum-nWsum)/nLsum);
 		Log.log.info(summary);
 		pw.println(summary);
 		pw.flush();
     }
     
-    private static int compareSimLSimW(DatasetContainer datasetContainer, Record query, int id) {
+    private static boolean checkSimW(DatasetContainer datasetContainer, Record query, int id) {
     	if ( datasetContainer.dataset.isDocInput() ) 
-    		return compareSimLSimWDoc(datasetContainer, query, id);
+    		return checkSimWDoc(datasetContainer, query, id);
     	else
-    		return compareSimLSimWSnt(datasetContainer, query, id);
+    		return checkSimWSnt(datasetContainer, query, id);
     }
     
-    private static int compareSimLSimWSnt(DatasetContainer datasetContainer, Record query, int rid) {
+    private static boolean checkSimWSnt(DatasetContainer datasetContainer, Record query, int rid) {
 		Record rec = datasetContainer.dataset.getRecord(rid);
 		rec.preprocessAll();
-		if ( rec.getNumApplicableNonselfRules() > nar ) return 0;
-		
-		double sim0 = val0.simTextSide(query, rec);
 		double sim1 = val1.simTextSide(query, rec);
-
-		if( Math.abs(sim0-sim1) < EPS ) return 2; // nL += 1, nW += 1
-		else return 1; // nL += 1
-//					pw.printf("E\t%d %d %.6f\n", query.getID(), rec.getID(), sim0);
+		return (sim1 >= theta-EPS);
     }
     
-    private static int compareSimLSimWDoc(DatasetContainer datasetContainer, Record query, int did) {
-    	int compOut = 0;
+    private static boolean checkSimWDoc(DatasetContainer datasetContainer, Record query, int did) {
     	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
     		Record rec = datasetContainer.dataset.getRecord(rid);
     		rec.preprocessAll();
-    		if ( rec.getNumApplicableNonselfRules() > nar ) continue;
-    		compOut = 1;
-    		break;
-    	}
-    	if ( compOut == 0 ) return 0;
-    	
-    	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
-    		Record rec = datasetContainer.dataset.getRecord(rid);
-    		rec.preprocessAll();
-    		if ( rec.getNumApplicableNonselfRules() > nar ) continue;
     		double sim1 = val1.simTextSide(query, rec);
-    		if( compOut == 1 && sim1-EPS >= theta ) return 2; // nL += 1, nW += 1
+    		if( sim1 >= theta-EPS ) return true;
     	}
-    	return 1;
+    	return false;
     }
     
     
