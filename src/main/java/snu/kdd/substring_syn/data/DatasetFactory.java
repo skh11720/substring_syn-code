@@ -151,7 +151,9 @@ public class DatasetFactory {
 					@Override
 					public Record next() {
 						String line = iter.next();
-						return new Record(i++, line);
+						id += 1;
+						Record rec = new Record(idx++, id, line);
+						return rec;
 					}
 					
 					@Override
@@ -238,7 +240,7 @@ public class DatasetFactory {
 		DocRecordIterator iter = new DocRecordIterator(indexedPath);
 		while (iter.hasNext()) {
 			Record rec = iter.next();
-			map.put(rec.getIdx(), new IntPair(iter.did, iter.sid));
+			map.put(rec.getIdx(), new IntPair(iter.thisDid, iter.thisSid));
 		}
 		return map;
 	}
@@ -247,7 +249,8 @@ public class DatasetFactory {
 		
 		BufferedReader br;
 		Iterator<String> iter;
-		int i = 0;
+		int id = 0;
+		int idx = 0;
 		T nextObj;
 		
 		public AbstractFileBasedIterator(String path) {
@@ -286,7 +289,7 @@ public class DatasetFactory {
 
 		@Override
 		public boolean hasNext() {
-			return i <= size && nextObj != null;
+			return idx <= size && nextObj != null;
 		}
 
 		@Override
@@ -314,14 +317,15 @@ public class DatasetFactory {
 		protected Record findNext() {
 			Record rec = null;
 			while ( iter.hasNext() ) {
+				id += 1;
 				String line = getPrefixWithLengthRatio(iter.next());
 				int nar = ac.getNumApplicableRules(line.split(" "));
 				if ( narMax < 0 || nar <= narMax ) {
-					rec = new Record(i++, line);
+					rec = new Record(idx, id, line);
 					break;
 				}
-				else i += 1;
 			}
+			idx += 1;
 			return rec;
 		}
 	}
@@ -338,10 +342,13 @@ public class DatasetFactory {
 		protected Record findNext() {
 			while (iter.hasNext()) {
 				String line = getPrefixWithLengthRatio(iter.next());
-				Record rec = new Record(i, line);
-				i += 1;
+				id += 1;
+				Record rec = new Record(idx, id, line);
 				rec.preprocessApplicableRules();
-				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) return rec;
+				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
+					idx += 1;
+					return rec;
+				}
 			}
 			return null;
 		}
@@ -349,12 +356,15 @@ public class DatasetFactory {
 
 	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
 		
-		Iterator<String> docIter = null;
+		Iterator<String> inDocIter = null;
 		String thisSnt;
 		int nd = 0;
 		int did;
 		int sid = -1;
 		final int size;
+		
+		int thisDid;
+		int thisSid;
 
 		public DocRecordIterator(String path) {
 			super(path);
@@ -370,6 +380,8 @@ public class DatasetFactory {
 		@Override
 		public Record next() {
 			Record thisObj = nextObj;
+			thisDid = did;
+			thisSid = sid;
 			nextObj = findNext();
 			return thisObj;
 		}
@@ -378,17 +390,17 @@ public class DatasetFactory {
 		protected Record findNext() {
 			String snt = findNextStr();
 			if ( snt == null ) return null;
-			else return new Record(i++, snt);
+			else return new Record(idx++, sid, snt);
 		}
 		
 		private final String findNextStr() {
-			while ( iter.hasNext() && (docIter == null || !docIter.hasNext()) ) {
+			while ( iter.hasNext() && (inDocIter == null || !inDocIter.hasNext()) ) {
 				nd += 1;
-				docIter = parseDocument(iter.next());
+				inDocIter = parseDocument(iter.next());
 			}
-			if ( docIter != null && docIter.hasNext() ) {
+			if ( inDocIter != null && inDocIter.hasNext() ) {
 				sid += 1;
-				return docIter.next();
+				return inDocIter.next();
 			}
 			else return null;
 		}

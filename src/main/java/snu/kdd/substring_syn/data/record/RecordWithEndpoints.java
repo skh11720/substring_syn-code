@@ -8,7 +8,7 @@ public class RecordWithEndpoints extends Record {
 	protected final IntList epList;
 
 	public RecordWithEndpoints( Record rec, int sp, IntList epList ) {
-		super(rec.idx, rec.tokens);
+		super(rec.idx, rec.id, rec.tokens);
 		this.sp = sp;
 		this.epList = epList;
 		this.applicableRules = rec.applicableRules;

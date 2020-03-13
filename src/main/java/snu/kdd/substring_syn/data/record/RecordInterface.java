@@ -6,6 +6,7 @@ import snu.kdd.substring_syn.data.Rule;
 
 public interface RecordInterface {
 	int getIdx();
+	int getID();
 	int size();
 	int getToken(int i);
 

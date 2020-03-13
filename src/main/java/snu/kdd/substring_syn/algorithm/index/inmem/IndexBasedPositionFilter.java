@@ -25,6 +25,7 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -129,6 +130,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					int ridx = entry.getKey();
 					statContainer.startWatch("Time_QS_IndexFilter.getRecord");
 					Record rec = dataset.getRawRecord(ridx);
+//					Log.log.trace("QuerySideFilter: rec.idx=%d, rec.id=%d, rec.size=%d, rec=%s", rec.getIdx(), rec.getID(), rec.size(), rec.toOriginalString());
 					statContainer.stopWatch("Time_QS_IndexFilter.getRecord");
 					IntList idxList = entry.getValue().idxList;
 					statContainer.startWatch("Time_QS_IndexFilter.idxList.sort");
@@ -204,6 +206,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		}
 
 		private ObjectList<MergedRange> findSegments( Record rec, IntList idxList, double theta ) {
+//			Log.log.trace("QuerySideFilter: idxList=%s", idxList);
 			int m = idxList.size();
 			ObjectList<MergedRange> rangeList = new ObjectArrayList<>();
 			for ( int i=0; i<m; ++i ) {
@@ -333,6 +336,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 					statContainer.startWatch("Time_TS_IndexFilter.getRecord");
 					Record fullRec = dataset.getRecord(ridx);
+//					Log.log.trace("TextSideFilter: fullRec.idx=%d, fullRec.id=%d, fullRec=%s", fullRec.getIdx(), fullRec.getID(), fullRec.toOriginalString());
 					Subrecord rec = new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1);
 					statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
 					addToIntList(prefixIdxList, -minPrefixIdx);

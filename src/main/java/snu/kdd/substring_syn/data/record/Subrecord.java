@@ -45,6 +45,11 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	@Override
+	public int getID() {
+		return rec.getID();
+	}
+	
+	@Override
 	public int hashCode() {
 		return hash;
 	}
@@ -276,7 +281,7 @@ public class Subrecord implements RecordInterface {
 	}
 	
 	public Record toRecord() {
-		Record newrec = new Record(this.getIdx(), this.getTokenList().toIntArray());
+		Record newrec = new Record(this.getIdx(), this.getID(), this.getTokenList().toIntArray());
 
 		Rule[][] applicableRules = null;
 		if ( this.rec.applicableRules != null ) {

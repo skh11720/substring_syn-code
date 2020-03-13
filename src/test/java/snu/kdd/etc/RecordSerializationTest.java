@@ -45,6 +45,7 @@ public class RecordSerializationTest {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "5", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		
+		int idx = 0;
 		for ( Record rec0 : dataset.getIndexedList() ) {
 			rec0.preprocessApplicableRules();
 			rec0.preprocessSuffixApplicableRules();
@@ -53,9 +54,11 @@ public class RecordSerializationTest {
 			RecordSerializer.serialize(rec0);
 			byte[] buf = RecordSerializer.bbuf;
 			int blen = RecordSerializer.blen;
-			Record rec1 = RecordSerializer.deserialize(buf, 0, blen, dataset.ruleset);
+			Record rec1 = RecordSerializer.deserialize(idx, buf, 0, blen, dataset.ruleset);
 			boolean[] b = checkEquivalence(rec0, rec1);
 			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
+			
+			idx += 1;
 		}
 	}
 	
@@ -81,9 +84,9 @@ public class RecordSerializationTest {
 			bs[rec.getIdx()] = Arrays.copyOf(RecordSerializer.bbuf, RecordSerializer.blen);
 		}
 		
-		for ( int i=0; i<bs.length; ++i ) {
+		for ( int idx=0; idx<bs.length; ++idx ) {
 			stat.startWatch("Record.deserialize");
-			Record rec = RecordSerializer.deserialize(bs[i], 0, bs[i].length, dataset.ruleset);
+			Record rec = RecordSerializer.deserialize(idx, bs[idx], 0, bs[idx].length, dataset.ruleset);
 			stat.stopWatch("Record.deserialize");
 		}
 

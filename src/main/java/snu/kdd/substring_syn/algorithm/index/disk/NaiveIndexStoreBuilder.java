@@ -29,12 +29,12 @@ public class NaiveIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	@Override
 	protected void addToInvList( IntList list, Record rec, int pos ) {
-		list.add(rec.getIdx());
+		list.add(rec.getID());
 	}
 
 	@Override
 	protected void addToTrInvList( IntList list, Record rec, int pos, Rule rule ) {
-		list.add(rec.getIdx());
+		list.add(rec.getID());
 	}
 
 	@Override

@@ -22,7 +22,11 @@ public class Record implements RecordInterface, Comparable<Record> {
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
 
-	protected final int idx;
+	/*
+	 * idx+1 == id if we use all records in the data file
+	 */
+	protected final int idx; // incremental, nonnegative, zero-based, its order in RecordStore
+	protected final int id; // not necessarily incremental, nonnegative, line number of this record in the data file
 	protected final int[] tokens;
 	protected final int hash;
 
@@ -34,8 +38,9 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	int maxRhsSize = 0;
 	
-	public Record( int idx, String str ) {
+	public Record( int idx, int id, String str ) {
 		this.idx = idx;
+		this.id = id;
 		String[] pstr = Records.tokenize(str);
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
@@ -45,18 +50,23 @@ public class Record implements RecordInterface, Comparable<Record> {
 		hash = getHash();
 	}
 	
-	public Record( int idx, int[] tokens ) {
+	public Record( int idx, int id, int[] tokens ) {
 		this.idx = idx;
+		this.id = id;
 		this.tokens = tokens;
 		hash = getHash();
 	}
 
 	public Record( int[] tokens ) { // for transformed strings
-		this(-1, tokens);
+		this(-1, -1, tokens);
 	}
 
 	public int getIdx() {
 		return idx;
+	}
+	
+	public int getID() {
+		return id;
 	}
 
 	@Override
@@ -314,7 +324,8 @@ public class Record implements RecordInterface, Comparable<Record> {
 	@Override
 	public String toStringDetails() {
 		StringBuilder rslt = new StringBuilder();
-		rslt.append("ID: "+idx+"\n");
+		rslt.append("idx: "+idx+"\n");
+		rslt.append("ID: "+id+"\n");
 		rslt.append("rec: "+toOriginalString()+"\n");
 		rslt.append("tokens: "+toString()+"\n");
 		rslt.append("nRules: "+getNumApplicableNonselfRules()+"\n");

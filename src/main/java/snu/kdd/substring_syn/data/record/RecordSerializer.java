@@ -20,7 +20,7 @@ public class RecordSerializer {
 
 	public static final void shallowSerialize(Record rec) throws IOException {
 		ilen = 0;
-		addToIbuf(rec.getIdx());
+		addToIbuf(rec.getID());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
 		setBbuf(Snappy.maxCompressedLength(ilen*Integer.BYTES));
 		blen = Snappy.rawCompress(ibuf, 0, ilen*Integer.BYTES, bbuf, 0);
@@ -29,7 +29,7 @@ public class RecordSerializer {
 	public static final void serialize(Record rec) throws IOException {
 		ilen = 0;
 
-		addToIbuf(rec.idx);
+		addToIbuf(rec.id);
 		addToIbuf(rec.size());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.applicableRules[i].length);
@@ -70,7 +70,7 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(byte[] buf, int offset, int len, Ruleset ruleset) {
+	public static final Record deserialize(int idx, byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
 		while (true) {
 			try {
@@ -105,7 +105,7 @@ public class RecordSerializer {
 				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
 		}
 		int maxRhsSize = iter.nextInt();
-		Record rec = new Record(id, tokens);
+		Record rec = new Record(idx, id, tokens);
 		rec.applicableRules = applicableRules;
 		rec.suffixApplicableRules = suffixApplicableRules;
 		rec.suffixRuleLenPairs = suffixRuleLenPairs;

@@ -8,9 +8,9 @@ public class IntQGram {
 	public final int arr[];
 	private final int hash;
 	
-	public IntQGram( int idx, QGram qgram ) {
+	public IntQGram( int id, QGram qgram ) {
 		arr = new int[qgram.tokens.length+1];
-		arr[0] = idx;
+		arr[0] = id;
 		for ( int i=1; i<=qgram.tokens.length; ++i ) arr[i] = qgram.tokens[i-1];
 		hash = getHash();
 	}
@@ -25,7 +25,7 @@ public class IntQGram {
 	}
 	
 	public Record toRecord() {
-		return new Record(arr[0], IntArrayList.wrap(arr).subList(1, arr.length).toIntArray());
+		return new Record(-1, arr[0], IntArrayList.wrap(arr).subList(1, arr.length).toIntArray());
 	}
 	
 	@Override

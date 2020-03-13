@@ -25,11 +25,13 @@ import snu.kdd.substring_syn.data.DiskBasedDataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordStoreTest {
 	
 	@Test
 	public void storeAndGetRecords() throws IOException {
+		StatContainer.global = new StatContainer();
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
@@ -114,15 +116,35 @@ public class RecordStoreTest {
 		raf.close();
 		System.out.println("recordIOWithSnappy: "+(System.nanoTime()-t)/1e6);
 	}
+
+	@Test
+	public void getRawRecordTest() throws IOException {
+		DatasetParam param = new DatasetParam("WIKI", "30", "107836", "3", "1.0");
+		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
+		for ( int i=0; i<30; ++i ) {
+			Record rec = dataset.getRawRecord(i);
+			System.out.println(rec.getIdx()+"\t"+rec.getID()+"\t"+rec.toOriginalString());
+		}
+	}
+
+	@Test
+	public void iterableSntTest() throws IOException {
+		DatasetParam param = new DatasetParam("WIKI", "30", "107836", "3", "1.0");
+		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
+		for ( int i=0; i<30; ++i ) {
+			Record rec = dataset.getRecord(i);
+			System.out.println(rec.getIdx()+"\t"+rec.getID()+"\t"+rec.toOriginalString());
+		}
+	}
 	
 	@Test
-	public void iterableTest() throws IOException {
+	public void iterableDocTest() throws IOException {
 		DatasetParam param = new DatasetParam("WIKI-DOC", "30", "107836", "3", "1.0");
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<30; ++i ) {
 			Record rec = dataset.getRecord(i);
-			System.out.println(dataset.getRid2idpairMap().get(rec.getIdx()));
-			System.out.println(rec.toOriginalString());
+//			System.out.println(rec.getIdx()+"\t"+rec.getID()+"\t"+rec.toOriginalString());
+			System.out.println(dataset.getRid2idpairMap().get(rec.getIdx())+"\t"+rec.toOriginalString());
 		}
 	}
 }

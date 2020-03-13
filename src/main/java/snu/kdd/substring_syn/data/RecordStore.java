@@ -146,7 +146,7 @@ public class RecordStore {
 		secTS.raf.seek(secTS.posList.get(idx));
 		secTS.raf.read(buffer, 0, buffer.length);
 		int len = (int)( -secTS.posList.get(idx) + secTS.posList.get(idx+1) );
-		return RecordSerializer.deserialize(buffer, 0, len, ruleset);
+		return RecordSerializer.deserialize(idx, buffer, 0, len, ruleset);
 	}
 	
 	public Record getRawRecord( int idx ) {
@@ -185,7 +185,7 @@ public class RecordStore {
 		secQS.raf.read(buffer, 0, buffer.length);
 		int len = (int)( -secQS.posList.get(idx) + secQS.posList.get(idx+1) );
 		IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, len));
-		return new Record(list.getInt(0), list.subList(1, list.size()).toIntArray());
+		return new Record(idx, list.getInt(0), list.subList(1, list.size()).toIntArray());
 	}
 	
 	public Iterable<Record> getRecords() {
@@ -266,7 +266,7 @@ public class RecordStore {
 
 		@Override
 		public Record next() {
-			Record rec = RecordSerializer.deserialize(b, offset, len, ruleset);
+			Record rec = RecordSerializer.deserialize(idx, b, offset, len, ruleset);
 			findNext();
 			return rec;
 		}
