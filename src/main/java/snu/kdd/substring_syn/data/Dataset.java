@@ -27,6 +27,7 @@ public abstract class Dataset extends AbstractDocDataset {
 		statContainer.setStat(Stat.Dataset_nr, param.nr);
 		statContainer.setStat(Stat.Dataset_qlen, param.qlen);
 		statContainer.setStat(Stat.Dataset_lr, param.lenRatio);
+		statContainer.setStat(Stat.Dataset_nar, param.nar);
 	}
 	
 	public void addStat() {
