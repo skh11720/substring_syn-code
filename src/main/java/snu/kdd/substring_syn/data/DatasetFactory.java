@@ -29,6 +29,7 @@ public class DatasetFactory {
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		setRecordPoolSize(arg);
+		param = new DatasetParam(arg);
 //		initCreationProcess(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
@@ -337,10 +338,9 @@ public class DatasetFactory {
 		protected Record findNext() {
 			while (iter.hasNext()) {
 				String line = getPrefixWithLengthRatio(iter.next());
-				Record rec = new Record(i++, line);
+				Record rec = new Record(i, line);
+				i += 1;
 				rec.preprocessApplicableRules();
-				for ( int j=0; j<rec.size(); ++j ) System.out.print("\t"+(new ObjectArrayList<>(rec.getApplicableRules(j).iterator()).size()));
-				System.out.println();
 				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) return rec;
 			}
 			return null;
