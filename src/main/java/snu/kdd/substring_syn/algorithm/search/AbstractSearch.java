@@ -138,7 +138,7 @@ public abstract class AbstractSearch {
 		else rsltQuerySide.add(new IntPair(query.getID()-1, rec.getID()-1));
 	}
 
-	protected final void addResultTextSide(Record query, RecordInterface rec) {
+	protected void addResultTextSide(Record query, RecordInterface rec) {
 		if (dataset.isDocInput()) rsltTextSide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
 //		else rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 		else rsltTextSide.add(new IntPair(query.getID()-1, rec.getID()-1));
