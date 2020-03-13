@@ -54,7 +54,7 @@ public abstract class Dataset extends AbstractDocDataset {
 
 	public abstract Iterable<Record> getIndexedList();
 
-	public abstract Record getRawRecord(int id);
+	public abstract Record getRawRecord(int idx);
 	
-	public abstract Record getRecord(int id);
+	public abstract Record getRecord(int idx);
 }

@@ -151,7 +151,9 @@ public class DatasetFactory {
 					@Override
 					public Record next() {
 						String line = iter.next();
-						return new Record(i++, line);
+						id += 1;
+						Record rec = new Record(idx++, id, line);
+						return rec;
 					}
 					
 					@Override
@@ -194,7 +196,7 @@ public class DatasetFactory {
 
 			@Override
 			public Iterator<Record> iterator() {
-				return new DocRecordIterator(indexedPath);
+				return new DocRecordRawIterator(indexedPath);
 			}
 		};
 	}
@@ -205,7 +207,7 @@ public class DatasetFactory {
 			
 			@Override
 			public Iterator<Record> iterator() {
-				return new SntRecordIterator(indexedPath);
+				return new SntRecordRawIterator(indexedPath);
 			}
 		};
 	}
@@ -235,10 +237,10 @@ public class DatasetFactory {
 	private static final Int2ObjectMap<IntPair> getRid2IdpairMap() {
 		Int2ObjectMap<IntPair> map = new Int2ObjectOpenHashMap<IntPair>();
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		DocRecordIterator iter = new DocRecordIterator(indexedPath);
+		DocRecordRawIterator iter = new DocRecordRawIterator(indexedPath);
 		while (iter.hasNext()) {
 			Record rec = iter.next();
-			map.put(rec.getID(), new IntPair(iter.did, iter.sid));
+			map.put(rec.getIdx(), new IntPair(iter.thisDid, iter.thisSid));
 		}
 		return map;
 	}
@@ -247,7 +249,8 @@ public class DatasetFactory {
 		
 		BufferedReader br;
 		Iterator<String> iter;
-		int i = 0;
+		int id = 0;
+		int idx = 0;
 		T nextObj;
 		
 		public AbstractFileBasedIterator(String path) {
@@ -269,14 +272,14 @@ public class DatasetFactory {
 		abstract protected T findNext();
 	}
 	
-	protected static class SntRecordIterator extends AbstractFileBasedIterator<Record> {
+	protected static class SntRecordRawIterator extends AbstractFileBasedIterator<Record> {
 
 //		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		final double lenRatio;
 		final int size;
 		final int narMax;
 		
-		public SntRecordIterator(String path) {
+		public SntRecordRawIterator(String path) {
 			super(path);
 			narMax = Integer.parseInt(param.nar);
 			size = Integer.parseInt(param.size);
@@ -286,7 +289,7 @@ public class DatasetFactory {
 
 		@Override
 		public boolean hasNext() {
-			return i <= size && nextObj != null;
+			return idx <= size && nextObj != null;
 		}
 
 		@Override
@@ -314,51 +317,61 @@ public class DatasetFactory {
 		protected Record findNext() {
 			Record rec = null;
 			while ( iter.hasNext() ) {
+				id += 1;
 				String line = getPrefixWithLengthRatio(iter.next());
 				int nar = ac.getNumApplicableRules(line.split(" "));
 				if ( narMax < 0 || nar <= narMax ) {
-					rec = new Record(i++, line);
+					rec = new Record(idx, id, line);
 					break;
 				}
-				else i += 1;
 			}
+			idx += 1;
 			return rec;
 		}
 	}
 	
-	protected static class SntRecordWithLessRulesIterator extends SntRecordIterator {
-		
-		final int narMax = Integer.parseInt(param.nar);
-		
-		public SntRecordWithLessRulesIterator(String path) {
-			super(path);
-		}
-		
-		@Override
-		protected Record findNext() {
-			while (iter.hasNext()) {
-				String line = getPrefixWithLengthRatio(iter.next());
-				Record rec = new Record(i, line);
-				i += 1;
-				rec.preprocessApplicableRules();
-				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) return rec;
-			}
-			return null;
-		}
-	}
+//	protected static class SntRecordIterator extends SntRecordRawIterator {
+//		
+//		final int narMax = Integer.parseInt(param.nar);
+//		
+//		public SntRecordIterator(String path) {
+//			super(path);
+//		}
+//		
+//		@Override
+//		protected Record findNext() {
+//			while (iter.hasNext()) {
+//				String line = getPrefixWithLengthRatio(iter.next());
+//				id += 1;
+//				Record rec = new Record(idx, id, line);
+//				rec.preprocessApplicableRules();
+//				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
+//					idx += 1;
+//					return rec;
+//				}
+//			}
+//			return null;
+//		}
+//	}
 
-	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
+	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<Record> {
 		
-		Iterator<String> docIter = null;
+		Iterator<String> inDocIter = null;
 		String thisSnt;
 		int nd = 0;
 		int did;
 		int sid = -1;
+		boolean isDocCounted;
 		final int size;
+		final int narMax;
+		
+		int thisDid;
+		int thisSid;
 
-		public DocRecordIterator(String path) {
+		public DocRecordRawIterator(String path) {
 			super(path);
 			size = Integer.parseInt(param.size);
+			narMax = Integer.parseInt(param.nar);
 			nextObj = findNext();
 		}
 
@@ -370,34 +383,73 @@ public class DatasetFactory {
 		@Override
 		public Record next() {
 			Record thisObj = nextObj;
+			thisDid = did;
+			thisSid = sid;
 			nextObj = findNext();
 			return thisObj;
 		}
 		
 		@Override
 		protected Record findNext() {
-			String snt = findNextStr();
-			if ( snt == null ) return null;
-			else return new Record(i++, snt);
-		}
-		
-		private final String findNextStr() {
-			while ( iter.hasNext() && (docIter == null || !docIter.hasNext()) ) {
-				nd += 1;
-				docIter = parseDocument(iter.next());
+			while (true) {
+				while (inDocIter != null && inDocIter.hasNext()) {
+					String snt = inDocIter.next();
+					sid += 1;
+					int nar = ac.getNumApplicableRules(snt.split(" "));
+					if ( narMax < 0 || nar <= narMax ) {
+						Record rec = new Record(idx, sid, snt);
+						idx += 1;
+						if ( !isDocCounted ) {
+							isDocCounted = true;
+							nd += 1;
+//							Log.log.trace("nd=%d", nd);
+						}
+						return rec;
+					}
+				}
+				if ( !iter.hasNext() ) break;
+				inDocIter = parseDocument(iter.next());
+				isDocCounted = false;
 			}
-			if ( docIter != null && docIter.hasNext() ) {
-				sid += 1;
-				return docIter.next();
-			}
-			else return null;
+			return null;
 		}
 
-		private final Iterator<String> parseDocument(String line) {
+		protected final Iterator<String> parseDocument(String line) {
 			String[] strs = line.split("\t", 2);
 			did = Integer.parseInt(strs[0]);
 			sid = -1;
 			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
 		}
 	}
+
+//	protected static class DocRecordIterator extends DocRecordRawIterator {
+//
+//		public DocRecordIterator(String path) {
+//			super(path);
+//		}
+//
+//		@Override
+//		protected Record findNext() {
+//			while (true) {
+//				while (inDocIter != null && inDocIter.hasNext()) {
+//					String snt = inDocIter.next();
+//					sid += 1;
+//					Record rec = new Record(idx, sid, snt);
+//					rec.preprocessApplicableRules();
+//					if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
+//						idx += 1;
+//						if ( !isDocCounted ) {
+//							isDocCounted = true;
+//							nd += 1;
+//						}
+//						return rec;
+//					}
+//				}
+//				if ( !iter.hasNext() ) break;
+//				inDocIter = parseDocument(iter.next());
+//				isDocCounted = false;
+//			}
+//			return null;
+//		}
+//	}
 }

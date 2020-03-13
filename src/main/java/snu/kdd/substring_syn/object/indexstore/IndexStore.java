@@ -61,8 +61,8 @@ public abstract class IndexStore<E extends Serializable> {
 
 		@Override
 		public E next() {
-			int id = invList.get(i);
-			E entry = store.getEntry(id);
+			int idx = invList.get(i);
+			E entry = store.getEntry(idx);
 			i += 1;
 			return entry;
 		}

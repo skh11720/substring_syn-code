@@ -16,8 +16,8 @@ public class FaerieSynDiskBasedIndex extends AbstractFaerieSynIndex {
 	}
 
 	@Override
-	public final FaerieSynIndexEntry getEntry(int id) {
-		return store.getEntry(id);
+	public final FaerieSynIndexEntry getEntry(int idx) {
+		return store.getEntry(idx);
 	}
 
 	@Override

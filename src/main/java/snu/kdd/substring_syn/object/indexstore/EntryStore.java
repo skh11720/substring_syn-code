@@ -103,9 +103,9 @@ public class EntryStore<E extends Serializable> {
 		return new byte[bufSize];
 	}
 	
-	public final E getEntry(int id) {
+	public final E getEntry(int idx) {
 		try {
-			return tryGetEntry(id);
+			return tryGetEntry(idx);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -113,17 +113,17 @@ public class EntryStore<E extends Serializable> {
 		}
 	}
 	
-	public final E tryGetEntry(int id) throws IOException {
-		int fo = getFileOffset(id);
+	public final E tryGetEntry(int idx) throws IOException {
+		int fo = getFileOffset(idx);
 		long offset;
 		int len;
-		if ( fo > 0 && maxIdList.get(fo-1) == id ) {
+		if ( fo > 0 && maxIdList.get(fo-1) == idx ) {
 			offset = 0;
-			len = (int)posList.getLong(id+1);
+			len = (int)posList.getLong(idx+1);
 		}
 		else {
-			offset = posList.getLong(id);
-			len = (int)(posList.getLong(id+1) - posList.getLong(id));
+			offset = posList.getLong(idx);
+			len = (int)(posList.getLong(idx+1) - posList.getLong(idx));
 		}
 		rafList.get(fo).seek(offset);
 		rafList.get(fo).read(buffer, 0, len);
@@ -132,9 +132,9 @@ public class EntryStore<E extends Serializable> {
 		return entry;
 	}
 	
-	private final int getFileOffset(int id) {
+	private final int getFileOffset(int idx) {
 		for ( int fo=0; fo<maxIdList.size(); ++fo ) {
-			if ( id < maxIdList.getInt(fo) ) return fo;
+			if ( idx < maxIdList.getInt(fo) ) return fo;
 		}
 		Exception e = new Exception("UNEXPECTED_ERROR#001");
 		e.printStackTrace();

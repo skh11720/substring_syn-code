@@ -42,7 +42,7 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 		for ( int token : candTokenSet ) {
 			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getId(i));
+				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getIdx(i));
 			}
 		}
 		statContainer.stopWatch(Stat.Time_QS_IndexFilter);
@@ -56,11 +56,11 @@ public class IndexBasedNaiveFilter extends AbstractIndexBasedFilter {
 		for ( int token : query.getDistinctTokens() ) {
 			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
-				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getId(i));
+				for ( int i=0; i<invList.size(); ++i ) candRidxSet.add(invList.getIdx(i));
 			}
 			NaiveInvList transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
-				for ( int i=0; i<transInvList.size(); ++i ) candRidxSet.add(transInvList.getId(i));
+				for ( int i=0; i<transInvList.size(); ++i ) candRidxSet.add(transInvList.getIdx(i));
 			}
 		}
 		statContainer.stopWatch(Stat.Time_TS_IndexFilter);

@@ -101,19 +101,19 @@ public class AppCompareSimLSimW {
 			Set<IntPair> rslt = alg.searchTextSideGivenQuery(query);
 			for ( IntPair pair : rslt ) {
 				nL += 1;
-				int id = pair.i2;
-				if ( checkSimW(datasetContainer, query, id) ) nW += 1;
+				int idx = pair.i2;
+				if ( checkSimW(datasetContainer, query, idx) ) nW += 1;
 			}
 			if (nL > 0) {
 				nQ += 1;
 				nL_List.add(nL);
 				nW_List.add(nW);
 			}
-			if ((query.getID()+1)%1000 == 0) {
-				Log.log.info("num processed queries: %d", query.getID()+1);
+			if ((query.getIdx()+1)%1000 == 0) {
+				Log.log.info("num processed queries: %d", query.getIdx()+1);
 //				pw.flush();
 			}
-			if ( query.getID()-1 >= Integer.parseInt(nq) ) break;
+			if ( query.getIdx()-1 >= Integer.parseInt(nq) ) break;
 		}
 		int nLsum = nL_List.stream().mapToInt(Integer::intValue).sum();
 		int nWsum = nW_List.stream().mapToInt(Integer::intValue).sum();
@@ -123,23 +123,23 @@ public class AppCompareSimLSimW {
 		pw.flush();
     }
     
-    private static boolean checkSimW(DatasetContainer datasetContainer, Record query, int id) {
+    private static boolean checkSimW(DatasetContainer datasetContainer, Record query, int idx) {
     	if ( datasetContainer.dataset.isDocInput() ) 
-    		return checkSimWDoc(datasetContainer, query, id);
+    		return checkSimWDoc(datasetContainer, query, idx);
     	else
-    		return checkSimWSnt(datasetContainer, query, id);
+    		return checkSimWSnt(datasetContainer, query, idx);
     }
     
-    private static boolean checkSimWSnt(DatasetContainer datasetContainer, Record query, int rid) {
-		Record rec = datasetContainer.dataset.getRecord(rid);
+    private static boolean checkSimWSnt(DatasetContainer datasetContainer, Record query, int ridx) {
+		Record rec = datasetContainer.dataset.getRecord(ridx);
 		rec.preprocessAll();
 		double sim1 = val1.simTextSide(query, rec);
 		return (sim1 >= theta-EPS);
     }
     
-    private static boolean checkSimWDoc(DatasetContainer datasetContainer, Record query, int did) {
-    	for ( int rid : datasetContainer.did2ridListMap.get(did) ) {
-    		Record rec = datasetContainer.dataset.getRecord(rid);
+    private static boolean checkSimWDoc(DatasetContainer datasetContainer, Record query, int didx) {
+    	for ( int ridx : datasetContainer.did2ridListMap.get(didx) ) {
+    		Record rec = datasetContainer.dataset.getRecord(ridx);
     		rec.preprocessAll();
     		double sim1 = val1.simTextSide(query, rec);
     		if( sim1 >= theta-EPS ) return true;
@@ -158,9 +158,9 @@ public class AppCompareSimLSimW {
     		if ( dataset.isDocInput() ) {
     			did2ridListMap = new Int2ObjectOpenHashMap<>();
     			for ( Record rec : dataset.getIndexedList() ) {
-    				int did = dataset.getRid2idpairMap().get(rec.getID()).i1;
+    				int did = dataset.getRid2idpairMap().get(rec.getIdx()).i1;
     				if ( did2ridListMap.get(did) == null ) did2ridListMap.put(did, new IntArrayList());
-    				did2ridListMap.get(did).add(rec.getID());
+    				did2ridListMap.get(did).add(rec.getIdx());
     			}
     		}
     		else did2ridListMap = null;

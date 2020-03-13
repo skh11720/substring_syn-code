@@ -21,8 +21,8 @@ public class FaerieDiskBasedIndex implements FaerieIndexInterface {
 	}
 	
 	@Override
-	public final FaerieIndexEntry getEntry(int id) {
-		return store.getEntry(id);
+	public final FaerieIndexEntry getEntry(int idx) {
+		return store.getEntry(idx);
 	}
 	
 	@Override

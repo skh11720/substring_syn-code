@@ -29,8 +29,8 @@ public class Ruleset {
 	protected Rule createSelfRule( int token ) {
 		int[] lhs = new int[] {token};
 		int[] rhs = new int[] {token};
-		int id = ruleList.size();
-		return new Rule(id, lhs, rhs);
+		int idx = ruleList.size();
+		return new Rule(idx, lhs, rhs);
 	}
 	
 	private void loadRulesFromDataset(Iterable<String> ruleStrings) {
@@ -43,8 +43,8 @@ public class Ruleset {
 		String[][] rstr = tokenize(str);
 		int[] lhs = getTokenIndexArray(rstr[0]);
 		int[] rhs = getTokenIndexArray(rstr[1]);
-		int id = ruleList.size();
-		return new Rule(id, lhs, rhs);
+		int idx = ruleList.size();
+		return new Rule(idx, lhs, rhs);
 	}
 
 	public static String[][] tokenize( String str ) {
@@ -63,8 +63,8 @@ public class Ruleset {
 		return indexArr;
 	}
 	
-	public final Rule getRule(int id) {
-		return ruleList.get(id);
+	public final Rule getRule(int idx) {
+		return ruleList.get(idx);
 	}
 
 	public Iterable<Rule> get() {

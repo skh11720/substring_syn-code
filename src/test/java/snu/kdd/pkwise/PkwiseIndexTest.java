@@ -81,7 +81,7 @@ public class PkwiseIndexTest {
 						System.err.println("eidx="+eidx);
 						System.err.println("token="+token+"\t"+alg.tok2str(token));
 						System.err.println("window="+window+"\t"+window.toOriginalString());
-						System.err.println("rid="+window.getID());
+						System.err.println("rid="+window.getIdx());
 						System.err.println("range="+window.getSidx()+", "+(window.getSidx()+window.size()));
 						System.exit(1);
 					}

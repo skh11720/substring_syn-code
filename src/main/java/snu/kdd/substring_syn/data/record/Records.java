@@ -208,7 +208,7 @@ public class Records {
 			}
 			
 			public Record getRecord() {
-				return new Record(rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray());
+				return new Record(rec.getIdx(), rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray());
 			}
 			
 			public String getExpandString() {

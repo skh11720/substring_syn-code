@@ -42,7 +42,7 @@ public class FileBasedLongList {
 		buf.putLong(0, value);
 		try {
 			bos.write(bytes, 0, Long.BYTES);
-			++size;
+			size += 1;
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -60,6 +60,11 @@ public class FileBasedLongList {
 	}
 	
 	public final long get(int i) {
+		if ( i >= size ) {
+			IllegalAccessError e = new IllegalAccessError("index i="+i+" must be smaller than size="+size+".");
+			e.printStackTrace();
+			System.exit(1);
+		}
 		if ( i0 == -1 || i0 + nMax <= i || i < i0 ) readFromFile(i);
 		return buf.getLong((i - i0)*Long.BYTES);
 	}

@@ -17,7 +17,7 @@ public class PositionTrInvList implements BytesMeasurableInterface, PostingListI
 		size = o.size;
 	}
 	
-	public final int getId(final int i) {
+	public final int getIdx(final int i) {
 		assert (i < size);
 		return arr[3*i];
 	}

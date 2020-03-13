@@ -36,15 +36,15 @@ public class ValidatorTest {
 				tArr[1] += System.nanoTime() - ts;
 				
 				if ( Records.expandAll(recS).size() > 5 && sim0 >= 0.5 && sim0 < 1) {
-					System.out.println(recS.getID()+"\t("+recS.size()+")\t:\t"+recS);
+					System.out.println(recS.getIdx()+"\t("+recS.size()+")\t:\t"+recS);
 					for ( Record exp : Records.expandAll(recS) ) {
 						System.out.println("\t("+exp.size()+")\t"+exp);
 					}
-					System.out.println(recT.getID()+"\t("+recT.size()+")\t:\t"+recT);
+					System.out.println(recT.getIdx()+"\t("+recT.size()+")\t:\t"+recT);
 					System.out.println(sim0);
 				}
 			}
-			if ( recS.getID() > 1000 ) break;
+			if ( recS.getIdx() > 1000 ) break;
 		}
 		for ( long t : tArr ) {
 			System.out.println(t/1e6);

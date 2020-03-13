@@ -70,7 +70,7 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(byte[] buf, int offset, int len, Ruleset ruleset) {
+	public static final Record deserialize(int idx, byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
 		while (true) {
 			try {
@@ -105,7 +105,7 @@ public class RecordSerializer {
 				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
 		}
 		int maxRhsSize = iter.nextInt();
-		Record rec = new Record(id, tokens);
+		Record rec = new Record(idx, id, tokens);
 		rec.applicableRules = applicableRules;
 		rec.suffixApplicableRules = suffixApplicableRules;
 		rec.suffixRuleLenPairs = suffixRuleLenPairs;

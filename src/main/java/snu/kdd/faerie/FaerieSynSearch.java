@@ -44,7 +44,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	
 	@Override
 	protected void searchRecordQuerySide(Record query, Record rec) {
-		FaerieIndexEntry entry = index.getEntry(rec.getID());
+		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		for ( Record queryExp : Records.expands(query) ) {
 			int minLen = (int)Math.ceil(queryExp.size()*theta);
 			int maxLen = (int)Math.floor(queryExp.size()/theta);
@@ -68,7 +68,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	
 	@Override
 	protected void searchRecordTextSide(Record query, Record rec) {
-		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getID()) ) {
+		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getIdx()) ) {
 			IntList posList = getPosList(queryTokenSet, entry.invIndex);
 			statContainer.startWatch(Stat.Time_TS_Validation);
 			boolean isSim = searchRecord(query, new Record(entry.recExpTokenArr), posList, minLenQS, maxLenTS, this::computeSimTextSide);
