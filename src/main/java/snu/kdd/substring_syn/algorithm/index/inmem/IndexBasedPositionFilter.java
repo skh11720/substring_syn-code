@@ -195,6 +195,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				}
 				countUpperBound -= tokenCounter.getMax(token);
 			}
+			Log.log.trace("QuerySideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
+			Log.log.trace("QuerySideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.idxList.size()).sum());
 			return rec2idxListMap;
 		}
 		
@@ -472,6 +474,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				} // end if transInvList
 				countUpperBound -= tokenCounter.getMax(token);
 			} // end for token
+
+			Log.log.trace("TextSideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
+			Log.log.trace("TextSideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.prefixList.size()).sum());
 			return rec2idxListMap;
 		}
 		
