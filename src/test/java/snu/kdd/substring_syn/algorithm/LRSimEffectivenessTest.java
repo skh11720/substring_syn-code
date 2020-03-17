@@ -95,8 +95,8 @@ public class LRSimEffectivenessTest {
 				double simT0 = val0.simTextSide(query, rec);
 				double simT1 = val1.simTextSide(query, rec);
 				if ( simT0 != simT1 ) {
-					System.out.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getID(), rec.getID(), simT0, simT1, simT0!=simT1?"*":"");
-					pw.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getID(), rec.getID(), simT0, simT1, simT0!=simT1?"*":"");
+					System.out.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getIdx(), rec.getIdx(), simT0, simT1, simT0!=simT1?"*":"");
+					pw.printf("%8s%4s%8d%8d%8d%8.3f%8.3f %s\n", dataName, qlen, nr, query.getIdx(), rec.getIdx(), simT0, simT1, simT0!=simT1?"*":"");
 				}
 			}
 		}

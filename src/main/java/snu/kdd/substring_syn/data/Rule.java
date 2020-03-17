@@ -11,7 +11,7 @@ public class Rule implements Comparable<Rule> {
 	public static ACAutomataR automata;
 	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
-	private final int id;
+	private final int idx;
 	private final int[] lhs;
 	private final int[] rhs;
 //	private final int id;
@@ -27,8 +27,8 @@ public class Rule implements Comparable<Rule> {
 		return indexArr;
 	}
 
-	protected Rule( int id, int[] lhs, int[] rhs ) {
-		this.id = id;
+	protected Rule( int idx, int[] lhs, int[] rhs ) {
+		this.idx = idx;
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.hash = computeHash();
@@ -44,7 +44,7 @@ public class Rule implements Comparable<Rule> {
 	}
 	
 	public final int getID() {
-		return id;
+		return idx;
 	}
 
 	public int[] getLhs() {

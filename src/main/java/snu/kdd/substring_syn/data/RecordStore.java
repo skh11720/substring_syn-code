@@ -111,9 +111,9 @@ public class RecordStore {
 		return new byte[bufSize];
 	}
 	
-	public Record getRecord( int id ) {
+	public Record getRecord( int idx ) {
 		try {
-			return tryGetRecord(id);
+			return tryGetRecord(idx);
 //			return getRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
@@ -122,12 +122,12 @@ public class RecordStore {
 		}
 	}
 	
-	private Record tryGetRecord( int id ) throws IOException {
-		if ( !secTS.pool.containsKey(id) ) {
+	private Record tryGetRecord( int idx ) throws IOException {
+		if ( !secTS.pool.containsKey(idx) ) {
 			secTS.nRecFault += 1;
-			secTS.pool.put(id, getRecordFromStore(id));
+			secTS.pool.put(idx, getRecordFromStore(idx));
 		}
-		return secTS.pool.get(id);
+		return secTS.pool.get(idx);
 	}
 	
 //	private void loadRecordsFromStore(int id) throws IOException {
@@ -142,16 +142,16 @@ public class RecordStore {
 //		}
 //	}
 	
-	private Record getRecordFromStore(int id) throws IOException {
-		secTS.raf.seek(secTS.posList.get(id));
+	private Record getRecordFromStore(int idx) throws IOException {
+		secTS.raf.seek(secTS.posList.get(idx));
 		secTS.raf.read(buffer, 0, buffer.length);
-		int len = (int)( -secTS.posList.get(id) + secTS.posList.get(id+1) );
-		return RecordSerializer.deserialize(buffer, 0, len, ruleset);
+		int len = (int)( -secTS.posList.get(idx) + secTS.posList.get(idx+1) );
+		return RecordSerializer.deserialize(idx, buffer, 0, len, ruleset);
 	}
 	
-	public Record getRawRecord( int id ) {
+	public Record getRawRecord( int idx ) {
 		try {
-			return tryGetRawRecord(id);
+			return tryGetRawRecord(idx);
 //			return getRawRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
@@ -160,12 +160,12 @@ public class RecordStore {
 		}
 	}
 	
-	private Record tryGetRawRecord(int id) throws IOException {
-		if ( !secQS.pool.containsKey(id) ) {
+	private Record tryGetRawRecord(int idx) throws IOException {
+		if ( !secQS.pool.containsKey(idx) ) {
 			secQS.nRecFault += 1;
-			secQS.pool.put(id, getRawRecordFromStore(id));
+			secQS.pool.put(idx, getRawRecordFromStore(idx));
 		}
-		return secQS.pool.get(id);
+		return secQS.pool.get(idx);
 	}
 
 //	private void loadRawRecordsFromStore( int id ) throws IOException {
@@ -180,12 +180,12 @@ public class RecordStore {
 //		}
 //	}
 	
-	private Record getRawRecordFromStore(int id) throws IOException {
-		secQS.raf.seek(secQS.posList.get(id));
+	private Record getRawRecordFromStore(int idx) throws IOException {
+		secQS.raf.seek(secQS.posList.get(idx));
 		secQS.raf.read(buffer, 0, buffer.length);
-		int len = (int)( -secQS.posList.get(id) + secQS.posList.get(id+1) );
+		int len = (int)( -secQS.posList.get(idx) + secQS.posList.get(idx+1) );
 		IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, 0, len));
-		return new Record(list.getInt(0), list.subList(1, list.size()).toIntArray());
+		return new Record(idx, list.getInt(0), list.subList(1, list.size()).toIntArray());
 	}
 	
 	public Iterable<Record> getRecords() {
@@ -241,7 +241,7 @@ public class RecordStore {
 
 	class RecordIterator implements Iterator<Record> {
 		
-		int id = 0;
+		int idx = 0;
 		int offset = 0;
 		int len;
 		FileInputStream fis;
@@ -256,26 +256,26 @@ public class RecordStore {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			len = (int)(-secTS.posList.get(id) + secTS.posList.get(id+1));
+			len = (int)(-secTS.posList.get(idx) + secTS.posList.get(idx+1));
 		}
 
 		@Override
 		public boolean hasNext() {
-			return (id < secTS.posList.size()-1);
+			return (idx < secTS.posList.size()-1);
 		}
 
 		@Override
 		public Record next() {
-			Record rec = RecordSerializer.deserialize(b, offset, len, ruleset);
+			Record rec = RecordSerializer.deserialize(idx, b, offset, len, ruleset);
 			findNext();
 			return rec;
 		}
 		
 		private void findNext() {
-			id += 1;
+			idx += 1;
 			offset += len;
 			if ( !hasNext() ) return;
-			len = (int)(secTS.posList.get(id+1) - secTS.posList.get(id));
+			len = (int)(secTS.posList.get(idx+1) - secTS.posList.get(idx));
 			if ( offset+len > b.length ) {
 				for ( int i=offset; i<b.length; ++i ) b[i-offset] = b[i];
 				try {

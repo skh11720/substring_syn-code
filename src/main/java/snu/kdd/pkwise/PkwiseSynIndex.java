@@ -178,7 +178,7 @@ public class PkwiseSynIndex {
 					WindowInterval witv = list.get(iidx);
 					widx = witv.sidx;
 					w = witv.w;
-					if ( rec == null || rec.getID() != witv.rid ) rec = dataset.getRecord(witv.rid);
+					if ( rec == null || rec.getIdx() != witv.rid ) rec = dataset.getRecord(witv.rid);
 				}
 			}
 		}

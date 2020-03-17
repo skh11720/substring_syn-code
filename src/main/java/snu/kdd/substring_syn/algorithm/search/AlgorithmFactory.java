@@ -16,7 +16,9 @@ public class AlgorithmFactory {
 		ExactNaiveSearch,
 		GreedyNaiveSearch,
 		PrefixSearch,
+		SimWPrefixSearch,
 		ExactPrefixSearch,
+		ExactSimWPrefixSearch,
 		PkwiseNaiveSearch,
 		PkwiseSearch,
 		PkwiseSynSearch,
@@ -53,6 +55,8 @@ public class AlgorithmFactory {
 		Exact,
 		Zero,
 		Contain,
+		SimW,
+		ExactSimW,
 	}
 
 	public static class FilterOption {
@@ -94,7 +98,9 @@ public class AlgorithmFactory {
 		case ExactNaiveSearch: return createExactNaiveSearch(param);
 		case GreedyNaiveSearch: return createGreedyNaiveSearch(param);
 		case PrefixSearch: return createPrefixSearch(param, GoalOption.None);
+		case SimWPrefixSearch: return createPrefixSearch(param, GoalOption.SimW);
 		case ExactPrefixSearch: return createPrefixSearch(param, GoalOption.Exact);
+		case ExactSimWPrefixSearch: return createPrefixSearch(param, GoalOption.ExactSimW);
 		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
 		case PkwiseSearch: return createPkwiseSearch(param);
 		case PkwiseSynSearch: return createPkwiseSynSearch(param, arg);
@@ -138,6 +144,8 @@ public class AlgorithmFactory {
 		if ( indexChoice == IndexChoice.CountPosition || indexChoice == IndexChoice.Position ) {
 			if ( goal == GoalOption.Zero ) return new ZeroPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			if ( goal == GoalOption.Exact ) return new ExactPositionPrefixSearch(theta, bLF, bPF, indexChoice);
+			if ( goal == GoalOption.SimW ) return new SimWPositionPrefixSearch(theta, bLF, bPF, indexChoice);
+			if ( goal == GoalOption.ExactSimW ) return new ExactSimWPositionPrefixSearch(theta, bLF, bPF, indexChoice);
 			else return new PositionPrefixSearch(theta, bLF, bPF, indexChoice);
 		}
 		else {

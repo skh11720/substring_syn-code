@@ -25,10 +25,12 @@ public class DatasetFactory {
 	private static DatasetParam param;
 	private static StatContainer statContainer;
 	private static boolean isDocInput;
+	private static ACAutomataS ac;
 
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		setRecordPoolSize(arg);
-		setParam(new DatasetParam(arg));
+		param = new DatasetParam(arg);
+//		initCreationProcess(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -48,9 +50,10 @@ public class DatasetFactory {
 		catch (Exception e) {}
 	}
 	
-	private static void setParam(DatasetParam param) {
+	private static void initCreationProcess(DatasetParam param) {
 		DatasetFactory.param = param;
 		isDocInput = param.name.endsWith("-DOC");
+		ac = new ACAutomataS(ruleStrings());
 	}
 	
 	public static Dataset createInstanceByName( String name, String size ) throws IOException {
@@ -60,7 +63,7 @@ public class DatasetFactory {
 	public static Dataset createInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -73,7 +76,7 @@ public class DatasetFactory {
 	public static WindowDataset createWindowInstanceByName(DatasetParam param) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -86,7 +89,7 @@ public class DatasetFactory {
 	public static TransWindowDataset createTransWindowInstanceByName(DatasetParam param, String theta) throws IOException {
 		statContainer = new StatContainer();
 		statContainer.startWatch(Stat.Time_Prepare_Data);
-		setParam(param);
+		initCreationProcess(param);
 		Record.tokenIndex = buildPkwiseTokenIndex();
 		Ruleset ruleset = createRuleset();
 		RecordStore store = createRecordStore(ruleset);
@@ -137,76 +140,6 @@ public class DatasetFactory {
 		return sortedTokenList;
 	}
 
-	private abstract static class AbstractFileBasedIterator<T> implements Iterator<T> {
-		
-		BufferedReader br;
-		Iterator<String> iter;
-		int i = 0;
-		
-		public AbstractFileBasedIterator(String path) {
-			try {
-				br = new BufferedReader(new FileReader(path));
-				iter = br.lines().iterator();
-			}
-			catch ( IOException e ) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		
-		@Override
-		public boolean hasNext() {
-			return iter.hasNext();
-		}
-	}
-
-	protected static class DocRecordIterator extends AbstractFileBasedIterator<Record> {
-		
-		Iterator<String> docIter = null;
-		String thisSnt;
-		int nd = 0;
-		int did;
-		int sid = -1;
-		final int size;
-
-		public DocRecordIterator(String path) {
-			super(path);
-			size = Integer.parseInt(param.size);
-			thisSnt = findNext();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return nd < size && thisSnt != null;
-		}
-
-		@Override
-		public Record next() {
-			String snt = thisSnt;
-			thisSnt = findNext();
-			return new Record(i++, snt);
-		}
-		
-		private final String findNext() {
-			while ( iter.hasNext() && (docIter == null || !docIter.hasNext()) ) {
-				nd += 1;
-				docIter = parseDocument(iter.next());
-			}
-			if ( docIter != null && docIter.hasNext() ) {
-				sid += 1;
-				return docIter.next();
-			}
-			else return null;
-		}
-
-		private final Iterator<String> parseDocument(String line) {
-			String[] strs = line.split("\t", 2);
-			did = Integer.parseInt(strs[0]);
-			sid = -1;
-			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
-		}
-	}
-	
 	static final Iterable<Record> searchedRecords() {
 		String searchedPath = DatasetInfo.getSearchedPath(param.name, param.qlen);
 		return new Iterable<Record>() {
@@ -218,12 +151,26 @@ public class DatasetFactory {
 					@Override
 					public Record next() {
 						String line = iter.next();
-						return new Record(i++, line);
+						id += 1;
+						Record rec = new Record(idx++, id, line);
+						return rec;
+					}
+					
+					@Override
+					protected Record findNext() {
+						return null;
 					}
 				};
 			}
 		};
 	}
+	
+//	private static final Iterable<Record> rawIndexedRecords() {
+//		if (!isDocInput)
+//			return rawIndexedRecordsInSnt();
+//		else 
+//			return indexedRecordsInDocs();
+//	}
 	
 	private static final Iterable<Record> indexedRecords() {
 		if (!isDocInput)
@@ -231,45 +178,17 @@ public class DatasetFactory {
 		else 
 			return indexedRecordsInDocs();
 	}
-	
-	private static final Iterable<Record> indexedRecordsInSnt() {
-		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		int size = Integer.parseInt(param.size);
-		double lenRatio = Double.parseDouble(param.lenRatio);
-		return new Iterable<Record>() {
-			
-			@Override
-			public Iterator<Record> iterator() {
-				return new AbstractFileBasedIterator<Record>(indexedPath) {
 
-			        @Override
-			        public boolean hasNext() {
-						return i < size && iter.hasNext();
-			        }
-
-					@Override
-					public Record next() {
-						String line = getPrefixWithLengthRatio(iter.next());
-						return new Record(i++, line);
-					}
-
-					private final String getPrefixWithLengthRatio(String str) {
-						int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
-						int eidx=0;
-						int len0 = (int)Math.max(1, nTokens*lenRatio);
-						int len = 0;
-						for ( ; eidx<str.length(); ++eidx ) {
-							if ( str.charAt(eidx) == ' ' ) {
-								len += 1;
-								if ( len >= len0 ) break;
-							}
-						}
-						return str.substring(0, eidx);
-					}
-				};
-			}
-		};
-	}
+//	private static final Iterable<Record> rawIndexedRecordsInSnt() {
+//		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+//		return new Iterable<Record>() {
+//			
+//			@Override
+//			public Iterator<Record> iterator() {
+//				return new SntRecordIterator(indexedPath);
+//			}
+//		};
+//	}
 
 	private static final Iterable<Record> indexedRecordsInDocs() {
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
@@ -277,7 +196,18 @@ public class DatasetFactory {
 
 			@Override
 			public Iterator<Record> iterator() {
-				return new DocRecordIterator(indexedPath);
+				return new DocRecordRawIterator(indexedPath);
+			}
+		};
+	}
+
+	private static final Iterable<Record> indexedRecordsInSnt() {
+		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new SntRecordRawIterator(indexedPath);
 			}
 		};
 	}
@@ -294,6 +224,11 @@ public class DatasetFactory {
 					public String next() {
 						return iter.next();
 					}
+					
+					@Override
+					protected String findNext() {
+						return null;
+					}
 				};
 			}
 		};
@@ -302,11 +237,219 @@ public class DatasetFactory {
 	private static final Int2ObjectMap<IntPair> getRid2IdpairMap() {
 		Int2ObjectMap<IntPair> map = new Int2ObjectOpenHashMap<IntPair>();
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		DocRecordIterator iter = new DocRecordIterator(indexedPath);
+		DocRecordRawIterator iter = new DocRecordRawIterator(indexedPath);
 		while (iter.hasNext()) {
 			Record rec = iter.next();
-			map.put(rec.getID(), new IntPair(iter.did, iter.sid));
+			map.put(rec.getIdx(), new IntPair(iter.thisDid, iter.thisSid));
 		}
 		return map;
 	}
+
+	private abstract static class AbstractFileBasedIterator<T> implements Iterator<T> {
+		
+		BufferedReader br;
+		Iterator<String> iter;
+		int id = 0;
+		int idx = 0;
+		T nextObj;
+		
+		public AbstractFileBasedIterator(String path) {
+			try {
+				br = new BufferedReader(new FileReader(path));
+				iter = br.lines().iterator();
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+		
+		abstract protected T findNext();
+	}
+	
+	protected static class SntRecordRawIterator extends AbstractFileBasedIterator<Record> {
+
+//		String indexedPath = DatasetInfo.getIndexedPath(param.name);
+		final double lenRatio;
+		final int size;
+		final int narMax;
+		
+		public SntRecordRawIterator(String path) {
+			super(path);
+			narMax = Integer.parseInt(param.nar);
+			size = Integer.parseInt(param.size);
+			lenRatio = Double.parseDouble(param.lenRatio);
+			nextObj = findNext();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return idx <= size && nextObj != null;
+		}
+
+		@Override
+		public Record next() {
+			Record thisObj = nextObj;
+			nextObj = findNext();
+			return thisObj;
+		}
+
+		protected final String getPrefixWithLengthRatio(String str) {
+			int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+			int eidx=0;
+			int len0 = (int)Math.max(1, nTokens*lenRatio);
+			int len = 0;
+			for ( ; eidx<str.length(); ++eidx ) {
+				if ( str.charAt(eidx) == ' ' ) {
+					len += 1;
+					if ( len >= len0 ) break;
+				}
+			}
+			return str.substring(0, eidx);
+		}
+
+		@Override
+		protected Record findNext() {
+			Record rec = null;
+			while ( iter.hasNext() ) {
+				id += 1;
+				String line = getPrefixWithLengthRatio(iter.next());
+				int nar = ac.getNumApplicableRules(line.split(" "));
+				if ( narMax < 0 || nar <= narMax ) {
+					rec = new Record(idx, id, line);
+					break;
+				}
+			}
+			idx += 1;
+			return rec;
+		}
+	}
+	
+//	protected static class SntRecordIterator extends SntRecordRawIterator {
+//		
+//		final int narMax = Integer.parseInt(param.nar);
+//		
+//		public SntRecordIterator(String path) {
+//			super(path);
+//		}
+//		
+//		@Override
+//		protected Record findNext() {
+//			while (iter.hasNext()) {
+//				String line = getPrefixWithLengthRatio(iter.next());
+//				id += 1;
+//				Record rec = new Record(idx, id, line);
+//				rec.preprocessApplicableRules();
+//				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
+//					idx += 1;
+//					return rec;
+//				}
+//			}
+//			return null;
+//		}
+//	}
+
+	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<Record> {
+		
+		Iterator<String> inDocIter = null;
+		String thisSnt;
+		int nd = 0;
+		int did;
+		int sid = -1;
+		boolean isDocCounted;
+		final int size;
+		final int narMax;
+		
+		int thisDid;
+		int thisSid;
+
+		public DocRecordRawIterator(String path) {
+			super(path);
+			size = Integer.parseInt(param.size);
+			narMax = Integer.parseInt(param.nar);
+			nextObj = findNext();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return nd <= size && nextObj != null;
+		}
+
+		@Override
+		public Record next() {
+			Record thisObj = nextObj;
+			thisDid = did;
+			thisSid = sid;
+			nextObj = findNext();
+			return thisObj;
+		}
+		
+		@Override
+		protected Record findNext() {
+			while (true) {
+				while (inDocIter != null && inDocIter.hasNext()) {
+					String snt = inDocIter.next();
+					sid += 1;
+					int nar = ac.getNumApplicableRules(snt.split(" "));
+					if ( narMax < 0 || nar <= narMax ) {
+						Record rec = new Record(idx, sid, snt);
+						idx += 1;
+						if ( !isDocCounted ) {
+							isDocCounted = true;
+							nd += 1;
+//							Log.log.trace("nd=%d", nd);
+						}
+						return rec;
+					}
+				}
+				if ( !iter.hasNext() ) break;
+				inDocIter = parseDocument(iter.next());
+				isDocCounted = false;
+			}
+			return null;
+		}
+
+		protected final Iterator<String> parseDocument(String line) {
+			String[] strs = line.split("\t", 2);
+			did = Integer.parseInt(strs[0]);
+			sid = -1;
+			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
+		}
+	}
+
+//	protected static class DocRecordIterator extends DocRecordRawIterator {
+//
+//		public DocRecordIterator(String path) {
+//			super(path);
+//		}
+//
+//		@Override
+//		protected Record findNext() {
+//			while (true) {
+//				while (inDocIter != null && inDocIter.hasNext()) {
+//					String snt = inDocIter.next();
+//					sid += 1;
+//					Record rec = new Record(idx, sid, snt);
+//					rec.preprocessApplicableRules();
+//					if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
+//						idx += 1;
+//						if ( !isDocCounted ) {
+//							isDocCounted = true;
+//							nd += 1;
+//						}
+//						return rec;
+//					}
+//				}
+//				if ( !iter.hasNext() ) break;
+//				inDocIter = parseDocument(iter.next());
+//				isDocCounted = false;
+//			}
+//			return null;
+//		}
+//	}
 }

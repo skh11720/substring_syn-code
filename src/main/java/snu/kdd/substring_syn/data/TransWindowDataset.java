@@ -59,8 +59,8 @@ public class TransWindowDataset extends WindowDataset {
 		return iqgramStore.getIntQGrams();
 	}
 	
-	public final IntQGram getIntQGram( int id ) {
-		return iqgramStore.getIntQGram(id);
+	public final IntQGram getIntQGram( int idx ) {
+		return iqgramStore.getIntQGram(idx);
 	}
 	
 	public Iterable<IntQGram> getIntQGramsIterable() {
@@ -111,7 +111,7 @@ public class TransWindowDataset extends WindowDataset {
 		@Override
 		public IntQGram next() {
 			QGram qgram = qiter.next();
-			IntQGram iqgram = new IntQGram(rec.getID(), qgram); 
+			IntQGram iqgram = new IntQGram(rec.getIdx(), qgram); 
 			findNext();
 			return iqgram;
 		}

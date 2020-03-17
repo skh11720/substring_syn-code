@@ -32,12 +32,12 @@ public class DiskBasedDataset extends Dataset {
 	}
 
 	@Override
-	public Record getRawRecord(int id) {
-		return store.getRawRecord(id);
+	public Record getRawRecord(int idx) {
+		return store.getRawRecord(idx);
 	}
 
 	@Override
-	public Record getRecord(int id) {
-		return store.getRecord(id);
+	public Record getRecord(int idx) {
+		return store.getRecord(idx);
 	}
 }

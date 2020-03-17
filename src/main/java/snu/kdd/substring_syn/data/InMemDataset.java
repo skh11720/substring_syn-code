@@ -22,13 +22,13 @@ public class InMemDataset extends Dataset {
 	}
 
 	@Override
-	public Record getRawRecord(int id) {
-		return indexedList.get(id);
+	public Record getRawRecord(int idx) {
+		return indexedList.get(idx);
 	}
 
 	@Override
-	public Record getRecord(int id) {
-		Record rec = indexedList.get(id);
+	public Record getRecord(int idx) {
+		Record rec = indexedList.get(idx);
 		rec.preprocessAll();
 		return rec;
 	}

@@ -36,8 +36,8 @@ public class IndexStoreTest {
 		}
 		Random rn = new Random();
 		for ( int i=0; i<n; ++i ) {
-			int id = rn.nextInt(n);
-			assertEquals(entryList.get(id), store.getEntry(id));
+			int idx = rn.nextInt(n);
+			assertEquals(entryList.get(idx), store.getEntry(idx));
 		}
 	}
 	

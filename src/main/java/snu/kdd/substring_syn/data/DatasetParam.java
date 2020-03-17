@@ -9,6 +9,7 @@ public class DatasetParam {
 	public final String nr;
 	public final String qlen;
 	public final String lenRatio;
+	public final String nar;
 
 	public DatasetParam(InputArgument arg) {
 		name = arg.getOptionValue("data");
@@ -16,20 +17,21 @@ public class DatasetParam {
 		nr = arg.getOptionValue("nr");
 		qlen = arg.getOptionValue("ql");
 		lenRatio = arg.getOptionValue("lr");
+		nar = arg.getOptionValue("nar");
 	}
 	
-	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
-		checkValue(name, "name");
-		checkValue(size, "size");
-		checkValue(nr, "nr");
-		checkValue(qlen, "qlen");
-		checkValue(lenRatio, "lenRatio");
-		this.name = name;
-		this.size = size;
-		this.nr = nr;
-		this.qlen = qlen;
-		this.lenRatio = lenRatio;
+	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio, String nar) {
+		this.name = checkAndAssign(name, "name");
+		this.size = checkAndAssign(size, "size");
+		this.nr = checkAndAssign(nr, "nr");
+		this.qlen = checkAndAssign(qlen, "qlen");
+		this.lenRatio = checkAndAssign(lenRatio, "lenRatio");
+		this.nar = checkAndAssign(nar, "nar");
 		Log.log.info("DatasetParam: "+getDatasetName());
+	}
+
+	public DatasetParam( String name, String size, String nr, String qlen, String lenRatio) {
+		this(name, size, nr, qlen, lenRatio, "-1");
 	}
 	
 	public final String getDatasetName() {
@@ -38,7 +40,13 @@ public class DatasetParam {
 		if ( nr != null ) strbld.append("_r"+nr);
 		if ( qlen != null ) strbld.append("_q"+qlen);
 		if ( lenRatio != null ) strbld.append("_l"+lenRatio);
+		if ( nar != null && Integer.parseInt(nar) >= 0 ) strbld.append("_a"+nar);
 		return strbld.toString();
+	}
+	
+	private final String checkAndAssign(String val, String name) {
+		checkValue(val, name);
+		return val;
 	}
 	
 	private final void checkValue(String val, String name) {
@@ -51,6 +59,6 @@ public class DatasetParam {
 	
 	@Override
 	public String toString() {
-		return String.format("DatasetParam(%s, %s, %s, %s, %s)", name ,size, nr, qlen ,lenRatio);
+		return String.format("DatasetParam(%s, %s, %s, %s, %s, %s)", name ,size, nr, qlen ,lenRatio, nar);
 	}
 }

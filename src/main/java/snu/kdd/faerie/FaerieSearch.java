@@ -55,7 +55,7 @@ public class FaerieSearch extends AbstractSearch {
 	}
 
 	protected final IntList getPosList( Record query, Record rec ) {
-		FaerieIndexEntry entry = index.getEntry(rec.getID());
+		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		return getPosList( query.getDistinctTokens(), entry.tok2posListMap);
 	}
 	

@@ -12,6 +12,8 @@ import org.junit.runners.MethodSorters;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
+import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
@@ -19,10 +21,12 @@ import snu.kdd.substring_syn.utils.Stat;
 public class FaerieSynSearchTest {
 
 	@Test
-	public void test00SingleRun() {
-		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", "0.6");
+	public void test00SingleRun() throws IOException {
+		DatasetParam param = new DatasetParam("WIKI", "100", "31622", "3", "1.0", "30");
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		double theta = 0.6;
-		AbstractSearch alg1 = new FaerieSynSearch(theta, false);
+		Log.log.trace("run FaerieSynSearch");
+		AbstractSearch alg1 = new FaerieSynSearch(theta, true);
 		alg1.run(dataset);
 	}
 

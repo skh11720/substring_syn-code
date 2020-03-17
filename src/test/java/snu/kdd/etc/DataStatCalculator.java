@@ -40,7 +40,7 @@ public class DataStatCalculator {
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
-			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0");
+			DatasetParam param = new DatasetParam(tokens[0], tokens[1], tokens[2], "3", "1.0", "-1");
 			Dataset dataset = DatasetFactory.createInstanceByName(param);
 			extractStat(dataset);
 		}
@@ -84,6 +84,7 @@ public class DataStatCalculator {
 		dataStat.nSnt.std = Math.sqrt(1.0*sqsum/n - mean*mean);
 	}
 	
+	@SuppressWarnings("unused")
 	public static void countRecord(Dataset dataset, DatasetStat dataStat) {
 		for ( Record rec : dataset.getIndexedList() ) {
 			dataStat.nRecord += 1;
@@ -128,7 +129,7 @@ public class DataStatCalculator {
 		long sqsum = 0;
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessApplicableRules();
-			int nr = rec.getNumApplicableRules(); // do not count the self rules
+			int nr = rec.getNumApplicableNonselfRules(); // do not count the self rules
 			dataStat.nApp.max = Math.max(dataStat.nApp.max, nr);
 			dataStat.nApp.min = Math.min(dataStat.nApp.min, nr);
 			++n;

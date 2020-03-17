@@ -13,7 +13,6 @@ import snu.kdd.substring_syn.utils.Log;
 
 public class RecordSerializer {
 	
-	static ReusableRecord rec = new ReusableRecord(-1, new int[256]);
 	public static byte[] bbuf = new byte[100];
 	public static int[] ibuf = new int[100];
 	public static int blen;
@@ -71,7 +70,7 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(byte[] buf, int offset, int len, Ruleset ruleset) {
+	public static final Record deserialize(int idx, byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
 		while (true) {
 			try {
@@ -82,29 +81,35 @@ public class RecordSerializer {
 				setIbuf(ibuf.length+1);
 			}
 		}
-
 		IntIterator iter = IntArrayList.wrap(ibuf, numbytes/Integer.BYTES).iterator();
 		int id = iter.nextInt();
 		int size = iter.nextInt();
-		rec.setId(id);
-		rec.fit(size);
-		for ( int i=0; i<size; ++i ) rec.tokens[i] = iter.nextInt();
-		for ( int i=0; i<size; ++i ) rec.fitApp(i, iter.nextInt());
+		int[] tokens = new int[size];
+		for ( int i=0; i<size; ++i ) tokens[i] = iter.nextInt();
+		Rule[][] applicableRules = new Rule[size][];
+		for ( int i=0; i<size; ++i ) applicableRules[i] = new Rule[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<rec.nApp[i]; ++j ) 
-				rec.applicableRules[i][j] = ruleset.getRule(iter.nextInt());
+			for ( int j=0; j<applicableRules[i].length; ++j ) 
+				applicableRules[i][j] = ruleset.getRule(iter.nextInt());
 		}
-		for ( int i=0; i<size; ++i ) rec.fitSapp(i, iter.next());
+		Rule[][] suffixApplicableRules = new Rule[size][];
+		for ( int i=0; i<size; ++i ) suffixApplicableRules[i] = new Rule[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<rec.nSapp[i]; ++j ) 
-				rec.suffixApplicableRules[i][j] = ruleset.getRule(iter.nextInt());
+			for ( int j=0; j<suffixApplicableRules[i].length; ++j ) 
+				suffixApplicableRules[i][j] = ruleset.getRule(iter.nextInt());
 		}
-		for ( int i=0; i<size; ++i ) rec.fitSRL(i, iter.nextInt());
+		IntPair[][] suffixRuleLenPairs = new IntPair[size][];
+		for ( int i=0; i<size; ++i ) suffixRuleLenPairs[i] = new IntPair[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<rec.nSRL[i]; ++j ) 
-				rec.suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
+			for ( int j=0; j<suffixRuleLenPairs[i].length; ++j ) 
+				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
 		}
-		rec.maxRhsSize = iter.nextInt();
+		int maxRhsSize = iter.nextInt();
+		Record rec = new Record(idx, id, tokens);
+		rec.applicableRules = applicableRules;
+		rec.suffixApplicableRules = suffixApplicableRules;
+		rec.suffixRuleLenPairs = suffixRuleLenPairs;
+		rec.maxRhsSize = maxRhsSize;
 		return rec;
 	}
 

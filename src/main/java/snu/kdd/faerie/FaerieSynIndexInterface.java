@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public interface FaerieSynIndexInterface {
 	
-	FaerieSynIndexEntry getEntry(int id);
-	Iterable<FaerieSynIndexEntry> getRecordEntries(int id);
+	FaerieSynIndexEntry getEntry(int idx);
+	Iterable<FaerieSynIndexEntry> getRecordEntries(int idx);
 	BigInteger diskSpaceUsage();
 }

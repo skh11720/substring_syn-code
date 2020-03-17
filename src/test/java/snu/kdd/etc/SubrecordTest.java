@@ -27,7 +27,7 @@ public class SubrecordTest {
 		
 		for ( Record rec : dataset.getIndexedList() ) {
 			rec.preprocessAll();
-			if ( rec.getNumApplicableRules() < 5 ) continue;
+			if ( rec.getNumApplicableNonselfRules() < 5 ) continue;
 			if (showLog) System.out.println(rec.toStringDetails());
 			
 			for ( int i=0; i<5; ++i ) {
@@ -56,7 +56,7 @@ public class SubrecordTest {
 			if (showLog) System.out.println("k: "+k);
 			if (showLog) System.out.println(suffixRuleList0);
 			if (showLog) System.out.println(suffixRuleList1);
-			if (showLog) System.out.println(subrec1.getNumApplicableRules());
+			if (showLog) System.out.println(subrec1.getNumApplicableNonselfRules());
 			assertEquals(suffixRuleList0.size(), suffixRuleList1.size());
 //			for ( int i=0; i<suffixRuleList0.size(); ++i ) assertEquals(suffixRuleList0.get(i), suffixRuleList1.get(i));
 		}

@@ -27,6 +27,7 @@ public abstract class Dataset extends AbstractDocDataset {
 		statContainer.setStat(Stat.Dataset_nr, param.nr);
 		statContainer.setStat(Stat.Dataset_qlen, param.qlen);
 		statContainer.setStat(Stat.Dataset_lr, param.lenRatio);
+		statContainer.setStat(Stat.Dataset_nar, param.nar);
 	}
 	
 	public void addStat() {
@@ -54,7 +55,7 @@ public abstract class Dataset extends AbstractDocDataset {
 
 	public abstract Iterable<Record> getIndexedList();
 
-	public abstract Record getRawRecord(int id);
+	public abstract Record getRawRecord(int idx);
 	
-	public abstract Record getRecord(int id);
+	public abstract Record getRecord(int idx);
 }

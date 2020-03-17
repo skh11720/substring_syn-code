@@ -313,7 +313,7 @@ public class PkwiseIndexBuilder {
 				if ( !map.containsKey(token) ) map.put(token, new ObjectArrayList<>());
 				int sidx0 = sidxMap.get(token);
 				int eidx0 = window.getSidx()+(isLast?1:0);
-				map.get(token).add( new WindowInterval( window.getID(), window.size(), sidx0, eidx0 ) );
+				map.get(token).add( new WindowInterval( window.getIdx(), window.size(), sidx0, eidx0 ) );
 			}
 			counter.addTo(token, -1);
 		}

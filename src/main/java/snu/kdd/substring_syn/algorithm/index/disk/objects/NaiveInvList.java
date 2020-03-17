@@ -9,7 +9,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 	public final int length;
 	
 	public NaiveInvList(int[] arr, int length) {
-		this.arr = arr;
+		this.arr = Arrays.copyOf(arr, length);
 		this.length = length;
 	}
 	
@@ -18,7 +18,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 		length = o.length;
 	}
 	
-	public final int getId(final int i) {
+	public final int getIdx(final int i) {
 		assert (i < length);
 		return arr[i];
 	}
@@ -40,7 +40,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 			
 			@Override
 			public Integer next() {
-				return getId(i++);
+				return getIdx(i++);
 			}
 			
 			@Override

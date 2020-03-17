@@ -22,13 +22,13 @@ public class PositionalIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	@Override
 	protected void addToInvList(IntList list, Record rec, int pos) {
-		list.add(rec.getID());
+		list.add(rec.getIdx());
 		list.add(pos);
 	}
 
 	@Override
 	protected void addToTrInvList(IntList list, Record rec, int pos, Rule rule) {
-		list.add(rec.getID());
+		list.add(rec.getIdx());
 		list.add(pos);
 		list.add(pos+rule.lhsSize()-1);
 	}

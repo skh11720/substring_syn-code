@@ -882,12 +882,12 @@ public class Util {
 		int r = invList.size();
 		while ( r-l > 1 ) {
 			int m = (l+r)/2;
-			int center = invList.getId(m);
+			int center = invList.getIdx(m);
 			if ( key > center ) l = m;
 			else r = m;
 		}
-		if ( key == invList.getId(l) ) return l;
-		else if ( r < invList.size() && key == invList.getId(r) ) return r;
+		if ( key == invList.getIdx(l) ) return l;
+		else if ( r < invList.size() && key == invList.getIdx(r) ) return r;
 		else return -1;
 	}
 	

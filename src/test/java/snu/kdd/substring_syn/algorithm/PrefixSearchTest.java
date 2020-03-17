@@ -252,4 +252,42 @@ public class PrefixSearchTest {
 		}
 		System.out.println(strbld.toString());
 	}
+
+	@Test
+	public void testVaryNAR() throws IOException {
+		/*
+		AMAZON_n10000_r107836_q5_l1.0, theta=0.6
+		 nar     T_Total        T_QS        T_TS     N_rec     N_Res  N_QS_Res  N_TS_Res    N_QS_V    N_TS_V
+		  -1    3110.945     994.145    1494.107     10000      1380      2305      2317     17020    183744
+		  30    1369.897     422.495     462.091     10000       682       905       906      6563     48241
+		  20     641.764     187.819     193.601     10000       555       661       664      4911     31433
+		  10     428.004     125.606     101.910     10000       455       492       492      3595     14108
+		   5     323.115      87.505      62.148     10000       359       377       377      2474      6596
+		   2     219.300      53.902      33.535     10000       273       276       276      1781      2288
+		   1     201.476      48.998      29.174     10000       277       280       280      1770      1464
+		   0     196.080      41.334      23.407     10000       266       266       266      1632       802 
+		 */
+		int[] narArr = {-1, 30, 20, 10, 5, 2, 1, 0};
+		StringBuilder strbld = new StringBuilder(String.format("%4s%12s%12s%12s%10s%10s%10s%10s%10s%10s\n", "nar", "T_Total", "T_QS", "T_TS", "N_rec", "N_Res", "N_QS_Res", "N_TS_Res", "N_QS_V", "N_TS_V"));
+		for ( int nar : narArr ) {
+			DatasetParam param = new DatasetParam("AMAZON", "10000", "107836", "5", "1.0", ""+nar);
+			double theta = 0.6;
+			Dataset dataset = DatasetFactory.createInstanceByName(param);
+			AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+			alg.run(dataset);
+			strbld.append(String.format("%4d%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d\n",
+					nar, 
+					Double.parseDouble(alg.getStat(Stat.Time_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_QS_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_TS_Total)), 
+					Integer.parseInt(alg.getStat(Stat.Dataset_numIndexed)), 
+					Integer.parseInt(alg.getStat(Stat.Num_QS_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Result)),
+					Integer.parseInt(alg.getStat(Stat.Num_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Len_QS_Verified)), 
+					Integer.parseInt(alg.getStat(Stat.Len_TS_Verified))
+			));
+		}
+		System.out.println(strbld.toString());
+	}
 }

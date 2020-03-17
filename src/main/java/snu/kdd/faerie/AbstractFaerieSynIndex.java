@@ -11,10 +11,10 @@ import snu.kdd.substring_syn.data.record.Records;
 
 public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface {
 
-	final IntList eidList;
+	final IntList eidxList;
 	
 	public AbstractFaerieSynIndex(Iterable<Record> records) {
-		eidList = buildEntryIdList(records);
+		eidxList = buildEntryIdList(records);
 	}
 	
 	protected final Iterable<FaerieSynIndexEntry> getEntries(Iterable<Record> recExps) {
@@ -41,27 +41,27 @@ public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface 
 	}
 
 	protected final IntList buildEntryIdList(Iterable<Record> records) {
-		IntList eidList = new IntArrayList();
-		eidList.add(0);
-		int eid = 0;
-		int rid = 0;
+		IntList eidxList = new IntArrayList();
+		eidxList.add(0);
+		int eidx = 0;
+		int ridx = 0;
 		for ( Record recExp : Records.expands(records) ) {
 //			Log.log.trace("eid=%d, recExp.id=%d", eid, recExp.getID());
-			if ( rid != recExp.getID() ) {
-				eidList.add(eid);
-				rid += 1;
+			if ( ridx != recExp.getIdx() ) {
+				eidxList.add(eidx);
+				ridx += 1;
 			}
-			eid += 1;
+			eidx += 1;
 		}
-		eidList.add(eid);
+		eidxList.add(eidx);
 //		Log.log.trace("AbstractFaerieSynIndex.buildEntryIdList finished");
 //		Log.log.trace("eidList.size=%d", eidList.size());
-		return eidList;
+		return eidxList;
 	}
 
 	@Override
-	public final Iterable<FaerieSynIndexEntry> getRecordEntries(int id) {
-		Stream<FaerieSynIndexEntry> entryStream = IntStream.range(eidList.getInt(id), eidList.getInt(id+1)).boxed().map(eid->getEntry(eid));
+	public final Iterable<FaerieSynIndexEntry> getRecordEntries(int idx) {
+		Stream<FaerieSynIndexEntry> entryStream = IntStream.range(eidxList.getInt(idx), eidxList.getInt(idx+1)).boxed().map(eidx->getEntry(eidx));
 		return entryStream::iterator;
 	}
 }

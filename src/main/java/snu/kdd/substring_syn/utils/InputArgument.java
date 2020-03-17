@@ -18,6 +18,7 @@ public class InputArgument {
 		argOptions.addOption("nr", true, "");
 		argOptions.addOption("ql", true, "");
 		argOptions.addOption("lr", true, "");
+		argOptions.addOption("nar", true, "");
 		argOptions.addOption("alg", true, "");
 		argOptions.addOption("param", true, "");
 		argOptions.addOption("pool", true, "");

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.object.indexstore.EntryStore;
+import snu.kdd.substring_syn.utils.Log;
 
 public class FaerieSynDiskBasedIndex extends AbstractFaerieSynIndex {
 
@@ -12,12 +13,13 @@ public class FaerieSynDiskBasedIndex extends AbstractFaerieSynIndex {
 	
 	public FaerieSynDiskBasedIndex(Iterable<Record> records, String name) {
 		super(records);
+		Log.log.trace("FaerieSynDiskBasedIndex.constructor");
 		store = new EntryStore<>(getEntries(Records.expands(records)), name);
 	}
 
 	@Override
-	public final FaerieSynIndexEntry getEntry(int id) {
-		return store.getEntry(id);
+	public final FaerieSynIndexEntry getEntry(int idx) {
+		return store.getEntry(idx);
 	}
 
 	@Override

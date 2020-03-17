@@ -17,8 +17,8 @@ public class FaerieSynMemBasedIndex extends AbstractFaerieSynIndex {
 	}
 
 	@Override
-	public final FaerieSynIndexEntry getEntry(int id) {
-		return store.get(id);
+	public final FaerieSynIndexEntry getEntry(int idx) {
+		return store.get(idx);
 	}
 
 	@Override
