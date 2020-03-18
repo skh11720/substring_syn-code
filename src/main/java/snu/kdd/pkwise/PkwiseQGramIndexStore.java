@@ -1,5 +1,7 @@
 package snu.kdd.pkwise;
 
+import java.util.Arrays;
+
 import snu.kdd.substring_syn.algorithm.index.disk.AbstractIndexStoreBuilder;
 import snu.kdd.substring_syn.algorithm.index.disk.IndexStoreAccessor;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
@@ -24,6 +26,6 @@ public class PkwiseQGramIndexStore {
 	public NaiveInvList getInvList( int token ) {
 		int len = invListAccessor.getList(token);
 		if ( invListAccessor.arr == null ) return null;
-		else return new NaiveInvList(invListAccessor.arr, len);
+		else return new NaiveInvList(Arrays.copyOf(invListAccessor.arr, len), len); // copying is necesary
 	}
 }

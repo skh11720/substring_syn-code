@@ -191,7 +191,7 @@ public class PkwiseSynIndex {
 		public TwitvIterator( int token ) {
 			NaiveInvList list = qgramIndexStore.getInvList(token);
 			if ( list == null ) iter = null;
-			else iter = qgramIndexStore.getInvList(token).iterator();
+			else iter = list.iterator();
 		}
 
 		@Override

@@ -111,7 +111,7 @@ public class TransWindowDataset extends WindowDataset {
 		@Override
 		public IntQGram next() {
 			QGram qgram = qiter.next();
-			IntQGram iqgram = new IntQGram(rec.getIdx(), qgram); 
+			IntQGram iqgram = new IntQGram(rec.getID(), qgram); 
 			findNext();
 			return iqgram;
 		}

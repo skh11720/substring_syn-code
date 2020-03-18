@@ -11,6 +11,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 	public NaiveInvList(int[] arr, int length) {
 		this.arr = arr;
 		this.length = length;
+//		Log.log.trace("NaiveInvList: length=%d, arr=%s", this.length, Arrays.toString(this.arr));
 	}
 	
 	public NaiveInvList(NaiveInvList o) {
