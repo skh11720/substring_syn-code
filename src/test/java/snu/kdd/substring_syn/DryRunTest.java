@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 
+import junit.framework.TestCase;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
 import snu.kdd.substring_syn.data.Dataset;
@@ -12,7 +13,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class DryRunTest {
+public class DryRunTest extends TestCase {
 	
 	String datasetName = "WIKI";
 	String size = "1000";

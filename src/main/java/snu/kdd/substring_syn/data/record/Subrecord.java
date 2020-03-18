@@ -14,7 +14,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Subrecord implements TransformableRecordInterface {
+public class Subrecord implements TransformableRecordInterface, RecursiveRecordInterface {
 	
 	protected final Record rec;
 	public final int sidx;
@@ -24,9 +24,10 @@ public class Subrecord implements TransformableRecordInterface {
 	protected int maxTransLen = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
-		this.rec = rec.getSuperRecord();
-		this.sidx = sidx + rec.getSidx(); // inclusive
-		this.eidx = eidx + rec.getSidx(); // exclusive
+		// TODO: remove the cast
+		this.rec = ((RecursiveRecordInterface)rec).getSuperRecord();
+		this.sidx = sidx + ((RecursiveRecordInterface)rec).getSidx(); // inclusive
+		this.eidx = eidx + ((RecursiveRecordInterface)rec).getSidx(); // exclusive
 		hash = getHash();
 	}
 	

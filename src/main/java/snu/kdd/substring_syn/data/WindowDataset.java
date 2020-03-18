@@ -26,18 +26,18 @@ public class WindowDataset extends DiskBasedDataset {
 	}
 
 	
-	public Iterable<RecordInterface> getWindowList( int w ) {
-		return new Iterable<RecordInterface>() {
+	public Iterable<Subrecord> getWindowList( int w ) {
+		return new Iterable<Subrecord>() {
 			
 			@Override
-			public Iterator<RecordInterface> iterator() {
+			public Iterator<Subrecord> iterator() {
 				return new WindowIterator(store.getRecords().iterator(), w);
 			}
 		};
 	}
 
-	public Iterable<RecordInterface> getWindowList( int wMin, int wMax ) {
-		IterableConcatenator<RecordInterface> iconcat = new IterableConcatenator<>();
+	public Iterable<Subrecord> getWindowList( int wMin, int wMax ) {
+		IterableConcatenator<Subrecord> iconcat = new IterableConcatenator<>();
 		for ( int w=wMin; w<=wMax; ++w ) iconcat.addIterable(getWindowList(w));
 		return iconcat.iterable();
 	}
@@ -52,7 +52,7 @@ public class WindowDataset extends DiskBasedDataset {
 		};
 	}
 
-	public static class WindowIterator implements Iterator<RecordInterface> {
+	public static class WindowIterator implements Iterator<Subrecord> {
 
 		final Iterator<Record> rIter;
 		Record rec = null;

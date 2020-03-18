@@ -9,8 +9,8 @@ public interface RecordInterface {
 	int size();
 	int getToken(int i);
 
-	int getSidx();
-	Record getSuperRecord();
+//	int getSidx();
+//	Record getSuperRecord();
 
 	int[] getTokenArray();
 	IntList getTokenList();

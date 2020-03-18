@@ -18,7 +18,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Record implements TransformableRecordInterface, Comparable<Record> {
+public class Record implements TransformableRecordInterface, RecursiveRecordInterface, Comparable<Record> {
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
@@ -41,6 +41,7 @@ public class Record implements TransformableRecordInterface, Comparable<Record> 
 	int minTransLen = 0;
 	int maxRhsSize = 0;
 	
+
 	public Record( int idx, int id, String str ) {
 		this.idx = idx;
 		this.id = id;
@@ -50,14 +51,14 @@ public class Record implements TransformableRecordInterface, Comparable<Record> 
 			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
 		}
 		
-		hash = getHash();
+		hash = getHash(idx, tokens, tokens.length);
 	}
 	
 	public Record( int idx, int id, int[] tokens ) {
 		this.idx = idx;
 		this.id = id;
 		this.tokens = tokens;
-		hash = getHash();
+		hash = getHash(idx, tokens, tokens.length);
 	}
 
 	public Record( int[] tokens ) { // for transformed strings
@@ -352,11 +353,11 @@ public class Record implements TransformableRecordInterface, Comparable<Record> 
 		return rslt.toString();
 	}
 
-	private int getHash() {
+	static int getHash(int idx, int[] tokens, int size) {
 		// djb2-like
 		int hash = Util.bigprime + idx;
-		for( int token : tokens ) {
-			hash = ( hash << 5 ) + Util.bigprime + token;
+		for ( int i=0; i<size; ++i ) {
+			hash = ( hash << 5 ) + Util.bigprime + tokens[i];
 //                tmp = 0x1f1f1f1f ^ tmp + token;
 //			hash = hash % Util.bigprime;
 		}

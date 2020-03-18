@@ -58,7 +58,7 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	}
 	
 	protected Iterable<RecordInterface> getCandWindowListQuerySide(Record query, WindowDataset dataset ) {
-		return dataset.getWindowList(qlen, qlen);
+		return Util.convert(dataset.getWindowList(qlen, qlen));
 	}
 	
 	protected final void searchWindowQuerySide(Record query, RecordInterface window) {

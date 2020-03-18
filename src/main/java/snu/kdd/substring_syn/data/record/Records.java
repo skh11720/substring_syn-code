@@ -167,6 +167,7 @@ public class Records {
 				this.rec = rec;
 				ruleList = new Rule[rec.size()];
 				riterList = new Iterator[rec.size()];
+				for ( int i=0; i<rec.size(); ++i ) riterList[i] = rec.getApplicableRules(i).iterator();
 				expand = new int[rec.getMaxTransLength()];
 				nRule = 0;
 				lhsSize = 0;

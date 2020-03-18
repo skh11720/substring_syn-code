@@ -6,7 +6,7 @@ import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.data.TokenIndexBuilder;
 import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class PkwiseTokenIndexBuilder extends TokenIndexBuilder {
 
@@ -30,15 +30,15 @@ public class PkwiseTokenIndexBuilder extends TokenIndexBuilder {
 	}
 
 	protected final void countTokensFromRecordWindows() {
-		Iterable<RecordInterface> windows = new Iterable<RecordInterface>() {
+		Iterable<Subrecord> windows = new Iterable<Subrecord>() {
 			
 			@Override
-			public Iterator<RecordInterface> iterator() {
+			public Iterator<Subrecord> iterator() {
 				return new WindowDataset.WindowIterator(indexedRecords.iterator(), w);
 			}
 		};
 
-		for ( RecordInterface window : windows ) {
+		for ( Subrecord window : windows ) {
 			for ( int token : window.getTokenArray() ) counter.addTo(token, 1);
 		}
 	}

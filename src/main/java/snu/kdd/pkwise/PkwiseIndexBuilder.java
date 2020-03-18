@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.WindowDataset;
-import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndexBuilder {
@@ -141,18 +141,18 @@ public class PkwiseIndexBuilder {
 //		counter.addTo(token, -1);
 //	}
 	
-	private static boolean isLastWindow( RecordInterface window ) {
+	private static boolean isLastWindow( Subrecord window ) {
 		if ( window == null ) return false;
 		return (window.getSidx()+window.size() == window.getSuperRecord().size());
 	}
 	
 	public static class WitvMapBuilder {
-		final Iterator<RecordInterface> windowList;
+		final Iterator<Subrecord> windowList;
 		final PkwiseSignatureGenerator siggen;
 		final Int2ObjectMap<ObjectList<WindowInterval>> map;
 		final Int2IntOpenHashMap counter;
 		final Int2IntOpenHashMap sidxMap;
-		RecordInterface x;
+		Subrecord x;
 		int l;
 		IntArrayList prefix;
 		IntArrayList sig;
@@ -196,7 +196,7 @@ public class PkwiseIndexBuilder {
 				return;
 			}
 			
-			RecordInterface x1 = windowList.next();
+			Subrecord x1 = windowList.next();
 //			Log.log.trace("window: rid="+x1.getID()+"\tsidx="+x1.getSidx()+"\tsize="+x1.size()+"\twindow="+x1.getTokenList());
 			int maxDiff = Util.getPrefixLength(x1, theta);
 			IntArrayList prefix1;
@@ -298,7 +298,7 @@ public class PkwiseIndexBuilder {
 			if ( sig1 != null ) sig = sig1;
 		}
 		
-		private void openInterval( int token, RecordInterface window ) {
+		private void openInterval( int token, Subrecord window ) {
 //			Log.log.trace(String.format("openInterval: token=%d\trid=%d\tsidx=%d\tsize=%d\tcount=%d", token, window.getID(), window.getSidx(), window.size(), counter.get(token)));
 			if ( counter.get(token) == 0 ) {
 				sidxMap.put(token, window.getSidx());
@@ -306,7 +306,7 @@ public class PkwiseIndexBuilder {
 			counter.addTo(token, 1);
 		}
 
-		private void closeInterval( int token, RecordInterface window, boolean isLast ) {
+		private void closeInterval( int token, Subrecord window, boolean isLast ) {
 //			Log.log.trace(String.format("closeInterval: token=%d\trid=%d\tsidx=%d\tsize=%d\tcount=%d", token, window.getID(), window.getSidx(), window.size(), counter.get(token)));
 			
 			if ( counter.get(token) == 1 ) {
@@ -338,7 +338,7 @@ public class PkwiseIndexBuilder {
 			}
 		}
 
-		private void openAndCloseIntervals( IntArrayList sig, IntArrayList sig1, RecordInterface window ) {
+		private void openAndCloseIntervals( IntArrayList sig, IntArrayList sig1, Subrecord window ) {
 			int i=0, i1 = 0;
 			while ( i < sig.size() && i1 < sig1.size() ) {
 				if ( sig.getInt(i) == sig1.getInt(i1) ) {

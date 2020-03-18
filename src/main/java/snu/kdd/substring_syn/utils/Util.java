@@ -905,4 +905,27 @@ public class Util {
 //		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
 //		else return -1;
 //	}
+	
+	public static <S extends T,T> Iterable<T> convert(Iterable<S> src) {
+		return new Iterable<T>() {
+
+			@Override
+			public Iterator<T> iterator() {
+				Iterator<S> iter = src.iterator();
+
+				return new Iterator<T>() {
+
+					@Override
+					public boolean hasNext() {
+						return iter.hasNext();
+					}
+
+					@Override
+					public T next() {
+						return iter.next();
+					}
+				};
+			}
+		};
+	}
 }

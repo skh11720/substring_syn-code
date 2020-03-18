@@ -3,31 +3,45 @@
 //import java.util.Arrays;
 //import java.util.Iterator;
 //
+//import it.unimi.dsi.fastutil.ints.IntList;
+//import it.unimi.dsi.fastutil.ints.IntSet;
 //import snu.kdd.substring_syn.data.IntPair;
 //import snu.kdd.substring_syn.data.Rule;
 //
-//public class ReusableRecord extends Record {
+//public class ReusableRecord implements TransformableRecordInterface {
+//	
+//	int idx;
+//	int id;
+//	int[] tokens;
+//	int hash;
 //	
 //	int size = 0;
 //	int[] nApp;
 //	int[] nSapp;
 //	int[] nSRL;
 //
-//	public ReusableRecord(int id, int[] tokens) {
-//		super(id, tokens);
-//		size = tokens.length;
-//		nApp = new int[size];
-//		nSapp = new int[size];
-//		nSRL = new int[size];
-//		for ( int i=0; i<tokens.length; ++i ) this.tokens[i] = tokens[i];
+//	Rule[][] applicableRules = null;
+//	Rule[][] suffixApplicableRules = null;
+//	IntPair[][] suffixRuleLenPairs = null;
+//
+//	int maxTransLen = 0;
+//	int minTransLen = 0;
+//	int maxRhsSize = 0;
+//
+//
+//	public ReusableRecord() {
+//	}
+//
+//	public void setIdx(int idx) {
+//		this.idx = idx;
 //	}
 //	
 //	public void setId(int id) {
 //		this.id = id;
 //	}
 //	
-//	public void setHash() {
-//		this.hash = getHash();
+//	private void setHash() {
+//		hash = Record.getHash(idx, tokens, size);
 //	}
 //	
 //	public void fit(int size) {
@@ -54,7 +68,6 @@
 //		doubleTokenArray();
 //		doubleAppRulesArray();
 //		doubleSappRulesArray();
-//		doubleTransformLengthsArray();
 //		doubleSRLPairsArray();
 //	}
 //	
@@ -77,11 +90,6 @@
 //		nSapp = nSapp0;
 //	}
 //	
-//	private void doubleTransformLengthsArray() {
-//		int[][] tr0 = Arrays.copyOf(transformLengths, 2*transformLengths.length);
-//		transformLengths = tr0;
-//	}
-//	
 //	private void doubleSRLPairsArray() {
 //		IntPair[][] srl0 = Arrays.copyOf(suffixRuleLenPairs, 2*suffixRuleLenPairs.length);
 //		suffixRuleLenPairs = srl0;
@@ -96,80 +104,106 @@
 //	private IntPair[] doubleIntPairArray(IntPair[] arr) {
 //		return Arrays.copyOf(arr, 2*arr.length);
 //	}
-//	
+//
 //	@Override
-//	public void preprocessTransformLength() {
-//
-//		for( int i = 0; i < size; ++i ) {
-//			if ( transformLengths[i] == null ) transformLengths[i] = new int[2];
-//			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
-//		}
-//
-//		for( int j=0; j<nApp[0]; ++j ) {
-//			int fromSize = applicableRules[0][j].lhsSize();
-//			int toSize = applicableRules[0][j].rhsSize();
-//			if( fromSize > toSize ) {
-//				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
-//			}
-//			else if( fromSize < toSize ) {
-//				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
-//			}
-//		}
-//		for( int i = 1; i < size; ++i ) {
-//			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
-//			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
-//			for ( int j=0; j<nApp[i]; ++j ) {
-//				int fromSize = applicableRules[i][j].lhsSize();
-//				int toSize = applicableRules[i][j].rhsSize();
-//				if( fromSize > toSize ) {
-//					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
-//							transformLengths[ i - 1 ][ 0 ] + toSize );
-//				}
-//				else if( fromSize < toSize ) {
-//					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
-//							transformLengths[ i - 1 ][ 1 ] + toSize );
-//				}
-//			}
-//		}
+//	public int getIdx() {
+//		// TODO Auto-generated method stub
+//		return 0;
 //	}
-//	
+//
 //	@Override
-//	public int getNumApplicableRules() {
-//		return Arrays.stream(nApp).sum();
+//	public int getID() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public int size() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public int getToken(int i) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public int getSidx() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public Record getSuperRecord() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public int[] getTokenArray() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public IntList getTokenList() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public IntSet getCandTokenSet() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public int getMaxRhsSize() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public String toOriginalString() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String toStringDetails() {
+//		// TODO Auto-generated method stub
+//		return null;
 //	}
 //
 //	@Override
 //	public Iterable<Rule> getApplicableRuleIterable() {
-//		return new Iterable<Rule>() {
-//			@Override
-//			public Iterator<Rule> iterator() {
-//				return new RuleIterator();
-//			}
-//		};
+//		// TODO Auto-generated method stub
+//		return null;
 //	}
 //
+//	@Override
+//	public Iterable<Rule> getApplicableRules(int i) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 //
+//	@Override
+//	public Iterable<Rule> getSuffixApplicableRules(int i) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 //
+//	@Override
+//	public int getNumApplicableRules(int pos) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 //
-//
-//
-//	private class RuleIterator implements Iterator<Rule> {
-//		int k = 0;
-//		int i = 0;
-//
-//		@Override
-//		public boolean hasNext() {
-//			return (k < applicableRules.length);
-//		}
-//
-//		@Override
-//		public Rule next() {
-//			Rule rule = applicableRules[k][i++];
-//			if ( i >= applicableRules[k].length ) {
-//				++k;
-//				i = 0;
-//			}
-//			return rule;
-//		}
+//	@Override
+//	public int getMaxTransLength() {
+//		// TODO Auto-generated method stub
+//		return 0;
 //	}
 //}
