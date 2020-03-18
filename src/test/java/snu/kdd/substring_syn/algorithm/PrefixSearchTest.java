@@ -47,10 +47,29 @@ public class PrefixSearchTest {
 	
 	@Test
 	public void testExecutionWithEveryOption() throws IOException {
+		/*
+	   FilterOption     T_Total     T_Qside     T_Tside   N_Q_Ret   N_T_Ret   L_Q_Ret   L_T_Ret   N_Q_Val   N_T_Val   L_Q_Val   L_T_Val     N_Res   N_Q_Res
+		  Fopt_None   17429.538    6984.718   10385.864     10000     10000    240000    240000   3777560   3774423  50161755  50080034         6         6         6
+		 Fopt_Index   12914.061    4687.248    8141.496      5982      5982    154618    154626   2601706   2598733  36608792  36528855         6         6         6
+			 Fopt_C    1671.293     413.560    1221.923       286       286      9781      9777    204459    201236   3417042   3334351         6         6         6
+			 Fopt_P     205.801      53.868     106.850         6        75       245       182         6        86        20       202         6         6         6
+			 Fopt_L    3778.054    1782.063    1978.831     10000     10000    240000    240000   1178576   1694226   6344647   7540504         6         6         6
+			 Fopt_R    3859.786     711.166    3131.935     10000     10000    240000    240000     36517     44853    373926    431482         6         6         6
+			Fopt_IL    2429.788    1115.719    1280.668      5982      5982    154618    154626    770730   1101314   4155860   4907042         6         6         6
+			Fopt_IR    3399.511     458.620    2904.551      5982      5982    154618    154626     36517     44853    373926    431482         6         6         6
+			Fopt_CP      57.435      11.258      11.163         6        19       245       100         6        20        20       102         6         6         6
+			Fopt_CL     246.135     103.799     113.330       286       286      9781      9777     50628     70796    275571    318386         6         6         6
+			Fopt_PL      78.821      13.366      28.241         6        75       245       182         6        84        20       184         6         6         6
+		   Fopt_CPL      63.882       6.556      12.169         6        19       245       100         6        18        20        84         6         6         6
+		   Fopt_CPR      43.342       6.041       7.007         6        19       245       100         6        16        20        69         6         6         6
+		  Fopt_CPLR      36.409       6.831       7.346         6        19       245       100         6        16        20        69         6         6         6
+		 */
 		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
 		String argsTmpl = "-data WIKI -alg PrefixSearch -nt 100 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
-		String outputTmpl = "%20s%20.6f%20.6f%20.6f%10d%10d%10d\n";
-		StringBuilder strbld = new StringBuilder(String.format("%20s%20s%20s%10s%10s%10s\n", "FilterOption", "T_Total", "T_Qside", "T_Tside", "Num_Result", "Num_QS_Result", "Num_TS_Result"));
+		String outputTmpl = "%15s%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n";
+		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
+				"T_Total", "T_Qside", "T_Tside", 
+				"N_Q_Ret", "N_T_Ret", "L_Q_Ret", "L_T_Ret", "N_Q_Val", "N_T_Val", "L_Q_Val", "L_T_Val", "N_Res", "N_Q_Res", "N_T_Res"));
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( AlgorithmFactory.FilterOptionLabel opt : FilterOptionLabel.values() ) {
 //			if ( opt == FilterOptionLabel.Fopt_None ) continue;
@@ -61,9 +80,19 @@ public class PrefixSearchTest {
 					Double.parseDouble(alg.getStat(Stat.Time_Total)), 
 					Double.parseDouble(alg.getStat(Stat.Time_QS_Total)), 
 					Double.parseDouble(alg.getStat(Stat.Time_TS_Total)), 
+					Integer.parseInt(alg.getStat(Stat.Num_QS_Retrieved)), 
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Retrieved)),
+					Integer.parseInt(alg.getStat(Stat.Len_QS_Retrieved)), 
+					Integer.parseInt(alg.getStat(Stat.Len_TS_Retrieved)),
+					Integer.parseInt(alg.getStat(Stat.Num_QS_Verified)), 
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Verified)),
+					Integer.parseInt(alg.getStat(Stat.Len_QS_Verified)), 
+					Integer.parseInt(alg.getStat(Stat.Len_TS_Verified)),
+					Integer.parseInt(alg.getStat(Stat.Num_Result)), 
 					Integer.parseInt(alg.getStat(Stat.Num_Result)), 
 					Integer.parseInt(alg.getStat(Stat.Num_QS_Result)), 
-					Integer.parseInt(alg.getStat(Stat.Num_TS_Result))));
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Result))
+					));
 		}
 		System.out.println(strbld.toString());
 	}
