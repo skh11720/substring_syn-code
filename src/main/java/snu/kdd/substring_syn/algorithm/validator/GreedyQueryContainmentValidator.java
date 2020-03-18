@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.validator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -13,11 +14,11 @@ public class GreedyQueryContainmentValidator extends ImprovedGreedyValidator {
 		super(theta, statContainer);
 	}
 	
-	public boolean isOverThresholdQuerySide( Record query, Record rec ) {
+	public boolean isOverThresholdQuerySide( Record query, RecordInterface rec ) {
 		return simQuerySide(query, rec) >= theta;
 	}
 
-	public boolean isOverThresholdTextSide( Record query, Record rec ) {
+	public boolean isOverThresholdTextSide( Record query, TransformableRecordInterface rec ) {
 		return simTextSide(query, rec) >= theta;
 	}
 
@@ -30,7 +31,7 @@ public class GreedyQueryContainmentValidator extends ImprovedGreedyValidator {
 		return sim;
 	}
 
-	public double simTextSide( Record query, RecordInterface window ) {
+	public double simTextSide( Record query, TransformableRecordInterface window ) {
 		int[] transformedText = getTransform(window, query);
 //		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedText)).toOriginalString());
 		double sim = Util.subJaccardContainmentM( query.getTokenList(), IntArrayList.wrap(transformedText) );
@@ -40,7 +41,7 @@ public class GreedyQueryContainmentValidator extends ImprovedGreedyValidator {
 		return sim;
 	}
 	
-	public int[] getTransform(RecordInterface trans, RecordInterface target) {
+	public int[] getTransform(TransformableRecordInterface trans, RecordInterface target) {
 		State state = new State(trans, target);
 		state.findBestTransform();
 		return state.getTransformedString(trans);

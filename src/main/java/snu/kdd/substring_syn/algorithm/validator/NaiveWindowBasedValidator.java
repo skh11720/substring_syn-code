@@ -5,6 +5,7 @@ import java.util.Iterator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -16,7 +17,7 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 	}
 
 	@Override
-	protected AbstractTextSideIterator getTextSideIterator(Record query, Record rec) {
+	protected AbstractTextSideIterator getTextSideIterator(Record query, TransformableRecordInterface rec) {
 		return new TextSideIterator(query, rec);
 	}
 
@@ -26,7 +27,7 @@ public class NaiveWindowBasedValidator extends NaiveValidator {
 		Record w;
 		Record thisExp;
 		
-		public TextSideIterator( Record query, Record rec ) {
+		public TextSideIterator( Record query, TransformableRecordInterface rec ) {
 			super(query);
 			wIter = Records.getSubrecords(rec).iterator();
 			thisExp = findNext();

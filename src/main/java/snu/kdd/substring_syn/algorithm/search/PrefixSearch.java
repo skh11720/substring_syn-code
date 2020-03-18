@@ -20,7 +20,9 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
@@ -56,7 +58,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 //		Log.log.trace("searchRecordQuerySide(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 //		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
@@ -86,7 +88,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return expandedPrefix;
 	}
 	
-	protected final IntRange getWindowSizeRangeQuerySide( Record query, Record rec ) {
+	protected final IntRange getWindowSizeRangeQuerySide( Record query, RecordInterface rec ) {
 		int min = (int)Math.max(1, Math.ceil(theta*query.getMinTransLength()));
 		int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
 		return new IntRange(min, max);
@@ -135,7 +137,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, TransformableRecordInterface rec ) {
 //		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
 		modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
@@ -149,7 +151,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		else searchRecordTextSideWithoutPrefixFilter(query, rec);
 	}
 	
-	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
+	protected void searchRecordTextSideWithPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
 //		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
@@ -170,7 +172,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 	
-	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
+	protected void searchRecordTextSideWithoutPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			transLenCalculator = new TransLenLazyCalculator(statContainer, rec, widx, rec.size()-widx, modifiedTheta);
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
@@ -180,7 +182,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		}
 	}
 
-	protected final IntList getCandTokenList( Record query, Record rec, double theta ) {
+	protected final IntList getCandTokenList( Record query, TransformableRecordInterface rec, double theta ) {
 		IntSet recTokenSet = rec.getCandTokenSet();
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( int token : Util.getPrefix(query, theta) ) {
@@ -207,7 +209,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		return ReturnStatus.None;
 	}
 	
-	protected final ReturnStatus verifyTextSideWrapper( Record query, Record rec, int widx, int w ) {
+	protected final ReturnStatus verifyTextSideWrapper( Record query, TransformableRecordInterface rec, int widx, int w ) {
 		Subrecord window = new Subrecord(rec, widx, widx+w);
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = verifyTextSide(query, window);
@@ -233,18 +235,17 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		
 		protected final int maxTransLen;
 		protected final Record query;
-		protected final Record rec;
+		protected final TransformableRecordInterface rec;
 		protected final double theta;
 		protected final int[][][] g;
 		protected final boolean[][] b;
 		protected int target;
 		
 		
-		public PkduckDPExIncremental( Record query, Record rec, double theta ) {
+		public PkduckDPExIncremental( Record query, TransformableRecordInterface rec, double theta ) {
 			this.query = query;
 			this.rec = rec;
 			this.theta = theta;
-			rec.preprocessTransformLength();
 			this.maxTransLen = rec.getMaxTransLength();
 			this.g = new int[2][rec.size()+1][maxTransLen+1];
 			this.b = new boolean[rec.size()+1][rec.size()+1];
@@ -321,7 +322,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		ObjectList<Object2IntMap<IntPair>> numSmallestThanTarget0 = null;
 		ObjectList<Object2IntMap<IntPair>> numSmallestThanTarget1 = null;
 
-		public PkduckDPExIncrementalOpt(Record query, Record rec, double theta) {
+		public PkduckDPExIncrementalOpt(Record query, TransformableRecordInterface rec, double theta) {
 			super(query, rec, theta);
 		}
 		

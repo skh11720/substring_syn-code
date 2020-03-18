@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.BipartiteGraph;
 import snu.kdd.substring_syn.utils.HopcroftKarpAlgorithm;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -24,19 +25,19 @@ public class ImprovedGreedyValidator extends GreedyValidator {
 	}
 
 	@Override
-	public int[] getTransform(RecordInterface trans, RecordInterface target) {
+	public int[] getTransform(TransformableRecordInterface trans, RecordInterface target) {
 		if ( isSingleTokenTransform(trans) ) return getTransformForSingleTokenTransform(trans, target);
 		else return super.getTransform(trans, target);
 	}
 	
-	protected static final boolean isSingleTokenTransform(RecordInterface rec) {
+	protected static final boolean isSingleTokenTransform(TransformableRecordInterface rec) {
 		for ( Rule rule : rec.getApplicableRuleIterable() ) {
 			if ( rule.lhsSize() > 1 || rule.rhsSize() > 1 ) return false;
 		}
 		return true;
 	}
 
-	protected static final int[] getTransformForSingleTokenTransform(RecordInterface trans, RecordInterface target) {
+	protected static final int[] getTransformForSingleTokenTransform(TransformableRecordInterface trans, RecordInterface target) {
 		BipartiteGraph G = buildGraph(trans, target);
 		HopcroftKarpAlgorithm alg = new HopcroftKarpAlgorithm(G);
 		ObjectList<IntPair> pairList = alg.run();
@@ -45,7 +46,7 @@ public class ImprovedGreedyValidator extends GreedyValidator {
 		return transformed;
 	}
 
-	protected static final BipartiteGraph buildGraph(RecordInterface trans, RecordInterface target) {
+	protected static final BipartiteGraph buildGraph(TransformableRecordInterface trans, RecordInterface target) {
 		Int2IntMap map = getTok2posMap(target);
 		int[] L = IntStream.range(0, trans.size()).toArray();
 		int[] R = IntStream.range(trans.size(), trans.size()+target.size()).toArray();

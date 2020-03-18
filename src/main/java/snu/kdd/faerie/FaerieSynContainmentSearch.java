@@ -2,6 +2,7 @@ package snu.kdd.faerie;
 
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieSynContainmentSearch extends FaerieSynSearch {
@@ -11,7 +12,7 @@ public class FaerieSynContainmentSearch extends FaerieSynSearch {
 	}
 
 	@Override
-	protected boolean searchRecord( Record query, Record rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
+	protected boolean searchRecord( Record query, RecordInterface rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
 		return Util.jaccardContainmentM(query.getTokenArray(), rec.getTokenArray()) >= theta;
 	}
 	

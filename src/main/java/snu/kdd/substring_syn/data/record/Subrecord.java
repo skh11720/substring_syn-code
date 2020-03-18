@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data.record;
 
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -8,17 +9,19 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Subrecord implements RecordInterface {
+public class Subrecord implements TransformableRecordInterface {
 	
 	protected final Record rec;
 	public final int sidx;
 	public final int eidx;
 	protected final int hash;
 	protected int maxRhsSize = 0;
+	protected int maxTransLen = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
 		this.rec = rec.getSuperRecord();
@@ -79,6 +82,21 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
+	public int getNumApplicableRules(int pos) {
+		return (int)StreamSupport.stream(getApplicableRules(pos).spliterator(), true).count();
+	}
+
+	@Override
+	public final int getMaxTransLength() {
+		if ( maxTransLen == 0 ) preprocessTransformLength();
+		return maxTransLen;
+	}
+
+	private void preprocessTransformLength() {
+		TransLenLazyCalculator cal = new TransLenLazyCalculator(null, this, 0, size(), 0);
+		maxTransLen = cal.getUB(size()-1);
+	}
+
 	public Iterable<Rule> getApplicableRuleIterable() {
 		return new Iterable<Rule>() {
 			
@@ -89,7 +107,6 @@ public class Subrecord implements RecordInterface {
 		};
 	}
 
-	@Override
 	public Iterable<Rule> getApplicableRules( int i ) {
 		return new Iterable<Rule>() {
 			
@@ -100,17 +117,16 @@ public class Subrecord implements RecordInterface {
 		};
 	}
 	
-	public Iterable<Rule> getSuffixApplicableRuleIterable() {
-		return new Iterable<Rule>() {
-			
-			@Override
-			public Iterator<Rule> iterator() {
-				return new SuffixRuleIterator();
-			}
-		};
-	}
+//	public Iterable<Rule> getSuffixApplicableRuleIterable() {
+//		return new Iterable<Rule>() {
+//			
+//			@Override
+//			public Iterator<Rule> iterator() {
+//				return new SuffixRuleIterator();
+//			}
+//		};
+//	}
 
-	@Override
 	public Iterable<Rule> getSuffixApplicableRules( int i ) {
 		return new Iterable<Rule>() {
 			

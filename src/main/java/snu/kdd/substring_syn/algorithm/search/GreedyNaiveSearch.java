@@ -3,7 +3,9 @@ package snu.kdd.substring_syn.algorithm.search;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyValidator;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
@@ -18,7 +20,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 		Log.log.debug("searchRecordFromQuery(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
@@ -37,7 +39,7 @@ public class GreedyNaiveSearch extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide( Record query, Record rec ) {
+	protected void searchRecordTextSide( Record query, TransformableRecordInterface rec ) {
 		Log.log.debug("searchRecordFromText(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);

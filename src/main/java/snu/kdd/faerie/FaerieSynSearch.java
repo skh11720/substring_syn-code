@@ -6,8 +6,10 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -47,7 +49,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	}
 	
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
+	protected void searchRecordQuerySide(Record query, RecordInterface rec) {
 		Log.log.trace("FaerieSynSearch.searchRecordQuerySide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		for ( Record queryExp : Records.expands(query) ) {
@@ -72,7 +74,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
+	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) {
 		Log.log.trace("FaerieSynSearch.searchRecordTextSide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getIdx()) ) {
 			IntList posList = getPosList(queryTokenSet, entry.invIndex);

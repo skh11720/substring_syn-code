@@ -5,6 +5,7 @@ import java.util.Iterator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -25,7 +26,7 @@ public class NaiveQueryContainmentValidator extends AbstractValidator {
 		return sim(iter);
 	}
 	
-	public boolean isOverThresholdTextSide( Record query, Record rec ) {
+	public boolean isOverThresholdTextSide( Record query, TransformableRecordInterface rec ) {
 		TextSideIterator iter = new TextSideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
@@ -80,7 +81,7 @@ public class NaiveQueryContainmentValidator extends AbstractValidator {
 		final Record query;
 		Iterator<Record> eiter;
 		
-		public TextSideIterator( Record query, Record rec ) {
+		public TextSideIterator( Record query, TransformableRecordInterface rec ) {
 			this.query = query;
 			eiter = Records.expands(rec).iterator();
 		}

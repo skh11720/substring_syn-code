@@ -13,6 +13,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Param;
 import snu.kdd.substring_syn.utils.Stat;
@@ -173,9 +174,9 @@ public abstract class AbstractSearch {
 		return rslt.stream().sorted().collect(Collectors.toList());
 	}
 	
-	protected abstract void searchRecordQuerySide( Record query, Record rec );
+	protected abstract void searchRecordQuerySide( Record query, RecordInterface rec );
 	
-	protected abstract void searchRecordTextSide( Record query, Record rec ); 
+	protected abstract void searchRecordTextSide( Record query, TransformableRecordInterface rec ); 
 
 	public final String getID() { return id; }
 	

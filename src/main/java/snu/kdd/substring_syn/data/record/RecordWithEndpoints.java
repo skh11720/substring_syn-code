@@ -13,7 +13,6 @@ public class RecordWithEndpoints extends Record {
 		this.epList = epList;
 		this.applicableRules = rec.applicableRules;
 		this.suffixApplicableRules = rec.suffixApplicableRules;
-		this.transformLengths = rec.transformLengths;
 		this.suffixRuleLenPairs = rec.suffixRuleLenPairs;
 		this.maxRhsSize = rec.maxRhsSize;
 	}

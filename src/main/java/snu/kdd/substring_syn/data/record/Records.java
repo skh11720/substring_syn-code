@@ -15,14 +15,14 @@ public class Records {
 		return str.split( "( |\t)+" );
 	}
 
-	public static ObjectList<Record> expandAll( RecordInterface rec ) {
+	public static ObjectList<Record> expandAll( TransformableRecordInterface rec ) {
 		ObjectList<Record> rslt = new ObjectArrayList<Record>();
 		int[] tokens = rec.getTokenArray();
 		expandAll( rslt, rec, 0, tokens );
 		return rslt;
 	}
 
-	private static void expandAll( ObjectList<Record> rslt, RecordInterface rec, int idx, int[] t ) {
+	private static void expandAll( ObjectList<Record> rslt, TransformableRecordInterface rec, int idx, int[] t ) {
 
 		Iterable<Rule> rules = rec.getApplicableRules(idx);
 
@@ -105,7 +105,6 @@ public class Records {
 				}
 				else {
 					rec = rIter.next();
-					rec.preprocessTransformLength(); // necessary
 					Log.log.trace("rec.idx=%d, rec.nar=%d", ()->rec.getIdx(), ()->rec.getNumApplicableNonselfRules());
 					eIter = new ExpandIterator(rec);
 				}
@@ -118,7 +117,7 @@ public class Records {
 		}
 	}
 	
-	public static Iterable<Record> expands( Record rec ) {
+	public static Iterable<Record> expands( TransformableRecordInterface rec ) {
 		return new Iterable<Record>() {
 			
 			@Override
@@ -133,7 +132,7 @@ public class Records {
 		final State state;
 		boolean hasNext = true;
 		
-		public ExpandIterator( Record rec ) {
+		public ExpandIterator( TransformableRecordInterface rec ) {
 			state = new State(rec);
 			findNext();
 		}
@@ -155,20 +154,19 @@ public class Records {
 		}
 
 		private class State {
-			Record rec;
-			Rule[][] rules;
+			TransformableRecordInterface rec;
 			Rule[] ruleList;
-			int[] ridxList;
+			Iterator<Rule>[] riterList;
 			int[] expand;
 			int nRule;
 			int lhsSize;
 			int rhsSize;
 			
-			public State( Record rec ) {
+			@SuppressWarnings("unchecked")
+			public State( TransformableRecordInterface rec ) {
 				this.rec = rec;
-				rules = rec.applicableRules;
 				ruleList = new Rule[rec.size()];
-				ridxList = new int[rec.size()];
+				riterList = new Iterator[rec.size()];
 				expand = new int[rec.getMaxTransLength()];
 				nRule = 0;
 				lhsSize = 0;
@@ -176,18 +174,16 @@ public class Records {
 			}
 			
 			public boolean transit() {
-				while ( lhsSize >= rec.size() || ridxList[lhsSize] >= rules[lhsSize].length ) {
+				while ( lhsSize >= rec.size() || !riterList[lhsSize].hasNext() ) {
 					if ( lhsSize < rec.size() ) {
-						ridxList[lhsSize] = 0;
+						riterList[lhsSize] = rec.getApplicableRules(lhsSize).iterator();
 					}
 					if ( nRule > 0 ) removeRule();
 					else return false;
 				}
 				while ( lhsSize < rec.size() ) {
-					int ridx = ridxList[lhsSize];
-					if ( ridx < rules[lhsSize].length ) {
-						Rule r = rules[lhsSize][ridx];
-						ridxList[lhsSize] += 1;
+					if ( riterList[lhsSize].hasNext() ) {
+						Rule r = riterList[lhsSize].next();
 						if ( lhsSize + r.lhsSize() <= rec.size() ) addRule(r);
 					}
 				}
@@ -220,7 +216,7 @@ public class Records {
 			
 			@Override
 			public String toString() {
-				return String.format("%s, %d, %d, %d, %s", Arrays.toString(ridxList), nRule, lhsSize, rhsSize, getExpandString());
+				return String.format("%s, %d, %d, %d, %s", Arrays.toString(riterList), nRule, lhsSize, rhsSize, getExpandString());
 			}
 		}
 	}
@@ -284,4 +280,29 @@ public class Records {
 			}
 		};
 	}
+
+//	public static int getMaxTransformLength(TransformableRecordInterface rec) {
+//		int[] transformLengths = new int[rec.size()];
+//		for( int i = 0; i < rec.size(); ++i )
+//			transformLengths[ i ] = i + 1;
+//
+//		for( Rule rule : rec.getApplicableRules(0) ) {
+//			int fromSize = rule.lhsSize();
+//			int toSize = rule.rhsSize();
+//			if( fromSize < toSize ) {
+//				transformLengths[ fromSize - 1 ] = Math.max( transformLengths[ fromSize - 1 ], toSize );
+//			}
+//		}
+//		for( int i = 1; i < rec.size(); ++i ) {
+//			transformLengths[ i ] = Math.max( transformLengths[ i ], transformLengths[ i - 1 ] + 1 );
+//			for( Rule rule : rec.getApplicableRules(i) ) {
+//				int fromSize = rule.lhsSize();
+//				int toSize = rule.rhsSize();
+//				if( fromSize < toSize ) {
+//					transformLengths[ i + fromSize - 1 ] = Math.max( transformLengths[ i + fromSize - 1 ], transformLengths[ i - 1 ] + toSize );
+//				}
+//			}
+//		}
+//		return transformLengths[rec.size()-1];
+//	}
 }

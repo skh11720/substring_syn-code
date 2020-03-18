@@ -67,7 +67,7 @@ public class PrefixSearchTest {
 		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
 		String argsTmpl = "-data WIKI -alg PrefixSearch -nt 100 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
 		String outputTmpl = "%15s%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n";
-		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
+		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
 				"T_Total", "T_Qside", "T_Tside", 
 				"N_Q_Ret", "N_T_Ret", "L_Q_Ret", "L_T_Ret", "N_Q_Val", "N_T_Val", "L_Q_Val", "L_T_Val", "N_Res", "N_Q_Res", "N_T_Res"));
 		Dataset dataset = DatasetFactory.createInstanceByName(param);

@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.algorithm.validator;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -32,7 +33,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		return sim;
 	}
 
-	public double simTextSide( Record query, RecordInterface window ) {
+	public double simTextSide( Record query, TransformableRecordInterface window ) {
 		int[] transformedText = getTransform(window, query);
 //		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedText)).toOriginalString());
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
@@ -42,7 +43,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 		return sim;
 	}
 	
-	public int[] getTransform(RecordInterface trans, RecordInterface target) {
+	public int[] getTransform(TransformableRecordInterface trans, RecordInterface target) {
 		State state = new State(trans, target);
 		state.findBestTransform();
 		return state.getTransformedString(trans);

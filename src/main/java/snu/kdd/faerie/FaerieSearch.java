@@ -10,7 +10,9 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -44,17 +46,17 @@ public class FaerieSearch extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
+	protected void searchRecordQuerySide(Record query, RecordInterface rec) {
 		IntList posList = getPosList(query, rec);
 		boolean isSim = searchRecord(query, rec, posList, minLenQS, maxLenTS, this::computeSim);
 		if ( isSim ) addResultQuerySide(query, rec);
 	}
 
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
+	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) {
 	}
 
-	protected final IntList getPosList( Record query, Record rec ) {
+	protected final IntList getPosList( Record query, RecordInterface rec ) {
 		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		return getPosList( query.getDistinctTokens(), entry.tok2posListMap);
 	}
@@ -70,7 +72,7 @@ public class FaerieSearch extends AbstractSearch {
 		double run(Record query, Subrecord window);
 	}
 
-	protected boolean searchRecord( Record query, Record rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
+	protected boolean searchRecord( Record query, RecordInterface rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
 //		Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
 		int i = 0;
 		while ( i < posList.size()-minLen+1 ) {

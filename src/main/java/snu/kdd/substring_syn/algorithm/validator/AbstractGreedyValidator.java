@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -27,7 +28,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 		Int2IntOpenHashMap counter;
 		ObjectSet<PosRule> appliedRuleSet;
 		
-		public State( RecordInterface x, RecordInterface y ) {
+		public State( TransformableRecordInterface x, RecordInterface y ) {
 			counter = Util.getCounter(y.getTokenArray());
 			for ( int token : x.getTokenArray() ) {
 				if ( counter.get(token) > 0 )  counter.addTo(token, -1);
@@ -38,7 +39,7 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 		}
 
-		private ObjectSet<PosRule> createPosRuleList( RecordInterface rec ) {
+		private ObjectSet<PosRule> createPosRuleList( TransformableRecordInterface rec ) {
 			ObjectSet<PosRule> posRuleSet = new ObjectOpenHashSet<PosRule>();
 			for (int k=0; k<rec.size(); ++k) {
 				for (Rule rule : rec.getApplicableRules(k)) {

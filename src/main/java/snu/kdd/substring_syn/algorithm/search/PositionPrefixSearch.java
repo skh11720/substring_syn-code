@@ -7,8 +7,10 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
@@ -21,7 +23,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide( Record query, Record rec ) {
+	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
 //		Log.log.trace("searchRecordQuerySide(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
 		int sidx = ((RecordWithEndpoints)rec).getStartPoint();
@@ -42,7 +44,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSideWithPrefixFilter( Record query, Record rec ) {
+	protected void searchRecordTextSideWithPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		statContainer.startWatch("Time_TS_searchRecordPF.getCandTokenList");
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		statContainer.stopWatch("Time_TS_searchRecordPF.getCandTokenList");
@@ -85,7 +87,7 @@ public class PositionPrefixSearch extends PrefixSearch {
 	}
 	
 	@Override
-	protected void searchRecordTextSideWithoutPrefixFilter( Record query, Record rec ) {
+	protected void searchRecordTextSideWithoutPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		int widx = ((RecordWithEndpoints)rec).getStartPoint();
 		IntList eidxList = ((RecordWithEndpoints)rec).getEndpoints();
 		transLenCalculator = new TransLenLazyCalculator(statContainer, rec, widx, eidxList.getInt(eidxList.size()-1), modifiedTheta);

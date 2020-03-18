@@ -2,6 +2,8 @@ package snu.kdd.faerie;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class FaerieNaiveSearch extends AbstractSearch {
@@ -11,7 +13,7 @@ public class FaerieNaiveSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
+	protected void searchRecordQuerySide(Record query, RecordInterface rec) {
 		double sim = Util.subJaccardM(query.getTokenArray(), rec.getTokenArray());
 		if ( sim >= theta ) {
 //			Log.log.trace("[RESULT]"+query.getID()+"\t"+rec.getID()+"\t"+sim+"\t"+query.toOriginalString()+"\t"+rec.toOriginalString());
@@ -20,7 +22,7 @@ public class FaerieNaiveSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
+	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) {
 	}
 
 	@Override

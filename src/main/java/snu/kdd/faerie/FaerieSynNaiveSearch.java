@@ -2,7 +2,9 @@ package snu.kdd.faerie;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -13,7 +15,7 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 	}
 	
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) {
+	protected void searchRecordQuerySide(Record query, RecordInterface rec) {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		for ( Record queryExp : Records.expands(query) ) {
 			double sim = Util.subJaccardM(queryExp.getTokenArray(), rec.getTokenArray());
@@ -29,9 +31,8 @@ public class FaerieSynNaiveSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) {
+	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) {
 		statContainer.startWatch(Stat.Time_TS_Validation);
-		rec.preprocessTransformLength();
 		for ( Record recExp : Records.expands(rec) ) {
 			double sim = Util.subJaccardM(query.getTokenArray(), recExp.getTokenArray());
 //			statContainer.increment(Stat.Num_TS_Verified);

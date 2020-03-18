@@ -12,12 +12,13 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Record implements RecordInterface, Comparable<Record> {
+public class Record implements TransformableRecordInterface, Comparable<Record> {
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static TokenIndex tokenIndex = null;
@@ -32,10 +33,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
-	int[][] transformLengths = null;
+//	int[][] transformLengths = null;
 //	long[] estTrans;
 	IntPair[][] suffixRuleLenPairs = null;
 
+	int maxTransLen = 0;
+	int minTransLen = 0;
 	int maxRhsSize = 0;
 	
 	public Record( int idx, int id, String str ) {
@@ -137,11 +140,12 @@ public class Record implements RecordInterface, Comparable<Record> {
 		return this;
 	}
 	
-	@SuppressWarnings("unused")
 	public int getNumApplicableRules() {
-		int count = 0;
-		for ( Rule rule : getApplicableRuleIterable() ) count += 1;
-		return count;
+		return Arrays.stream(applicableRules).mapToInt(x->x.length).sum();
+	}
+
+	public int getNumApplicableRules(int pos) {
+		return applicableRules[pos].length;
 	}
 	
 	public int getNumApplicableNonselfRules() {
@@ -151,6 +155,10 @@ public class Record implements RecordInterface, Comparable<Record> {
 			count += 1;
 		}
 		return count;
+	}
+	
+	public Rule getRule(int pos, int idx) {
+		return applicableRules[pos][idx];
 	}
 
 	@Override
@@ -200,11 +208,19 @@ public class Record implements RecordInterface, Comparable<Record> {
 	}
 
 	public final int getMaxTransLength() {
-		return transformLengths[ tokens.length - 1 ][ 1 ];
+		if ( maxTransLen == 0 ) preprocessTransformLength();
+		return maxTransLen;
 	}
 
 	public final int getMinTransLength() {
-		return transformLengths[ tokens.length - 1 ][ 0 ];
+		if ( minTransLen == 0 ) preprocessTransformLength();
+		return minTransLen;
+	}
+	
+	private void preprocessTransformLength() {
+		TransLenLazyCalculator cal = new TransLenLazyCalculator(null, this, 0, size(), 0);
+		maxTransLen = cal.getUB(size()-1);
+		minTransLen = cal.getLB(size()-1);
 	}
 
 	@Override
@@ -265,40 +281,40 @@ public class Record implements RecordInterface, Comparable<Record> {
 		}
 	}
 
-	public void preprocessTransformLength() {
-		if ( transformLengths != null ) return;
-		transformLengths = new int[ tokens.length ][ 2 ];
-		for( int i = 0; i < tokens.length; ++i )
-			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
-
-		for( Rule rule : applicableRules[ 0 ] ) {
-			int fromSize = rule.lhsSize();
-			int toSize = rule.rhsSize();
-			if( fromSize > toSize ) {
-				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
-			}
-			else if( fromSize < toSize ) {
-				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
-			}
-		}
-		for( int i = 1; i < tokens.length; ++i ) {
-			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
-			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
-			for( Rule rule : applicableRules[ i ] ) {
-				int fromSize = rule.lhsSize();
-				int toSize = rule.rhsSize();
-				if( fromSize > toSize ) {
-					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
-							transformLengths[ i - 1 ][ 0 ] + toSize );
-				}
-				else if( fromSize < toSize ) {
-					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
-							transformLengths[ i - 1 ][ 1 ] + toSize );
-				}
-
-			}
-		}
-	}
+//	public void preprocessTransformLength() {
+//		if ( transformLengths != null ) return;
+//		transformLengths = new int[ tokens.length ][ 2 ];
+//		for( int i = 0; i < tokens.length; ++i )
+//			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
+//
+//		for( Rule rule : applicableRules[ 0 ] ) {
+//			int fromSize = rule.lhsSize();
+//			int toSize = rule.rhsSize();
+//			if( fromSize > toSize ) {
+//				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
+//			}
+//			else if( fromSize < toSize ) {
+//				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
+//			}
+//		}
+//		for( int i = 1; i < tokens.length; ++i ) {
+//			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
+//			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
+//			for( Rule rule : applicableRules[ i ] ) {
+//				int fromSize = rule.lhsSize();
+//				int toSize = rule.rhsSize();
+//				if( fromSize > toSize ) {
+//					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
+//							transformLengths[ i - 1 ][ 0 ] + toSize );
+//				}
+//				else if( fromSize < toSize ) {
+//					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
+//							transformLengths[ i - 1 ][ 1 ] + toSize );
+//				}
+//
+//			}
+//		}
+//	}
 	
 	@Override
 	public String toString() {

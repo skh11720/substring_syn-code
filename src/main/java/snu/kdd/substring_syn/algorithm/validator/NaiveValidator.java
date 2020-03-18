@@ -6,6 +6,7 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -26,16 +27,16 @@ public class NaiveValidator extends AbstractValidator {
 		return sim(iter);
 	}
 	
-	protected AbstractTextSideIterator getTextSideIterator(Record query, Record rec) {
+	protected AbstractTextSideIterator getTextSideIterator(Record query, TransformableRecordInterface rec) {
 		return new TextSideIterator(query, rec);
 	}
 	
-	public boolean isOverThresholdTextSide( Record query, Record rec ) {
+	public boolean isOverThresholdTextSide( Record query, TransformableRecordInterface rec ) {
 		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
 		return isOverThreahold(iter);
 	}
 	
-	public double simTextSide( Record query, Record rec ) {
+	public double simTextSide( Record query, TransformableRecordInterface rec ) {
 		AbstractTextSideIterator iter = getTextSideIterator(query, rec);
 		return sim(iter);
 	}
@@ -108,7 +109,7 @@ public class NaiveValidator extends AbstractValidator {
 
 	protected class TextSideIterator extends AbstractTextSideIterator {
 		
-		public TextSideIterator( Record query, Record rec ) {
+		public TextSideIterator( Record query, TransformableRecordInterface rec ) {
 			super(query);
 			expIter = Records.expands(rec).iterator();
 		}

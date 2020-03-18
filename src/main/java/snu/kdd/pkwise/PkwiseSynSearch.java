@@ -10,6 +10,7 @@ import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -137,9 +138,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	@Override
 	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) { return null; }
 	@Override
-	protected void searchRecordQuerySide(Record query, Record rec) { } 
+	protected void searchRecordQuerySide(Record query, RecordInterface rec) { } 
 	@Override
-	protected void searchRecordTextSide(Record query, Record rec) { } 
+	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) { } 
 
 	public final int getLFLB( int size ) {
 		return (int)Math.ceil(1.0*size*theta);
