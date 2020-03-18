@@ -9,7 +9,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 	public final int length;
 	
 	public NaiveInvList(int[] arr, int length) {
-		this.arr = Arrays.copyOf(arr, length);
+		this.arr = arr;
 		this.length = length;
 	}
 	

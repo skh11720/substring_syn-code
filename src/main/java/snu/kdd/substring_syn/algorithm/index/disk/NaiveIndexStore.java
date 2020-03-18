@@ -23,13 +23,13 @@ public class NaiveIndexStore {
 
 	public NaiveInvList getInvList( int token ) {
 		int num = invListAccessor.getList(token);
-		if ( invListAccessor.arr == null ) return null;
+		if ( invListAccessor.arr == null || num == 0 ) return null;
 		else return new NaiveInvList(invListAccessor.arr, num);
 	}
 
 	public NaiveInvList getTrInvList( int token ) {
 		int num = tinvListAccessor.getList(token);
-		if ( tinvListAccessor.arr == null ) return null;
+		if ( tinvListAccessor.arr == null || num == 0 ) return null;
 		else return new NaiveInvList(tinvListAccessor.arr, num);
 	}
 	
