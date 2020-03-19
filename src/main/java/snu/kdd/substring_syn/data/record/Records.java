@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.utils.Log;
 
 public class Records {
 
@@ -105,7 +104,7 @@ public class Records {
 				}
 				else {
 					rec = rIter.next();
-					Log.log.trace("rec.idx=%d, rec.nar=%d", ()->rec.getIdx(), ()->rec.getNumApplicableNonselfRules());
+//					Log.log.trace("rec.idx=%d, rec.nar=%d", ()->rec.getIdx(), ()->rec.getNumApplicableNonselfRules());
 					eIter = new ExpandIterator(rec);
 				}
 			}

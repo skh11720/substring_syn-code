@@ -43,14 +43,14 @@ public class FaerieSynSearch extends FaerieSearch {
 	@Override
 	protected void prepareSearchGivenQuery(Record query) {
 		super.prepareSearchGivenQuery(query);
-		Log.log.trace("FaerieSynSearch.prepareSearchGivenQuery: query.idx=%d", ()->query.getIdx());
+//		Log.log.trace("FaerieSynSearch.prepareSearchGivenQuery: query.idx=%d", ()->query.getIdx());
 		query.preprocessAll();
 		queryTokenSet = query.getDistinctTokens();
 	}
 	
 	@Override
 	protected void searchRecordQuerySide(Record query, RecordInterface rec) {
-		Log.log.trace("FaerieSynSearch.searchRecordQuerySide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
+//		Log.log.trace("FaerieSynSearch.searchRecordQuerySide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		FaerieIndexEntry entry = index.getEntry(rec.getIdx());
 		for ( Record queryExp : Records.expands(query) ) {
 			int minLen = (int)Math.ceil(queryExp.size()*theta);
@@ -75,7 +75,7 @@ public class FaerieSynSearch extends FaerieSearch {
 	
 	@Override
 	protected void searchRecordTextSide(Record query, TransformableRecordInterface rec) {
-		Log.log.trace("FaerieSynSearch.searchRecordTextSide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
+//		Log.log.trace("FaerieSynSearch.searchRecordTextSide: query.idx=%d, rec.idx=%d", ()->query.getIdx(), ()->rec.getIdx());
 		for ( FaerieSynIndexEntry entry : indexT.getRecordEntries(rec.getIdx()) ) {
 			IntList posList = getPosList(queryTokenSet, entry.invIndex);
 			statContainer.startWatch(Stat.Time_TS_Validation);
