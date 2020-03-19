@@ -68,6 +68,7 @@ public abstract class AbstractTransformableRecord implements TransformableRecord
 		rslt.append("nSapp: "+Arrays.toString(nSapp)+"\n");
 		rslt.append("nSRL.sum: "+Arrays.stream(nSRL).sum()+"\n");
 		rslt.append("nSRL: "+Arrays.toString(nSRL)+"\n");
+		rslt.append("maxRhsSize: "+getMaxRhsSize()+"\n");
 		for ( Rule rule : getApplicableRuleIterable() ) {
 			if ( !rule.isSelfRule ) rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
 		}
