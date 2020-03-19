@@ -83,8 +83,19 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	}
 
 	@Override
-	public int getNumApplicableRules(int pos) {
-		return (int)StreamSupport.stream(getApplicableRules(pos).spliterator(), true).count();
+	public int getNumApplicableRules(int i) {
+		return (int)StreamSupport.stream(getApplicableRules(i).spliterator(), true).count();
+	}
+	
+	@Override
+	public int getNumSuffixApplicableRules(int i) {
+		return (int)StreamSupport.stream(getSuffixApplicableRules(i).spliterator(), true).count();
+	}
+	
+	@Override
+	public int getNumSuffixRuleLens(int i) {
+		//TODO: subrec.suffixRuleLens should be computed exactly
+		return rec.getNumSuffixRuleLens(i);
 	}
 
 	@Override
@@ -138,7 +149,7 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		};
 	}
 	
-	public IntPair[] getSuffixRuleLens( int k ) {
+	public Iterable<IntPair> getSuffixRuleLens( int k ) {
 		//TODO: subrec.suffixRuleLens should be computed exactly
 		return rec.getSuffixRuleLens(sidx+k);
 	}

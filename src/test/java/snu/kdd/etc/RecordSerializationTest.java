@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordSerializer;
@@ -34,7 +35,9 @@ public class RecordSerializationTest {
 			iter0 = rec0.getSuffixApplicableRules(i).iterator();
 			iter1 = rec1.getSuffixApplicableRules(i).iterator();
 			while (iter0.hasNext()) list.add(iter0.next().getID() == iter1.next().getID());
-			for ( int j=0; j<rec0.getSuffixRuleLens(i).length; ++j ) list.add(rec0.getSuffixRuleLens(i)[j].equals(rec1.getSuffixRuleLens(i)[j]));
+			Iterator<IntPair> ipIter0 = rec0.getSuffixRuleLens(i).iterator();
+			Iterator<IntPair> ipIter1 = rec1.getSuffixRuleLens(i).iterator();
+			while ( ipIter0.hasNext() ) list.add(ipIter0.next().equals(ipIter1.next()));
 			list.add(rec0.getMaxRhsSize() == rec1.getMaxRhsSize());
 		}
 		return list.toBooleanArray();

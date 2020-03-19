@@ -2,7 +2,6 @@ package snu.kdd.substring_syn.data.record;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -154,19 +153,19 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	public int getNumApplicableRules(int pos) {
 		return applicableRules[pos].length;
 	}
+
+	@Override
+	public int getNumSuffixApplicableRules(int pos) {
+		return suffixApplicableRules[pos].length;
+	}
+	
+	@Override
+	public int getNumSuffixRuleLens(int i) {
+		return suffixRuleLenPairs[i].length;
+	}
 	
 	public Rule getRule(int pos, int idx) {
 		return applicableRules[pos][idx];
-	}
-
-	@Override
-	public Iterable<Rule> getApplicableRuleIterable() {
-		return new Iterable<Rule>() {
-			@Override
-			public Iterator<Rule> iterator() {
-				return new RuleIterator();
-			}
-		};
 	}
 
 	@Override
@@ -196,12 +195,12 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	}
 	
 	@Override
-	public IntPair[] getSuffixRuleLens( int k ) {
+	public Iterable<IntPair> getSuffixRuleLens( int k ) {
 		if ( suffixRuleLenPairs == null ) {
 			return null;
 		}
 		else if ( k < suffixRuleLenPairs.length ) {
-			return suffixRuleLenPairs[k];
+			return ObjectArrayList.wrap(suffixRuleLenPairs[k]);
 		}
 		else return null;
 	}
@@ -217,7 +216,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		return minTransLen;
 	}
 	
-	private void preprocessTransformLength() {
+	protected void preprocessTransformLength() {
 		TransLenLazyCalculator cal = new TransLenLazyCalculator(null, this, 0, size(), 0);
 		maxTransLen = cal.getUB(size()-1);
 		minTransLen = cal.getLB(size()-1);

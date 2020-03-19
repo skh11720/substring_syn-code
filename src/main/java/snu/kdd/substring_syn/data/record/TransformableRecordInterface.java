@@ -6,12 +6,14 @@ import snu.kdd.substring_syn.data.Rule;
 
 public interface TransformableRecordInterface extends RecordInterface {
 	
-	int getNumApplicableRules(int pos);
+	int getNumApplicableRules(int i);
+	int getNumSuffixApplicableRules(int i);
+	int getNumSuffixRuleLens(int i);
 	int getMaxTransLength();
 	int getMaxRhsSize();
 	IntSet getCandTokenSet();
 	Iterable<Rule> getApplicableRuleIterable();
 	Iterable<Rule> getApplicableRules( int i );
 	Iterable<Rule> getSuffixApplicableRules( int i );
-	IntPair[] getSuffixRuleLens(int k);
+	Iterable<IntPair> getSuffixRuleLens(int i);
 }
