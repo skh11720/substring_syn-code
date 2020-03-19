@@ -31,6 +31,7 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -782,11 +783,11 @@ public class Util {
 		return new IntOpenHashSet( rec.getTokenList().stream().sorted().limit(prefixLen).iterator() );
 	}
 
-	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+	public static double getModifiedTheta( Record query, TransformableRecordInterface rec, double theta ) {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 	
-	public static double getModifiedTheta( int qlen, RecordInterface rec, double theta ) {
+	public static double getModifiedTheta( int qlen, TransformableRecordInterface rec, double theta ) {
 		return theta * qlen / (qlen + 2*(rec.getMaxRhsSize()-1));
 	}
 	

@@ -16,7 +16,7 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class Subrecord implements TransformableRecordInterface, RecursiveRecordInterface {
 	
-	protected final Record rec;
+	protected final TransformableRecordInterface rec;
 	public final int sidx;
 	public final int eidx;
 	protected final int hash;
@@ -35,7 +35,7 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		// djb2-like
 		int hash = Util.bigprime + rec.getIdx();
 		for( int i=sidx; i<eidx; ++i ) {
-			int token = rec.tokens[i];
+			int token = rec.getToken(i);
 			hash = ( hash << 5 ) + Util.bigprime + token;
 //                tmp = 0x1f1f1f1f ^ tmp + token;
 //			hash = hash % Util.bigprime;
@@ -210,15 +210,16 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		return toRecord().toStringDetails();
 	}
 	
-	public Record getSuperRecord() {
+	@Override
+	public TransformableRecordInterface getSuperRecord() {
 		return rec;
 	}
 
 	abstract class RuleIterator implements Iterator<Rule> {
 		final int kMax;
 		int k;
-		int i = 0;
-		Rule[][] rules;
+		Rule nextRule = null;
+		Iterator<Rule> rIter = null;
 		
 		RuleIterator() {
 			this(sidx, eidx);
@@ -231,7 +232,10 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		RuleIterator( int k, int kMax ) {
 			this.k = k;
 			this.kMax = kMax;
+			rIter = getRuleIterator(k);
 		}
+		
+		abstract Iterator<Rule> getRuleIterator(int k);
 		
 		@Override
 		public boolean hasNext() {
@@ -240,20 +244,22 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 
 		@Override
 		public Rule next() {
-			Rule rule = rules[k][i++];
+			Rule rule = nextRule;
 			findNext();
 			return rule;
 		}
 		
 		void findNext() {
 			while ( k < kMax) {
-				while ( i < rules[k].length ) {
-					if ( isValid(rules[k][i]) ) return;
-					++i;
+				while ( rIter.hasNext() ) {
+					nextRule = rIter.next();
+					if ( isValid(nextRule) ) return;
 				}
 				++k;
-				i = 0;
+				if ( k < kMax ) rIter = getRuleIterator(k);
+				else break;
 			}
+			nextRule = null;
 		}
 		
 		abstract boolean isValid( Rule rule );
@@ -262,14 +268,17 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	class PrefixRuleIterator extends RuleIterator {
 		
 		PrefixRuleIterator() {
-			rules = rec.applicableRules;
 			findNext();
 		}
 		
 		PrefixRuleIterator( int k ) {
 			super(k);
-			rules = rec.applicableRules;
 			findNext();
+		}
+		
+		@Override
+		Iterator<Rule> getRuleIterator(int k) {
+			return rec.getApplicableRules(k).iterator();
 		}
 		
 		@Override
@@ -281,14 +290,17 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	class SuffixRuleIterator extends RuleIterator {
 		
 		SuffixRuleIterator() {
-			rules = rec.suffixApplicableRules;
 			findNext();
 		}
 		
 		SuffixRuleIterator( int k ) {
 			super(k);
-			rules = rec.suffixApplicableRules;
 			findNext();
+		}
+		
+		@Override
+		Iterator<Rule> getRuleIterator(int k) {
+			return rec.getSuffixApplicableRules(k).iterator();
 		}
 		
 		@Override
@@ -301,32 +313,29 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		Record newrec = new Record(this.getIdx(), this.getID(), this.getTokenList().toIntArray());
 
 		Rule[][] applicableRules = null;
-		if ( this.rec.applicableRules != null ) {
-			applicableRules = new Rule[size()][];
-			for ( int i=0; i<size(); ++i ) {
-				applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
-			}
-        }
+		applicableRules = new Rule[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
+		}
+        
 		newrec.applicableRules = applicableRules;
 
 		Rule[][] suffixApplicableRules = null;
-		if ( this.rec.suffixApplicableRules != null ) {
-			suffixApplicableRules = new Rule[size()][];
-			for ( int i=0; i<size(); ++i ) {
-				suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
-			}
+		suffixApplicableRules = new Rule[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
 		}
+		
 		newrec.suffixApplicableRules = suffixApplicableRules;
 
 		IntPair[][] suffixRuleLenPairs = null;
-		if ( this.rec.suffixApplicableRules != null ) {
-			suffixRuleLenPairs = new IntPair[size()][];
-			for ( int i=0; i<size(); ++i ) {
-				ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
-				for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
-				suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
-			}
+		suffixRuleLenPairs = new IntPair[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
+			for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
+			suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
 		}
+		
 		newrec.suffixRuleLenPairs = suffixRuleLenPairs;
 		return newrec;
 	}
