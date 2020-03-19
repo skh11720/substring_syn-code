@@ -15,13 +15,11 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.TokenIndex;
 import snu.kdd.substring_syn.utils.Util;
 
-public class Record implements TransformableRecordInterface, RecursiveRecordInterface, Comparable<Record> {
+public class Record extends AbstractTransformableRecord implements RecursiveRecordInterface, Comparable<Record> {
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
-	public static TokenIndex tokenIndex = null;
 
 	/*
 	 * idx+1 == id if we use all records in the data file
@@ -65,10 +63,12 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		this(-1, -1, tokens);
 	}
 
+	@Override
 	public int getIdx() {
 		return idx;
 	}
 	
+	@Override
 	public int getID() {
 		return id;
 	}
@@ -99,14 +99,17 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		return new IntOpenHashSet(tokens);
 	}
 
+	@Override
 	public int[] getTokenArray() {
 		return tokens;
 	}
 
+	@Override
 	public IntList getTokenList() {
 		return IntArrayList.wrap(tokens);
 	}
 
+	@Override
 	public int getToken( int i ) {
 		return tokens[i];
 	}
@@ -133,10 +136,12 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		return 0;
 	}
 
+	@Override
 	public int size() {
 		return tokens.length;
 	}
 	
+	@Override
 	public Record getSuperRecord() {
 		return this;
 	}
@@ -145,17 +150,9 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		return Arrays.stream(applicableRules).mapToInt(x->x.length).sum();
 	}
 
+	@Override
 	public int getNumApplicableRules(int pos) {
 		return applicableRules[pos].length;
-	}
-	
-	public int getNumApplicableNonselfRules() {
-		int count = 0;
-		for ( Rule rule : getApplicableRuleIterable() ) {
-			if( rule.isSelfRule ) continue;
-			count += 1;
-		}
-		return count;
 	}
 	
 	public Rule getRule(int pos, int idx) {
@@ -198,6 +195,7 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		}
 	}
 	
+	@Override
 	public IntPair[] getSuffixRuleLens( int k ) {
 		if ( suffixRuleLenPairs == null ) {
 			return null;
@@ -208,6 +206,7 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 		else return null;
 	}
 
+	@Override
 	public final int getMaxTransLength() {
 		if ( maxTransLen == 0 ) preprocessTransformLength();
 		return maxTransLen;
@@ -317,42 +316,7 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 //		}
 //	}
 	
-	@Override
-	public String toString() {
-		StringBuilder rslt = new StringBuilder();
-		for( int token : tokens ) {
-			if( rslt.length() != 0 ) {
-				rslt.append(" ");
-			}
-			rslt.append(token);
-		}
-		return rslt.toString();
-	}
 	
-	@Override
-	public String toOriginalString() {
-		StringBuilder rslt = new StringBuilder();
-		for( int token : tokens ) {
-			rslt.append(tokenIndex.getToken( token ) + " ");
-		}
-		return rslt.toString();
-	}
-	
-	@Override
-	public String toStringDetails() {
-		StringBuilder rslt = new StringBuilder();
-		rslt.append("idx: "+idx+"\n");
-		rslt.append("ID: "+id+"\n");
-		rslt.append("rec: "+toOriginalString()+"\n");
-		rslt.append("tokens: "+toString()+"\n");
-		rslt.append("nRules: "+getNumApplicableNonselfRules()+"\n");
-		for ( Rule rule : getApplicableRuleIterable() ) {
-			if ( rule.isSelfRule ) continue;
-			rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
-		}
-		return rslt.toString();
-	}
-
 	static int getHash(int idx, int[] tokens, int size) {
 		// djb2-like
 		int hash = Util.bigprime + idx;
@@ -362,29 +326,5 @@ public class Record implements TransformableRecordInterface, RecursiveRecordInte
 //			hash = hash % Util.bigprime;
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
-	}
-
-
-
-	
-	
-	class RuleIterator implements Iterator<Rule> {
-		int k = 0;
-		int i = 0;
-
-		@Override
-		public boolean hasNext() {
-			return (k < applicableRules.length);
-		}
-
-		@Override
-		public Rule next() {
-			Rule rule = applicableRules[k][i++];
-			if ( i >= applicableRules[k].length ) {
-				++k;
-				i = 0;
-			}
-			return rule;
-		}
 	}
 }
