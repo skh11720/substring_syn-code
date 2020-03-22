@@ -2,13 +2,14 @@ package snu.kdd.substring_syn.data;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
 
 public class Ruleset {
-	final ObjectArrayList<Rule> ruleList;
+	private final ObjectArrayList<Rule> ruleList;
 	
 	public Ruleset() {
 		this.ruleList = new ObjectArrayList<>();
@@ -68,7 +69,13 @@ public class Ruleset {
 	}
 
 	public Iterable<Rule> get() {
-		return this.ruleList;
+		return new Iterable<Rule>() {
+			
+			@Override
+			public Iterator<Rule> iterator() {
+				return ruleList.stream().distinct().iterator();
+			}
+		};
 	}
 
 	public int size() {

@@ -65,8 +65,9 @@ public class Rule implements Comparable<Rule> {
 
 	@Override
 	public int compareTo( Rule o ) {
-		// only compares lhs
-		return Records.compare( lhs, o.lhs );
+		int compLhs = Records.compare(lhs, o.lhs);
+		if ( compLhs == 0 ) return Records.compare(rhs,  o.rhs);
+		else return compLhs;
 	}
 
 	@Override

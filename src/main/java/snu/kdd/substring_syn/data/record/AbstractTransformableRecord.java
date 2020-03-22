@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.data.record;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
@@ -69,9 +70,9 @@ public abstract class AbstractTransformableRecord implements TransformableRecord
 		rslt.append("nSRL.sum: "+Arrays.stream(nSRL).sum()+"\n");
 		rslt.append("nSRL: "+Arrays.toString(nSRL)+"\n");
 		rslt.append("maxRhsSize: "+getMaxRhsSize()+"\n");
-		for ( Rule rule : getApplicableRuleIterable() ) {
+		StreamSupport.stream(getApplicableRuleIterable().spliterator(), false).sorted().forEach(rule->{
 			if ( !rule.isSelfRule ) rslt.append("\t"+rule.toString()+"\t"+rule.toOriginalString()+"\n");
-		}
+		});
 		return rslt.toString();
 	}
 

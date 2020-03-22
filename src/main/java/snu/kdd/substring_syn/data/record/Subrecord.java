@@ -1,5 +1,6 @@
 package snu.kdd.substring_syn.data.record;
 
+import java.rmi.UnexpectedException;
 import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
@@ -102,6 +103,18 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	public final int getMaxTransLength() {
 		if ( maxTransLen == 0 ) preprocessTransformLength();
 		return maxTransLen;
+	}
+	
+	@Override
+	public void preprocessApplicableRules() {
+		(new UnexpectedException("")).printStackTrace();
+		System.exit(1);
+	}
+	
+	@Override
+	public void preprocessSuffixApplicableRules() {
+		(new UnexpectedException("")).printStackTrace();
+		System.exit(1);
 	}
 
 	private void preprocessTransformLength() {

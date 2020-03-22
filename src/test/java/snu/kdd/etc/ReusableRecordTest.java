@@ -22,9 +22,7 @@ public class ReusableRecordTest {
 		ReusableRecord recBuf = new ReusableRecord();
 		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "100000", "107836", "5", "1.0"));
 		for ( Record rec : dataset.getIndexedList() ) {
-			recBuf.setIdx(rec.getIdx());
-			recBuf.setID(rec.getID());
-			recBuf.setTokens(rec.getTokenArray(), rec.size());
+			recBuf.set(rec.getIdx(), rec.getID(), rec.getTokenArray(), rec.size());
 			for ( int i=0; i<rec.size(); ++i ) {
 				Iterator<Rule> iter;
 				iter = rec.getApplicableRules(i).iterator();
@@ -36,6 +34,25 @@ public class ReusableRecordTest {
 			}
 			recBuf.setMaxRhsSize(rec.getMaxRhsSize());
 			
+			String s0 = rec.toStringDetails();
+			String s1 = recBuf.toStringDetails();
+//			System.out.println(s0);
+//			System.out.println(s1);
+//			System.out.println(s0.equals(s1));
+//			System.in.read();
+			assertEquals(s0, s1);
+		}
+	}
+
+	@Test
+	public void testPreprocess() throws IOException {
+		ReusableRecord recBuf = new ReusableRecord();
+		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "100000", "107836", "5", "1.0"));
+		for ( Record rec : dataset.getIndexedList() ) {
+			recBuf.set(rec.getIdx(), rec.getID(), rec.getTokenArray(), rec.size());
+			recBuf.preprocessApplicableRules();
+			recBuf.preprocessSuffixApplicableRules();
+
 			String s0 = rec.toStringDetails();
 			String s1 = recBuf.toStringDetails();
 //			System.out.println(s0);

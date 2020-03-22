@@ -7,6 +7,9 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
@@ -38,15 +41,28 @@ public class ReusableRecord extends AbstractTransformableRecord {
 	public ReusableRecord() {
 	}
 	
-	public void setIdx(int idx) {
+	public void set(int idx, int id, int[] arr, int size) {
+		reset();
+		setIdx(idx);
+		setID(id);
+		setTokens(arr, size);
+	}
+	
+	private void reset() {
+		maxTransLen = 0;
+		minTransLen = 0;
+		maxRhsSize = 0;
+	}
+	
+	private void setIdx(int idx) {
 		this.idx = idx;
 	}
 	
-	public void setID(int id) {
+	private void setID(int id) {
 		this.id = id;
 	}
 
-	public void setTokens(int[] arr, int size) {
+	private void setTokens(int[] arr, int size) {
 		setSize(size);
 		for ( int i=0; i<size; ++i ) {
 			tokens[i] = arr[i];
@@ -89,6 +105,33 @@ public class ReusableRecord extends AbstractTransformableRecord {
 		if ( nSRL[i] >= suffixRuleLenPairs[i].length ) suffixRuleLenPairs[i] = doubleIntPairArray(suffixRuleLenPairs[i]);
 		suffixRuleLenPairs[i][nSRL[i]] = ip;
 		nSRL[i] += 1;
+	}
+	
+	@Override
+	public void preprocessApplicableRules() {
+		Rule.automata.computeApplicableRules(this);
+	}
+	
+	@Override
+	public void preprocessSuffixApplicableRules() {
+		ObjectList<ObjectSet<IntPair>> pairList = new ObjectArrayList<>();
+		for( int i = 0; i < size(); ++i ) pairList.add( new ObjectOpenHashSet<>() );
+		
+		for( int i = size() - 1; i >= 0; --i ) {
+			for( int j=0; j<nApp[i]; ++j ) {
+				Rule rule = applicableRules[i][j];
+				int suffixidx = i + rule.getLhs().length - 1;
+				addSuffixApplicableRule(suffixidx, rule);
+				pairList.get( suffixidx ).add( new IntPair(rule.lhsSize(), rule.rhsSize()) );
+			}
+		}
+
+		for( int i = 0; i < size(); ++i ) {
+			for ( IntPair ip : pairList.get(i) ) {
+				addSuffixRuleLenPairs(i, ip);
+				maxRhsSize = Math.max(maxRhsSize, ip.i2);
+			}
+		}
 	}
 	
 //	public void fit(int size) {

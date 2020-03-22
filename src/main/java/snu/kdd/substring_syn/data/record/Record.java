@@ -249,11 +249,13 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		preprocessTransformLength();
 	}
 	
+	@Override
 	public void preprocessApplicableRules() {
 		if ( applicableRules != null ) return;
 		applicableRules = Rule.automata.applicableRules(tokens);
 	}
 
+	@Override
 	public void preprocessSuffixApplicableRules() {
 		if ( suffixApplicableRules != null ) return;
 		ObjectList<ObjectList<Rule>> tmplist = new ObjectArrayList<ObjectList<Rule>>();

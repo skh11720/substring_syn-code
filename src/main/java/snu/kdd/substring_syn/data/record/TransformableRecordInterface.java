@@ -16,4 +16,7 @@ public interface TransformableRecordInterface extends RecordInterface {
 	Iterable<Rule> getApplicableRules( int i );
 	Iterable<Rule> getSuffixApplicableRules( int i );
 	Iterable<IntPair> getSuffixRuleLens(int i);
+
+	public void preprocessApplicableRules();
+	public void preprocessSuffixApplicableRules();
 }
