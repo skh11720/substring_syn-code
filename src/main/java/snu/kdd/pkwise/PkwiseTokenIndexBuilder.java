@@ -7,17 +7,18 @@ import snu.kdd.substring_syn.data.TokenIndexBuilder;
 import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class PkwiseTokenIndexBuilder extends TokenIndexBuilder {
 
 	private final int w;
 
-	public static TokenIndex build(Iterable<Record> indexedRecords, Iterable<String> ruleStrings, int w) {
+	public static TokenIndex build(Iterable<TransformableRecordInterface> indexedRecords, Iterable<String> ruleStrings, int w) {
 		TokenIndexBuilder builder = new PkwiseTokenIndexBuilder(indexedRecords, ruleStrings, w);
 		return builder.getTokenIndex();
 	}
 	
-	private PkwiseTokenIndexBuilder(Iterable<Record> indexedRecords, Iterable<String> ruleStrings, int w) {
+	private PkwiseTokenIndexBuilder(Iterable<TransformableRecordInterface> indexedRecords, Iterable<String> ruleStrings, int w) {
 		super(indexedRecords, ruleStrings);
 		this.w = w;
 	}

@@ -7,6 +7,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -54,13 +55,13 @@ public class WindowDataset extends DiskBasedDataset {
 
 	public static class WindowIterator implements Iterator<Subrecord> {
 
-		final Iterator<Record> rIter;
-		Record rec = null;
-		Record recNext = null;
+		final Iterator<TransformableRecordInterface> rIter;
+		TransformableRecordInterface rec = null;
+		TransformableRecordInterface recNext = null;
 		int widx = -1;
 		final int w;
 		
-		public WindowIterator( Iterator<Record> rIter, int w ) {
+		public WindowIterator( Iterator<TransformableRecordInterface> rIter, int w ) {
 			this.rIter = rIter;
 			this.w = w;
 			while ( rIter.hasNext() ) {

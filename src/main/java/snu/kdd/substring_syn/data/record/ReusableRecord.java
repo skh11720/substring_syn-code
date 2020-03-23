@@ -40,6 +40,11 @@ public class ReusableRecord extends AbstractTransformableRecord {
 
 	public ReusableRecord() {
 	}
+
+	public void set(int idx, int id, String str) {
+		int[] arr = Arrays.stream(Records.tokenize(str)).mapToInt(x->tokenIndex.getIDOrAdd(x)).toArray();
+		set(idx, id, arr, arr.length);
+	}
 	
 	public void set(int idx, int id, int[] arr, int size) {
 		reset();

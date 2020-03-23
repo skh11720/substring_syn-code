@@ -18,29 +18,29 @@ public class RecordSerializer {
 	public static int blen;
 	public static int ilen;
 
-	public static final void shallowSerialize(Record rec) throws IOException {
+	public static final void shallowSerialize(TransformableRecordInterface rec) throws IOException {
 		ilen = 0;
 		addToIbuf(rec.getID());
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getToken(i));
 		setBbuf(Snappy.maxCompressedLength(ilen*Integer.BYTES));
 		blen = Snappy.rawCompress(ibuf, 0, ilen*Integer.BYTES, bbuf, 0);
 	}
 
-	public static final void serialize(Record rec) throws IOException {
+	public static final void serialize(TransformableRecordInterface rec) throws IOException {
 		ilen = 0;
 
-		addToIbuf(rec.id);
+		addToIbuf(rec.getID());
 		addToIbuf(rec.size());
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.tokens[i]);
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.applicableRules[i].length);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getToken(i));
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumApplicableRules(i));
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( Rule rule : rec.getApplicableRules(i) ) addToIbuf(rule.getID());
 		} 
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.suffixApplicableRules[i].length);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumSuffixApplicableRules(i));
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( Rule rule : rec.getSuffixApplicableRules(i) ) addToIbuf(rule.getID());
 		}
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.suffixRuleLenPairs[i].length);
+		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumSuffixRuleLens(i));
 		for ( int i=0; i<rec.size(); ++i ) {
 			for ( IntPair pair : rec.getSuffixRuleLens(i) ) {
 				addToIbuf(pair.i1);

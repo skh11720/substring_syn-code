@@ -15,6 +15,7 @@ import org.xerial.snappy.Snappy;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordSerializer;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Log;
 
@@ -56,7 +57,7 @@ public class RecordStore {
 
 	
 	
-	public RecordStore(Iterable<Record> indexedRecords, Ruleset ruleset) {
+	public RecordStore(Iterable<TransformableRecordInterface> indexedRecords, Ruleset ruleset) {
 //		Log.log.trace("RecordStore.constructor");
 		this.ruleset = ruleset;
 		secQS = new RecordStoreSection("QS", RecordPool.BUFFER_SIZE);
@@ -72,13 +73,13 @@ public class RecordStore {
 		secTS.init();
 	}
 	
-	private void materializeRecords(Iterable<Record> recordList) throws IOException {
+	private void materializeRecords(Iterable<TransformableRecordInterface> recordList) throws IOException {
 		Log.log.trace("recordStore.materializeRecords()");
 		long curQS = 0;
 		long curTS = 0;
 		BufferedOutputStream bosQS = new BufferedOutputStream(new FileOutputStream(secQS.path));
 		BufferedOutputStream bosTS = new BufferedOutputStream(new FileOutputStream(secTS.path));
-		for ( Record rec : recordList ) {
+		for ( TransformableRecordInterface rec : recordList ) {
 			numRecords += 1;
 			lenSum += rec.size();
 			rec.preprocessApplicableRules();

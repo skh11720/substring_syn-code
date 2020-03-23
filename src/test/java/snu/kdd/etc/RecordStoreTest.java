@@ -24,6 +24,7 @@ import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.DiskBasedDataset;
 import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -34,25 +35,25 @@ public class RecordStoreTest {
 		StatContainer.global = new StatContainer();
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
-		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
+		ObjectList<TransformableRecordInterface> recordList = new ObjectArrayList<TransformableRecordInterface>(dataset.getIndexedList().iterator());
 		RecordStore store = new RecordStore(recordList, dataset.ruleset);
 		
-		for ( Record rec0 : recordList ) {
+		for ( TransformableRecordInterface rec0 : recordList ) {
 			int idx = rec0.getIdx();
 			Record rec1 = store.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
 		}
 
 		for ( int i=0; i<dataset.size; ++i ) {
-			Record rec0 = recordList.get(i);
+			TransformableRecordInterface rec0 = recordList.get(i);
 			Record rec1 = store.getRawRecord(i);
 			assertEquals(rec0.getIdx(), rec1.getIdx());
 			assertEquals(rec0, rec1);
 		}
 		
-		ObjectListIterator<Record> iter = recordList.iterator();
+		ObjectListIterator<TransformableRecordInterface> iter = recordList.iterator();
 		for ( Record rec1 : store.getRecords() ) {
-			Record rec0 = iter.next();
+			TransformableRecordInterface rec0 = iter.next();
 			rec0.preprocessApplicableRules();
 			rec0.preprocessSuffixApplicableRules();
 			rec0.getMaxRhsSize();

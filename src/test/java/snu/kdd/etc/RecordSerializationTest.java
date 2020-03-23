@@ -16,11 +16,12 @@ import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordSerializer;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordSerializationTest {
 	
-	public static boolean[] checkEquivalence(Record rec0, Record rec1) {
+	public static boolean[] checkEquivalence(TransformableRecordInterface rec0, Record rec1) {
 		BooleanArrayList list = new BooleanArrayList();
 		list.add(rec0.getIdx() == rec1.getIdx());
 		list.add(rec0.size() == rec1.size());
