@@ -235,14 +235,6 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		return maxRhsSize;
 	}
 	
-	public final IntOpenHashSet getCandTokenSet() {
-		IntOpenHashSet tokenSet = new IntOpenHashSet();
-		for ( Rule r : getApplicableRuleIterable() ) {
-			for ( int token : r.getRhs() ) tokenSet.add(token);
-		}
-		return tokenSet;
-	}
-	
 	public void preprocessAll() {
 		preprocessApplicableRules();
 		preprocessSuffixApplicableRules();

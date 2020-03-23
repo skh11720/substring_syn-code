@@ -3,9 +3,8 @@ package snu.kdd.substring_syn.data.record;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -14,7 +13,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 
-public class ReusableRecord extends AbstractTransformableRecord {
+public class ReusableRecord extends AbstractTransformableRecord implements RecursiveRecordInterface {
 	
 	private static int INIT_SIZE = 256;
 	private static int INIT_NUM_RULE = 1;
@@ -53,6 +52,13 @@ public class ReusableRecord extends AbstractTransformableRecord {
 		setTokens(arr, size);
 	}
 	
+	public void set(int idx, int id, IntIterator iter, int size) {
+		reset();
+		setIdx(idx);
+		setID(id);
+		setTokens(iter, size);
+	}
+	
 	private void reset() {
 		maxTransLen = 0;
 		minTransLen = 0;
@@ -71,6 +77,15 @@ public class ReusableRecord extends AbstractTransformableRecord {
 		setSize(size);
 		for ( int i=0; i<size; ++i ) {
 			tokens[i] = arr[i];
+			nApp[i] = nSapp[i] = nSRL[i] = 0;
+		}
+		setHash();
+	}
+
+	private void setTokens(IntIterator iter, int size) {
+		setSize(size);
+		for ( int i=0; i<size; ++i ) {
+			tokens[i] = iter.nextInt();
 			nApp[i] = nSapp[i] = nSRL[i] = 0;
 		}
 		setHash();
@@ -111,33 +126,37 @@ public class ReusableRecord extends AbstractTransformableRecord {
 		suffixRuleLenPairs[i][nSRL[i]] = ip;
 		nSRL[i] += 1;
 	}
-	
-	@Override
-	public void preprocessApplicableRules() {
-		Rule.automata.computeApplicableRules(this);
-	}
-	
-	@Override
-	public void preprocessSuffixApplicableRules() {
-		ObjectList<ObjectSet<IntPair>> pairList = new ObjectArrayList<>();
-		for( int i = 0; i < size(); ++i ) pairList.add( new ObjectOpenHashSet<>() );
-		
-		for( int i = size() - 1; i >= 0; --i ) {
-			for( int j=0; j<nApp[i]; ++j ) {
-				Rule rule = applicableRules[i][j];
-				int suffixidx = i + rule.getLhs().length - 1;
-				addSuffixApplicableRule(suffixidx, rule);
-				pairList.get( suffixidx ).add( new IntPair(rule.lhsSize(), rule.rhsSize()) );
-			}
-		}
 
-		for( int i = 0; i < size(); ++i ) {
-			for ( IntPair ip : pairList.get(i) ) {
-				addSuffixRuleLenPairs(i, ip);
-				maxRhsSize = Math.max(maxRhsSize, ip.i2);
-			}
-		}
-	}
+    @Override
+    public void preprocessApplicableRules() {
+    	if ( nApp[0] > 0 ) return;
+        Rule.automata.computeApplicableRules(this);
+        return;
+    }
+    
+    @Override
+    public void preprocessSuffixApplicableRules() {
+    	if ( nSapp[0] > 0 ) return;
+        ObjectList<ObjectSet<IntPair>> pairList = new ObjectArrayList<>();
+        for( int i = 0; i < size(); ++i ) pairList.add( new ObjectOpenHashSet<>() );
+        
+        for( int i = size() - 1; i >= 0; --i ) {
+            for( int j=0; j<nApp[i]; ++j ) {
+                Rule rule = applicableRules[i][j];
+                int suffixidx = i + rule.getLhs().length - 1;
+                addSuffixApplicableRule(suffixidx, rule);
+                pairList.get( suffixidx ).add( new IntPair(rule.lhsSize(), rule.rhsSize()) );
+            }
+        }
+
+        for( int i = 0; i < size(); ++i ) {
+            for ( IntPair ip : pairList.get(i) ) {
+                addSuffixRuleLenPairs(i, ip);
+                maxRhsSize = Math.max(maxRhsSize, ip.i2);
+            }
+        }
+        return;
+    }
 	
 //	public void fit(int size) {
 //		while ( tokens.length < size) doubleSize();
@@ -230,11 +249,6 @@ public class ReusableRecord extends AbstractTransformableRecord {
 	}
 
 	@Override
-	public IntSet getCandTokenSet() {
-		return new IntOpenHashSet(getTokenList());
-	}
-
-	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
@@ -302,5 +316,35 @@ public class ReusableRecord extends AbstractTransformableRecord {
 			System.exit(1);
 		}
 		return ObjectArrayList.wrap(suffixRuleLenPairs[i], nSRL[i]);
+	}
+
+	@Override
+	public int getSidx() {
+		return 0;
+	}
+
+	@Override
+	public TransformableRecordInterface getSuperRecord() {
+		return this;
+	}
+	
+	public Record toRecord() {
+		int[] tokens = Arrays.copyOf(this.tokens, size);
+		Record rec = new Record(idx, id, tokens);
+		rec.applicableRules = new Rule[size][];
+		rec.suffixApplicableRules = new Rule[size][];
+		rec.suffixRuleLenPairs = new IntPair[size][];
+		for ( int i=0; i<size; ++i ) {
+			rec.applicableRules[i] = new Rule[nApp[i]];
+			for ( int j=0; j<nApp[i]; ++j ) rec.applicableRules[i][j] = this.applicableRules[i][j];
+			rec.suffixApplicableRules[i] = new Rule[nSapp[i]];
+			for ( int j=0; j<nSapp[i]; ++j ) rec.suffixApplicableRules[i][j] = this.suffixApplicableRules[i][j];
+			rec.suffixRuleLenPairs[i] = new IntPair[nSRL[i]];
+			for ( int j=0; j<nSRL[i]; ++j ) rec.suffixRuleLenPairs[i][j] = this.suffixRuleLenPairs[i][j];
+		}
+		rec.maxRhsSize = maxRhsSize;
+		rec.maxTransLen = maxTransLen;
+		rec.minTransLen = minTransLen;
+		return rec;
 	}
 }

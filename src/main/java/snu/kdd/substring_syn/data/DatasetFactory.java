@@ -282,7 +282,7 @@ public class DatasetFactory {
 
 		@Override
 		public boolean hasNext() {
-			return idx <= size && nextLine != null;
+			return idx < size && nextLine != null;
 		}
 
 		@Override
@@ -298,9 +298,9 @@ public class DatasetFactory {
 				id += 1;
 				line = getPrefixWithLengthRatio(iter.next());
 				int nar = ac.getNumApplicableRules(line.split(" "));
-				if ( narMax < 0 || nar <= narMax ) break;
+				if ( narMax < 0 || nar <= narMax ) return line;
 			}
-			return line;
+			return null;
 		}
 
 		protected final String getPrefixWithLengthRatio(String str) {
@@ -372,7 +372,7 @@ public class DatasetFactory {
 
 		@Override
 		public TransformableRecordInterface next() {
-			rec.set(idx, sid, nextLine);
+			rec.set(idx++, sid, nextLine);
 			thisDid = did;
 			thisSid = sid;
 			nextLine = findNext();

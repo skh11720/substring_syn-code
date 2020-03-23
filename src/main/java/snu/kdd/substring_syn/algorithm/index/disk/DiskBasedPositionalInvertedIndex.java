@@ -4,13 +4,13 @@ import java.math.BigInteger;
 
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedIndex<PositionInvList, PositionTrInvList> {
 
 	protected final PositionalIndexStore store;
 
-	public DiskBasedPositionalInvertedIndex(Iterable<Record> recordList) {
+	public DiskBasedPositionalInvertedIndex(Iterable<TransformableRecordInterface> recordList) {
 		super(recordList);
 		store = new PositionalIndexStore(recordList);
 	}

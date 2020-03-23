@@ -17,6 +17,7 @@ public class RecordSerializer {
 	public static int[] ibuf = new int[100];
 	public static int blen;
 	public static int ilen;
+	private static ReusableRecord rec = new ReusableRecord();
 
 	public static final void shallowSerialize(TransformableRecordInterface rec) throws IOException {
 		ilen = 0;
@@ -32,16 +33,16 @@ public class RecordSerializer {
 		addToIbuf(rec.getID());
 		addToIbuf(rec.size());
 		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getToken(i));
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumApplicableRules(i));
 		for ( int i=0; i<rec.size(); ++i ) {
+			addToIbuf(rec.getNumApplicableRules(i));
 			for ( Rule rule : rec.getApplicableRules(i) ) addToIbuf(rule.getID());
 		} 
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumSuffixApplicableRules(i));
 		for ( int i=0; i<rec.size(); ++i ) {
+			addToIbuf(rec.getNumSuffixApplicableRules(i));
 			for ( Rule rule : rec.getSuffixApplicableRules(i) ) addToIbuf(rule.getID());
 		}
-		for ( int i=0; i<rec.size(); ++i ) addToIbuf(rec.getNumSuffixRuleLens(i));
 		for ( int i=0; i<rec.size(); ++i ) {
+			addToIbuf(rec.getNumSuffixRuleLens(i));
 			for ( IntPair pair : rec.getSuffixRuleLens(i) ) {
 				addToIbuf(pair.i1);
 				addToIbuf(pair.i2);
@@ -70,7 +71,7 @@ public class RecordSerializer {
 		}
 	}
 	
-	public static final Record deserialize(int idx, byte[] buf, int offset, int len, Ruleset ruleset) {
+	public static final TransformableRecordInterface deserialize(int idx, byte[] buf, int offset, int len, Ruleset ruleset) {
 		int numbytes = -1;
 		while (true) {
 			try {
@@ -84,32 +85,20 @@ public class RecordSerializer {
 		IntIterator iter = IntArrayList.wrap(ibuf, numbytes/Integer.BYTES).iterator();
 		int id = iter.nextInt();
 		int size = iter.nextInt();
-		int[] tokens = new int[size];
-		for ( int i=0; i<size; ++i ) tokens[i] = iter.nextInt();
-		Rule[][] applicableRules = new Rule[size][];
-		for ( int i=0; i<size; ++i ) applicableRules[i] = new Rule[iter.next()];
+		rec.set(idx, id, iter, size);
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<applicableRules[i].length; ++j ) 
-				applicableRules[i][j] = ruleset.getRule(iter.nextInt());
+			int nApp = iter.nextInt();
+			for ( int j=0; j<nApp; ++j ) rec.addApplicableRule(i, ruleset.getRule(iter.nextInt()));
 		}
-		Rule[][] suffixApplicableRules = new Rule[size][];
-		for ( int i=0; i<size; ++i ) suffixApplicableRules[i] = new Rule[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<suffixApplicableRules[i].length; ++j ) 
-				suffixApplicableRules[i][j] = ruleset.getRule(iter.nextInt());
+			int nSapp = iter.nextInt();
+			for ( int j=0; j<nSapp; ++j ) rec.addSuffixApplicableRule(i, ruleset.getRule(iter.nextInt()));
 		}
-		IntPair[][] suffixRuleLenPairs = new IntPair[size][];
-		for ( int i=0; i<size; ++i ) suffixRuleLenPairs[i] = new IntPair[iter.next()];
 		for ( int i=0; i<size; ++i ) {
-			for ( int j=0; j<suffixRuleLenPairs[i].length; ++j ) 
-				suffixRuleLenPairs[i][j] = new IntPair(iter.nextInt(), iter.nextInt());
+			int nSRL = iter.nextInt();
+			for ( int j=0; j<nSRL; ++j ) rec.addSuffixRuleLenPairs(i, new IntPair(iter.nextInt(), iter.nextInt()));
 		}
-		int maxRhsSize = iter.nextInt();
-		Record rec = new Record(idx, id, tokens);
-		rec.applicableRules = applicableRules;
-		rec.suffixApplicableRules = suffixApplicableRules;
-		rec.suffixRuleLenPairs = suffixRuleLenPairs;
-		rec.maxRhsSize = maxRhsSize;
+		rec.setMaxRhsSize(iter.nextInt());
 		return rec;
 	}
 

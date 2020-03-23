@@ -11,6 +11,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class ImprovedGreedyValidatorTest {
@@ -33,7 +34,7 @@ public class ImprovedGreedyValidatorTest {
 		ImprovedGreedyValidator val1 = new ImprovedGreedyValidator(theta, stat1);
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
-			for ( Record rec : dataset.getIndexedList() ) {
+			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 				stat0.startWatch("t_Query");
 				double simQ0 = val0.simQuerySide(query, rec);
 				stat0.stopWatch("t_Query");

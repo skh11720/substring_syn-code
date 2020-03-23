@@ -66,7 +66,7 @@ public class Records {
 		}
 	}
 	
-	public static Iterable<Record> expands( Iterable<Record> records ) {
+	public static Iterable<Record> expands( Iterable<TransformableRecordInterface> records ) {
 		return new Iterable<Record>() {
 
 			@Override
@@ -78,11 +78,11 @@ public class Records {
 	
 	private static class ExpandMultipleIterator implements Iterator<Record> {
 		
-		Iterator<Record> rIter = null;
-		Record rec = null;
+		Iterator<TransformableRecordInterface> rIter = null;
+		TransformableRecordInterface rec = null;
 		ExpandIterator eIter = null;
 
-		public ExpandMultipleIterator(Iterable<Record> records) {
+		public ExpandMultipleIterator(Iterable<TransformableRecordInterface> records) {
 			rIter = records.iterator();
 			findNext();
 		}

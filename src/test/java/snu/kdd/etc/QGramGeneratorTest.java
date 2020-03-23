@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.QGram;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 
 public class QGramGeneratorTest {
@@ -29,8 +30,9 @@ public class QGramGeneratorTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		
 		for ( int i=0; i<10; ++i ) {
-			Record rec = dataset.getRecord(i);
-			rec.preprocessAll();
+			TransformableRecordInterface rec = dataset.getRecord(i);
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
 			System.out.println(rec.toStringDetails());
 			
 			QGramGenerator generator = new QGramGenerator(rec, q);
@@ -51,8 +53,9 @@ public class QGramGeneratorTest {
 		DatasetParam param = new DatasetParam(name, size, nr, ql, null);
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		
-		for ( Record rec : dataset.getIndexedList() ) {
-			rec.preprocessAll();
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
 			QGramGenerator generator = new QGramGenerator(rec, q);
 
 			ObjectSet<QGram> qgramSet0 = new ObjectOpenHashSet<>();

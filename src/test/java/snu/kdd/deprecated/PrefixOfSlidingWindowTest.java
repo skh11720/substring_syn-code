@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.window.SimpleSlidingWindow;
 import snu.kdd.substring_syn.utils.window.iterator.AbstractSlidingWindowIterator;
@@ -47,7 +48,7 @@ public class PrefixOfSlidingWindowTest {
 	@Test
 	public void testSimpleSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			SimpleSlidingWindow swindow1 = new SimpleSlidingWindow(rec.getTokenArray(), w, theta);
 			for ( IntList window : swindow1 ) {
 				IntSet prefix0 = getPrefix(window, theta);
@@ -59,7 +60,7 @@ public class PrefixOfSlidingWindowTest {
 	@Test
 	public void testSortedSlidingWindowTime() {
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			SortedSlidingWindowIterator window1 = new SortedSlidingWindowIterator(rec.getTokenArray(), w, theta);
 			while ( window1.hasNext() ) {
 				window1.next();
@@ -76,8 +77,8 @@ public class PrefixOfSlidingWindowTest {
 		return prefix;
 	}
 	
-	public static void getPrefixOfSlidingWindow( Iterable<Record> concatList, int w, double theta ) {
-		for ( Record rec : concatList ) {
+	public static void getPrefixOfSlidingWindow( Iterable<TransformableRecordInterface> concatList, int w, double theta ) {
+		for ( TransformableRecordInterface rec : concatList ) {
 //			System.out.println(Arrays.toString(arr));
 			SimpleSlidingWindowIterator window1 = new SimpleSlidingWindowIterator(rec.getTokenArray(), w, theta);
 //			HeapBasedSlidingWindow window2 = new HeapBasedSlidingWindow(arr, w, theta);

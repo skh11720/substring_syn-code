@@ -40,7 +40,7 @@ public class RecordStoreTest {
 		
 		for ( TransformableRecordInterface rec0 : recordList ) {
 			int idx = rec0.getIdx();
-			Record rec1 = store.getRecord(idx);
+			TransformableRecordInterface rec1 = store.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
 		}
 
@@ -52,7 +52,7 @@ public class RecordStoreTest {
 		}
 		
 		ObjectListIterator<TransformableRecordInterface> iter = recordList.iterator();
-		for ( Record rec1 : store.getRecords() ) {
+		for ( TransformableRecordInterface rec1 : store.getRecords() ) {
 			TransformableRecordInterface rec0 = iter.next();
 			rec0.preprocessApplicableRules();
 			rec0.preprocessSuffixApplicableRules();
@@ -72,7 +72,7 @@ public class RecordStoreTest {
 
 		Log.log.trace("recordStoreIterator(): start iteration");
 		long ts = System.nanoTime();
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			Log.log.trace("recordStoreIterator(): get record "+rec.getIdx());
 		}
 		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+(System.nanoTime()-ts)/1e6+" ms");
@@ -90,7 +90,7 @@ public class RecordStoreTest {
 		int n = 0;
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("./tmp/RecordStoreTest"));
 		int cur = 0;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			posList.add(cur);
 			byte[] b = Snappy.compress(rec.getTokenArray());
 			cur += b.length;
@@ -133,7 +133,7 @@ public class RecordStoreTest {
 		DatasetParam param = new DatasetParam("WIKI", "30", "107836", "3", "1.0");
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<30; ++i ) {
-			Record rec = dataset.getRecord(i);
+			TransformableRecordInterface rec = dataset.getRecord(i);
 			System.out.println(rec.getIdx()+"\t"+rec.getID()+"\t"+rec.toOriginalString());
 		}
 	}
@@ -143,7 +143,7 @@ public class RecordStoreTest {
 		DatasetParam param = new DatasetParam("WIKI-DOC", "30", "107836", "3", "1.0");
 		DiskBasedDataset dataset = (DiskBasedDataset)DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<30; ++i ) {
-			Record rec = dataset.getRecord(i);
+			TransformableRecordInterface rec = dataset.getRecord(i);
 //			System.out.println(rec.getIdx()+"\t"+rec.getID()+"\t"+rec.toOriginalString());
 			System.out.println(dataset.getRid2idpairMap().get(rec.getIdx())+"\t"+rec.toOriginalString());
 		}

@@ -16,14 +16,14 @@ import snu.kdd.substring_syn.algorithm.index.disk.NaiveIndexStore;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class InvertedListPoolTest {
 
 	@Test
 	public void putSpeed() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
-		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
+		ObjectList<TransformableRecordInterface> recordList = new ObjectArrayList<TransformableRecordInterface>(dataset.getIndexedList().iterator());
 		NaiveIndexStore store = new NaiveIndexStore(recordList);
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( int i=0; i<10000; ++i ) tokenSet.addAll( IntArrayList.wrap(recordList.get(i).getTokenArray()) );

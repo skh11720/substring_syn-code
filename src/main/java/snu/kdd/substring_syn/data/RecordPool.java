@@ -3,15 +3,15 @@ package snu.kdd.substring_syn.data;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.utils.Long2IntHashBasedBinaryHeap;
 import snu.kdd.substring_syn.utils.StatContainer;
 
-public class RecordPool {
+public class RecordPool<T extends RecordInterface> {
 
 	public static int BUFFER_SIZE = (int)(1e4);
 	
-	private final Int2ObjectMap<Record> map;
+	private final Int2ObjectMap<T> map;
 	private final Long2IntHashBasedBinaryHeap tic2tokMap;
 	private final int capacity;
 	private int size;
@@ -41,7 +41,7 @@ public class RecordPool {
 		return map.containsKey(token);
 	}
 	
-	public Record get( int idx ) {
+	public T get( int idx ) {
 		if ( map.containsKey(idx) ) {
 			tic2tokMap.decreaseKeyOfValue(idx, tic);
 			++tic;
@@ -50,7 +50,7 @@ public class RecordPool {
 		else return null;
 	}
 	
-	public void put( int idx, Record rec ) {
+	public void put( int idx, T rec ) {
 		if ( map.containsKey(idx) ) return;
 		if ( size+rec.size() > capacity ) getSpace(rec.size());
 		map.put(idx, rec);

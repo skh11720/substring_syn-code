@@ -1,7 +1,5 @@
 package snu.kdd.substring_syn.index;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -16,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.index.inmem.NaiveInvertedIndex;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 @SuppressWarnings("unused")
 public class NaiveIndexStoreTest {
@@ -24,7 +23,7 @@ public class NaiveIndexStoreTest {
 	public void checkCorrectness() throws IOException {
 		long t;
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "1000000");
-		ObjectList<Record> recordList = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
+		ObjectList<TransformableRecordInterface> recordList = new ObjectArrayList<TransformableRecordInterface>(dataset.getIndexedList().iterator());
 		NaiveInvertedIndex index0 = new NaiveInvertedIndex(dataset);
 		
 		t = System.nanoTime();
@@ -32,7 +31,7 @@ public class NaiveIndexStoreTest {
 		System.out.println("NaiveIndexStore construction: "+(System.nanoTime()-t)/1e6);
 		
 		for ( int token=0; token<500000; ++token ) {
-			ObjectList<Record> recList = index0.getInvList(token);
+			ObjectList<TransformableRecordInterface> recList = index0.getInvList(token);
 			IntList invList0 = null;
 			if ( recList != null ) invList0 = new IntArrayList(recList.stream().map(rec->rec.getIdx()).iterator());
 			NaiveInvList invList1 = store.getInvList(token);
@@ -46,7 +45,7 @@ public class NaiveIndexStoreTest {
 //				System.exit(1);
 //			}
 			
-			ObjectList<Record> trecList = index0.getTransInvList(token);
+			ObjectList<TransformableRecordInterface> trecList = index0.getTransInvList(token);
 			IntList tinvList0 = null;
 			if ( trecList != null ) tinvList0 = new IntArrayList(trecList.stream().map(rec->rec.getIdx()).iterator());
 			NaiveInvList tinvList1 = store.getTrInvList(token);

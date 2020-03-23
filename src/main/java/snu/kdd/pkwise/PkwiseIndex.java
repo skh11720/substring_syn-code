@@ -13,6 +13,7 @@ import snu.kdd.substring_syn.data.WindowDataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseIndex {
@@ -94,7 +95,7 @@ public class PkwiseIndex {
 		int iidx = -1;
 		int widx = -1;
 		int w;
-		Record rec = null;
+		TransformableRecordInterface rec = null;
 		
 		public AbstractWitvIterator( int token ) {
 			this.token = token;
@@ -107,7 +108,7 @@ public class PkwiseIndex {
 
 		@Override
 		public Subrecord next() {
-			Record rec0 = rec;
+			TransformableRecordInterface rec0 = rec;
 			int sidx0 = widx;
 			int eidx0 = widx+w;
 			findNext();

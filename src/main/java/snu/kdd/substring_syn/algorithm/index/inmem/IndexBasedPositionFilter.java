@@ -25,7 +25,6 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
-import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -62,17 +61,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	protected IntIterable textSideFilter(Record query) { return null; }
 	
 	@Override
-	public Iterable<Record> getCandRecordsQuerySide( Record query ) {
-		return new Iterable<Record>() {
+	public Iterable<TransformableRecordInterface> getCandRecordsQuerySide( Record query ) {
+		return new Iterable<TransformableRecordInterface>() {
 			
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
 				return new QuerySideFilter(query);
 			}
 		};
 	}
 	
-	private class QuerySideFilter implements Iterator<Record> {
+	private class QuerySideFilter implements Iterator<TransformableRecordInterface> {
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
@@ -195,8 +194,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				}
 				countUpperBound -= tokenCounter.getMax(token);
 			}
-			Log.log.trace("QuerySideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
-			Log.log.trace("QuerySideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.idxList.size()).sum());
+//			Log.log.trace("QuerySideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
+//			Log.log.trace("QuerySideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.idxList.size()).sum());
 			return rec2idxListMap;
 		}
 		
@@ -238,17 +237,17 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 	} // end class QuerySideFilter
 	
 	@Override
-	public Iterable<Record> getCandRecordsTextSide( Record query ) {
-		return new Iterable<Record>() {
+	public Iterable<TransformableRecordInterface> getCandRecordsTextSide( Record query ) {
+		return new Iterable<TransformableRecordInterface>() {
 			
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
 				return new TextSideFilter(query);
 			}
 		};
 	}
 	
-	private class TextSideFilter implements Iterator<Record> {
+	private class TextSideFilter implements Iterator<TransformableRecordInterface> {
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
@@ -303,7 +302,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					Entry<Integer, PosListPair> e = iter.next();
 					if ( useCF && e.getValue().nToken < minCount ) continue;
 					int ridx = e.getKey();
-	//				Log.log.trace("ridx=%d", ridx);
+//					Log.log.trace("ridx=%d", ridx);
 					statContainer.startWatch("Time_TS_IndexFilter.getIdxList");
 					IntList prefixIdxList = IntArrayList.wrap(e.getValue().prefixList.toIntArray());
 					ObjectList<IntPair> suffixTokenList = e.getValue().suffixTokenList;
@@ -320,8 +319,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					int maxSuffixIdx = suffixIdxList.getInt(suffixIdxList.size()-1);
 					statContainer.stopWatch("Time_TS_IndexFilter.sortIdxList");
 					statContainer.startWatch("Time_TS_IndexFilter.getRecord");
-					Record fullRec = dataset.getRecord(ridx);
-//					Log.log.trace("TextSideFilter: fullRec.idx=%d, fullRec.id=%d, fullRec=%s", fullRec.getIdx(), fullRec.getID(), fullRec.toOriginalString());
+					TransformableRecordInterface fullRec = dataset.getRecord(ridx);
+//					Log.log.trace("TextSideFilter: fullRec.idx=%d, fullRec.id=%d, fullRec.size=%d, fullRec=%s", fullRec.getIdx(), fullRec.getID(), fullRec.size(), fullRec.toOriginalString());
+//					Log.log.trace("prefixIdxList=%s", prefixIdxList);
+//					Log.log.trace("suffixIdxList=%s", suffixIdxList);
 					Subrecord rec = new Subrecord(fullRec, minPrefixIdx, maxSuffixIdx+1);
 					statContainer.stopWatch("Time_TS_IndexFilter.getRecord");
 					addToIntList(prefixIdxList, -minPrefixIdx);
@@ -349,7 +350,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			for ( int token : candTokenSet ) {
 				tokenCounter.clear();
 				PositionInvList invList = index.getInvList(token);
-//				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(invList)=%d", ()->token, ()->invList==null?0:invList.size());
+//				Log.log.trace("getCommonTokenIdxLists\ttoken=%s (%d), len(invList)=%d", ()->Record.tokenIndex.getToken(token), ()->token, ()->invList==null?0:invList.size());
+//				Log.log.trace("invList=%s", ()->invList);
 				if ( invList != null ) {
 //					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, invList.size=%d", ()->Record.tokenIndex.getToken(token), ()->invList.size());
 
@@ -401,7 +403,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				} // end if invList
 
 				PositionTrInvList transInvList = index.getTransInvList(token);
-//				Log.log.trace("getCommonTokenIdxLists\ttoken=%d, len(transInvList)=%d", ()->token, ()->transInvList==null?0:transInvList.size());
+//				Log.log.trace("getCommonTokenIdxLists\ttoken=%s (%d), len(transInvList)=%d", ()->Record.tokenIndex.getToken(token), ()->token, ()->transInvList==null?0:transInvList.size());
+//				Log.log.trace("transInvList=%s", transInvList);
 				if ( transInvList != null ) {
 //					Log.log.trace("TextSideFilter.getCommonTokenIdxLists: token=%s, transInvList.size=%d", ()->Record.tokenIndex.getToken(token), ()->transInvList.size());
 
@@ -455,8 +458,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				countUpperBound -= tokenCounter.getMax(token);
 			} // end for token
 
-			Log.log.trace("TextSideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
-			Log.log.trace("TextSideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.prefixList.size()).sum());
+//			Log.log.trace("TextSideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
+//			Log.log.trace("TextSideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.prefixList.size()).sum());
 			return rec2idxListMap;
 		}
 		

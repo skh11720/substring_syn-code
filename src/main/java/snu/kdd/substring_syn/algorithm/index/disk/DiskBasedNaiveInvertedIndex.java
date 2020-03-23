@@ -3,13 +3,13 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 import java.math.BigInteger;
 
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class DiskBasedNaiveInvertedIndex extends AbstractDiskBasedInvertedIndex<NaiveInvList, NaiveInvList> {
 	
 	protected final NaiveIndexStore store;
 	
-	public DiskBasedNaiveInvertedIndex( Iterable<Record> recordList ) {
+	public DiskBasedNaiveInvertedIndex( Iterable<TransformableRecordInterface> recordList ) {
 		super(recordList);
 		store = new NaiveIndexStore(recordList);
 	}

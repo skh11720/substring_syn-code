@@ -5,12 +5,21 @@ import java.util.Iterator;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.TokenIndex;
 
 public abstract class AbstractTransformableRecord implements TransformableRecordInterface {
 
 	public static TokenIndex tokenIndex = null;
+
+	public IntOpenHashSet getCandTokenSet() {
+		IntOpenHashSet tokenSet = new IntOpenHashSet();
+		for ( Rule r : getApplicableRuleIterable() ) {
+			for ( int token : r.getRhs() ) tokenSet.add(token);
+		}
+		return tokenSet;
+	}
 
 	public int getNumApplicableNonselfRules() {
 		int count = 0;

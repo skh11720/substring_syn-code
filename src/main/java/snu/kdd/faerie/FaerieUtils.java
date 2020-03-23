@@ -4,11 +4,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class FaerieUtils {
 
-	public static Int2ObjectMap<IntList> getInvIndex(Record rec) {
+	public static Int2ObjectMap<IntList> getInvIndex(TransformableRecordInterface rec) {
 		Int2ObjectMap<IntList> tok2posListMap = new Int2ObjectOpenHashMap<IntList>();
 		for ( int i=0; i<rec.size(); ++i ) {
 			int token = rec.getToken(i);

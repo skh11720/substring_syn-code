@@ -3,18 +3,18 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 import java.math.BigInteger;
 
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class NaiveIndexStore {
 
 	final IndexStoreAccessor invListAccessor;
 	final IndexStoreAccessor tinvListAccessor;
 	
-	public NaiveIndexStore( Iterable<Record> recordList ) {
+	public NaiveIndexStore( Iterable<TransformableRecordInterface> recordList ) {
 		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE);
 	}
 
-	public NaiveIndexStore( Iterable<Record> recordList, int mem ) {
+	public NaiveIndexStore( Iterable<TransformableRecordInterface> recordList, int mem ) {
 		NaiveIndexStoreBuilder builder = new NaiveIndexStoreBuilder(recordList);
 		builder.setInMemMaxSize(mem);
 		invListAccessor = builder.buildInvList();

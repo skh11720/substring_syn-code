@@ -82,6 +82,11 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	public int size() {
 		return eidx-sidx;
 	}
+	
+	@Override
+	public int getNumApplicableNonselfRules() {
+		return (int)StreamSupport.stream(getApplicableRuleIterable().spliterator(), true).filter(x->!x.isSelfRule).count();
+	}
 
 	@Override
 	public int getNumApplicableRules(int i) {

@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class FaerieIndexEntry implements Serializable {
 	
 	final Int2ObjectMap<IntList> tok2posListMap;
 	
-	public FaerieIndexEntry(Record rec) {
+	public FaerieIndexEntry(TransformableRecordInterface rec) {
 		tok2posListMap = FaerieUtils.getInvIndex(rec);
 	}
 	

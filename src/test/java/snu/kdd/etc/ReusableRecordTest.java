@@ -12,8 +12,8 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.ReusableRecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class ReusableRecordTest {
 
@@ -21,7 +21,7 @@ public class ReusableRecordTest {
 	public void testCorrectnessComparedToRecord() throws IOException {
 		ReusableRecord recBuf = new ReusableRecord();
 		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "100000", "107836", "5", "1.0"));
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			recBuf.set(rec.getIdx(), rec.getID(), rec.getTokenArray(), rec.size());
 			for ( int i=0; i<rec.size(); ++i ) {
 				Iterator<Rule> iter;
@@ -48,7 +48,7 @@ public class ReusableRecordTest {
 	public void testPreprocess() throws IOException {
 		ReusableRecord recBuf = new ReusableRecord();
 		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "100000", "107836", "5", "1.0"));
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			recBuf.set(rec.getIdx(), rec.getID(), rec.getTokenArray(), rec.size());
 			recBuf.preprocessApplicableRules();
 			recBuf.preprocessSuffixApplicableRules();

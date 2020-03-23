@@ -25,6 +25,7 @@ import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -38,7 +39,7 @@ public class MiscTest {
 		int sidx = 287;
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		Record query = null;
-		Record text = null;
+		TransformableRecordInterface text = null;
 		for ( Record rec : dataset.getSearchedList() ) {
 			if ( rec.getIdx() == qidx ) {
 				query = rec;
@@ -46,7 +47,7 @@ public class MiscTest {
 			}
 		}
 		
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			if ( rec.getIdx() == sidx ) {
 				text = rec;
 				break;
@@ -62,7 +63,7 @@ public class MiscTest {
 	public void testRecord() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			int n1 = 0;
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) ++n1;
@@ -115,7 +116,7 @@ public class MiscTest {
 	public void testWindowCount() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", "1000");
 		double theta = 0.6;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			int nw0 = sumWindowSize(rec);
 			int nw1 = 0;
 			for ( int w=1; w<=rec.size(); ++w ) {
@@ -130,7 +131,7 @@ public class MiscTest {
 		}
 	}
 	
-	private static int sumWindowSize( Record rec ) {
+	private static int sumWindowSize( TransformableRecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
 	}
@@ -431,7 +432,7 @@ public class MiscTest {
 	@Test
 	public void testGetSubstrings() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "1000", "1000", "5", "1.0"));
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			System.out.println(rec.size());
 			for ( Subrecord window : Records.getSubrecords(rec) ) {
 				System.out.println(window.sidx+", "+window.eidx);

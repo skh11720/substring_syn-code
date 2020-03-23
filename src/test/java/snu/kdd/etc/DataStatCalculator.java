@@ -16,7 +16,7 @@ import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class DataStatCalculator {
 	
@@ -86,15 +86,15 @@ public class DataStatCalculator {
 	
 	@SuppressWarnings("unused")
 	public static void countRecord(Dataset dataset, DatasetStat dataStat) {
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			dataStat.nRecord += 1;
 		}
 	}
 
 	public static void countToken( Dataset dataset, DatasetStat dataStat ) {
 		IntSet tokenSet = new IntOpenHashSet();
-		for ( Record rec : dataset.getIndexedList() ) {
-			tokenSet.addAll(rec.getTokens());
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+			tokenSet.addAll(rec.getTokenList());
 		}
 		dataStat.nToken = tokenSet.size();
 	}
@@ -110,7 +110,7 @@ public class DataStatCalculator {
 		long n = 0;
 		long sum = 0;
 		long sqsum = 0;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			dataStat.len.max = Math.max(dataStat.len.max, rec.size());
 			dataStat.len.min = Math.min(dataStat.len.min, rec.size());
 			++n;
@@ -127,7 +127,7 @@ public class DataStatCalculator {
 		long n = 0;
 		long sum = 0;
 		long sqsum = 0;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			rec.preprocessApplicableRules();
 			int nr = rec.getNumApplicableNonselfRules(); // do not count the self rules
 			dataStat.nApp.max = Math.max(dataStat.nApp.max, nr);

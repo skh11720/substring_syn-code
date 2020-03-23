@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class PositionalInvertedIndex implements PositionalIndexInterface {
 	
@@ -22,7 +22,7 @@ public class PositionalInvertedIndex implements PositionalIndexInterface {
 
 	private Int2ObjectMap<ObjectList<InvListEntry>> buildInvList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<InvListEntry>> invList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invList.containsKey(token) ) invList.put(token, new ObjectArrayList<InvListEntry>());
@@ -34,7 +34,7 @@ public class PositionalInvertedIndex implements PositionalIndexInterface {
 	
 	private Int2ObjectMap<ObjectList<TransInvListEntry>> buildTransIntList( Dataset dataset ) {
 		Int2ObjectMap<ObjectList<TransInvListEntry>> transInvList = new Int2ObjectOpenHashMap<>();
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			rec.preprocessApplicableRules();
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {

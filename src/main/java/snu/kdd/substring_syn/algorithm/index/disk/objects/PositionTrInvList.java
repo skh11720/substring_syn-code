@@ -41,4 +41,9 @@ public class PositionTrInvList implements BytesMeasurableInterface, PostingListI
 	public int size() {
 		return size;
 	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString(Arrays.copyOfRange(arr, 0, 3*size));
+	}
 }

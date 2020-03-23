@@ -11,6 +11,7 @@ import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -94,7 +95,7 @@ public class FaerieSearchTest {
 	public void testSimilarityCalculator() {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "31622", "5");
 		for ( Record query : dataset.getSearchedList() ) {
-			for ( Record rec : dataset.getIndexedList() ) {
+			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 				SimilarityCalculator simcal = new SimilarityCalculator(query);
 				for ( int i=0; i<rec.size(); ++i ) {
 					double sim0 = Util.jaccardM(query.getTokenList(), rec.getTokenList().subList(0, i+1));

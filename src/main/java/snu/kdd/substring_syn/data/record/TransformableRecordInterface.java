@@ -6,6 +6,7 @@ import snu.kdd.substring_syn.data.Rule;
 
 public interface TransformableRecordInterface extends RecordInterface {
 	
+	int getNumApplicableNonselfRules();
 	int getNumApplicableRules(int i);
 	int getNumSuffixApplicableRules(int i);
 	int getNumSuffixRuleLens(int i);

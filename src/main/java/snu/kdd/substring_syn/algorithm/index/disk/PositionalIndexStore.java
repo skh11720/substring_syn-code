@@ -4,18 +4,18 @@ import java.math.BigInteger;
 
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class PositionalIndexStore {
 
 	final IndexStoreAccessor invListAccessor;
 	final IndexStoreAccessor tinvListAccessor;
 	
-	public PositionalIndexStore( Iterable<Record> recordList ) {
+	public PositionalIndexStore( Iterable<TransformableRecordInterface> recordList ) {
 		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE);
 	}
 
-	public PositionalIndexStore( Iterable<Record> recordList, int mem ) {
+	public PositionalIndexStore( Iterable<TransformableRecordInterface> recordList, int mem ) {
 		PositionalIndexStoreBuilder builder = new PositionalIndexStoreBuilder(recordList);
 		builder.setInMemMaxSize(mem);
 		invListAccessor = builder.buildInvList();

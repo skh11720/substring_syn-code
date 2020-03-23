@@ -14,13 +14,13 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public abstract class AbstractIndexStoreBuilder {
 
 	public static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
-	protected final Iterable<Record> recordList;
+	protected final Iterable<TransformableRecordInterface> recordList;
 	protected BufferedOutputStream bos = null;
 	protected int inmem_max_size;
 	protected int nFlush;
@@ -31,7 +31,7 @@ public abstract class AbstractIndexStoreBuilder {
 	protected int[] ibuf = new int[1024];
 	
 
-	public AbstractIndexStoreBuilder( Iterable<Record> recordList ) {
+	public AbstractIndexStoreBuilder( Iterable<TransformableRecordInterface> recordList ) {
 		this.recordList = recordList;
 		inmem_max_size = INMEM_MAX_SIZE;
 	}
@@ -46,20 +46,20 @@ public abstract class AbstractIndexStoreBuilder {
 	
 	@FunctionalInterface
 	protected interface ListSegmentBuilder {
-		Int2ObjectMap<ObjectList<SegmentInfo>> build(Iterable<Record> recordList) throws IOException;
+		Int2ObjectMap<ObjectList<SegmentInfo>> build(Iterable<TransformableRecordInterface> recordList) throws IOException;
 	}
 	
 	public abstract IndexStoreAccessor buildInvList();
 
 	public abstract IndexStoreAccessor buildTrInvList();
 	
-	protected abstract void addToInvList( IntList list, Record rec, int pos );
+	protected abstract void addToInvList( IntList list, TransformableRecordInterface rec, int pos );
 
-	protected abstract void addToTrInvList( IntList list, Record rec, int pos, Rule rule );
+	protected abstract void addToTrInvList( IntList list, TransformableRecordInterface rec, int pos, Rule rule );
 
 	protected abstract String getIndexStoreName();
 	
-	protected IndexStoreAccessor createIndexStoreAccessor( Iterable<Record> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
+	protected IndexStoreAccessor createIndexStoreAccessor( Iterable<TransformableRecordInterface> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
 		bufSize = nFlush = 0;
 		storeSize = 0;
 		curTmp = new Cursor();
@@ -76,12 +76,12 @@ public abstract class AbstractIndexStoreBuilder {
 		return accessor;
 	}
 	
-	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<Record> recordList ) throws IOException {
+	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
 		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
-		for ( Record rec : recordList ) {
+		for ( TransformableRecordInterface rec : recordList ) {
 			for ( int i=0; i<rec.size(); ++i ) {
 				int token = rec.getToken(i);
 				if ( !invListMap.containsKey(token) ) invListMap.put(token, new IntArrayList());
@@ -99,12 +99,12 @@ public abstract class AbstractIndexStoreBuilder {
 		return tok2segList;
 	}
 	
-	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildTrInvListSegment( Iterable<Record> recordList ) throws IOException {
+	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildTrInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
 		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
-		for ( Record rec : recordList ) {
+		for ( TransformableRecordInterface rec : recordList ) {
 			rec.preprocessApplicableRules();
 			for ( int i=0; i<rec.size(); ++i ) {
 				for ( Rule rule : rec.getApplicableRules(i) ) {
