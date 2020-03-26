@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.Ruleset;
 
 public class ReusableRecord extends AbstractTransformableRecord implements RecursiveRecordInterface {
 	
@@ -42,7 +43,7 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	}
 
 	public void set(int idx, int id, String str) {
-		int[] arr = Arrays.stream(Records.tokenize(str)).mapToInt(x->tokenIndex.getIDOrAdd(x)).toArray();
+		int[] arr = Ruleset.getTokenIndexArray(str);
 		set(idx, id, arr, arr.length);
 	}
 	

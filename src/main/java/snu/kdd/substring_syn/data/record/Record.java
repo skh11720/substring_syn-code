@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.Ruleset;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record extends AbstractTransformableRecord implements RecursiveRecordInterface, Comparable<Record> {
@@ -43,12 +44,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	public Record( int idx, int id, String str ) {
 		this.idx = idx;
 		this.id = id;
-		String[] pstr = Records.tokenize(str);
-		tokens = new int[ pstr.length ];
-		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = tokenIndex.getIDOrAdd( pstr[ i ] );
-		}
-		
+		tokens  = Ruleset.getTokenIndexArray(str);
 		hash = getHash(idx, tokens, tokens.length);
 	}
 	
