@@ -65,7 +65,8 @@ public class PrefixSearchTest {
 		  Fopt_CPLR      36.409       6.831       7.346         6        19       245       100         6        16        20        69         6         6         6
 		 */
 		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
-		String argsTmpl = "-data WIKI -alg PrefixSearch -nt 100 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
+//		DatasetParam param = new DatasetParam("WIKI-DOC", "20", "1000", "5", "1.0");
+		String argsTmpl = "-data %s -alg PrefixSearch -nt %s -nr %s -ql %s -lr %s -param theta:0.6,filter:%s";
 		String outputTmpl = "%15s%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n";
 		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
 				"T_Total", "T_Qside", "T_Tside", 
@@ -73,7 +74,7 @@ public class PrefixSearchTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( AlgorithmFactory.FilterOptionLabel opt : FilterOptionLabel.values() ) {
 //			if ( opt == FilterOptionLabel.Fopt_None ) continue;
-			String[] args = String.format(argsTmpl, opt).split(" ");
+			String[] args = String.format(argsTmpl, param.name, param.size, param.nr, param.qlen, param.lenRatio, opt).split(" ");
 			AbstractSearch alg = AlgorithmFactory.createInstance(new InputArgument(args));
 			alg.run(dataset);
 			strbld.append(String.format(outputTmpl, opt, 
