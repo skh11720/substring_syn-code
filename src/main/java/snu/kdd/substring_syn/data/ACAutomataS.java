@@ -55,8 +55,7 @@ public class ACAutomataS {
 		int ridx = 0;
 		for( final String ruleStr : ruleStrList ) {
 			State curr = root;
-			String[][] rstr = Ruleset.tokenize(ruleStr);
-			for( final String word : rstr[0] ) {
+			for( final String word : Ruleset.getLhs(ruleStr) ) {
 				State next;
 				if( curr.split != null && ( next = curr.split.get( word ) ) != null ) {
 					curr = next;

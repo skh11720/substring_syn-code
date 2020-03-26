@@ -41,19 +41,28 @@ public class Ruleset {
 	}
 
 	protected Rule createRule( String str ) {
-		String[][] rstr = tokenize(str);
-		int[] lhs = getTokenIndexArray(rstr[0]);
-		int[] rhs = getTokenIndexArray(rstr[1]);
+		int[] lhs = getTokenIndexArray(getLhs(str));
+		int[] rhs = getTokenIndexArray(getRhs(str));
 		int idx = ruleList.size();
 		return new Rule(idx, lhs, rhs);
 	}
 
-	public static String[][] tokenize( String str ) {
-		String[][] rstr = new String[2][];
-		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
-		rstr[0] = tokens[0].trim().split(" ");
-		rstr[1] = tokens[1].trim().split(" ");
-		return rstr;
+//	public static String[][] tokenize( String str ) {
+//		String[][] rstr = new String[2][];
+//		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
+//		rstr[0] = tokens[0].trim().split(" ");
+//		rstr[1] = tokens[1].trim().split(" ");
+//		return rstr;
+//	}
+	
+	public static String[] getLhs( String str ) {
+		int p = str.indexOf('|');
+		return str.substring(0, p).trim().toLowerCase().split(" ");
+	}
+	
+	public static String[] getRhs( String str ) {
+		int p = str.lastIndexOf('|');
+		return str.substring(p+1, str.length()).trim().toLowerCase().split(" ");
 	}
 
 	protected int[] getTokenIndexArray( String[] tokenArr ) {
