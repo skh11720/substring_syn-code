@@ -58,7 +58,7 @@ public class TokenIndexBuilder {
 	protected final void countTokensFromRules() {
 		Log.log.trace("TokenOrder.countTokensFromRules()");
 		for ( String ruleStr : ruleStrings ) {
-			int[] rhs = Rule.getTokenIndexArray(Ruleset.getRhs(ruleStr));
+			int[] rhs = Ruleset.getTokenIndexArray(Ruleset.getRhs(ruleStr));
 			for ( int token : rhs ) counter.addTo(token, 1);
 		}
 	}

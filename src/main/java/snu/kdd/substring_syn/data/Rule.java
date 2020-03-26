@@ -19,14 +19,6 @@ public class Rule implements Comparable<Rule> {
 
 	private final int hash;
 
-	public static int[] getTokenIndexArray( String[] tokenArr ) {
-		int[] indexArr = new int[tokenArr.length];
-		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenArr[i]);
-		}
-		return indexArr;
-	}
-
 	protected Rule( int idx, int[] lhs, int[] rhs ) {
 		this.idx = idx;
 		this.lhs = lhs;

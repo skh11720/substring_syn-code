@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 /***
  * 
@@ -56,7 +57,9 @@ public class ACAutomataS {
 		int ridx = 0;
 		for( final String ruleStr : ruleStrList ) {
 			State curr = root;
-			for( final String word : Ruleset.getLhs(ruleStr) ) {
+			StringSplitIterator wordIter = new StringSplitIterator(Ruleset.getLhs(ruleStr));
+			while ( wordIter.hasNext() ) {
+				String word = wordIter.next();
 				State next;
 				if( curr.split != null && ( next = curr.split.get( word ) ) != null ) {
 					curr = next;

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 public class Ruleset {
 	private final ObjectArrayList<Rule> ruleList;
@@ -55,20 +56,22 @@ public class Ruleset {
 //		return rstr;
 //	}
 	
-	public static String[] getLhs( String str ) {
+	public static String getLhs( String str ) {
 		int p = str.indexOf('|');
-		return str.substring(0, p).trim().toLowerCase().split(" ");
+		return str.substring(0, p).trim().toLowerCase();
 	}
 	
-	public static String[] getRhs( String str ) {
+	public static String getRhs( String str ) {
 		int p = str.lastIndexOf('|');
-		return str.substring(p+1, str.length()).trim().toLowerCase().split(" ");
+		return str.substring(p+1, str.length()).trim().toLowerCase();
 	}
 
-	protected int[] getTokenIndexArray( String[] tokenArr ) {
-		int[] indexArr = new int[tokenArr.length];
-		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenArr[i]);
+	public static int[] getTokenIndexArray( String str ) {
+		int size = (int)str.chars().filter(x->x == ' ').count()+1;
+		int[] indexArr = new int[size];
+		StringSplitIterator tokenIter = new StringSplitIterator(str);
+		for ( int i=0; tokenIter.hasNext(); ++i ) {
+			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenIter.next());
 		}
 		return indexArr;
 	}
