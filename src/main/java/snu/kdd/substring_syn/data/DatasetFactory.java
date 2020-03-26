@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
@@ -21,6 +20,7 @@ import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 public class DatasetFactory {
 	
@@ -299,7 +299,8 @@ public class DatasetFactory {
 			while ( iter.hasNext() ) {
 				id += 1;
 				line = getPrefixWithLengthRatio(iter.next());
-				int nar = ac.getNumApplicableRules(line.split(" "));
+				Iterator<String> tokenIter = new StringSplitIterator(line);
+				int nar = ac.getNumApplicableRules(tokenIter);
 				if ( narMax < 0 || nar <= narMax ) return line;
 			}
 			return null;
@@ -386,7 +387,8 @@ public class DatasetFactory {
 				while (inDocIter != null && inDocIter.hasNext()) {
 					String snt = inDocIter.next();
 					sid += 1;
-					int nar = ac.getNumApplicableRules(snt.split(" "));
+					Iterator<String> tokenIter = new StringSplitIterator(snt);
+					int nar = ac.getNumApplicableRules(tokenIter);
 					if ( narMax < 0 || nar <= narMax ) {
 						if ( !isDocCounted ) {
 							isDocCounted = true;
@@ -404,10 +406,10 @@ public class DatasetFactory {
 		}
 
 		protected final Iterator<String> parseDocument(String line) {
-			String[] strs = line.split("\t", 2);
-			did = Integer.parseInt(strs[0]);
+			int idxSep = line.indexOf('\t');
+			did = Integer.parseInt(line.substring(0, idxSep));
 			sid = -1;
-			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
+			return new StringSplitIterator(line, idxSep+1, '|');
 		}
 	}
 

@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -136,14 +137,20 @@ public class ACAutomataS {
 	}
 	
 	public int getNumApplicableRules( String[] rec ) {
+		return getNumApplicableRules(ObjectArrayList.wrap(rec).iterator());
+	}
+
+	public int getNumApplicableRules( Iterator<String> tokenIter ) {
 		int nar = 0;
 		State curr = root;
-		for ( int i=0; i< rec.length; ) {
+		String token = tokenIter.next();
+		while (true) {
 			State next;
 //			System.out.println(curr.split.keySet());
-			if ( curr.split != null && ( next = curr.split.get( rec[i] ) ) != null ) {
+			if ( curr.split != null && ( next = curr.split.get(token) ) != null ) {
 				curr = next;
-				++i;
+				if ( tokenIter.hasNext() ) token = tokenIter.next();
+				else break;
 
 //				System.out.println("next.output: "+next.output);
 				if ( next.output != null ) {
@@ -152,7 +159,8 @@ public class ACAutomataS {
 				}
 			}
 			else if ( curr == root ) {
-				++i;
+				if ( tokenIter.hasNext() ) token = tokenIter.next();
+				else break;
 			}
 			else {
 				curr = curr.func;
