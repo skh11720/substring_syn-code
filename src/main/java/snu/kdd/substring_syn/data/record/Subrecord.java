@@ -357,12 +357,18 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		
 		newrec.suffixApplicableRules = suffixApplicableRules;
 
-		IntPair[][] suffixRuleLenPairs = null;
-		suffixRuleLenPairs = new IntPair[size()][];
+		int[][] suffixRuleLenPairs = null;
+		suffixRuleLenPairs = new int[size()][];
 		for ( int i=0; i<size(); ++i ) {
 			ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
 			for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
-			suffixRuleLenPairs[i] = pairSet.toArray( new IntPair[0] );
+			suffixRuleLenPairs[i] = new int[2*pairSet.size()];
+			Iterator<IntPair> iter = pairSet.iterator();
+			for ( int j=0; iter.hasNext(); j++ ) {
+				IntPair pair = iter.next();
+				suffixRuleLenPairs[i][2*j] = pair.i1;
+				suffixRuleLenPairs[i][2*j+1] = pair.i2;
+			}
 		}
 		
 		newrec.suffixRuleLenPairs = suffixRuleLenPairs;

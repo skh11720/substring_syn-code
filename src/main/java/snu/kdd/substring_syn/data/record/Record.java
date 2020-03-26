@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.data.record;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -32,7 +33,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	Rule[][] suffixApplicableRules = null;
 //	int[][] transformLengths = null;
 //	long[] estTrans;
-	IntPair[][] suffixRuleLenPairs = null;
+	int[][] suffixRuleLenPairs = null;
 
 	int maxTransLen = 0;
 	int minTransLen = 0;
@@ -161,7 +162,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	
 	@Override
 	public int getNumSuffixRuleLens(int i) {
-		return suffixRuleLenPairs[i].length;
+		return suffixRuleLenPairs[i].length/2;
 	}
 	
 	public Rule getRule(int pos, int idx) {
@@ -199,10 +200,32 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		if ( suffixRuleLenPairs == null ) {
 			return null;
 		}
-		else if ( k < suffixRuleLenPairs.length ) {
-			return ObjectArrayList.wrap(suffixRuleLenPairs[k]);
+		else {
+			return new Iterable<IntPair>() {
+				
+				@Override
+				public Iterator<IntPair> iterator() {
+					return new Iterator<IntPair>() {
+						
+						IntPair pair = new IntPair();
+						int i = 0;
+						
+						@Override
+						public IntPair next() {
+							pair.i1 = suffixRuleLenPairs[k][2*i];
+							pair.i2 = suffixRuleLenPairs[k][2*i+1];
+							i += 1;
+							return pair;
+						}
+						
+						@Override
+						public boolean hasNext() {
+							return i < suffixRuleLenPairs[k].length/2;
+						}
+					};
+				}
+			};
 		}
-		else return null;
 	}
 
 	@Override
@@ -227,7 +250,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
 			for ( int k=0; k<tokens.length; ++k) {
-				for ( IntPair pair : suffixRuleLenPairs[k] ) {
+				for ( IntPair pair : getSuffixRuleLens(k) ) {
 					maxRhsSize = Math.max(maxRhsSize, pair.i2);
 				}
 			}
@@ -267,10 +290,16 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		}
 
 		suffixApplicableRules = new Rule[ tokens.length ][];
-		suffixRuleLenPairs = new IntPair[ tokens.length ][];
+		suffixRuleLenPairs = new int[ tokens.length ][];
 		for( int i = 0; i < tokens.length; ++i ) {
 			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
-			suffixRuleLenPairs[i] = pairList.get(i).toArray( new IntPair[0] );
+			suffixRuleLenPairs[i] = new int[2 * pairList.get(i).size()];
+			Iterator<IntPair> iter = pairList.get(i).iterator();
+			for ( int j=0; iter.hasNext(); j++ ) {
+				IntPair pair = iter.next();
+				suffixRuleLenPairs[i][2*j] = pair.i1;
+				suffixRuleLenPairs[i][2*j+1] = pair.i2;
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data.record;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -30,7 +31,7 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 
 	Rule[][] applicableRules = new Rule[INIT_SIZE][INIT_NUM_RULE];
 	Rule[][] suffixApplicableRules = new Rule[INIT_SIZE][INIT_NUM_RULE];
-	IntPair[][] suffixRuleLenPairs = new IntPair[INIT_SIZE][INIT_NUM_RULE];
+	int[][] suffixRuleLenPairs = new int[INIT_SIZE][2*INIT_NUM_RULE];
 
 	int maxTransLen = 0;
 	int minTransLen = 0;
@@ -122,8 +123,9 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	}
 
 	public void addSuffixRuleLenPairs(int i, IntPair ip) {
-		if ( nSRL[i] >= suffixRuleLenPairs[i].length ) suffixRuleLenPairs[i] = doubleIntPairArray(suffixRuleLenPairs[i]);
-		suffixRuleLenPairs[i][nSRL[i]] = ip;
+		if ( 2*nSRL[i] >= suffixRuleLenPairs[i].length ) suffixRuleLenPairs[i] = doubleIntArray(suffixRuleLenPairs[i]);
+		suffixRuleLenPairs[i][2*nSRL[i]] = ip.i1;
+		suffixRuleLenPairs[i][2*nSRL[i]+1] = ip.i2;
 		nSRL[i] += 1;
 	}
 
@@ -203,20 +205,24 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	}
 	
 	private void doubleSRLPairsArray() {
-		IntPair[][] srl0 = Arrays.copyOf(suffixRuleLenPairs, 2*suffixRuleLenPairs.length);
-		for ( int i=suffixRuleLenPairs.length; i<2*suffixRuleLenPairs.length; ++i ) srl0[i] = new IntPair[INIT_NUM_RULE];
+		int[][] srl0 = Arrays.copyOf(suffixRuleLenPairs, 2*suffixRuleLenPairs.length);
+		for ( int i=suffixRuleLenPairs.length; i<2*suffixRuleLenPairs.length; ++i ) srl0[i] = new int[2*INIT_NUM_RULE];
 		suffixRuleLenPairs = srl0;
 		int[] nSRL0 = Arrays.copyOf(nSRL, 2*nSRL.length);
 		nSRL = nSRL0;
+	}
+	
+	private int[] doubleIntArray(int[] arr) {
+		return Arrays.copyOf(arr,  2*arr.length);
 	}
 	
 	private Rule[] doubleRuleArray(Rule[] arr) {
 		return Arrays.copyOf(arr, 2*arr.length);
 	}
 
-	private IntPair[] doubleIntPairArray(IntPair[] arr) {
-		return Arrays.copyOf(arr, 2*arr.length);
-	}
+//	private IntPair[] doubleIntPairArray(IntPair[] arr) {
+//		return Arrays.copyOf(arr, 2*arr.length);
+//	}
 
 	@Override
 	public int getIdx() {
@@ -253,7 +259,7 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 		if ( maxRhsSize == 0 ) {
 			maxRhsSize = 1;
 			for ( int i=0; i<size; ++i) {
-				for ( IntPair pair : suffixRuleLenPairs[i] ) {
+				for ( IntPair pair : getSuffixRuleLens(i) ) {
 					maxRhsSize = Math.max(maxRhsSize, pair.i2);
 				}
 			}
@@ -309,13 +315,36 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	}
 
 	@Override
-	public Iterable<IntPair> getSuffixRuleLens(int i) {
-		if ( i >= size() ) {
-			IndexOutOfBoundsException e = new IndexOutOfBoundsException();
-			e.printStackTrace();
-			System.exit(1);
+	public Iterable<IntPair> getSuffixRuleLens( int k ) {
+		if ( suffixRuleLenPairs == null ) {
+			return null;
 		}
-		return ObjectArrayList.wrap(suffixRuleLenPairs[i], nSRL[i]);
+		else {
+			return new Iterable<IntPair>() {
+				
+				@Override
+				public Iterator<IntPair> iterator() {
+					return new Iterator<IntPair>() {
+						
+						IntPair pair = new IntPair();
+						int i = 0;
+						
+						@Override
+						public IntPair next() {
+							pair.i1 = suffixRuleLenPairs[k][2*i];
+							pair.i2 = suffixRuleLenPairs[k][2*i+1];
+							i += 1;
+							return pair;
+						}
+						
+						@Override
+						public boolean hasNext() {
+							return i < getNumSuffixRuleLens(k);
+						}
+					};
+				}
+			};
+		}
 	}
 
 	@Override
@@ -333,14 +362,14 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 		Record rec = new Record(idx, id, tokens);
 		rec.applicableRules = new Rule[size][];
 		rec.suffixApplicableRules = new Rule[size][];
-		rec.suffixRuleLenPairs = new IntPair[size][];
+		rec.suffixRuleLenPairs = new int[size][];
 		for ( int i=0; i<size; ++i ) {
 			rec.applicableRules[i] = new Rule[nApp[i]];
 			for ( int j=0; j<nApp[i]; ++j ) rec.applicableRules[i][j] = this.applicableRules[i][j];
 			rec.suffixApplicableRules[i] = new Rule[nSapp[i]];
 			for ( int j=0; j<nSapp[i]; ++j ) rec.suffixApplicableRules[i][j] = this.suffixApplicableRules[i][j];
-			rec.suffixRuleLenPairs[i] = new IntPair[nSRL[i]];
-			for ( int j=0; j<nSRL[i]; ++j ) rec.suffixRuleLenPairs[i][j] = this.suffixRuleLenPairs[i][j];
+			rec.suffixRuleLenPairs[i] = new int[2*nSRL[i]];
+			for ( int j=0; j<2*nSRL[i]; ++j ) rec.suffixRuleLenPairs[i][j] = this.suffixRuleLenPairs[i][j];
 		}
 		rec.maxRhsSize = maxRhsSize;
 		rec.maxTransLen = maxTransLen;
