@@ -96,7 +96,7 @@ public class RecordSerializer {
 		}
 		for ( int i=0; i<size; ++i ) {
 			int nSRL = iter.nextInt();
-			for ( int j=0; j<nSRL; ++j ) rec.addSuffixRuleLenPairs(i, new IntPair(iter.nextInt(), iter.nextInt()));
+			for ( int j=0; j<nSRL; ++j ) rec.addSuffixRuleLenPairs(i, iter.nextInt(), iter.nextInt());
 		}
 		rec.setMaxRhsSize(iter.nextInt());
 		return rec;

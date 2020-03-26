@@ -30,7 +30,10 @@ public class ReusableRecordTest {
 				iter = rec.getSuffixApplicableRules(i).iterator();
 				for ( int j=0; j<rec.getNumSuffixApplicableRules(i); ++j ) recBuf.addSuffixApplicableRule(i, iter.next());
 				Iterator<IntPair> ipIter = rec.getSuffixRuleLens(i).iterator();
-				for ( int j=0; j<rec.getNumSuffixRuleLens(i); ++j ) recBuf.addSuffixRuleLenPairs(i, ipIter.next());
+				for ( int j=0; j<rec.getNumSuffixRuleLens(i); ++j ) {
+					IntPair pair = ipIter.next();
+					recBuf.addSuffixRuleLenPairs(i, pair.i1, pair.i2);
+				}
 			}
 			recBuf.setMaxRhsSize(rec.getMaxRhsSize());
 			

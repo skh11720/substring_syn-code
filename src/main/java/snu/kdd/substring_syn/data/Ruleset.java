@@ -30,7 +30,7 @@ public class Ruleset {
 
 	protected Rule createSelfRule( int token ) {
 		int[] lhs = new int[] {token};
-		int[] rhs = new int[] {token};
+		int[] rhs = lhs;
 		int idx = ruleList.size();
 		return new Rule(idx, lhs, rhs);
 	}

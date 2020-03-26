@@ -123,10 +123,10 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 		nSapp[i] += 1;
 	}
 
-	public void addSuffixRuleLenPairs(int i, IntPair ip) {
+	public void addSuffixRuleLenPairs(int i, int l1, int l2) {
 		if ( 2*nSRL[i] >= suffixRuleLenPairs[i].length ) suffixRuleLenPairs[i] = doubleIntArray(suffixRuleLenPairs[i]);
-		suffixRuleLenPairs[i][2*nSRL[i]] = ip.i1;
-		suffixRuleLenPairs[i][2*nSRL[i]+1] = ip.i2;
+		suffixRuleLenPairs[i][2*nSRL[i]] = l1;
+		suffixRuleLenPairs[i][2*nSRL[i]+1] = l2;
 		nSRL[i] += 1;
 	}
 
@@ -154,7 +154,7 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 
         for( int i = 0; i < size(); ++i ) {
             for ( IntPair ip : pairList.get(i) ) {
-                addSuffixRuleLenPairs(i, ip);
+                addSuffixRuleLenPairs(i, ip.i1, ip.i2);
                 maxRhsSize = Math.max(maxRhsSize, ip.i2);
             }
         }
