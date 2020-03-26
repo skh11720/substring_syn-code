@@ -53,6 +53,7 @@ public class DatasetFactory {
 	}
 	
 	private static void initCreationProcess(DatasetParam param) {
+		Log.log.trace("DatasetFactory.initCreationProcess");
 		DatasetFactory.param = param;
 		isDocInput = param.name.endsWith("-DOC");
 		ac = new ACAutomataS(ruleStrings());
@@ -135,6 +136,7 @@ public class DatasetFactory {
 	}
 
 	protected static final Iterable<Integer> getDistinctTokens() {
+		Log.log.trace("DataFactory.getDistinctTokens()");
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : searchedRecords() ) tokenSet.addAll( rec.getTokens() );
 		for ( TransformableRecordInterface rec : indexedRecords() ) tokenSet.addAll( rec.getTokenList() );

@@ -49,12 +49,14 @@ public class TokenIndexBuilder {
 	}
 
 	protected final void countTokensFromRecords() {
+		Log.log.trace("TokenOrder.countTokensFromRecords()");
 		for ( TransformableRecordInterface rec : indexedRecords ) {
 			for ( int token : rec.getTokenArray() ) counter.addTo(token, 1);
 		}
 	}
 	
 	protected final void countTokensFromRules() {
+		Log.log.trace("TokenOrder.countTokensFromRules()");
 		for ( String ruleStr : ruleStrings ) {
 			int[] rhs = Rule.getTokenIndexArray(Ruleset.getRhs(ruleStr));
 			for ( int token : rhs ) counter.addTo(token, 1);
@@ -62,6 +64,7 @@ public class TokenIndexBuilder {
 	}
 	
 	protected final TokenIndex buildNewTokenIndex() {
+		Log.log.trace("TokenOrder.buildNewTokenIndex()");
 		TokenIndex tokenIndex = new TokenIndex();
 		Iterator<Int2IntMap.Entry> iter = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue) ).iterator();
 		while ( iter.hasNext() ) {
