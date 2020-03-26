@@ -16,6 +16,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Ruleset;
+import snu.kdd.substring_syn.data.Substring;
 import snu.kdd.substring_syn.utils.Util;
 
 public class Record extends AbstractTransformableRecord implements RecursiveRecordInterface, Comparable<Record> {
@@ -41,7 +42,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	int maxRhsSize = 0;
 	
 
-	public Record( int idx, int id, String str ) {
+	public Record( int idx, int id, Substring str ) {
 		this.idx = idx;
 		this.id = id;
 		tokens  = Ruleset.getTokenIndexArray(str);

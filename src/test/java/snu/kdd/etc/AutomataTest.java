@@ -18,8 +18,10 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.Substring;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 public class AutomataTest {
 	
@@ -98,8 +100,7 @@ public class AutomataTest {
 
 		@Override
 		public Integer next() {
-			rec = iter.next().split(" ");
-			return ac.getNumApplicableRules(rec);
+			return ac.getNumApplicableRules(new StringSplitIterator(new Substring(iter.next())));
 		}
 	}
 }

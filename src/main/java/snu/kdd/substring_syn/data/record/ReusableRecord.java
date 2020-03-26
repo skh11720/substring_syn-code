@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Ruleset;
+import snu.kdd.substring_syn.data.Substring;
 
 public class ReusableRecord extends AbstractTransformableRecord implements RecursiveRecordInterface {
 	
@@ -42,7 +43,7 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	public ReusableRecord() {
 	}
 
-	public void set(int idx, int id, String str) {
+	public void set(int idx, int id, Substring str) {
 		int[] arr = Ruleset.getTokenIndexArray(str);
 		set(idx, id, arr, arr.length);
 	}

@@ -56,22 +56,23 @@ public class Ruleset {
 //		return rstr;
 //	}
 	
-	public static String getLhs( String str ) {
+	public static Substring getLhs( String str ) {
 		int p = str.indexOf('|');
-		return str.substring(0, p).trim().toLowerCase();
+		return new Substring(str.substring(0, p).trim().toLowerCase());
 	}
 	
-	public static String getRhs( String str ) {
+	public static Substring getRhs( String str ) {
 		int p = str.lastIndexOf('|');
-		return str.substring(p+1, str.length()).trim().toLowerCase();
+		return new Substring(str.substring(p+1, str.length()).trim().toLowerCase());
 	}
 
-	public static int[] getTokenIndexArray( String str ) {
+	public static int[] getTokenIndexArray( Substring str ) {
 		int size = (int)str.chars().filter(x->x == ' ').count()+1;
 		int[] indexArr = new int[size];
 		StringSplitIterator tokenIter = new StringSplitIterator(str);
 		for ( int i=0; tokenIter.hasNext(); ++i ) {
-			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenIter.next());
+			Substring token = tokenIter.next();
+			indexArr[i] = Record.tokenIndex.getIDOrAdd(token);
 		}
 		return indexArr;
 	}

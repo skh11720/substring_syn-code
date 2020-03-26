@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -14,6 +15,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
@@ -22,6 +24,8 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.Substring;
+import snu.kdd.substring_syn.data.Token;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -439,5 +443,34 @@ public class MiscTest {
 			}
 			System.in.read();
 		}
+	}
+	
+	@Test
+	public void testSubstring() {
+		char[] chseq = "abcde".toCharArray();
+		String s = "bcd";
+		Substring w = new Substring(chseq, 1, 4);
+		Substring v = new Substring(chseq, 1, 4);
+		Substring x = new Substring(chseq, 2, 4);
+		System.out.println(w);
+		System.out.println(w.equals(w));
+		System.out.println(w.equals(v));
+		System.out.println(w.equals(s));
+		System.out.println(w.equals(x));
+	}
+	
+	@Test
+	public void testCompatibilityBetweenSubstringAndToken() {
+		char[] chseq = "abcde".toCharArray();
+		Token t = new Token("bcd");
+		Substring w = new Substring(chseq, 1, 4);
+		System.out.println(t.hashCode());
+		System.out.println(w.hashCode());
+		System.out.println(t.equals(w));
+		System.out.println(w.equals(t));
+		Object2IntOpenHashMap<Token> map = new Object2IntOpenHashMap<>();
+		map.put(t, 111);
+		System.out.println(map.getInt(t));
+		System.out.println(map.getInt(w));
 	}
 }

@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.CharBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -154,7 +155,7 @@ public class DatasetFactory {
 
 					@Override
 					public Record next() {
-						String line = iter.next();
+						Substring line = new Substring(iter.next());
 						id += 1;
 						Record rec = new Record(idx++, id, line);
 						return rec;
@@ -271,8 +272,9 @@ public class DatasetFactory {
 		final double lenRatio;
 		final int size;
 		final int narMax;
-		String nextLine;
+		Substring nextLine;
 		ReusableRecord rec = new ReusableRecord();
+		char[] chbuf;
 		
 		public SntRecordRawIterator(String path) {
 			super(path);
@@ -294,30 +296,31 @@ public class DatasetFactory {
 			return rec;
 		}
 
-		protected String findNext() {
-			String line = null;
+		protected Substring findNext() {
+			Substring line = null;
 			while ( iter.hasNext() ) {
 				id += 1;
-				line = getPrefixWithLengthRatio(iter.next());
-				Iterator<String> tokenIter = new StringSplitIterator(line);
+				chbuf = iter.next().toCharArray();
+				line = getPrefixWithLengthRatio();
+				Iterator<Substring> tokenIter = new StringSplitIterator(line);
 				int nar = ac.getNumApplicableRules(tokenIter);
 				if ( narMax < 0 || nar <= narMax ) return line;
 			}
 			return null;
 		}
 
-		protected final String getPrefixWithLengthRatio(String str) {
-			int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		protected final Substring getPrefixWithLengthRatio() {
+			int nTokens = (int) CharBuffer.wrap(chbuf).chars().filter(ch -> ch == ' ').count() + 1;
 			int eidx=0;
 			int len0 = (int)Math.max(1, nTokens*lenRatio);
 			int len = 0;
-			for ( ; eidx<str.length(); ++eidx ) {
-				if ( str.charAt(eidx) == ' ' ) {
+			for ( ; eidx<chbuf.length; ++eidx ) {
+				if ( chbuf[eidx] == ' ' ) {
 					len += 1;
 					if ( len >= len0 ) break;
 				}
 			}
-			return str.substring(0, eidx);
+			return new Substring(chbuf, 0, eidx);
 		}
 	}
 	
@@ -347,7 +350,7 @@ public class DatasetFactory {
 
 	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<TransformableRecordInterface> {
 		
-		Iterator<String> inDocIter = null;
+		Iterator<Substring> inDocIter = null;
 		String thisSnt;
 		int nd = 0;
 		int did;
@@ -358,7 +361,7 @@ public class DatasetFactory {
 		
 		int thisDid;
 		int thisSid;
-		String nextLine;
+		Substring nextLine;
 		ReusableRecord rec = new ReusableRecord();
 
 		public DocRecordRawIterator(String path) {
@@ -382,12 +385,12 @@ public class DatasetFactory {
 			return rec;
 		}
 		
-		protected String findNext() {
+		protected Substring findNext() {
 			while (true) {
 				while (inDocIter != null && inDocIter.hasNext()) {
-					String snt = inDocIter.next();
+					Substring snt = inDocIter.next();
 					sid += 1;
-					Iterator<String> tokenIter = new StringSplitIterator(snt);
+					Iterator<Substring> tokenIter = new StringSplitIterator(snt);
 					int nar = ac.getNumApplicableRules(tokenIter);
 					if ( narMax < 0 || nar <= narMax ) {
 						if ( !isDocCounted ) {
@@ -405,11 +408,11 @@ public class DatasetFactory {
 			return null;
 		}
 
-		protected final Iterator<String> parseDocument(String line) {
+		protected final Iterator<Substring> parseDocument(String line) {
 			int idxSep = line.indexOf('\t');
-			did = Integer.parseInt(line.substring(0, idxSep));
+			did = Integer.parseInt(line.substring(0, idxSep).toString());
 			sid = -1;
-			return new StringSplitIterator(line, idxSep+1, '|');
+			return new StringSplitIterator(new Substring(line), idxSep+1, '|');
 		}
 	}
 

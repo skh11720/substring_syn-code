@@ -2,22 +2,24 @@ package snu.kdd.substring_syn.utils;
 
 import java.util.Iterator;
 
-public class StringSplitIterator implements Iterator<String> {
+import snu.kdd.substring_syn.data.Substring;
+
+public class StringSplitIterator implements Iterator<Substring> {
 	
-	private final String str;
+	private final Substring str;
 	private final char delim;
 	private int begin;
 	private int end;
 	
-	public StringSplitIterator(String str) {
+	public StringSplitIterator(Substring str) {
 		this(str, 0, ' ');
 	}
 
-	public StringSplitIterator(String str, char delim) {
+	public StringSplitIterator(Substring str, char delim) {
 		this(str, 0, delim);
 	}
 
-	public StringSplitIterator(String str, int beginidx, char delim) {
+	public StringSplitIterator(Substring str, int beginidx, char delim) {
 		this.delim = delim;
 		this.str = str;
 		end = beginidx - 1;
@@ -29,11 +31,11 @@ public class StringSplitIterator implements Iterator<String> {
 	}
 
 	@Override
-	public String next() {
+	public Substring next() {
 		begin = end + 1;
 		end = str.indexOf(delim, begin);
 		if ( end == -1 ) end = str.length();
-		return str.substring(begin, end);
+		return new Substring(str, begin, end);
 	}
 
 }
