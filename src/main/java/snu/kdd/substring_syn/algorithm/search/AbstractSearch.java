@@ -44,6 +44,7 @@ public abstract class AbstractSearch {
 	}
 	
 	public final void run( Dataset dataset ) {
+		Log.log.trace("AbstractSearch.run()");
 		this.dataset = dataset;
 		statContainer.setAlgorithm(this);
 		statContainer.startWatch(Stat.Time_Total);

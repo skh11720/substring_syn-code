@@ -9,6 +9,7 @@ import snu.kdd.pkwise.PkwiseSearch;
 import snu.kdd.pkwise.PkwiseSynSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.utils.InputArgument;
+import snu.kdd.substring_syn.utils.Log;
 
 public class AlgorithmFactory {
 
@@ -91,6 +92,7 @@ public class AlgorithmFactory {
 	}
 	
 	public static AbstractSearch createInstance( InputArgument arg ) {
+		Log.log.trace("AlgorithmFactory.createInstance()");
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		String paramStr = arg.getOptionValue("param");
 		DictParam param = new DictParam(paramStr);

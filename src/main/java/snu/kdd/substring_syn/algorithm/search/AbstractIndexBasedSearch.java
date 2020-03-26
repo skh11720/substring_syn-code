@@ -36,6 +36,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
+		Log.log.trace("AbstractIndexBasedSearch.buildIndex()");
 		statContainer.startWatch(Stat.Time_BuildIndex);
 		double mem_before = Util.getMemoryUsage();
 		indexFilter = buildSpecificIndex(dataset);
