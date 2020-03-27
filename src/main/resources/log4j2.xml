@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d %12r %-5p %m%n" />
         </Console>
         <File name="File" fileName="log/${date:MMddHHmmss}.log"  immediateFlush="false" append="false">
-            <PatternLayout pattern="%m%n"/>
+            <PatternLayout pattern="%d %12r %-6p ::: %m%n"/>
         </File>
     </Appenders>
     <Loggers>
