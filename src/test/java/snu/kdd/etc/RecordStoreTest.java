@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xerial.snappy.Snappy;
 
@@ -22,8 +23,8 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.DiskBasedDataset;
-import snu.kdd.substring_syn.data.RecordStore;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.ReusableRecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -35,24 +36,24 @@ public class RecordStoreTest {
 		StatContainer.global = new StatContainer();
 		DatasetParam param = new DatasetParam("WIKI", "10000", "107836", "3", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
-		ObjectList<TransformableRecordInterface> recordList = new ObjectArrayList<TransformableRecordInterface>(dataset.getIndexedList().iterator());
-		RecordStore store = new RecordStore(recordList, dataset.ruleset);
+		ObjectList<Record> recordList = new ObjectArrayList<Record>();
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) recordList.add(((ReusableRecord)rec).toRecord());
 		
-		for ( TransformableRecordInterface rec0 : recordList ) {
+		for ( Record rec0 : recordList ) {
 			int idx = rec0.getIdx();
-			TransformableRecordInterface rec1 = store.getRecord(idx);
+			TransformableRecordInterface rec1 = dataset.getRecord(idx);
 			assertTrue( rec1.equals(rec0));
 		}
 
 		for ( int i=0; i<dataset.size; ++i ) {
-			TransformableRecordInterface rec0 = recordList.get(i);
-			Record rec1 = store.getRawRecord(i);
+			Record rec0 = recordList.get(i);
+			Record rec1 = dataset.getRawRecord(i);
 			assertEquals(rec0.getIdx(), rec1.getIdx());
 			assertEquals(rec0, rec1);
 		}
 		
-		ObjectListIterator<TransformableRecordInterface> iter = recordList.iterator();
-		for ( TransformableRecordInterface rec1 : store.getRecords() ) {
+		ObjectListIterator<Record> iter = recordList.iterator();
+		for ( TransformableRecordInterface rec1 : dataset.getIndexedList() ) {
 			TransformableRecordInterface rec0 = iter.next();
 			rec0.preprocessApplicableRules();
 			rec0.preprocessSuffixApplicableRules();
@@ -63,24 +64,63 @@ public class RecordStoreTest {
 	}
 	
 	@Test
-	public void recordStoreIterator() throws IOException {
+	@SuppressWarnings("unused")
+	public void recordStoreSequentialIteratorSpeed() throws IOException {
 		/*
 		 * recordStore.getRecords():	DatasetParam(AMAZON, 100000, 107836, 3, 1.0)	2037.6584 ms
+		 * recordStore.getRecords():	DatasetParam(WIKI-DOC, 316227, 107836, 5, 1.0, -1)	20696.6436	0.004926934706814127
 		 */
-		DatasetParam param = new DatasetParam("AMAZON", "1000000", "107836", "3", "1.0");
+		DatasetParam param = new DatasetParam("WIKI-DOC", "316227", "107836", "5", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 
 		Log.log.trace("recordStoreIterator(): start iteration");
 		long ts = System.nanoTime();
+		int idx = 0;
+		int n = 0;
 		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
-			Log.log.trace("recordStoreIterator(): get record "+rec.getIdx());
+			idx = rec.getIdx();
+			n += 1;
 		}
-		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+(System.nanoTime()-ts)/1e6+" ms");
+		long t = System.nanoTime() - ts;
+		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+t/1e6+"\t"+t/1e6/n);
+	}
+
+	@Test
+	public void recordStoreRandomIteratorSpeed() throws IOException {
+		/*
+		 * recordStore.getRecords():	DatasetParam(WIKI-DOC, 316227, 107836, 5, 1.0, -1)	26346.1	0.006271814743874493
+		 */
+		DatasetParam param = new DatasetParam("WIKI-DOC", "316227", "107836", "5", "1.0");
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
+		Random rn = new Random(0);
+		StatContainer.global = new StatContainer();
+
+		Log.log.trace("recordStoreIterator(): start iteration");
+		int idx = 0;
+		int n = 0;
+		int nTries = 1000000;
+		
+		// count the number of records
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+			idx = rec.getIdx();
+			n += 1;
+		}
+		
+		long ts = System.nanoTime();
+		TransformableRecordInterface rec = null;
+		for ( int tries=0; tries<nTries; ++tries ) {
+			idx = rn.nextInt(n);
+			rec = dataset.getRecord(idx);
+			idx = rec.getIdx();
+		}
+
+		long t = System.nanoTime() - ts;
+		System.out.println("recordStore.getRecords():\t"+param.toString()+"\t"+t/1e6+"\t"+t/1e6/n);
 	}
 
 	@Deprecated
 	@SuppressWarnings("unused")
-	@Test
+	@Ignore
 	public void recordIOWithSnappy() throws IOException {
 		Random rn = new Random();
 		int maxlen = 0;
