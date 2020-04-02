@@ -3,13 +3,12 @@ package snu.kdd.substring_syn.data;
 import java.nio.CharBuffer;
 import java.util.stream.IntStream;
 
-import snu.kdd.substring_syn.utils.Util;
-
 public class Substring {
 
 	private final char[] chseq;
 	private final int begin;
 	private final int end;
+	private int hash;
 	
 	public Substring(String str) {
 		this(str.toCharArray(), 0, str.length());
@@ -67,8 +66,8 @@ public class Substring {
 			}
 			return true;
 		}
-		else if ( obj.getClass() == Token.class ) {
-			Token o = (Token)obj;
+		else if ( obj.getClass() == String.class ) {
+			String o = (String)obj;
 			if ( length() != o.length() ) return false;
 			for ( int i=0; i<length(); ++i ) {
 				if ( this.chseq[begin+i] != o.charAt(i) ) return false;
@@ -80,13 +79,18 @@ public class Substring {
 	
 	@Override
 	public int hashCode() {
-		// djb2-like
-		int hash = Util.bigprime;
-		for ( int i=begin; i<end; ++i ) {
-			hash = ( hash << 5 ) + Util.bigprime + chseq[i];
-		}
-		return hash;
-	}
+		/*
+		 * Same with that of String class
+		 */
+        int h = hash;
+        if (h == 0 && length() > 0) {
+            for (int i = begin; i < end; i++) {
+                h = 31 * h + chseq[i];
+            }
+            hash = h;
+        }
+        return h;
+    }
 	
 	@Override
 	public String toString() {

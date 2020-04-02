@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -25,7 +24,6 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Substring;
-import snu.kdd.substring_syn.data.Token;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
@@ -458,18 +456,19 @@ public class MiscTest {
 		System.out.println(w.equals(s));
 		System.out.println(w.equals(x));
 	}
-	
+
 	@Test
-	public void testCompatibilityBetweenSubstringAndToken() {
+	public void testCompatibilityBetweenSubstringAndString() {
 		char[] chseq = "abcde".toCharArray();
-		Token t = new Token("bcd");
+		String t = "bcd";
 		Substring w = new Substring(chseq, 1, 4);
 		System.out.println(t.hashCode());
 		System.out.println(w.hashCode());
 		System.out.println(t.equals(w));
 		System.out.println(w.equals(t));
-		Object2IntOpenHashMap<Token> map = new Object2IntOpenHashMap<>();
+		Object2IntOpenHashMap<String> map = new Object2IntOpenHashMap<>();
 		map.put(t, 111);
+		System.out.println(map.containsKey(w));
 		System.out.println(map.getInt(t));
 		System.out.println(map.getInt(w));
 	}

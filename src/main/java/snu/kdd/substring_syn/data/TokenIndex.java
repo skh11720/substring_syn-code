@@ -9,11 +9,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class TokenIndex {
-	private final Object2IntOpenHashMap<Token> token2IntMap;
+	private final Object2IntOpenHashMap<String> token2IntMap;
 	private final ObjectArrayList<String> int2TokenList;
 
 	public TokenIndex() {
-		token2IntMap = new Object2IntOpenHashMap<Token>();
+		token2IntMap = new Object2IntOpenHashMap<String>();
 		token2IntMap.defaultReturnValue(-12345);
 		int2TokenList = new ObjectArrayList<String>();
 	}
@@ -35,14 +35,13 @@ public class TokenIndex {
 
 	public void add( String str ) {
 		if ( !token2IntMap.containsKey(str) ) {
-			Token token = new Token(str);
-			int2TokenList.add(token.str);
-			token2IntMap.put(token, int2TokenList.size()-1);
+			int2TokenList.add(str);
+			token2IntMap.put(str, int2TokenList.size()-1);
 		}
 	}
 
 	public int getID( String token ) {
-		return token2IntMap.getInt( new Token(token) );
+		return token2IntMap.getInt(token);
 	}
 
 	public int getID( Substring token ) {
@@ -68,7 +67,7 @@ public class TokenIndex {
 		try {
 			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/TokenIndex.txt")));
 			for ( int i=0; i<int2TokenList.size(); ++i ) {
-				Token token = new Token(int2TokenList.get(i));
+				String token = int2TokenList.get(i);
 				pw.println(i+"\t"+token+"\t"+token2IntMap.getInt(token));
 			}
 			pw.flush();

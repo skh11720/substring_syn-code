@@ -21,19 +21,19 @@ import snu.kdd.substring_syn.utils.StringSplitIterator;
 public class ACAutomataS {
 	private class State {
 		IntArrayList output;
-		Object2ObjectOpenHashMap<Token, State> split;
+		Object2ObjectOpenHashMap<String, State> split;
 
 		State func;
 		State parent;
 
-		Token token;
+		String token;
 
 		State() {
 			func = this;
 		}
 
-		State( Token token, State parent ) {
-			this.token = token;
+		State( Substring token, State parent ) {
+			this.token = token.toString();
 			this.parent = parent;
 		}
 	}
@@ -59,7 +59,7 @@ public class ACAutomataS {
 			State curr = root;
 			StringSplitIterator wordIter = new StringSplitIterator(Ruleset.getLhs(ruleStr));
 			while ( wordIter.hasNext() ) {
-				Token token = new Token(wordIter.next());
+				Substring token = wordIter.next();
 				State next;
 				if( curr.split != null && ( next = curr.split.get( token ) ) != null ) {
 					curr = next;
@@ -69,7 +69,7 @@ public class ACAutomataS {
 					if( curr.split == null ) {
 						curr.split = new Object2ObjectOpenHashMap<>();
 					}
-					curr.split.put( token, next );
+					curr.split.put( token.toString(), next );
 					curr = next;
 				}
 			}
@@ -86,12 +86,12 @@ public class ACAutomataS {
 		ArrayList<State> nextdepth = new ArrayList<>();
 
 		// Calculate depth-1 states
-		for( final Entry<Token, State> depth_1_entries : root.split.entrySet() ) {
+		for( final Entry<String, State> depth_1_entries : root.split.entrySet() ) {
 			final State state = depth_1_entries.getValue();
 			state.func = root;
 			// Add depth-2 states
 			if( state.split != null ) {
-				for( final Entry<Token, State> depth_2_entries : state.split.entrySet() ) {
+				for( final Entry<String, State> depth_2_entries : state.split.entrySet() ) {
 					currdepth.add( depth_2_entries.getValue() );
 				}
 			}
@@ -126,7 +126,7 @@ public class ACAutomataS {
 
 				// Add next states
 				if( curr.split != null ) {
-					for( final Entry<Token, State> child : curr.split.entrySet() ) {
+					for( final Entry<String, State> child : curr.split.entrySet() ) {
 						nextdepth.add( child.getValue() );
 					}
 				}
