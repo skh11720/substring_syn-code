@@ -73,8 +73,8 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final void searchGivenQuery( Record query, Dataset dataset ) {
-//		if ( query.getID() != 0 ) return;
-//		else Log.log.trace("query_%d=%s", query.getID(), query.toOriginalString());
+		if ( query.getIdx() > 4 ) return;
+		else Log.log.trace("query_%d=%s", query.getIdx(), query.toOriginalString());
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		searchQuerySide(query, dataset);
