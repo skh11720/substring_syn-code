@@ -149,6 +149,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		}
 		
 		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
+			Log.log.trace("QuerySideFilter.getCommonTokenIdxLists()");
+			long nEntries = 0;
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<PosListPair>();
 			int countUpperBound = tokenCounter.sumBounds();
 			for ( int token : candTokenSet ) {
@@ -192,9 +194,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						}
 						statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists.binarySearch");
 					}
+					nEntries += invList.size;
 				}
 				countUpperBound -= tokenCounter.getMax(token);
 			}
+			Log.log.trace("QuerySideFilter: nEntries=%d", nEntries);
 			Log.log.trace("QuerySideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
 			Log.log.trace("QuerySideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.idxList.size()).sum());
 			return rec2idxListMap;
@@ -346,6 +350,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		}
 		
 		private Int2ObjectMap<PosListPair> getCommonTokenIdxLists() {
+			Log.log.trace("TextSideFilter.getCommonTokenIdxLists()");
+			long nEntries = 0;
 			Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<>();
 			int countUpperBound = tokenCounter.sumBounds();
 			for ( int token : candTokenSet ) {
@@ -401,6 +407,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						}
 						statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.binarySearch");
 					}
+					nEntries += invList.size();
 				} // end if invList
 
 				PositionTrInvList transInvList = index.getTransInvList(token);
@@ -455,10 +462,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 						}
 						statContainer.stopWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.binarySearch");
 					}
+					nEntries += transInvList.size();
 				} // end if transInvList
 				countUpperBound -= tokenCounter.getMax(token);
 			} // end for token
 
+			Log.log.trace("TextSideFilter: nEntries=%d", nEntries);
 			Log.log.trace("TextSideFilter: rec2idxListMap.size=%d", ()->rec2idxListMap.size());
 			Log.log.trace("TextSideFilter: rec2idxListMap.length=%d", ()->rec2idxListMap.values().stream().mapToInt(x->x.prefixList.size()).sum());
 			return rec2idxListMap;
