@@ -5,7 +5,6 @@ import java.io.IOException;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.AbstractIndexStoreBuilder;
 import snu.kdd.substring_syn.algorithm.index.disk.IndexStoreAccessor;
@@ -39,7 +38,7 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	@Override
 	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
-		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
+		Int2ObjectMap<IntArrayList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
@@ -71,7 +70,7 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 		return tok2segList;
 	}
 	
-	protected void addQGramIdxToInvList( IntList list, int ridx ) {
+	protected void addQGramIdxToInvList( IntArrayList list, int ridx ) {
 		list.add(ridx);
 	}
 	
@@ -81,11 +80,11 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	}
 
 	@Override
-	protected void addToInvList( IntList list, TransformableRecordInterface rec, int pos ) {
+	protected void addToInvList( IntArrayList list, TransformableRecordInterface rec, int pos ) {
 	}
 
 	@Override
-	protected void addToTrInvList( IntList list, TransformableRecordInterface rec, int pos, Rule rule ) {
+	protected void addToTrInvList( IntArrayList list, TransformableRecordInterface rec, int pos, Rule rule ) {
 	}
 
 	@Override

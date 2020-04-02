@@ -10,7 +10,6 @@ import org.xerial.snappy.Snappy;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Rule;
@@ -29,6 +28,7 @@ public abstract class AbstractIndexStoreBuilder {
 	protected Cursor curTmp;
 	protected Cursor curOut;
 	protected int[] ibuf = new int[1024];
+	protected byte[] bbuf = new byte[1024];
 	
 
 	public AbstractIndexStoreBuilder( Iterable<TransformableRecordInterface> recordList ) {
@@ -53,9 +53,9 @@ public abstract class AbstractIndexStoreBuilder {
 
 	public abstract IndexStoreAccessor buildTrInvList();
 	
-	protected abstract void addToInvList( IntList list, TransformableRecordInterface rec, int pos );
+	protected abstract void addToInvList( IntArrayList list, TransformableRecordInterface rec, int pos );
 
-	protected abstract void addToTrInvList( IntList list, TransformableRecordInterface rec, int pos, Rule rule );
+	protected abstract void addToTrInvList( IntArrayList list, TransformableRecordInterface rec, int pos, Rule rule );
 
 	protected abstract String getIndexStoreName();
 	
@@ -77,7 +77,7 @@ public abstract class AbstractIndexStoreBuilder {
 	}
 	
 	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
-		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
+		Int2ObjectMap<IntArrayList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
@@ -100,7 +100,7 @@ public abstract class AbstractIndexStoreBuilder {
 	}
 	
 	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildTrInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
-		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
+		Int2ObjectMap<IntArrayList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
@@ -128,19 +128,22 @@ public abstract class AbstractIndexStoreBuilder {
 		return tok2segList;
 	}
 
-	protected void flushInmemMap( Int2ObjectMap<IntList> invListMap, Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList ) throws IOException {
-		for ( Int2ObjectMap.Entry<IntList> entry : invListMap.int2ObjectEntrySet() ) {
+	protected void flushInmemMap( Int2ObjectMap<IntArrayList> invListMap, Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList ) throws IOException {
+		for ( Int2ObjectMap.Entry<IntArrayList> entry : invListMap.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
-			int[] arr = entry.getValue().toIntArray();
-			byte[] b = Snappy.rawCompress(arr, arr.length*Integer.BYTES);
+			IntArrayList invList = entry.getValue();
+			int[] arr = entry.getValue().elements();
+			int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
+			while ( blenMax > bbuf.length ) doubleByteBuffer();
+			int blen = Snappy.rawCompress(arr, 0, invList.size()*Integer.BYTES, bbuf, 0);
 			if ( !tok2segList.containsKey(token) ) tok2segList.put(token, new ObjectArrayList<>());
 			
 			if ( curTmp.offset > FILE_MAX_LEN ) openNextTmpFile();
 
-			tok2segList.get(token).add(new SegmentInfo(curTmp.fileOffset, curTmp.offset, b.length));
-			bos.write(b);
-			curTmp.offset += b.length;
-			bufSize = Math.max(bufSize, b.length);
+			tok2segList.get(token).add(new SegmentInfo(curTmp.fileOffset, curTmp.offset, blen));
+			bos.write(bbuf, 0, blen);
+			curTmp.offset += blen;
+			bufSize = Math.max(bufSize, blen);
 		}
 		++nFlush;
 	}
@@ -154,17 +157,19 @@ public abstract class AbstractIndexStoreBuilder {
 		for ( Int2ObjectMap.Entry<ObjectList<SegmentInfo>> entry : tok2segList.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
 			ObjectList<SegmentInfo> segList = entry.getValue();
-			IntList invList = new IntArrayList();
+			IntArrayList invList = new IntArrayList();
 			for ( SegmentInfo seg : segList ) {
 				rafList[seg.fileOffset].seek(seg.offset);
 				rafList[seg.fileOffset].read(buffer, 0, seg.len);
 				int bytes = Snappy.uncompressedLength(buffer, 0, seg.len);
-				while (ibuf.length < bytes/Integer.BYTES) doubleBuffer();
+				while (ibuf.length < bytes/Integer.BYTES) doubleIntBuffer();
 				bytes = Snappy.rawUncompress(buffer, 0, seg.len, ibuf, 0);
 				invList.addAll(IntArrayList.wrap(ibuf, bytes/Integer.BYTES));
 			}
-			byte[] b = Snappy.rawCompress(invList.toIntArray(), invList.size()*Integer.BYTES);
-			bufSize = Math.max(bufSize, b.length);
+			int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
+			while ( blenMax > bbuf.length ) doubleByteBuffer();
+			int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, bbuf, 0);
+			bufSize = Math.max(bufSize, blen);
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
 				bos.flush();
@@ -174,10 +179,10 @@ public abstract class AbstractIndexStoreBuilder {
 				bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 			}
 
-			tok2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, b.length));
-			bos.write(b);
-			curOut.offset += b.length;
-			storeSize += b.length;
+			tok2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, blen));
+			bos.write(bbuf, 0, blen);
+			curOut.offset += blen;
+			storeSize += blen;
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
 		bos.close();
@@ -202,8 +207,12 @@ public abstract class AbstractIndexStoreBuilder {
 	
 	public final long diskSpaceUsage() { return storeSize; }
 
-	private void doubleBuffer() {
+	private void doubleIntBuffer() {
 		ibuf = new int[2*ibuf.length];
+	}
+
+	private void doubleByteBuffer() {
+		bbuf = new byte[2*bbuf.length];
 	}
 
 	private class Cursor {
