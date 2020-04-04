@@ -10,13 +10,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
 public class IndexStoreAccessor {
 
-	private final Int2ObjectMap<SegmentInfo> tok2segMap;
+	private final Int2ObjectMap<ChunkSegmentInfo> tok2segMap;
 	private final byte[] buffer;
 	private final RandomAccessFile[] rafList;
 	public final long size;
 	public int[] arr = new int[1024];
 	
-	public IndexStoreAccessor( String path, Int2ObjectMap<SegmentInfo> tok2segMap, int nFiles, int bufSize, long size ) throws FileNotFoundException {
+	public IndexStoreAccessor( String path, Int2ObjectMap<ChunkSegmentInfo> tok2segMap, int nFiles, int bufSize, long size ) throws FileNotFoundException {
 		this.tok2segMap = tok2segMap;
 		buffer = new byte[bufSize];
 		rafList = new RandomAccessFile[nFiles];
@@ -25,11 +25,11 @@ public class IndexStoreAccessor {
 	}
 
 	public int getList( int token ) {
-		SegmentInfo seg = tok2segMap.get(token);
+		ChunkSegmentInfo seg = tok2segMap.get(token);
 		if ( seg == null ) return 0;
 		try {
 			rafList[seg.fileOffset].seek(seg.offset);
-			rafList[seg.fileOffset].read(buffer, 0, seg.len);
+			rafList[seg.fileOffset].read(buffer, 0, seg.chunkLenList.getInt(0));
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -37,9 +37,9 @@ public class IndexStoreAccessor {
 		
 		int bytes = 0;
 		try {
-			bytes = Snappy.uncompressedLength(buffer, 0, seg.len);
+			bytes = Snappy.uncompressedLength(buffer, 0, seg.chunkLenList.getInt(0));
 			while (arr.length < bytes/Integer.BYTES) doubleBuffer();
-			bytes = Snappy.rawUncompress(buffer, 0, seg.len, arr, 0);
+			bytes = Snappy.rawUncompress(buffer, 0, seg.chunkLenList.getInt(0), arr, 0);
 			
 		}
 		catch (IOException e) {

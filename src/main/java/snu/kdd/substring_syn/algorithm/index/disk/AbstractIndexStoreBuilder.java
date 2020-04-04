@@ -77,7 +77,7 @@ public abstract class AbstractIndexStoreBuilder {
 		IndexStoreAccessor accessor = null;
 		try {
 			Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = listSegmentBuilder.build(recordList);
-			Int2ObjectMap<SegmentInfo> tok2SegMap = mergeSegments(path, tok2segList);
+			Int2ObjectMap<ChunkSegmentInfo> tok2SegMap = mergeSegments(path, tok2segList);
 			accessor = new IndexStoreAccessor(path, tok2SegMap, curOut.fileOffset+1, bufSize, storeSize);
 		} catch ( IOException e ) {
 			e.printStackTrace();
@@ -159,11 +159,11 @@ public abstract class AbstractIndexStoreBuilder {
 	}
 	
 	static int orderOfCalls = 0;
-	protected Int2ObjectMap<SegmentInfo> mergeSegments( String path, Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList ) throws IOException {
-		Int2ObjectMap<SegmentInfo> tok2segMap = new Int2ObjectOpenHashMap<>();
+	protected Int2ObjectMap<ChunkSegmentInfo> mergeSegments( String path, Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList ) throws IOException {
+		Int2ObjectMap<ChunkSegmentInfo> tok2segMap = new Int2ObjectOpenHashMap<>();
 		RandomAccessFile[] rafList = new RandomAccessFile[curTmp.fileOffset+1];
 		for ( int i=0; i<rafList.length; ++i ) rafList[i] = new RandomAccessFile(getTmpPath(i), "r");
-		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
+		bos = new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
 		while ( bufSize > bbuf.length ) doubleByteBuffer();
 		for ( Int2ObjectMap.Entry<ObjectList<SegmentInfo>> entry : tok2segList.int2ObjectEntrySet() ) {
 			int token = entry.getIntKey();
@@ -172,17 +172,11 @@ public abstract class AbstractIndexStoreBuilder {
 //			Log.log.trace("mergeSegments_%d  token=%d, invList.size=%d", orderOfCalls, token, invList.size());
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
-				bos = openNewFileStream(bos, path);
+				openNewFileStream(path);
 			}
 
-            int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
-            while ( blenMax > buf_chunk.length ) buf_chunk = new byte[2*buf_chunk.length];
-			int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, buf_chunk, 0);
-
-			tok2segMap.put(token, new SegmentInfo(curOut.fileOffset, curOut.offset, blen));
-			bos.write(buf_chunk, 0, blen);
-			curOut.offset += blen;
-			storeSize += blen;
+			ChunkSegmentInfo cseg = createChunkSegmentInfo(invList);
+			tok2segMap.put(token, cseg);
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
 		bos.close();
@@ -203,12 +197,24 @@ public abstract class AbstractIndexStoreBuilder {
 		return invList;
 	}
 	
-	protected BufferedOutputStream openNewFileStream(BufferedOutputStream bos, String path) throws IOException {
+	protected BufferedOutputStream openNewFileStream(String path) throws IOException {
 		bos.flush();
 		bos.close();
 		curOut.fileOffset += 1;
 		curOut.offset = 0;
 		return new BufferedOutputStream(new FileOutputStream(path+"."+curOut.fileOffset));
+	}
+	
+	protected ChunkSegmentInfo createChunkSegmentInfo(IntArrayList invList) throws IOException {
+		ChunkSegmentInfo cseg = new ChunkSegmentInfo(curOut.fileOffset, curOut.offset);
+		int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
+		while ( blenMax > buf_chunk.length ) buf_chunk = new byte[2*buf_chunk.length];
+		int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, buf_chunk, 0);
+		cseg.chunkLenList.add(blen);
+		bos.write(buf_chunk, 0, blen);
+		curOut.offset += blen;
+		storeSize += blen;
+		return cseg;
 	}
 	
 	protected void openNextTmpFile() throws IOException {
