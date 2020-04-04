@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
+import snu.kdd.substring_syn.utils.Log;
 
 public abstract class AbstractIndexStoreBuilder {
 
@@ -148,6 +149,7 @@ public abstract class AbstractIndexStoreBuilder {
 		++nFlush;
 	}
 	
+	static int orderOfCalls = 0;
 	protected Int2ObjectMap<SegmentInfo> mergeSegments( String path, Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList ) throws IOException {
 		Int2ObjectMap<SegmentInfo> tok2segMap = new Int2ObjectOpenHashMap<>();
 		RandomAccessFile[] rafList = new RandomAccessFile[curTmp.fileOffset+1];
@@ -168,6 +170,7 @@ public abstract class AbstractIndexStoreBuilder {
 			}
 			int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
 			while ( blenMax > bbuf.length ) doubleByteBuffer();
+			Log.log.trace("mergeSegments_%d  token=%d, invList.size=%d", orderOfCalls, token, invList.size());
 			int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, bbuf, 0);
 			bufSize = Math.max(bufSize, blen);
 
@@ -186,6 +189,7 @@ public abstract class AbstractIndexStoreBuilder {
 		}
 		for ( int i=0; i<rafList.length; ++i ) rafList[i].close();
 		bos.close();
+		orderOfCalls += 1;
 		return tok2segMap;
 	}
 	
