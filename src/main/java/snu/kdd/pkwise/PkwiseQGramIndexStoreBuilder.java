@@ -88,6 +88,16 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	}
 
 	@Override
+	protected int invListEntrySize() {
+		return 1;
+	}
+
+	@Override
+	protected int trInvListEntrySize() {
+		return 1;
+	}
+
+	@Override
 	protected String getIndexStoreName() {
 		return storeName;
 	}

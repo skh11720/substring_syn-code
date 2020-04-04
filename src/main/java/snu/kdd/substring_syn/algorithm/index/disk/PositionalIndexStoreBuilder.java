@@ -34,8 +34,17 @@ public class PositionalIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	}
 
 	@Override
+	protected int invListEntrySize() {
+		return 2;
+	}
+
+	@Override
+	protected int trInvListEntrySize() {
+		return 3;
+	}
+
+	@Override
 	protected String getIndexStoreName() {
 		return "PositionalIndexStore";
 	}
-
 }

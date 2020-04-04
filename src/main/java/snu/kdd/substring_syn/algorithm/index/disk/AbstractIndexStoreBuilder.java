@@ -58,6 +58,10 @@ public abstract class AbstractIndexStoreBuilder {
 
 	protected abstract void addToTrInvList( IntArrayList list, TransformableRecordInterface rec, int pos, Rule rule );
 
+	protected abstract int invListEntrySize();
+
+	protected abstract int trInvListEntrySize();
+	
 	protected abstract String getIndexStoreName();
 	
 	protected IndexStoreAccessor createIndexStoreAccessor( Iterable<TransformableRecordInterface> recordList, String path, ListSegmentBuilder listSegmentBuilder ) {
