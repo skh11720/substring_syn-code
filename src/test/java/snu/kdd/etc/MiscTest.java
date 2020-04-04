@@ -3,6 +3,9 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -21,6 +24,7 @@ import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Substring;
@@ -471,5 +475,49 @@ public class MiscTest {
 		System.out.println(map.containsKey(w));
 		System.out.println(map.getInt(t));
 		System.out.println(map.getInt(w));
+	}
+	
+	@Test
+	public void testIntArrayList() {
+		IntArrayList list = new IntArrayList();
+		list.add(1);
+		list.add(2);
+		list.add(3);
+		int[] arr = list.elements();
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr));
+		list.add(4);
+		System.out.println("intArrayList.elements() does not copy the array.");
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr));
+		int[] arr1 = list.toIntArray();
+		list.add(5);
+		System.out.println("intArrayList.toIntArray() copies the array.");
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr1));
+	}
+	
+	@Test
+	public void testCharBuffering() throws IOException {
+		String indexedPath = DatasetInfo.getIndexedPath("WIKI");
+		char[] cbuf = new char[8];
+		BufferedReader br = new BufferedReader(new FileReader(indexedPath));
+		int n = 10;
+		for ( int i=0; i<n; ++i ) {
+			br.read(cbuf);
+			System.out.println(Arrays.toString(cbuf));
+		}
+	}
+	
+	@Test
+	public void testStringConstructors() {
+		char[] cbuf = "abcde".toCharArray();
+		String s = new String(cbuf);
+		s = String.valueOf(cbuf, 0, 4);
+		System.out.println(Arrays.toString(cbuf));
+		System.out.println(s);
+		cbuf[0] = 'A';
+		System.out.println(Arrays.toString(cbuf));
+		System.out.println(s);
 	}
 }
