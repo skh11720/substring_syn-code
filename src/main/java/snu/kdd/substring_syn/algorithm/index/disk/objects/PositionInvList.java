@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.disk.objects;
 
 import java.util.Arrays;
 
-public class PositionInvList implements BytesMeasurableInterface, PostingListInterface {
+public class PositionInvList implements BytesMeasurableInterface, IterativePostingListInterface {
 
 	final int[] arr;
 	public final int size;
@@ -40,24 +40,11 @@ public class PositionInvList implements BytesMeasurableInterface, PostingListInt
 		return arr[2*listIdx+1];
 	}
 
-	@Deprecated
-	public final int getIdx(final int i) {
-		assert (i < size);
-		return arr[2*i];
-	}
-
-	@Deprecated
-	public final int getPos(final int i) {
-		assert (i < size);
-		return arr[2*i+1];
-	}
-	
 	@Override
 	public int bytes() {
 		return 2*size*Integer.BYTES;
 	}
 
-	@Override
 	public int size() {
 		return size;
 	}

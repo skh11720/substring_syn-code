@@ -3,9 +3,9 @@ package snu.kdd.substring_syn.algorithm.index.disk.objects;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class NaiveInvList implements BytesMeasurableInterface, PostingListInterface {
+public class NaiveInvList implements BytesMeasurableInterface, IterativePostingListInterface {
 
-	final int[] arr;
+	private final int[] arr;
 	public final int size;
 	public int listIdx = 0;
 	
@@ -32,40 +32,30 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 		listIdx += 1;
 	}
 	
-	public final int getIdx() {
+	public int getIdx() {
 		assert (listIdx < size);
 		return arr[listIdx];
 	}
 	
-	@Deprecated
-	public final int getIdx(final int i) {
-		assert (i < size);
-		return arr[i];
-	}
-
 	@Override
 	public int bytes() {
 		return size*Integer.BYTES;
 	}
 
-	@Override
-	public int size() {
-		return size;
-	}
-	
 	public Iterator<Integer> iterator() {
+		init();
 		return new Iterator<Integer>() {
-			
-			int i = 0;
 			
 			@Override
 			public Integer next() {
-				return getIdx(i++);
+				int idx = getIdx();
+				NaiveInvList.this.next();
+				return idx;
 			}
 			
 			@Override
 			public boolean hasNext() {
-				return i < size;
+				return NaiveInvList.this.hasNext();
 			}
 		};
 	}
