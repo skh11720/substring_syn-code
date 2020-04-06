@@ -187,22 +187,22 @@ public class PkwiseSynIndex {
 	
 	class TwitvIterator implements Iterator<RecordInterface> {
 
-		Iterator<Integer> iter;
+		NaiveInvList list;
 
 		public TwitvIterator( int token ) {
-			NaiveInvList list = qgramIndexStore.getInvList(token);
-			if ( list == null ) iter = null;
-			else iter = list.iterator();
+			list = qgramIndexStore.getInvList(token);
 		}
 
 		@Override
 		public boolean hasNext() {
-			return iter != null && iter.hasNext();
+			return list != null && list.hasNext();
 		}
 
 		@Override
 		public RecordInterface next() {
-			return dataset.getIntQGram(iter.next()).toRecord();
+			int ridx = list.getIdx();
+			list.next();
+			return dataset.getIntQGram(ridx).toRecord();
 		}
 		
 	}
