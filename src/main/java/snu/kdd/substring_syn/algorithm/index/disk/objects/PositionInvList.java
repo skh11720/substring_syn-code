@@ -6,6 +6,7 @@ public class PositionInvList implements BytesMeasurableInterface, PostingListInt
 
 	final int[] arr;
 	public final int size;
+	public int listIdx = 0;
 	
 	public PositionInvList(int[] arr, int size) {
 		this.arr = arr;
@@ -16,12 +17,36 @@ public class PositionInvList implements BytesMeasurableInterface, PostingListInt
 		arr = Arrays.copyOf(o.arr, 2*o.size);
 		size = o.size;
 	}
+
+	public void init() {
+		listIdx = 0;
+	}
 	
+	public boolean hasNext() {
+		return listIdx < size;
+	}
+	
+	public void next() {
+		listIdx += 1;
+	}
+	
+	public final int getIdx() {
+		assert (listIdx < size);
+		return arr[2*listIdx];
+	}
+
+	public final int getPos() {
+		assert (listIdx < size);
+		return arr[2*listIdx+1];
+	}
+
+	@Deprecated
 	public final int getIdx(final int i) {
 		assert (i < size);
 		return arr[2*i];
 	}
 
+	@Deprecated
 	public final int getPos(final int i) {
 		assert (i < size);
 		return arr[2*i+1];

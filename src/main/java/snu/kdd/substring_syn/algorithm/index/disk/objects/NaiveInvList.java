@@ -7,6 +7,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 
 	final int[] arr;
 	public final int size;
+	public int listIdx = 0;
 	
 	public NaiveInvList(int[] arr, int length) {
 		this.arr = arr;
@@ -19,6 +20,24 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 		size = o.size;
 	}
 	
+	public void init() {
+		listIdx = 0;
+	}
+
+	public boolean hasNext() {
+		return listIdx < size;
+	}
+	
+	public void next() {
+		listIdx += 1;
+	}
+	
+	public final int getIdx() {
+		assert (listIdx < size);
+		return arr[listIdx];
+	}
+	
+	@Deprecated
 	public final int getIdx(final int i) {
 		assert (i < size);
 		return arr[i];

@@ -161,9 +161,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //					if ( !useCF || countUpperBound >= minCount ) {
 					statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists.scan");
 					// there is a chance that a record not seen until now can have at least minCount common tokens.
-					for ( int i=0; i<invList.size(); ++i ) {
-						int ridx = invList.getIdx(i);
-						int pos = invList.getPos(i);
+					for ( invList.init(); invList.hasNext(); invList.next() ) {
+						int ridx = invList.getIdx();
+						int pos = invList.getPos();
 						if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 						PosListPair pair = rec2idxListMap.get(ridx);
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
@@ -364,9 +364,9 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 //					if ( !useCF || countUpperBound >= minCount ) {
 					statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.scan");
-					for ( int i=0; i<invList.size(); ++i ) {
-						int ridx = invList.getIdx(i);
-						int pos = invList.getPos(i);
+					for ( invList.init(); invList.hasNext(); invList.next() ) {
+						int ridx = invList.getIdx();
+						int pos = invList.getPos();
 						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap1");
 						if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 						//statContainer.stopWatch("Time_TS_getCommon.rec2idxListMap1");
@@ -418,10 +418,10 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 //					if ( !useCF || countUpperBound >= minCount ) {
 					statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists.scan");
-					for ( int i=0; i<transInvList.size(); ++i ) {
-						int ridx = transInvList.getIdx(i);
-						int left = transInvList.getLeft(i);
-						int right = transInvList.getRight(i);
+					for ( transInvList.init(); transInvList.hasNext(); transInvList.next() ) {
+						int ridx = transInvList.getIdx();
+						int left = transInvList.getLeft();
+						int right = transInvList.getRight();
 						//statContainer.startWatch("Time_TS_getCommon.rec2idxListMap2");
 						if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 						//statContainer.stopWatch("Time_TS_getCommon.rec2idxListMap2");

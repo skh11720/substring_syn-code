@@ -45,15 +45,17 @@ public class IndexBasedPositionFilterTest {
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
 			PositionInvList list = index.getInvList(token);
 			if ( list == null ) continue;
+			list.init();
 			int idx0 = -1;
 			int pos0 = -1;
-			int idx1 = list.getIdx(0);
-			int pos1 = list.getPos(0);
-			for ( int i=1; i<list.size(); ++i ) {
+			int idx1 = list.getIdx();
+			int pos1 = list.getPos();
+			list.next();
+			for ( ; list.hasNext(); list.next() ) {
 				idx0 = idx1;
 				pos0 = pos1;
-				idx1 = list.getIdx(i);
-				pos1 = list.getPos(i);
+				idx1 = list.getIdx();
+				pos1 = list.getPos();
 				assertTrue( idx0 <= idx1 );
 				if ( idx0 == idx1 ) {
 					assertTrue( pos0 <= pos1 );
@@ -64,15 +66,17 @@ public class IndexBasedPositionFilterTest {
 		for ( int token=0; token<=Record.tokenIndex.getMaxID(); ++token ) {
 			PositionTrInvList list = index.getTransInvList(token);
 			if ( list == null ) continue;
+			list.init();
 			int idx0 = -1;
 			int left0 = -1;
-			int idx1 = list.getIdx(0);
-			int left1 = list.getLeft(0);
-			for ( int i=1; i<list.size(); ++i ) {
+			int idx1 = list.getIdx();
+			int left1 = list.getLeft();
+			list.next();
+			for ( ; list.hasNext(); list.next() ) {
 				idx0 = idx1;
 				left0 = left1;
-				idx1 = list.getIdx(i);
-				left1 = list.getLeft(i);
+				idx1 = list.getIdx();
+				left1 = list.getLeft();
 				assertTrue( idx0 <= idx1 );
 				if ( idx0 == idx1 ) {
 					assertTrue( left0 <= left1 );
@@ -119,9 +123,9 @@ public class IndexBasedPositionFilterTest {
 			tokenCounter.clear();
 			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
-			for ( int i=0; i<invList.size(); ++i ) {
-				int ridx = invList.getIdx(i);
-				int pos = invList.getPos(i);
+			for ( invList.init(); invList.hasNext(); invList.next() ) {
+				int ridx = invList.getIdx();
+				int pos = invList.getPos();
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);
 				if ( counter.get(ridx) < nMax ) {
@@ -154,9 +158,9 @@ public class IndexBasedPositionFilterTest {
 			tokenCounter.clear();
 			PositionInvList invList = index.getInvList(token);
 			if ( invList == null ) continue; 
-			for ( int i=0; i<invList.size; ++i ) {
-				int ridx = invList.getIdx(i);
-				int pos = invList.getPos(i);
+			for ( invList.init(); invList.hasNext(); invList.next() ) {
+				int ridx = invList.getIdx();
+				int pos = invList.getPos();
 				if ( !rec2idxListMap.containsKey(ridx) ) rec2idxListMap.put(ridx, new PosListPair());
 				PosListPair pair = rec2idxListMap.get(ridx);
 				if ( counter.get(ridx) < nMax ) {

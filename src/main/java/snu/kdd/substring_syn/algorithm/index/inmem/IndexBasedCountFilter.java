@@ -58,8 +58,8 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
 //				if ( countUpperBound >= minCount ) {
-				for ( int i=0; i<invList.size(); ++i ) {
-					int ridx = invList.getIdx(i);
+				for ( invList.init(); invList.hasNext(); invList.next() ) {
+					int ridx = invList.getIdx();
 					if ( tokenCounter.tryIncrement(ridx, token) ) {
 						commonTokenCounter.addTo(ridx, 1);
 					}
@@ -105,8 +105,8 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			NaiveInvList invList = index.getInvList(token);
 			if ( invList != null ) {
 //				if ( countUpperBound >= minCount ) {
-					for ( int i=0; i<invList.size(); ++i ) {
-						int ridx = invList.getIdx(i);
+					for ( invList.init(); invList.hasNext(); invList.next() ) {
+						int ridx = invList.getIdx();
 						if ( tokenCounter.tryIncrement(ridx, token) ) {
 							commonTokenCounter.addTo(ridx, 1);
 						}
@@ -133,8 +133,8 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			NaiveInvList transInvList = index.getTransInvList(token);
 			if ( transInvList != null ) {
 //				if ( countUpperBound >= minCount ) {
-				for ( int i=0; i<transInvList.size(); ++i ) {
-					int ridx = transInvList.getIdx(i);
+				for ( transInvList.init(); transInvList.hasNext(); transInvList.next() ) {
+					int ridx = transInvList.getIdx();
 					if ( tokenCounter.tryIncrement(ridx, token) ) {
 						commonTokenCounter.addTo(ridx, 1);
 					}
