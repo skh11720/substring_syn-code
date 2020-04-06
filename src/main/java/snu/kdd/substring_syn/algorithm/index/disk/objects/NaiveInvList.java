@@ -6,32 +6,32 @@ import java.util.Iterator;
 public class NaiveInvList implements BytesMeasurableInterface, PostingListInterface {
 
 	final int[] arr;
-	public final int length;
+	public final int size;
 	
 	public NaiveInvList(int[] arr, int length) {
 		this.arr = arr;
-		this.length = length;
+		this.size = length;
 //		Log.log.trace("NaiveInvList: length=%d, arr=%s", this.length, Arrays.toString(this.arr));
 	}
 	
 	public NaiveInvList(NaiveInvList o) {
-		arr = Arrays.copyOf(o.arr, o.length);
-		length = o.length;
+		arr = Arrays.copyOf(o.arr, o.size);
+		size = o.size;
 	}
 	
 	public final int getIdx(final int i) {
-		assert (i < length);
+		assert (i < size);
 		return arr[i];
 	}
 
 	@Override
 	public int bytes() {
-		return length*Integer.BYTES;
+		return size*Integer.BYTES;
 	}
 
 	@Override
 	public int size() {
-		return length;
+		return size;
 	}
 	
 	public Iterator<Integer> iterator() {
@@ -46,7 +46,7 @@ public class NaiveInvList implements BytesMeasurableInterface, PostingListInterf
 			
 			@Override
 			public boolean hasNext() {
-				return i < length;
+				return i < size;
 			}
 		};
 	}

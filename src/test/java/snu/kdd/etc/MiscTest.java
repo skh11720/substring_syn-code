@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -507,6 +506,7 @@ public class MiscTest {
 			br.read(cbuf);
 			System.out.println(Arrays.toString(cbuf));
 		}
+		br.close();
 	}
 	
 	@Test
