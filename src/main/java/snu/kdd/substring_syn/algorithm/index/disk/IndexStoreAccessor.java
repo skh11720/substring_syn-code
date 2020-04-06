@@ -10,13 +10,15 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
 public class IndexStoreAccessor {
 
-	private final Int2ObjectMap<ChunkSegmentInfo> tok2segMap;
+	final String path;
+	final Int2ObjectMap<ChunkSegmentInfo> tok2segMap;
 	private final byte[] buffer;
 	private final RandomAccessFile[] rafList;
 	public final long size;
 	public int[] arr = new int[1024];
 	
 	public IndexStoreAccessor( String path, Int2ObjectMap<ChunkSegmentInfo> tok2segMap, int nFiles, int bufSize, long size ) throws FileNotFoundException {
+		this.path = path;
 		this.tok2segMap = tok2segMap;
 		buffer = new byte[bufSize];
 		rafList = new RandomAccessFile[nFiles];

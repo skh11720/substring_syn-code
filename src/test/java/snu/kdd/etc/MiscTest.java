@@ -19,8 +19,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
-import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetInfo;
@@ -396,43 +394,43 @@ public class MiscTest {
 		System.out.println("get (random): "+(System.nanoTime()-ts)*1.0/n);
 	}
 	
-	@Test
-	public void testBinarySearch() {
-		Random rn = new Random(0);
-		int nMax = 1000;
-		int triesMax = 1000000;
-		
-		for ( int tries=0; tries<triesMax; ++tries ) {
-			IntArrayList intList = new IntArrayList();
-			int n = rn.nextInt(nMax)+1;
-			intList.add(0);
-			for ( int i=1; i<n; ++i ) intList.add(intList.getInt(i-1)+rn.nextInt(4));
-			PostingListInterface list = new NaiveInvList(intList.toIntArray(), n);
-			assertEquals(-1, Util.binarySearch(list, -1));
-			for ( int j=list.size()-1; j>=0; --j ) {
-				while ( j > 0 && list.getIdx(j-1) == list.getIdx(j) ) j -= 1;
-				try {
-					assertEquals(j, Util.binarySearch(list, list.getIdx(j)));
-				}
-				catch ( AssertionError e ) {
-					System.err.println(list);
-					System.err.println(list.size());
-					System.err.println(j);
-					System.err.println(Util.binarySearch(list, list.getIdx(j)));
-					throw e;
-				}
-			}
-			
-			for ( int i=0, v=0; i<list.size(); ) {
-				if ( list.getIdx(i) == v ) i += 1;
-				else if ( list.getIdx(i) > v ) {
-					v += 1;
-					if ( list.getIdx(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
-				}
-			}
-//			System.out.println((tries+1)+"/"+triesMax);
-		}
-	}
+//	@Test
+//	public void testBinarySearch() {
+//		Random rn = new Random(0);
+//		int nMax = 1000;
+//		int triesMax = 1000000;
+//		
+//		for ( int tries=0; tries<triesMax; ++tries ) {
+//			IntArrayList intList = new IntArrayList();
+//			int n = rn.nextInt(nMax)+1;
+//			intList.add(0);
+//			for ( int i=1; i<n; ++i ) intList.add(intList.getInt(i-1)+rn.nextInt(4));
+//			NaiveInvList list = new NaiveInvList(intList.toIntArray(), n);
+//			assertEquals(-1, Util.binarySearch(list, -1));
+//			for ( int j=list.size()-1; j>=0; --j ) {
+//				while ( j > 0 && list.getIdx(j-1) == list.getIdx(j) ) j -= 1;
+//				try {
+//					assertEquals(j, Util.binarySearch(list, list.getIdx(j)));
+//				}
+//				catch ( AssertionError e ) {
+//					System.err.println(list);
+//					System.err.println(list.size());
+//					System.err.println(j);
+//					System.err.println(Util.binarySearch(list, list.getIdx(j)));
+//					throw e;
+//				}
+//			}
+//			
+//			for ( int i=0, v=0; i<list.size(); ) {
+//				if ( list.getIdx(i) == v ) i += 1;
+//				else if ( list.getIdx(i) > v ) {
+//					v += 1;
+//					if ( list.getIdx(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
+//				}
+//			}
+////			System.out.println((tries+1)+"/"+triesMax);
+//		}
+//	}
 	
 	@Test
 	public void testGetSubstrings() throws IOException {

@@ -205,7 +205,7 @@ public abstract class AbstractIndexStoreBuilder {
 	}
 	
 	protected ChunkSegmentInfo createChunkSegmentInfo(IntArrayList invList) throws IOException {
-		ChunkSegmentInfo cseg = new ChunkSegmentInfo(curOut.fileOffset, curOut.offset);
+		ChunkSegmentInfo cseg = new ChunkSegmentInfo(curOut.fileOffset, curOut.offset, invList.size());
 		int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
 		while ( blenMax > buf_chunk.length ) buf_chunk = new byte[2*buf_chunk.length];
 		int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, buf_chunk, 0);
