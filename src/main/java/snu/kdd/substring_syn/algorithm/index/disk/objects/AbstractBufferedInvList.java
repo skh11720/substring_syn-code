@@ -18,7 +18,7 @@ public abstract class AbstractBufferedInvList implements BytesMeasurableInterfac
 	public void init() {
 		listIdx = 0;
 		acc.reset();
-		listSize = acc.nextChunk();
+		listSize = acc.nextChunk()/entrySize();
 	}
 
 	@Override
@@ -30,9 +30,10 @@ public abstract class AbstractBufferedInvList implements BytesMeasurableInterfac
 	public void next() {
 		listIdx += 1;
 		if ( listIdx >= listSize ) {
+			int remainder = acc.chunkSize() - entrySize()*listIdx;
 			if ( acc.hasNextChunk() ) {
 				listIdx = 0;
-				listSize = acc.nextChunk();
+				listSize = acc.nextChunk(remainder)/entrySize();
 			}
 		}
 	}

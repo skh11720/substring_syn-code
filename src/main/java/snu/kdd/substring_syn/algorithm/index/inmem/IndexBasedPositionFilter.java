@@ -194,7 +194,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 //						}
 //						statContainer.stopWatch("Time_QS_IndexFilter.getCommonTokenIdxLists.binarySearch");
 //					}
-					nEntries += invList.size;
+					nEntries += invList.size();
 				}
 //				countUpperBound -= tokenCounter.getMax(token);
 			}

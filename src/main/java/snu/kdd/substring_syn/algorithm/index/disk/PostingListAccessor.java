@@ -8,7 +8,8 @@ import org.xerial.snappy.Snappy;
 
 public class PostingListAccessor {
 
-	public static final int MAX_BYTES_PER_CHUNK = Snappy.maxCompressedLength(AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK*Integer.BYTES);
+	public static int MAX_BYTES_PER_CHUNK = Snappy.maxCompressedLength(AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK*Integer.BYTES);
+	public static final int ADDITIONAL_SPACE = 3;
 	private final IndexStoreAccessor parent;
 	private final byte[] bbuf;
 	private final int[] ibuf;
@@ -16,18 +17,19 @@ public class PostingListAccessor {
 	private RandomAccessFile raf = null;
 	private long offset;
 	private int chunkLenListIdx;
+	private int chunkSize;
 	
 	PostingListAccessor( IndexStoreAccessor parent ) {
 		this.parent = parent;
 		bbuf = new byte[MAX_BYTES_PER_CHUNK];
-		ibuf = new int[AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK];
+		ibuf = new int[AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK+ADDITIONAL_SPACE];
 //		this.size = csegInfo.numInts;
 	}
 
 	PostingListAccessor( IndexStoreAccessor parent, int token ) {
 		this.parent = parent;
 		bbuf = new byte[MAX_BYTES_PER_CHUNK];
-		ibuf = new int[AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK];
+		ibuf = new int[AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK+ADDITIONAL_SPACE];
 		init(token);
 	}
 	
@@ -59,16 +61,23 @@ public class PostingListAccessor {
 	}
 	
 	public boolean hasNextChunk() {
-		return chunkLenListIdx < cseg.chunkLenList.size()-1;
+		return chunkLenListIdx < cseg.chunkLenList.size();
 	}
 
 	public int nextChunk() {
+		return nextChunk(0);
+	}
+
+	public int nextChunk(int remainder) {
+		if ( remainder > 0 ) {
+			for ( int i=0; i<remainder; ++i ) ibuf[i] = ibuf[chunkSize-remainder+i];
+		}
 		int len = cseg.chunkLenList.getInt(chunkLenListIdx);
 		int bytes = 0;
 		try {
 			raf.seek(offset);
 			raf.read(bbuf, 0, len);
-			bytes = Snappy.rawUncompress(bbuf, 0, len, ibuf, 0);
+			bytes = Snappy.rawUncompress(bbuf, 0, len, ibuf, Integer.BYTES*remainder);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -76,7 +85,8 @@ public class PostingListAccessor {
 		offset += len; 
 		chunkLenListIdx += 1;
 
-		return bytes/Integer.BYTES;
+		chunkSize = bytes/Integer.BYTES + remainder;
+		return chunkSize;
 	}
 	
 	public int[] getIBuf() {
@@ -85,5 +95,13 @@ public class PostingListAccessor {
 	
 	public int bytes() {
 		return cseg.chunkLenList.stream().mapToInt(x->x).sum();
+	}
+	
+	public int numInts() {
+		return cseg.numInts;
+	}
+	
+	public int chunkSize() {
+		return chunkSize;
 	}
 }
