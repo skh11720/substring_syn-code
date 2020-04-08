@@ -206,13 +206,20 @@ public abstract class AbstractIndexStoreBuilder {
 	
 	protected ChunkSegmentInfo createChunkSegmentInfo(IntArrayList invList) throws IOException {
 		ChunkSegmentInfo cseg = new ChunkSegmentInfo(curOut.fileOffset, curOut.offset, invList.size());
-		int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
-		while ( blenMax > buf_chunk.length ) buf_chunk = new byte[2*buf_chunk.length];
-		int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, buf_chunk, 0);
-		cseg.chunkLenList.add(blen);
-		bos.write(buf_chunk, 0, blen);
-		curOut.offset += blen;
-		storeSize += blen;
+//		int blenMax = Snappy.maxCompressedLength(invList.size()*Integer.BYTES);
+//		while ( blenMax > buf_chunk.length ) buf_chunk = new byte[2*buf_chunk.length];
+//		int blen = Snappy.rawCompress(invList.elements(), 0, invList.size()*Integer.BYTES, buf_chunk, 0);
+//		cseg.chunkLenList.add(blen);
+//		bos.write(buf_chunk, 0, blen);
+//		curOut.offset += blen;
+//		storeSize += blen;
+		for ( int i=0; i<invList.size(); i+=MAX_NUM_INT_PER_CHUNK ) {
+			int blen = Snappy.rawCompress(invList.elements(), Integer.BYTES*i, Integer.BYTES*Math.min(invList.size()-i, MAX_NUM_INT_PER_CHUNK), buf_chunk, 0);
+			cseg.chunkLenList.add(blen);
+			bos.write(buf_chunk, 0, blen);
+			curOut.offset += blen;
+			storeSize += blen;
+		}
 		return cseg;
 	}
 	
