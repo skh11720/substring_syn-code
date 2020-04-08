@@ -20,18 +20,22 @@ public class NaiveInvList implements BytesMeasurableInterface, IterativePostingL
 		size = o.size;
 	}
 	
+	@Override
 	public void init() {
 		listIdx = 0;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return listIdx < size;
 	}
 	
+	@Override
 	public void next() {
 		listIdx += 1;
 	}
 	
+	@Override
 	public int getIdx() {
 		assert (listIdx < size);
 		return arr[listIdx];

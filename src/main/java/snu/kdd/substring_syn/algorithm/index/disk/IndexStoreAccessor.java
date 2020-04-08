@@ -26,6 +26,7 @@ public class IndexStoreAccessor {
 		this.size = size;
 	}
 
+	@Deprecated
 	public int getList( int token ) {
 		ChunkSegmentInfo seg = tok2segMap.get(token);
 		if ( seg == null ) return 0;
@@ -50,6 +51,11 @@ public class IndexStoreAccessor {
 		}
 
 		return bytes/Integer.BYTES;
+	}
+	
+	public PostingListAccessor getPostingListAccessor( int token ) {
+		if ( tok2segMap.containsKey(token) ) return new PostingListAccessor(this, token);
+		else return null;
 	}
 	
 	private void doubleBuffer() {
