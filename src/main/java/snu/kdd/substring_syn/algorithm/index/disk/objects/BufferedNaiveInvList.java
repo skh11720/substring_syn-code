@@ -2,7 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.disk.objects;
 
 import snu.kdd.substring_syn.algorithm.index.disk.PostingListAccessor;
 
-public class BufferedNaiveInvList implements BytesMeasurableInterface, IterativePostingListInterface {
+public class BufferedNaiveInvList extends NaiveInvList {
 
 	final PostingListAccessor acc;
 	public int listIdx = 0;

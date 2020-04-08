@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
+import snu.kdd.substring_syn.algorithm.index.disk.objects.InmemNaiveInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
@@ -20,12 +21,12 @@ public class DiskBasedNaiveInvertedIndex extends AbstractDiskBasedInvertedIndex<
 
 	@Override
 	protected NaiveInvList copyInvList(NaiveInvList obj) {
-		return new NaiveInvList(obj);
+		return new InmemNaiveInvList(obj);
 	}
 
 	@Override
 	protected NaiveInvList copyTransInvList(NaiveInvList obj) {
-		return new NaiveInvList(obj);
+		return new InmemNaiveInvList(obj);
 	}
 
 	@Override
