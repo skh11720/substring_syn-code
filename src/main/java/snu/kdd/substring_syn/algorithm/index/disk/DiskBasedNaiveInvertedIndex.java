@@ -21,12 +21,12 @@ public class DiskBasedNaiveInvertedIndex extends AbstractDiskBasedInvertedIndex<
 
 	@Override
 	protected NaiveInvList copyInvList(NaiveInvList obj) {
-		return new InmemNaiveInvList(obj);
+		return InmemNaiveInvList.copy(obj);
 	}
 
 	@Override
 	protected NaiveInvList copyTransInvList(NaiveInvList obj) {
-		return new InmemNaiveInvList(obj);
+		return InmemNaiveInvList.copy(obj);
 	}
 
 	@Override
