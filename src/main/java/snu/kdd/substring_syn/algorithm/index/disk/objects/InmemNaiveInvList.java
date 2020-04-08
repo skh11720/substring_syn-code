@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-public class InmemNaiveInvList extends NaiveInvList {
+public class InmemNaiveInvList implements NaiveInvList {
 
 	private final int[] arr;
 	public final int size;
