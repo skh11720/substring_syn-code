@@ -11,7 +11,6 @@ public class IndexStoreAccessor {
 	final Int2ObjectMap<ChunkSegmentInfo> tok2segMap;
 	private final RandomAccessFile[] rafList;
 	public final long size;
-	public int[] arr = new int[1024];
 	
 	public IndexStoreAccessor( String path, Int2ObjectMap<ChunkSegmentInfo> tok2segMap, int nFiles, int bufSize, long size ) throws FileNotFoundException {
 		this.path = path;
