@@ -18,31 +18,29 @@ public class TokenIndex {
 		int2TokenList = new ObjectArrayList<String>();
 	}
 	
-	public int getIDOrAdd( String token ) {
+//	public int getIDOrAdd( String token ) {
+//		if ( !token2IntMap.containsKey(token) ) {
+//			add(token);
+//		}
+//		return getID(token);
+//	}
+	
+	public int getIDOrAdd( Substring token ) {
 		if ( !token2IntMap.containsKey(token) ) {
-			add(token);
+			String str = token.toString();
+			add(str);
 		}
 		return getID(token);
 	}
-	
-	public int getIDOrAdd( Substring token ) {
-		String str = token.toString();
-		if ( !token2IntMap.containsKey(token) ) {
-			add(str);
-		}
-		return getID(str);
-	}
 
 	public void add( String str ) {
-		if ( !token2IntMap.containsKey(str) ) {
-			int2TokenList.add(str);
-			token2IntMap.put(str, int2TokenList.size()-1);
-		}
+		int2TokenList.add(str);
+		token2IntMap.put(str, int2TokenList.size()-1);
 	}
 
-	public int getID( String token ) {
-		return token2IntMap.getInt(token);
-	}
+//	public int getID( String token ) {
+//		return token2IntMap.getInt(token);
+//	}
 
 	public int getID( Substring token ) {
 		return token2IntMap.getInt(token);
