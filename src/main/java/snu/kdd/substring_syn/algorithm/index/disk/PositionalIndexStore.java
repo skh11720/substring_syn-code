@@ -10,8 +10,8 @@ import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class PositionalIndexStore {
 
-	final IndexStoreAccessor invListAccessor;
-	final IndexStoreAccessor tinvListAccessor;
+	public final IndexStoreAccessor invListAccessor;
+	public final IndexStoreAccessor tinvListAccessor;
 	
 	public PositionalIndexStore( Iterable<TransformableRecordInterface> recordList ) {
 		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE);

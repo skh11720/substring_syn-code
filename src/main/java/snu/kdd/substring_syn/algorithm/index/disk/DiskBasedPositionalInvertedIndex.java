@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedIndex<PositionInvList, PositionTrInvList> {
 
-	protected final PositionalIndexStore store;
+	public final PositionalIndexStore store;
 
 	public DiskBasedPositionalInvertedIndex(Iterable<TransformableRecordInterface> recordList) {
 		super(recordList);
