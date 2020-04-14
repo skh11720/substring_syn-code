@@ -18,7 +18,7 @@ import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 public abstract class AbstractIndexStoreBuilder {
 
 	public static final int INMEM_MAX_SIZE = 16 * 1024 * 1024;
-	public static int MAX_NUM_INT_PER_CHUNK = 1 * 1024; 
+	public static int MAX_NUM_INT_PER_CHUNK = 256 * 1024; 
 	protected static final long FILE_MAX_LEN = 8_000_000_000_000_000_000L;
 	protected final Iterable<TransformableRecordInterface> recordList;
 	protected BufferedOutputStream bos = null;
