@@ -1,7 +1,5 @@
 package snu.kdd.etc;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.util.Random;
 
@@ -15,6 +13,7 @@ public class SnappyTest {
 	 */
 
 	@Test
+	@SuppressWarnings("unused")
 	public void testRawCompress() throws IOException {
 		Random rn = new Random(0);
 		int n = 10;

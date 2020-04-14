@@ -71,6 +71,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		};
 	}
 	
+	@SuppressWarnings("unused")
 	private class QuerySideFilter implements Iterator<TransformableRecordInterface> {
 
 		final Record query;
