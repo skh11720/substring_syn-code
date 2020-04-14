@@ -47,7 +47,7 @@ public class PositionalIndexStore {
 		if ( acc == null ) return null;
 		BufferedPositionInvList list = new BufferedPositionInvList(acc);
 //        Log.log.trace("PositionalIndexStore.getInvList: token=%d, list.size=%d", token, list.size());
-//        for ( list.init(); list.hasNext(); list.next() ) Log.log.trace("PositionalIndexStore.getInvList: (%d, %d)", list.getIdx(), list.getPos());
+//        for ( list.init(); list.hasNext(); list.next() ) Log.log.trace("InvList: (%d, %d)", list.getIdx(), list.getPos());
         return list;
 	}
 	
@@ -56,7 +56,7 @@ public class PositionalIndexStore {
 		if ( acc == null ) return null;
 		BufferedPositionTrInvList list = new BufferedPositionTrInvList(acc);
 //        Log.log.trace("PositionalIndexStore.getTrInvList: token=%d, list.size=%d", token, list.size());
-//        for ( list.init(); list.hasNext(); list.next() ) Log.log.trace("PositionalIndexStore.getTrInvList: (%d, %d, %d)", list.getIdx(), list.getLeft(), list.getRight());
+//        for ( list.init(); list.hasNext(); list.next() ) Log.log.trace("TrInvList: (%d, %d, %d)", list.getIdx(), list.getLeft(), list.getRight());
         return list;
 	}
 
