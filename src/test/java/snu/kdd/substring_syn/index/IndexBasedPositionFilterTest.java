@@ -24,7 +24,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounterDeprecated;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -115,7 +115,7 @@ public class IndexBasedPositionFilterTest {
 			}
 		}
 
-		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(candTokenList);
+		MaxBoundTokenCounterDeprecated tokenCounter = new MaxBoundTokenCounterDeprecated(candTokenList);
 		Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<PosListPair>();
 		for ( int token : candTokenSet ) {
 			int nMax = tokenCounter.getMax(token);
@@ -150,7 +150,7 @@ public class IndexBasedPositionFilterTest {
 			}
 		}
 
-		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(candTokenList);
+		MaxBoundTokenCounterDeprecated tokenCounter = new MaxBoundTokenCounterDeprecated(candTokenList);
 		Int2ObjectMap<PosListPair> rec2idxListMap = new Int2ObjectOpenHashMap<PosListPair>();
 		for ( int token : candTokenSet ) {
 			int nMax = tokenCounter.getMax(token);

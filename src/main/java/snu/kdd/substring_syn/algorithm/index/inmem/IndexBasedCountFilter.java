@@ -14,7 +14,7 @@ import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
-import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounterDeprecated;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -50,7 +50,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 			for ( int token : r.getRhs() ) candTokenList.add(token);
 		}
 		IntList candTokenSet = new IntArrayList(candTokenList.stream().sorted().distinct().iterator());
-		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(candTokenList);
+		MaxBoundTokenCounterDeprecated tokenCounter = new MaxBoundTokenCounterDeprecated(candTokenList);
 
 //		int countUpperBound = tokenCounter.sumBounds();
 		for ( int token : candTokenSet ) {
@@ -96,7 +96,7 @@ public class IndexBasedCountFilter extends AbstractIndexBasedFilter {
 		statContainer.startWatch(Stat.Time_TS_IndexFilter);
 		int minCount = (int)Math.ceil(theta*query.size());
 		Int2IntOpenHashMap commonTokenCounter = new Int2IntOpenHashMap();
-		MaxBoundTokenCounter tokenCounter = new MaxBoundTokenCounter(query.getTokenList());
+		MaxBoundTokenCounterDeprecated tokenCounter = new MaxBoundTokenCounterDeprecated(query.getTokenList());
 		IntList candTokenSet = new IntArrayList(query.getTokens().stream().sorted().distinct().iterator());
 
 //		int countUpperBound = tokenCounter.sumBounds();

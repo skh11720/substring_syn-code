@@ -30,7 +30,7 @@ import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Int2IntBinaryHeap;
 import snu.kdd.substring_syn.utils.Log;
-import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounterDeprecated;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -370,7 +370,7 @@ public class IndexBasedPositionFilterTextSideRefactoringTest {
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
-		final MaxBoundTokenCounter tokenCounter;
+		final MaxBoundTokenCounterDeprecated tokenCounter;
 		final int minCount;
 		final Iterator<Entry<Integer, PosListPair>> iter;
 		Iterator<Record> segmentIter = null;
@@ -386,7 +386,7 @@ public class IndexBasedPositionFilterTextSideRefactoringTest {
 				candTokenList.add(token);
 			}
 			candTokenSet = new IntArrayList(intSet.stream().sorted().iterator());
-			tokenCounter = new MaxBoundTokenCounter(candTokenList);
+			tokenCounter = new MaxBoundTokenCounterDeprecated(candTokenList);
 			minCount = (int)Math.ceil(theta*query.size());
 
 //			Log.log.trace("PositionalIndexBasedFilter.textSideFilter(%d)", ()->query.getID());
