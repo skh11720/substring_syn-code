@@ -75,7 +75,6 @@ public class RecordSerializer {
 		int numbytes = -1;
 		while (true) {
 			try {
-//			numbytes = Snappy.uncompressedLength(buf, offset, len);
 				numbytes = Snappy.rawUncompress(buf, offset, len, ibuf, 0);
 				break;
 			} catch ( IOException e ) {

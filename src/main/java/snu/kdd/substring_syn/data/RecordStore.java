@@ -172,18 +172,6 @@ public class RecordStore {
 		return secQS.pool.get(idx);
 	}
 
-//	private void loadRawRecordsFromStore( int id ) throws IOException {
-//		secQS.raf.seek(secQS.posList.get(id));
-//		secQS.raf.read(buffer, 0, buffer.length);
-//		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
-//			int len = (int)( -secQS.posList.get(i) + secQS.posList.get(i+1) );
-//			if ( lenRead+len > buffer.length ) break;
-//			IntArrayList list = IntArrayList.wrap(Snappy.uncompressIntArray(buffer, lenRead, len));
-//			secQS.pool.put(i, new Record(list.getInt(0), list.subList(1, list.size()).toIntArray()));
-//			lenRead += len;
-//		}
-//	}
-	
 	private Record getRawRecordFromStore(int idx) throws IOException {
 		secQS.raf.seek(secQS.posList.get(idx));
 		secQS.raf.read(buffer, 0, buffer.length);

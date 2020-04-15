@@ -83,7 +83,6 @@ public class EntryStore<E extends Serializable> {
 			cur = new Cursor();
 			for ( E entry : entryList ) {
 				byte[] b = serialize(entry);
-//			byte[] b = Snappy.compress(rec.getTokenArray());
 				cur.write(b);
 				posList.add(cur.offset);
 				cur.updateCursorIfNecessary();
@@ -127,7 +126,6 @@ public class EntryStore<E extends Serializable> {
 		}
 		rafList.get(fo).seek(offset);
 		rafList.get(fo).read(buffer, 0, len);
-//		int[] tokens = Snappy.uncompressIntArray(buffer, 0, len);
 		E entry = deserialize(buffer, 0, len);
 		return entry;
 	}
