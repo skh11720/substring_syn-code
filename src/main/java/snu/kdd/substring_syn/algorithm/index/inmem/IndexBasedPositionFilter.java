@@ -3,7 +3,6 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -26,6 +25,7 @@ import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Int2IntBinaryHeap;
+import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
@@ -76,12 +76,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
-		final Int2IntOpenHashMap candTokenCounter;
+		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
 		final Iterator<PosListPair> iter;
 		Iterator<Record> segmentIter = null;
 		Record thisRec = null;
-		Int2IntOpenHashMap tokenCounter;
 		
 		public QuerySideFilter( Record query ) {
 			statContainer.startWatch(Stat.Time_QS_IndexFilter);
@@ -95,8 +94,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				}
 			}
 			candTokenSet = new IntArrayList(intSet.stream().sorted().iterator());
-			candTokenCounter = new Int2IntOpenHashMap();
-			for ( int token : candTokenList ) candTokenCounter.addTo(token, 1);
+			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.getMinTransLength());
 
 			statContainer.startWatch("Time_QS_IndexFilter.getCommonTokenIdxLists");
@@ -130,7 +128,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			@Override
 			public PosListPair next() {
 				e = new PosListPair();
-				tokenCounter = new Int2IntOpenHashMap();
+				tokenCounter.clear();
 				e.ridx = extractHead();
 				while ( !heap.isEmpty() && heap.peekKey() == e.ridx ) extractHead();
 				nLists += 1;
@@ -143,9 +141,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				nEntries += 1;
 				int token = head.i2;
 				int pos = tok2listMap.get(token).getPos();
-				if ( tokenCounter.get(token) < candTokenCounter.get(token) ) {
+				if ( tokenCounter.tryIncrement(token) ) {
 					e.nToken += 1;
-					tokenCounter.addTo(token, 1);
 				}
 				e.idxList.add(pos);
 				getNextFromList(token);
@@ -211,16 +208,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			int m = idxList.size();
 			for ( int i=0; i<m; ++i ) {
 				int sidx = idxList.get(i);
-				tokenCounter = new Int2IntOpenHashMap();
-				int num = 0;
+				tokenCounter.clear();
 				MergedRange mrange = new MergedRange(sidx);
 				for ( int j=i; j<m; ++j ) {
 					int eidx = idxList.get(j);
 					int token = rec.getToken(eidx);
-					if ( tokenCounter.get(token) < candTokenCounter.get(token) ) {
-						tokenCounter.addTo(token, 1);
-						num += 1;
-					}
+					tokenCounter.tryIncrement(token); 
+					int num = tokenCounter.sum();
 					final double score;
 					if ( query.getMinTransLength() < num ) score = (double)num/(eidx-sidx+1) + EPS;
 					else score = (double)num/(query.getMinTransLength() + eidx-sidx+1 - num) + EPS;
@@ -261,12 +255,11 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 
 		final Record query;
 		final IntList candTokenSet; // unique, sorted
-		final Int2IntOpenHashMap candTokenCounter;
+		final MaxBoundTokenCounter tokenCounter;
 		final int minCount;
 		final Iterator<PosListPair> iter;
 		Iterator<Record> segmentIter = null;
 		Record thisRec = null;
-		Int2IntOpenHashMap tokenCounter;
 		
 		public TextSideFilter( Record query ) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
@@ -278,8 +271,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				candTokenList.add(token);
 			}
 			candTokenSet = new IntArrayList(intSet.stream().sorted().iterator());
-			candTokenCounter = new Int2IntOpenHashMap();
-			for ( int token : candTokenList ) candTokenCounter.addTo(token, 1);
+			tokenCounter = new MaxBoundTokenCounter(candTokenList);
 			minCount = (int)Math.ceil(theta*query.size());
 
 			statContainer.startWatch("Time_TS_IndexFilter.getCommonTokenIdxLists");
@@ -320,7 +312,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			@Override
 			public PosListPair next() {
 				e = new PosListPair();
-				tokenCounter = new Int2IntOpenHashMap();
+				tokenCounter.clear();
 				e.ridx = extractHead();
 				while ( !heap.isEmpty() && heap.peekKey() == e.ridx ) extractHead();
 				nLists += 1;
@@ -349,9 +341,8 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					getNextFromTrList(token);
 				}
 
-				if ( tokenCounter.get(token) < candTokenCounter.get(token) ) {
+				if ( tokenCounter.tryIncrement(token) ) {
 					e.nToken += 1;
-					tokenCounter.addTo(token, 1);
 				}
 				return head.i1;
 			}
@@ -448,15 +439,12 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				MergedRange mrange = new MergedRange(sidx);
 				TransLenLazyCalculator transLen = new TransLenLazyCalculator(statContainer, rec, sidx, rec.size()-sidx, theta);
 				tokenCounter.clear();
-				int num = 0;
 				for ( int j=0; j<suffixIdxList.size(); ++j ) {
 					int eidx = suffixIdxList.get(j);
 					if ( eidx < sidx ) continue;
 					int token = tokenList.get(j);
-					if ( tokenCounter.get(token) < candTokenCounter.get(token) ) {
-						tokenCounter.addTo(token, 1);
-						num += 1;
-					}
+					tokenCounter.tryIncrement(token);
+					int num = tokenCounter.sum();
 					final double score;
 					if ( transLen.getLB(eidx) < num ) score = (double)num/query.size() + EPS;
 					else score = (double)num/(query.size() + transLen.getLB(eidx) - num) + EPS;
