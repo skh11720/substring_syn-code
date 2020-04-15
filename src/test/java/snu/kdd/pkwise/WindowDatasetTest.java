@@ -7,8 +7,8 @@ import java.io.IOException;
 import org.junit.Test;
 
 import snu.kdd.substring_syn.data.WindowDataset;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class WindowDatasetTest {
 
@@ -17,9 +17,9 @@ public class WindowDatasetTest {
 		WindowDataset dataset = TestUtils.getTestRawDataset();
 		int w = 5;
 		int n = 10000;
-		Record[] recList = new Record[n];
+		TransformableRecordInterface[] recList = new TransformableRecordInterface[n];
 		int ridx = 0;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			recList[ridx] = rec;
 			ridx += 1;
 			if ( ridx >= n ) break;
@@ -50,7 +50,7 @@ public class WindowDatasetTest {
 		long n0 = 0;
 		long n1 = 0;
 		
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			n0 += Math.max(0, rec.size()-w+1);
 		}
 		
@@ -66,7 +66,7 @@ public class WindowDatasetTest {
 		WindowDataset dataset = TestUtils.getTestWindowDataset();
 		int n = 10;
 		int i = 0;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			System.out.println(rec);
 			System.out.println(dataset.getRecord(i));
 			i += 1;

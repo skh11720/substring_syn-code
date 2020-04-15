@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractIndexBasedFilter {
@@ -32,12 +33,12 @@ public abstract class AbstractIndexBasedFilter {
 	protected abstract IntIterable querySideFilter( Record query );
 	protected abstract IntIterable textSideFilter( Record query );
 
-	public Iterable<Record> getCandRecordsQuerySide( Record query ) {
+	public Iterable<TransformableRecordInterface> getCandRecordsQuerySide( Record query ) {
 		IntIterable intIter = querySideFilter(query);
 		return getCandRecords(intIter);
 	}
 
-	public Iterable<Record> getCandRecordsTextSide( Record query ) {
+	public Iterable<TransformableRecordInterface> getCandRecordsTextSide( Record query ) {
 		IntIterable intIter = textSideFilter(query);
 		return getCandRecords(intIter);
 	}
@@ -67,18 +68,18 @@ public abstract class AbstractIndexBasedFilter {
 		return count+"\t"+strbld.toString();
 	}
 
-	private Iterable<Record> getCandRecords( IntIterable intIter ) {
-		return new Iterable<Record>() {
+	private Iterable<TransformableRecordInterface> getCandRecords( IntIterable intIter ) {
+		return new Iterable<TransformableRecordInterface>() {
 			
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
 				return getRecordIterator(intIter);
 			}
 		};
 	}
 	
-	private Iterator<Record> getRecordIterator( IntIterable intIter ) {
-		return new Iterator<Record>() {
+	private Iterator<TransformableRecordInterface> getRecordIterator( IntIterable intIter ) {
+		return new Iterator<TransformableRecordInterface>() {
 			
 			IntIterator iter = intIter.iterator();
 
@@ -88,7 +89,7 @@ public abstract class AbstractIndexBasedFilter {
 			}
 
 			@Override
-			public Record next() {
+			public TransformableRecordInterface next() {
 				return dataset.getRecord(iter.nextInt());
 			}
 		};

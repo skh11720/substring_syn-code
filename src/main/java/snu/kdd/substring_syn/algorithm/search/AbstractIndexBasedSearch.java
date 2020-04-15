@@ -6,6 +6,7 @@ import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedNaiveFilter;
 import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedPositionFilter;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
@@ -35,6 +36,7 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 	
 	protected void buildIndex( Dataset dataset ) {
+		Log.log.trace("AbstractIndexBasedSearch.buildIndex()");
 		statContainer.startWatch(Stat.Time_BuildIndex);
 		double mem_before = Util.getMemoryUsage();
 		indexFilter = buildSpecificIndex(dataset);
@@ -63,19 +65,19 @@ public abstract class AbstractIndexBasedSearch extends AbstractSearch {
 	}
 
 	@Override
-	protected Iterable<Record> getCandRecordListQuerySide( Record query, Dataset dataset ) {
+	protected Iterable<TransformableRecordInterface> getCandRecordListQuerySide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
-			Iterable<Record> candRecordSet = indexFilter.getCandRecordsQuerySide(query);
+			Iterable<TransformableRecordInterface> candRecordSet = indexFilter.getCandRecordsQuerySide(query);
 			return candRecordSet;
 		}
 		else return dataset.getIndexedList();
 	}
 	
 	@Override
-	protected Iterable<Record> getCandRecordListTextSide( Record query, Dataset dataset ) {
+	protected Iterable<TransformableRecordInterface> getCandRecordListTextSide( Record query, Dataset dataset ) {
 		if ( indexFilter != null ) {
 			statContainer.startWatch(Stat.Time_TS_IndexFilter);
-			Iterable<Record> candRecordSet = indexFilter.getCandRecordsTextSide(query);
+			Iterable<TransformableRecordInterface> candRecordSet = indexFilter.getCandRecordsTextSide(query);
 			statContainer.stopWatch(Stat.Time_TS_IndexFilter);
 			return candRecordSet;
 		}

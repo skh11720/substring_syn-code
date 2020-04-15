@@ -12,6 +12,7 @@ import java.util.Iterator;
 import org.xerial.snappy.Snappy;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Util;
@@ -78,11 +79,11 @@ public class IntQGramStore {
 		return new IntQGram(arr);
 	}
 	
-	public Iterable<Record> getIntQGrams() {
-		return new Iterable<Record>() {
+	public Iterable<TransformableRecordInterface> getIntQGrams() {
+		return new Iterable<TransformableRecordInterface>() {
 			
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
 				return new IntQGramIterator();
 			}
 		};
@@ -96,7 +97,7 @@ public class IntQGramStore {
 		return Util.getSpaceUsage(path);
 	}
 
-	class IntQGramIterator implements Iterator<Record> {
+	class IntQGramIterator implements Iterator<TransformableRecordInterface> {
 		
 		int i = 0;
 		FileInputStream fis;
@@ -117,7 +118,7 @@ public class IntQGramStore {
 		}
 
 		@Override
-		public Record next() {
+		public TransformableRecordInterface next() {
 			int len = (int)(posList.get(i+1)-(posList.get(i)));
 			int[] arr = null;
 			try {

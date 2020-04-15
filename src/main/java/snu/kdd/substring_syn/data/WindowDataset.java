@@ -4,9 +4,9 @@ import java.util.Iterator;
 
 import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 import snu.kdd.substring_syn.utils.Util;
 
@@ -54,13 +54,13 @@ public class WindowDataset extends DiskBasedDataset {
 
 	public static class WindowIterator implements Iterator<Subrecord> {
 
-		final Iterator<Record> rIter;
-		Record rec = null;
-		Record recNext = null;
+		final Iterator<TransformableRecordInterface> rIter;
+		TransformableRecordInterface rec = null;
+		TransformableRecordInterface recNext = null;
 		int widx = -1;
 		final int w;
 		
-		public WindowIterator( Iterator<Record> rIter, int w ) {
+		public WindowIterator( Iterator<TransformableRecordInterface> rIter, int w ) {
 			this.rIter = rIter;
 			this.w = w;
 			while ( rIter.hasNext() ) {
@@ -100,14 +100,14 @@ public class WindowDataset extends DiskBasedDataset {
 
 	class TransWindowIterator implements Iterator<RecordInterface> {
 
-		final Iterator<Record> rIter;
-		Record rec = null;
+		final Iterator<TransformableRecordInterface> rIter;
+		TransformableRecordInterface rec = null;
 		TransLenCalculator transLen;
 		int sidx, eidx;
 		final int qlen;
 		final double theta;
 		
-		public TransWindowIterator( Iterator<Record> rIter, int qlen, double theta ) {
+		public TransWindowIterator( Iterator<TransformableRecordInterface> rIter, int qlen, double theta ) {
 			this.rIter = rIter;
 			this.qlen = qlen;
 			this.theta = theta;
@@ -157,7 +157,7 @@ public class WindowDataset extends DiskBasedDataset {
 		public Subrecord next() {
 			int sidx0 = sidx;
 			int eidx0 = eidx;
-			Record rec0 = rec;
+			TransformableRecordInterface rec0 = rec;
 			findNextWindow();
 //			System.out.println(rec0.getID()+"\t"+sidx0+"\t"+eidx0+"\t"+(eidx0-sidx0+1));
 			return new Subrecord(rec0, sidx0, eidx0+1);

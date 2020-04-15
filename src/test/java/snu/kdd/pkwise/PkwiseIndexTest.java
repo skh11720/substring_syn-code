@@ -10,8 +10,8 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.WindowDataset;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class PkwiseIndexTest {
 
@@ -70,7 +70,7 @@ public class PkwiseIndexTest {
 				int sidx = witv.sidx;
 				int eidx = witv.eidx;
 				
-				Record rec = dataset.getRecord(rid);
+				TransformableRecordInterface rec = dataset.getRecord(rid);
 				for ( int idx=sidx; idx<eidx; ++idx ) {
 					Subrecord window = new Subrecord(rec, idx, idx+w);
 					try {

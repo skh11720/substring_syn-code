@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -27,7 +28,7 @@ public class DiskBasedDataset extends Dataset {
 	}
 
 	@Override
-	public Iterable<Record> getIndexedList() {
+	public Iterable<TransformableRecordInterface> getIndexedList() {
 		return store.getRecords();
 	}
 
@@ -37,7 +38,7 @@ public class DiskBasedDataset extends Dataset {
 	}
 
 	@Override
-	public Record getRecord(int idx) {
+	public TransformableRecordInterface getRecord(int idx) {
 		return store.getRecord(idx);
 	}
 }

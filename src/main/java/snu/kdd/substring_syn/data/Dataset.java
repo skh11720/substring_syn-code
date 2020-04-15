@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -53,9 +54,9 @@ public abstract class Dataset extends AbstractDocDataset {
 		return DatasetFactory.searchedRecords();
 	}
 
-	public abstract Iterable<Record> getIndexedList();
+	public abstract Iterable<TransformableRecordInterface> getIndexedList();
 
 	public abstract Record getRawRecord(int idx);
 	
-	public abstract Record getRecord(int idx);
+	public abstract TransformableRecordInterface getRecord(int idx);
 }

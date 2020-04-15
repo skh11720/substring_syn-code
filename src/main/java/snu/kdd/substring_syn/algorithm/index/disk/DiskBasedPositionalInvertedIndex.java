@@ -2,15 +2,17 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
+import snu.kdd.substring_syn.algorithm.index.disk.objects.InmemPositionInvList;
+import snu.kdd.substring_syn.algorithm.index.disk.objects.InmemPositionTrInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.PositionTrInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedIndex<PositionInvList, PositionTrInvList> {
 
-	protected final PositionalIndexStore store;
+	public final PositionalIndexStore store;
 
-	public DiskBasedPositionalInvertedIndex(Iterable<Record> recordList) {
+	public DiskBasedPositionalInvertedIndex(Iterable<TransformableRecordInterface> recordList) {
 		super(recordList);
 		store = new PositionalIndexStore(recordList);
 	}
@@ -21,12 +23,12 @@ public class DiskBasedPositionalInvertedIndex extends AbstractDiskBasedInvertedI
 	
 	@Override
 	protected PositionInvList copyInvList(PositionInvList obj) {
-		return new PositionInvList(obj);
+		return InmemPositionInvList.copy(obj);
 	}
 	
 	@Override
 	protected PositionTrInvList copyTransInvList(PositionTrInvList obj) {
-		return new PositionTrInvList(obj);
+		return InmemPositionTrInvList.copy(obj);
 	}
 
 	@Override

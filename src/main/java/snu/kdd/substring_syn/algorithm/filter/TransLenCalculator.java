@@ -3,24 +3,24 @@ package snu.kdd.substring_syn.algorithm.filter;
 import java.util.Arrays;
 
 import snu.kdd.substring_syn.data.IntPair;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class TransLenCalculator {
 	private final StatContainer statContainer;
-	private final Record rec;
+	private final TransformableRecordInterface rec;
 	private final int sidx;
 	private final double theta;
 	private final int[][] ub;
 	private final int[][] lb;
 
 
-	public TransLenCalculator( StatContainer statContainer, Record rec, double theta ) {
+	public TransLenCalculator( StatContainer statContainer, TransformableRecordInterface rec, double theta ) {
 		this(statContainer, rec, 0, rec.size()-1, theta);
 	}
 		
 		
-	public TransLenCalculator( StatContainer statContainer, Record rec, int sidx, int eidx, double theta ) {
+	public TransLenCalculator( StatContainer statContainer, TransformableRecordInterface rec, int sidx, int eidx, double theta ) {
 		// both sidx and eidx are inclusive
 		this.statContainer = statContainer;
 		this.rec = rec;

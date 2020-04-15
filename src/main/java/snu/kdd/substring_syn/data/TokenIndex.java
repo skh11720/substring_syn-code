@@ -14,26 +14,36 @@ public class TokenIndex {
 
 	public TokenIndex() {
 		token2IntMap = new Object2IntOpenHashMap<String>();
-		token2IntMap.defaultReturnValue(-1);
+		token2IntMap.defaultReturnValue(-12345);
 		int2TokenList = new ObjectArrayList<String>();
 	}
 	
-	public int getIDOrAdd( String token ) {
+//	public int getIDOrAdd( String token ) {
+//		if ( !token2IntMap.containsKey(token) ) {
+//			add(token);
+//		}
+//		return getID(token);
+//	}
+	
+	public int getIDOrAdd( Substring token ) {
 		if ( !token2IntMap.containsKey(token) ) {
-			add(token);
+			String str = token.toString();
+			add(str);
 		}
 		return getID(token);
 	}
-	
-	public void add( String token ) {
-		if ( !token2IntMap.containsKey(token) ) {
-			int2TokenList.add(token);
-			token2IntMap.put(token, int2TokenList.size()-1);
-		}
+
+	public void add( String str ) {
+		int2TokenList.add(str);
+		token2IntMap.put(str, int2TokenList.size()-1);
 	}
 
-	public int getID( String token ) {
-		return token2IntMap.getInt( token );
+//	public int getID( String token ) {
+//		return token2IntMap.getInt(token);
+//	}
+
+	public int getID( Substring token ) {
+		return token2IntMap.getInt(token);
 	}
 
 	public String getToken( int index ) {

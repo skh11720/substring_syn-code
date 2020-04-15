@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.object.indexstore.EntryStore;
 import snu.kdd.substring_syn.utils.Log;
 
@@ -12,11 +12,11 @@ public class FaerieDiskBasedIndex implements FaerieIndexInterface {
 	
 	final EntryStore<FaerieIndexEntry> store;
 
-	public FaerieDiskBasedIndex(Iterable<Record> records) {
+	public FaerieDiskBasedIndex(Iterable<TransformableRecordInterface> records) {
 		this(records, "FaerieDiskBasedInex_EntryStore");
 	}
 
-	public FaerieDiskBasedIndex(Iterable<Record> records, String name) {
+	public FaerieDiskBasedIndex(Iterable<TransformableRecordInterface> records, String name) {
 		Log.log.trace("FaerieDiskBasedIndex.constructor");
 		Stream<FaerieIndexEntry> stream = StreamSupport.stream(records.spliterator(), false).map(rec->new FaerieIndexEntry(rec));
 		store = new EntryStore<FaerieIndexEntry>(stream::iterator, name);

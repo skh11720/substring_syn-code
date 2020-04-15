@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.data.WindowDataset;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseSignatureGeneratorTest {
@@ -21,7 +21,7 @@ public class PkwiseSignatureGeneratorTest {
 		PkwiseSignatureGenerator pksiggen = new PkwiseSignatureGenerator(partitioner, sigMap, kmax);
 		
 		for ( int i=0; i<10; ++i ) {
-			Record rec = dataset.getRecord(i);
+			TransformableRecordInterface rec = dataset.getRecord(i);
 			int maxDiff = Util.getPrefixLength(rec, theta);
 			int l = pksiggen.getPrefixLength(rec, maxDiff);
 			IntArrayList sig = pksiggen.genSignature(rec, maxDiff, true);

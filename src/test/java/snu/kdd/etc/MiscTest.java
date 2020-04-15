@@ -3,6 +3,8 @@ package snu.kdd.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -14,17 +16,19 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
-import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
+import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.Substring;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.FileBasedLongList;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
@@ -38,7 +42,7 @@ public class MiscTest {
 		int sidx = 287;
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 		Record query = null;
-		Record text = null;
+		TransformableRecordInterface text = null;
 		for ( Record rec : dataset.getSearchedList() ) {
 			if ( rec.getIdx() == qidx ) {
 				query = rec;
@@ -46,7 +50,7 @@ public class MiscTest {
 			}
 		}
 		
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			if ( rec.getIdx() == sidx ) {
 				text = rec;
 				break;
@@ -62,7 +66,7 @@ public class MiscTest {
 	public void testRecord() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("WIKI_3", "10000");
 //		Record rec = dataset.searchedList.get(1);
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			int n1 = 0;
 			for ( int k=0; k<rec.size(); ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) ++n1;
@@ -115,7 +119,7 @@ public class MiscTest {
 	public void testWindowCount() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", "1000");
 		double theta = 0.6;
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			int nw0 = sumWindowSize(rec);
 			int nw1 = 0;
 			for ( int w=1; w<=rec.size(); ++w ) {
@@ -130,7 +134,7 @@ public class MiscTest {
 		}
 	}
 	
-	private static int sumWindowSize( Record rec ) {
+	private static int sumWindowSize( TransformableRecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
 	}
@@ -390,53 +394,128 @@ public class MiscTest {
 		System.out.println("get (random): "+(System.nanoTime()-ts)*1.0/n);
 	}
 	
-	@Test
-	public void testBinarySearch() {
-		Random rn = new Random(0);
-		int nMax = 1000;
-		int triesMax = 1000000;
-		
-		for ( int tries=0; tries<triesMax; ++tries ) {
-			IntArrayList intList = new IntArrayList();
-			int n = rn.nextInt(nMax)+1;
-			intList.add(0);
-			for ( int i=1; i<n; ++i ) intList.add(intList.getInt(i-1)+rn.nextInt(4));
-			PostingListInterface list = new NaiveInvList(intList.toIntArray(), n);
-			assertEquals(-1, Util.binarySearch(list, -1));
-			for ( int j=list.size()-1; j>=0; --j ) {
-				while ( j > 0 && list.getIdx(j-1) == list.getIdx(j) ) j -= 1;
-				try {
-					assertEquals(j, Util.binarySearch(list, list.getIdx(j)));
-				}
-				catch ( AssertionError e ) {
-					System.err.println(list);
-					System.err.println(list.size());
-					System.err.println(j);
-					System.err.println(Util.binarySearch(list, list.getIdx(j)));
-					throw e;
-				}
-			}
-			
-			for ( int i=0, v=0; i<list.size(); ) {
-				if ( list.getIdx(i) == v ) i += 1;
-				else if ( list.getIdx(i) > v ) {
-					v += 1;
-					if ( list.getIdx(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
-				}
-			}
-//			System.out.println((tries+1)+"/"+triesMax);
-		}
-	}
+//	@Test
+//	public void testBinarySearch() {
+//		Random rn = new Random(0);
+//		int nMax = 1000;
+//		int triesMax = 1000000;
+//		
+//		for ( int tries=0; tries<triesMax; ++tries ) {
+//			IntArrayList intList = new IntArrayList();
+//			int n = rn.nextInt(nMax)+1;
+//			intList.add(0);
+//			for ( int i=1; i<n; ++i ) intList.add(intList.getInt(i-1)+rn.nextInt(4));
+//			NaiveInvList list = new NaiveInvList(intList.toIntArray(), n);
+//			assertEquals(-1, Util.binarySearch(list, -1));
+//			for ( int j=list.size()-1; j>=0; --j ) {
+//				while ( j > 0 && list.getIdx(j-1) == list.getIdx(j) ) j -= 1;
+//				try {
+//					assertEquals(j, Util.binarySearch(list, list.getIdx(j)));
+//				}
+//				catch ( AssertionError e ) {
+//					System.err.println(list);
+//					System.err.println(list.size());
+//					System.err.println(j);
+//					System.err.println(Util.binarySearch(list, list.getIdx(j)));
+//					throw e;
+//				}
+//			}
+//			
+//			for ( int i=0, v=0; i<list.size(); ) {
+//				if ( list.getIdx(i) == v ) i += 1;
+//				else if ( list.getIdx(i) > v ) {
+//					v += 1;
+//					if ( list.getIdx(i) > v ) assertEquals(-1, Util.binarySearch(list, v));
+//				}
+//			}
+////			System.out.println((tries+1)+"/"+triesMax);
+//		}
+//	}
 	
 	@Test
 	public void testGetSubstrings() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName(new DatasetParam("WIKI", "1000", "1000", "5", "1.0"));
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			System.out.println(rec.size());
 			for ( Subrecord window : Records.getSubrecords(rec) ) {
 				System.out.println(window.sidx+", "+window.eidx);
 			}
 			System.in.read();
 		}
+	}
+	
+	@Test
+	public void testSubstring() {
+		char[] chseq = "abcde".toCharArray();
+		String s = "bcd";
+		Substring w = new Substring(chseq, 1, 4);
+		Substring v = new Substring(chseq, 1, 4);
+		Substring x = new Substring(chseq, 2, 4);
+		System.out.println(w);
+		System.out.println(w.equals(w));
+		System.out.println(w.equals(v));
+		System.out.println(w.equals(s));
+		System.out.println(w.equals(x));
+	}
+
+	@Test
+	public void testCompatibilityBetweenSubstringAndString() {
+		char[] chseq = "abcde".toCharArray();
+		String t = "bcd";
+		Substring w = new Substring(chseq, 1, 4);
+		System.out.println(t.hashCode());
+		System.out.println(w.hashCode());
+		System.out.println(t.equals(w));
+		System.out.println(w.equals(t));
+		Object2IntOpenHashMap<String> map = new Object2IntOpenHashMap<>();
+		map.put(t, 111);
+		System.out.println(map.containsKey(w));
+		System.out.println(map.getInt(t));
+		System.out.println(map.getInt(w));
+	}
+	
+	@Test
+	public void testIntArrayList() {
+		IntArrayList list = new IntArrayList();
+		list.add(1);
+		list.add(2);
+		list.add(3);
+		int[] arr = list.elements();
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr));
+		list.add(4);
+		System.out.println("intArrayList.elements() does not copy the array.");
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr));
+		int[] arr1 = list.toIntArray();
+		list.add(5);
+		System.out.println("intArrayList.toIntArray() copies the array.");
+		System.out.println(list);
+		System.out.println(Arrays.toString(arr1));
+	}
+	
+	@Test
+	public void testCharBuffering() throws IOException {
+		String indexedPath = DatasetInfo.getIndexedPath("WIKI");
+		char[] cbuf = new char[8];
+		BufferedReader br = new BufferedReader(new FileReader(indexedPath));
+		int n = 10;
+		for ( int i=0; i<n; ++i ) {
+			br.read(cbuf);
+			System.out.println(Arrays.toString(cbuf));
+		}
+		br.close();
+	}
+	
+	@Test
+	public void testStringConstructors() {
+		char[] cbuf = "abcde".toCharArray();
+		String s = new String(cbuf);
+		s = String.valueOf(cbuf, 0, 4);
+		System.out.println(Arrays.toString(cbuf));
+		System.out.println(s);
+		cbuf[0] = 'A';
+		System.out.println(Arrays.toString(cbuf));
+		System.out.println(s);
 	}
 }

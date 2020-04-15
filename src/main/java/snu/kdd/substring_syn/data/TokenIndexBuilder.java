@@ -8,20 +8,21 @@ import java.util.Iterator;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 
 public class TokenIndexBuilder {
 	
-	protected final Iterable<Record> indexedRecords;
+	protected final Iterable<TransformableRecordInterface> indexedRecords;
 	protected final Iterable<String> ruleStrings;
 	protected final Int2IntOpenHashMap counter;
 
-	public static TokenIndex build(Iterable<Record> indexedRecords, Iterable<String> ruleStrings) {
+	public static TokenIndex build(Iterable<TransformableRecordInterface> indexedRecords, Iterable<String> ruleStrings) {
 		TokenIndexBuilder builder = new TokenIndexBuilder(indexedRecords, ruleStrings);
 		return builder.getTokenIndex();
 	}
 	
-	protected TokenIndexBuilder(Iterable<Record> indexedRecords, Iterable<String> ruleStrings) {
+	protected TokenIndexBuilder(Iterable<TransformableRecordInterface> indexedRecords, Iterable<String> ruleStrings) {
 		Log.log.trace("TokenOrder.constructor");
 		this.indexedRecords = indexedRecords;
 		this.ruleStrings = ruleStrings;
@@ -48,20 +49,22 @@ public class TokenIndexBuilder {
 	}
 
 	protected final void countTokensFromRecords() {
-		for ( Record rec : indexedRecords ) {
+		Log.log.trace("TokenOrder.countTokensFromRecords()");
+		for ( TransformableRecordInterface rec : indexedRecords ) {
 			for ( int token : rec.getTokenArray() ) counter.addTo(token, 1);
 		}
 	}
 	
 	protected final void countTokensFromRules() {
+		Log.log.trace("TokenOrder.countTokensFromRules()");
 		for ( String ruleStr : ruleStrings ) {
-			String[][] rstr = Ruleset.tokenize(ruleStr);
-			int[] rhs = Rule.getTokenIndexArray(rstr[1]);
+			int[] rhs = Ruleset.getTokenIndexArray(Ruleset.getRhs(ruleStr));
 			for ( int token : rhs ) counter.addTo(token, 1);
 		}
 	}
 	
 	protected final TokenIndex buildNewTokenIndex() {
+		Log.log.trace("TokenOrder.buildNewTokenIndex()");
 		TokenIndex tokenIndex = new TokenIndex();
 		Iterator<Int2IntMap.Entry> iter = counter.int2IntEntrySet().stream().sorted( Comparator.comparing(Int2IntMap.Entry::getIntValue) ).iterator();
 		while ( iter.hasNext() ) {

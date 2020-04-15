@@ -12,14 +12,15 @@ import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordSerializer;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public class RecordSerializationTest {
 	
-	public static boolean[] checkEquivalence(Record rec0, Record rec1) {
+	public static boolean[] checkEquivalence(TransformableRecordInterface rec0, TransformableRecordInterface rec1) {
 		BooleanArrayList list = new BooleanArrayList();
 		list.add(rec0.getIdx() == rec1.getIdx());
 		list.add(rec0.size() == rec1.size());
@@ -34,7 +35,9 @@ public class RecordSerializationTest {
 			iter0 = rec0.getSuffixApplicableRules(i).iterator();
 			iter1 = rec1.getSuffixApplicableRules(i).iterator();
 			while (iter0.hasNext()) list.add(iter0.next().getID() == iter1.next().getID());
-			for ( int j=0; j<rec0.getSuffixRuleLens(i).length; ++j ) list.add(rec0.getSuffixRuleLens(i)[j].equals(rec1.getSuffixRuleLens(i)[j]));
+			Iterator<IntPair> ipIter0 = rec0.getSuffixRuleLens(i).iterator();
+			Iterator<IntPair> ipIter1 = rec1.getSuffixRuleLens(i).iterator();
+			while ( ipIter0.hasNext() ) list.add(ipIter0.next().equals(ipIter1.next()));
 			list.add(rec0.getMaxRhsSize() == rec1.getMaxRhsSize());
 		}
 		return list.toBooleanArray();
@@ -46,7 +49,7 @@ public class RecordSerializationTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		
 		int idx = 0;
-		for ( Record rec0 : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec0 : dataset.getIndexedList() ) {
 			rec0.preprocessApplicableRules();
 			rec0.preprocessSuffixApplicableRules();
 			rec0.getMaxRhsSize();
@@ -54,7 +57,7 @@ public class RecordSerializationTest {
 			RecordSerializer.serialize(rec0);
 			byte[] buf = RecordSerializer.bbuf;
 			int blen = RecordSerializer.blen;
-			Record rec1 = RecordSerializer.deserialize(idx, buf, 0, blen, dataset.ruleset);
+			TransformableRecordInterface rec1 = RecordSerializer.deserialize(idx, buf, 0, blen, dataset.ruleset);
 			boolean[] b = checkEquivalence(rec0, rec1);
 			assertTrue(BooleanArrayList.wrap(b).stream().allMatch(b0 -> b0));
 			
@@ -74,7 +77,7 @@ public class RecordSerializationTest {
 		byte[][] bs = new byte[dataset.size][];
 		StatContainer stat = new StatContainer();
 		
-		for ( Record rec : dataset.getIndexedList() ) {
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 			rec.preprocessApplicableRules();
 			rec.preprocessSuffixApplicableRules();
 			rec.getMaxRhsSize();
@@ -86,7 +89,7 @@ public class RecordSerializationTest {
 		
 		for ( int idx=0; idx<bs.length; ++idx ) {
 			stat.startWatch("Record.deserialize");
-			Record rec = RecordSerializer.deserialize(idx, bs[idx], 0, bs[idx].length, dataset.ruleset);
+			TransformableRecordInterface rec = RecordSerializer.deserialize(idx, bs[idx], 0, bs[idx].length, dataset.ruleset);
 			stat.stopWatch("Record.deserialize");
 		}
 

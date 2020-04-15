@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.substring_syn.data.record.ReusableRecord;
 
 /***
  * 
@@ -156,5 +157,24 @@ public class ACAutomataR {
 			result[ i ] = tmprslt[ i ].toArray( new Rule[ 0 ] );
 		}
 		return result;
+	}
+	
+	public void computeApplicableRules(ReusableRecord rec) {
+		State curr = root;
+		int i = 0;
+		while ( i < rec.size() ) {
+			State next;
+			if ( curr.split != null && ( next = curr.split.get(rec.getToken(i))) != null ) {
+				curr = next;
+				i += 1;
+				if ( next.output != null ) {
+					for ( final Rule rule : next.output ) {
+						rec.addApplicableRule(i-rule.getLhs().length, rule);
+					}
+				}
+			}
+			else if ( curr == root ) i += 1;
+			else curr = curr.func;
+		}
 	}
 }

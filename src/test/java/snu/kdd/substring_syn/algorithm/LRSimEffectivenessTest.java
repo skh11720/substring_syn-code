@@ -21,6 +21,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -79,7 +80,8 @@ public class LRSimEffectivenessTest {
 	}
 
 	private ObjectList<Record> getIndexedList( Dataset dataset ) {
-		ObjectArrayList<Record> list = new ObjectArrayList<Record>(dataset.getIndexedList().iterator());
+		ObjectArrayList<Record> list = new ObjectArrayList<>();
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) list.add((Record)rec);
 		for ( Record rec : list ) rec.preprocessAll();
 		return list;
 	}

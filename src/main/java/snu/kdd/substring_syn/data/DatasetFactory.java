@@ -3,6 +3,7 @@ package snu.kdd.substring_syn.data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.CharBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,14 +12,16 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.pkwise.PkwiseTokenIndexBuilder;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.AlgorithmName;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.ReusableRecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 public class DatasetFactory {
 	
@@ -51,6 +54,7 @@ public class DatasetFactory {
 	}
 	
 	private static void initCreationProcess(DatasetParam param) {
+		Log.log.trace("DatasetFactory.initCreationProcess");
 		DatasetFactory.param = param;
 		isDocInput = param.name.endsWith("-DOC");
 		ac = new ACAutomataS(ruleStrings());
@@ -133,9 +137,10 @@ public class DatasetFactory {
 	}
 
 	protected static final Iterable<Integer> getDistinctTokens() {
+		Log.log.trace("DataFactory.getDistinctTokens()");
 		IntSet tokenSet = new IntOpenHashSet();
 		for ( Record rec : searchedRecords() ) tokenSet.addAll( rec.getTokens() );
-		for ( Record rec : indexedRecords() ) tokenSet.addAll( rec.getTokens() );
+		for ( TransformableRecordInterface rec : indexedRecords() ) tokenSet.addAll( rec.getTokenList() );
 		List<Integer> sortedTokenList = tokenSet.stream().sorted().collect(Collectors.toList());
 		return sortedTokenList;
 	}
@@ -150,15 +155,10 @@ public class DatasetFactory {
 
 					@Override
 					public Record next() {
-						String line = iter.next();
+						Substring line = new Substring(iter.next());
 						id += 1;
 						Record rec = new Record(idx++, id, line);
 						return rec;
-					}
-					
-					@Override
-					protected Record findNext() {
-						return null;
 					}
 				};
 			}
@@ -172,7 +172,7 @@ public class DatasetFactory {
 //			return indexedRecordsInDocs();
 //	}
 	
-	private static final Iterable<Record> indexedRecords() {
+	private static final Iterable<TransformableRecordInterface> indexedRecords() {
 		if (!isDocInput)
 			return indexedRecordsInSnt();
 		else 
@@ -190,23 +190,23 @@ public class DatasetFactory {
 //		};
 //	}
 
-	private static final Iterable<Record> indexedRecordsInDocs() {
-		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		return new Iterable<Record>() {
+	private static final Iterable<TransformableRecordInterface> indexedRecordsInDocs() {
+		return new Iterable<TransformableRecordInterface>() {
 
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
+				String indexedPath = DatasetInfo.getIndexedPath(param.name);
 				return new DocRecordRawIterator(indexedPath);
 			}
 		};
 	}
 
-	private static final Iterable<Record> indexedRecordsInSnt() {
+	private static final Iterable<TransformableRecordInterface> indexedRecordsInSnt() {
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-		return new Iterable<Record>() {
+		return new Iterable<TransformableRecordInterface>() {
 			
 			@Override
-			public Iterator<Record> iterator() {
+			public Iterator<TransformableRecordInterface> iterator() {
 				return new SntRecordRawIterator(indexedPath);
 			}
 		};
@@ -224,11 +224,6 @@ public class DatasetFactory {
 					public String next() {
 						return iter.next();
 					}
-					
-					@Override
-					protected String findNext() {
-						return null;
-					}
 				};
 			}
 		};
@@ -239,7 +234,7 @@ public class DatasetFactory {
 		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		DocRecordRawIterator iter = new DocRecordRawIterator(indexedPath);
 		while (iter.hasNext()) {
-			Record rec = iter.next();
+			TransformableRecordInterface rec = iter.next();
 			map.put(rec.getIdx(), new IntPair(iter.thisDid, iter.thisSid));
 		}
 		return map;
@@ -251,7 +246,6 @@ public class DatasetFactory {
 		Iterator<String> iter;
 		int id = 0;
 		int idx = 0;
-		T nextObj;
 		
 		public AbstractFileBasedIterator(String path) {
 			try {
@@ -269,64 +263,64 @@ public class DatasetFactory {
 			return iter.hasNext();
 		}
 		
-		abstract protected T findNext();
+//		abstract protected T findNext();
 	}
 	
-	protected static class SntRecordRawIterator extends AbstractFileBasedIterator<Record> {
+	protected static class SntRecordRawIterator extends AbstractFileBasedIterator<TransformableRecordInterface> {
 
 //		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		final double lenRatio;
 		final int size;
 		final int narMax;
+		Substring nextLine;
+		ReusableRecord rec = new ReusableRecord();
+		char[] chbuf;
 		
 		public SntRecordRawIterator(String path) {
 			super(path);
 			narMax = Integer.parseInt(param.nar);
 			size = Integer.parseInt(param.size);
 			lenRatio = Double.parseDouble(param.lenRatio);
-			nextObj = findNext();
+			nextLine = findNext();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return idx <= size && nextObj != null;
+			return idx < size && nextLine != null;
 		}
 
 		@Override
-		public Record next() {
-			Record thisObj = nextObj;
-			nextObj = findNext();
-			return thisObj;
+		public TransformableRecordInterface next() {
+			rec.set(idx++, id, nextLine);
+			nextLine = findNext();
+			return rec;
 		}
 
-		protected final String getPrefixWithLengthRatio(String str) {
-			int nTokens = (int) str.chars().filter(ch -> ch == ' ').count() + 1;
+		protected Substring findNext() {
+			Substring line = null;
+			while ( iter.hasNext() ) {
+				id += 1;
+				chbuf = iter.next().toCharArray();
+				line = getPrefixWithLengthRatio();
+				Iterator<Substring> tokenIter = new StringSplitIterator(line);
+				int nar = ac.getNumApplicableRules(tokenIter);
+				if ( narMax < 0 || nar <= narMax ) return line;
+			}
+			return null;
+		}
+
+		protected final Substring getPrefixWithLengthRatio() {
+			int nTokens = (int) CharBuffer.wrap(chbuf).chars().filter(ch -> ch == ' ').count() + 1;
 			int eidx=0;
 			int len0 = (int)Math.max(1, nTokens*lenRatio);
 			int len = 0;
-			for ( ; eidx<str.length(); ++eidx ) {
-				if ( str.charAt(eidx) == ' ' ) {
+			for ( ; eidx<chbuf.length; ++eidx ) {
+				if ( chbuf[eidx] == ' ' ) {
 					len += 1;
 					if ( len >= len0 ) break;
 				}
 			}
-			return str.substring(0, eidx);
-		}
-
-		@Override
-		protected Record findNext() {
-			Record rec = null;
-			while ( iter.hasNext() ) {
-				id += 1;
-				String line = getPrefixWithLengthRatio(iter.next());
-				int nar = ac.getNumApplicableRules(line.split(" "));
-				if ( narMax < 0 || nar <= narMax ) {
-					rec = new Record(idx, id, line);
-					break;
-				}
-			}
-			idx += 1;
-			return rec;
+			return new Substring(chbuf, 0, eidx);
 		}
 	}
 	
@@ -354,9 +348,9 @@ public class DatasetFactory {
 //		}
 //	}
 
-	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<Record> {
+	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<TransformableRecordInterface> {
 		
-		Iterator<String> inDocIter = null;
+		Iterator<Substring> inDocIter = null;
 		String thisSnt;
 		int nd = 0;
 		int did;
@@ -367,44 +361,44 @@ public class DatasetFactory {
 		
 		int thisDid;
 		int thisSid;
+		Substring nextLine;
+		ReusableRecord rec = new ReusableRecord();
 
 		public DocRecordRawIterator(String path) {
 			super(path);
 			size = Integer.parseInt(param.size);
 			narMax = Integer.parseInt(param.nar);
-			nextObj = findNext();
+			nextLine = findNext();
 		}
 
 		@Override
 		public boolean hasNext() {
-			return nd <= size && nextObj != null;
+			return nd <= size && nextLine != null;
 		}
 
 		@Override
-		public Record next() {
-			Record thisObj = nextObj;
+		public TransformableRecordInterface next() {
+			rec.set(idx++, sid, nextLine);
 			thisDid = did;
 			thisSid = sid;
-			nextObj = findNext();
-			return thisObj;
+			nextLine = findNext();
+			return rec;
 		}
 		
-		@Override
-		protected Record findNext() {
+		protected Substring findNext() {
 			while (true) {
 				while (inDocIter != null && inDocIter.hasNext()) {
-					String snt = inDocIter.next();
+					Substring snt = inDocIter.next();
 					sid += 1;
-					int nar = ac.getNumApplicableRules(snt.split(" "));
+					Iterator<Substring> tokenIter = new StringSplitIterator(snt);
+					int nar = ac.getNumApplicableRules(tokenIter);
 					if ( narMax < 0 || nar <= narMax ) {
-						Record rec = new Record(idx, sid, snt);
-						idx += 1;
 						if ( !isDocCounted ) {
 							isDocCounted = true;
 							nd += 1;
 //							Log.log.trace("nd=%d", nd);
 						}
-						return rec;
+						return snt;
 					}
 				}
 				if ( !iter.hasNext() ) break;
@@ -414,11 +408,11 @@ public class DatasetFactory {
 			return null;
 		}
 
-		protected final Iterator<String> parseDocument(String line) {
-			String[] strs = line.split("\t", 2);
-			did = Integer.parseInt(strs[0]);
+		protected final Iterator<Substring> parseDocument(String line) {
+			int idxSep = line.indexOf('\t');
+			did = Integer.parseInt(line.substring(0, idxSep).toString());
 			sid = -1;
-			return ObjectArrayList.wrap(strs[1].split("\\|")).iterator();
+			return new StringSplitIterator(new Substring(line), idxSep+1, '|');
 		}
 	}
 

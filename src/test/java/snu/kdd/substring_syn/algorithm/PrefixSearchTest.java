@@ -10,9 +10,12 @@ import java.util.NoSuchElementException;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.xerial.snappy.Snappy;
 
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
+import snu.kdd.substring_syn.algorithm.index.disk.AbstractIndexStoreBuilder;
+import snu.kdd.substring_syn.algorithm.index.disk.PostingListAccessor;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
@@ -38,7 +41,7 @@ public class PrefixSearchTest {
 
 	@Test
 	public void testSingle() throws IOException {
-		DatasetParam param = new DatasetParam("AMAZON", "100000", "107836", "5", "1.0");
+		DatasetParam param = new DatasetParam("AMAZON", "10000", "107836", "5", "1.0");
 		double theta = 0.6;
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
@@ -65,7 +68,8 @@ public class PrefixSearchTest {
 		  Fopt_CPLR      36.409       6.831       7.346         6        19       245       100         6        16        20        69         6         6         6
 		 */
 		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
-		String argsTmpl = "-data WIKI -alg PrefixSearch -nt 100 -nr 1000 -ql 5 -lr 1.0 -param theta:0.6,filter:%s";
+//		DatasetParam param = new DatasetParam("WIKI-DOC", "20", "1000", "5", "1.0");
+		String argsTmpl = "-data %s -alg PrefixSearch -nt %s -nr %s -ql %s -lr %s -param theta:0.6,filter:%s";
 		String outputTmpl = "%15s%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n";
 		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
 				"T_Total", "T_Qside", "T_Tside", 
@@ -73,7 +77,7 @@ public class PrefixSearchTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( AlgorithmFactory.FilterOptionLabel opt : FilterOptionLabel.values() ) {
 //			if ( opt == FilterOptionLabel.Fopt_None ) continue;
-			String[] args = String.format(argsTmpl, opt).split(" ");
+			String[] args = String.format(argsTmpl, param.name, param.size, param.nr, param.qlen, param.lenRatio, opt).split(" ");
 			AbstractSearch alg = AlgorithmFactory.createInstance(new InputArgument(args));
 			alg.run(dataset);
 			strbld.append(String.format(outputTmpl, opt, 
@@ -317,6 +321,63 @@ public class PrefixSearchTest {
 					Integer.parseInt(alg.getStat(Stat.Len_TS_Verified))
 			));
 		}
+		System.out.println(strbld.toString());
+	}
+	
+	@Test
+	public void testVaryInvListChunkSize() throws IOException {
+		/*
+		AMAZON_n10000_r107836_q5_l1.0, theta=0.6
+		val (KB)     T_Total        T_QS        T_TS     N_rec     N_Res  N_QS_Res  N_TS_Res    N_QS_V    N_TS_V
+			   8    4453.105    1584.311    2199.464     10000      1380      1954      1993     17020    189443
+			1024    3003.995    1069.872    1446.490     10000      1380      1954      1993     17020    189443
+			2048    3000.362    1162.278    1389.228     10000      1380      1954      1993     17020    189443
+			4096    3152.047    1300.587    1392.156     10000      1380      1954      1993     17020    189443
+			8192    3238.486    1431.397    1338.920     10000      1380      1954      1993     17020    189443
+		   16384    3445.490    1603.892    1362.707     10000      1380      1954      1993     17020    189443
+		   32768    3610.644    1746.883    1341.018     10000      1380      1954      1993     17020    189443
+		   65536    3782.472    1935.873    1336.530     10000      1380      1954      1993     17020    189443
+		  131072    4643.495    2748.792    1364.236     10000      1380      1954      1993     17020    189443
+
+		WIKI-DOC_n316227_r107836_q5_l1.0, theta=0.6
+		val (KB)     T_Total        T_QS        T_TS     N_rec     N_Res  N_QS_Res  N_TS_Res    N_QS_V    N_TS_V
+			1024 1314067.615  321762.672  858426.315   4200714    195468    258358    259880   4061803 225861868
+			2048 1442486.084  370182.689  919400.403   4200714    195468    258358    259880   4061803 225861868
+			4096 1417523.546  351930.358  900934.188   4200714    195468    258358    259880   4061803 225861868
+			8192 1383110.210  339974.673  883834.739   4200714    195468    258358    259880   4061803 225861868
+		   16384 1359396.124  332281.972  869388.622   4200714    195468    258358    259880   4061803 225861868
+		   32768 1334670.181  318768.990  852547.383   4200714    195468    258358    259880   4061803 225861868
+		   65536 1317186.888  310864.182  838187.409   4200714    195468    258358    259880   4061803 225861868
+		  131072 1305868.558  302132.508  827312.664   4200714    195468    258358    259880   4061803 225861868
+		  262144 1263767.773  285272.697  840272.531   4200714    195468    258358    259880   4061803 225861868
+		  524288 1278245.885  290398.470  845304.797   4200714    195468    258358    259880   4061803 225861868
+		 */
+
+		DatasetParam param = new DatasetParam("WIKI-DOC", "316227", "107836", "5", "1.0", "-1");
+		Dataset dataset = DatasetFactory.createInstanceByName(param);
+		double theta = 0.6;
+		int[] valArr = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+		
+		StringBuilder strbld = new StringBuilder(String.format("%8s%12s%12s%12s%10s%10s%10s%10s%10s%10s\n", "val (KB)", "T_Total", "T_QS", "T_TS", "N_rec", "N_Res", "N_QS_Res", "N_TS_Res", "N_QS_V", "N_TS_V"));
+		for ( int val : valArr ) {
+			AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK = Math.max(8, val * 1024);
+			PostingListAccessor.MAX_BYTES_PER_CHUNK = Snappy.maxCompressedLength(AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK*Integer.BYTES);
+			AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+			alg.run(dataset);
+			strbld.append(String.format("%8d%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d\n",
+					AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK,
+					Double.parseDouble(alg.getStat(Stat.Time_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_QS_Total)), 
+					Double.parseDouble(alg.getStat(Stat.Time_TS_Total)), 
+					Integer.parseInt(alg.getStat(Stat.Dataset_numIndexed)), 
+					Integer.parseInt(alg.getStat(Stat.Num_QS_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Num_TS_Result)),
+					Integer.parseInt(alg.getStat(Stat.Num_Result)), 
+					Integer.parseInt(alg.getStat(Stat.Len_QS_Verified)), 
+					Integer.parseInt(alg.getStat(Stat.Len_TS_Verified))
+			));
+		}
+		Log.log.info(strbld.toString());
 		System.out.println(strbld.toString());
 	}
 }

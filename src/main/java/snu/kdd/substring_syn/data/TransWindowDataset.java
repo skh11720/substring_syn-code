@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 
 import snu.kdd.pkwise.IterableConcatenator;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.QGramGenerator;
 import snu.kdd.substring_syn.utils.StatContainer;
 
@@ -55,7 +56,7 @@ public class TransWindowDataset extends WindowDataset {
 		return new IntQGramStore(getIntQGramsIterable());
 	}
 	
-	public final Iterable<Record> getIntQGrams() {
+	public final Iterable<TransformableRecordInterface> getIntQGrams() {
 		return iqgramStore.getIntQGrams();
 	}
 	
@@ -91,10 +92,10 @@ public class TransWindowDataset extends WindowDataset {
 	
 	class IntQGramIterator implements Iterator<IntQGram> {
 
-		final Iterator<Record> riter;
+		final Iterator<TransformableRecordInterface> riter;
 		final int q;
 		Iterator<QGram> qiter = null;
-		Record rec;
+		TransformableRecordInterface rec;
 		QGramGenerator qgen;
 		
 		public IntQGramIterator( int q ) {

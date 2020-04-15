@@ -14,6 +14,7 @@ import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class SubrecordTest {
@@ -25,8 +26,9 @@ public class SubrecordTest {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "107836", "5");
 		Random rn = new Random(0);
 		
-		for ( Record rec : dataset.getIndexedList() ) {
-			rec.preprocessAll();
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
 			if ( rec.getNumApplicableNonselfRules() < 5 ) continue;
 			if (showLog) System.out.println(rec.toStringDetails());
 			
@@ -38,7 +40,7 @@ public class SubrecordTest {
 		}
 	}
 
-	public void testSubrec( Record rec, int sidx, int eidx ) {
+	public void testSubrec( TransformableRecordInterface rec, int sidx, int eidx ) {
 		Subrecord subrec0 = new Subrecord(rec, sidx, eidx);
 		Record subrec1 = subrec0.toRecord();
 		subrec1.preprocessAll();

@@ -13,6 +13,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 import vldb18.GreedyPkduckValidator;
 
@@ -27,7 +28,7 @@ public class ValidatorTest {
 		
 		for ( Record recS : dataset.getSearchedList() ) {
 			recS.preprocessApplicableRules();
-			for ( Record recT : dataset.getIndexedList() ) {
+			for ( TransformableRecordInterface recT : dataset.getIndexedList() ) {
 				ts = System.nanoTime();
 				double sim0 = validator0.sim(recS, recT);
 				tArr[0] += System.nanoTime() - ts;
@@ -65,8 +66,9 @@ public class ValidatorTest {
 		
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
-			for ( Record rec : dataset.getIndexedList() ) {
-				rec.preprocessAll();
+			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+				rec.preprocessApplicableRules();
+				rec.preprocessSuffixApplicableRules();
 				double simQ = val.simQuerySide(query, rec);
 				double simT = val.simTextSide(query, rec);
 				if (simQ >=0.6 || simT >= 0.6) {

@@ -1,6 +1,7 @@
 package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -9,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.utils.StringSplitIterator;
 
 /***
  * 
@@ -24,14 +26,14 @@ public class ACAutomataS {
 		State func;
 		State parent;
 
-		String word;
+		String token;
 
 		State() {
 			func = this;
 		}
 
-		State( String word, State parent ) {
-			this.word = word;
+		State( Substring token, State parent ) {
+			this.token = token.toString();
 			this.parent = parent;
 		}
 	}
@@ -55,18 +57,19 @@ public class ACAutomataS {
 		int ridx = 0;
 		for( final String ruleStr : ruleStrList ) {
 			State curr = root;
-			String[][] rstr = Ruleset.tokenize(ruleStr);
-			for( final String word : rstr[0] ) {
+			StringSplitIterator wordIter = new StringSplitIterator(Ruleset.getLhs(ruleStr));
+			while ( wordIter.hasNext() ) {
+				Substring token = wordIter.next();
 				State next;
-				if( curr.split != null && ( next = curr.split.get( word ) ) != null ) {
+				if( curr.split != null && ( next = curr.split.get( token ) ) != null ) {
 					curr = next;
 				}
 				else {
-					next = new State( word, curr );
+					next = new State( token, curr );
 					if( curr.split == null ) {
 						curr.split = new Object2ObjectOpenHashMap<>();
 					}
-					curr.split.put( word, next );
+					curr.split.put( token.toString(), next );
 					curr = next;
 				}
 			}
@@ -99,15 +102,15 @@ public class ACAutomataS {
 			for( final State curr : currdepth ) {
 				State r = curr.parent.func;
 				while( true ) {
-					if( r == root || r.split != null && r.split.containsKey( curr.word ) ) {
+					if( r == root || r.split != null && r.split.containsKey( curr.token ) ) {
 						break;
 					}
 					else {
 						r = r.func;
 					}
 				}
-				if( r.split.containsKey( curr.word ) ) {
-					curr.func = r.split.get( curr.word );
+				if( r.split.containsKey( curr.token ) ) {
+					curr.func = r.split.get( curr.token );
 				}
 				else {
 					curr.func = root;
@@ -136,15 +139,21 @@ public class ACAutomataS {
 		}
 	}
 	
-	public int getNumApplicableRules( String[] rec ) {
+//	public int getNumApplicableRules( String[] rec ) {
+//		return getNumApplicableRules(ObjectArrayList.wrap(rec).iterator());
+//	}
+
+	public int getNumApplicableRules( Iterator<Substring> tokenIter ) {
 		int nar = 0;
 		State curr = root;
-		for ( int i=0; i< rec.length; ) {
+		Substring token = tokenIter.next();
+		while (true) {
 			State next;
 //			System.out.println(curr.split.keySet());
-			if ( curr.split != null && ( next = curr.split.get( rec[i] ) ) != null ) {
+			if ( curr.split != null && ( next = curr.split.get(token) ) != null ) {
 				curr = next;
-				++i;
+				if ( tokenIter.hasNext() ) token = tokenIter.next();
+				else break;
 
 //				System.out.println("next.output: "+next.output);
 				if ( next.output != null ) {
@@ -153,7 +162,8 @@ public class ACAutomataS {
 				}
 			}
 			else if ( curr == root ) {
-				++i;
+				if ( tokenIter.hasNext() ) token = tokenIter.next();
+				else break;
 			}
 			else {
 				curr = curr.func;

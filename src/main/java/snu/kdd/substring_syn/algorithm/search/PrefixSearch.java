@@ -138,7 +138,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	protected void searchRecordTextSide( Record query, TransformableRecordInterface rec ) {
-//		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getID(), ()->rec.getID());
+//		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
 //		if (bLF || bPF) {
@@ -154,7 +154,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void searchRecordTextSideWithPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
-//		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getID(), ()->rec.getID(), ()->candTokenList);
+//		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getIdx(), ()->rec.getIdx(), ()->candTokenList);
 		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {
@@ -201,7 +201,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 		pkduckdp.compute(widx+1, w);
 		statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
-//		Log.log.trace("isInSigU=%s", pkduckdp.isInSigU(widx, w));
+//		Log.log.trace("applyPrefixFilterTextSide: rec.idx=%d, widx=%d, w=%d, isInSigU=%s", pkduckdp.rec.getIdx(), widx, w, pkduckdp.isInSigU(widx, w));
 		if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) return ReturnStatus.Continue;
 		if ( !pkduckdp.isInSigU(widx, w) ) return ReturnStatus.Continue;
 		verifiedWindowSet.add(new IntPair(widx, w));
@@ -210,13 +210,14 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected final ReturnStatus verifyTextSideWrapper( Record query, TransformableRecordInterface rec, int widx, int w ) {
+//		Log.log.trace("verifyTextSideWrapper: query.idx=%d, rec.idx=%d, widx=%d, w=%d", ()->query.getIdx(), ()->rec.getIdx(), ()->widx, ()->w);
 		Subrecord window = new Subrecord(rec, widx, widx+w);
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
 			addResultTextSide(query, rec);
-//			Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
+//			Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getIdx(), ()->rec.getIdx(), ()->window.size(), ()->window.sidx);
 //			Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 			return ReturnStatus.Terminate;
 		}
@@ -462,6 +463,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.29: use RecordPool
 		 * 6.30: Reduce pool size=1e4
 		 */
-		return "6.30";
+		return "6.30.02";
 	}
 }

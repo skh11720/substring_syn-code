@@ -6,17 +6,17 @@ import java.util.stream.StreamSupport;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class FaerieMemBasedIndex implements FaerieIndexInterface {
 	
 	final ObjectList<FaerieIndexEntry> store;
 
-	public FaerieMemBasedIndex(Iterable<Record> records) {
+	public FaerieMemBasedIndex(Iterable<TransformableRecordInterface> records) {
 		this(records, "FaerieMemBasedIndex_EntryStore");
 	}
 
-	public FaerieMemBasedIndex(Iterable<Record> records, String name) {
+	public FaerieMemBasedIndex(Iterable<TransformableRecordInterface> records, String name) {
 		Stream<FaerieIndexEntry> stream = StreamSupport.stream(records.spliterator(), false).map(rec->new FaerieIndexEntry(rec));
 		store = new ObjectArrayList<>(stream.iterator());
 	}

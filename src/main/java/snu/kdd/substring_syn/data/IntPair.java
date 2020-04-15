@@ -4,13 +4,14 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class IntPair implements Comparable<IntPair> {
 	
-	public final int i1, i2;
-	private final int hash;
+	public int i1, i2;
+	
+	public IntPair() {
+	}
 
 	public IntPair( int i1, int i2 ) {
 		this.i1 = i1;
 		this.i2 = i2;
-		this.hash = getHash();
 	}
 
 	private int getHash() {
@@ -23,7 +24,7 @@ public class IntPair implements Comparable<IntPair> {
 	
 	@Override
 	public int hashCode() {
-		return hash;
+		return getHash();
 	}
 	
 	@Override

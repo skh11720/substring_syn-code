@@ -11,6 +11,7 @@ import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class ExpandIteratorTest {
 
@@ -18,8 +19,9 @@ public class ExpandIteratorTest {
 	@Test
 	public void test() throws IOException {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "1000", "5");
-		for ( Record rec : dataset.getIndexedList() ) {
-			rec.preprocessAll();
+		for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
 			ObjectList<Record> expList = Records.expandAll(rec);
 			int n0 = expList.size();
 

@@ -10,7 +10,7 @@ import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.filter.TransLenCalculator;
 import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 @Deprecated
 public class TransLenCalculatorTest {
@@ -20,8 +20,9 @@ public class TransLenCalculatorTest {
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "107836", "5", "1.0");
 		Random rn = new Random();
 		for ( double theta : new double[] {0.7, 1.0} ) {
-			for ( Record rec : dataset.getIndexedList() ) {
-				rec.preprocessAll();
+			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+				rec.preprocessApplicableRules();
+				rec.preprocessSuffixApplicableRules();
 				TransLenCalculator transLen0 = new TransLenCalculator(null, rec, theta);
 				
 				for ( int sidx=0; sidx<rec.size(); ++sidx ) {

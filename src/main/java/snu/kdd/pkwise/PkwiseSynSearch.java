@@ -134,9 +134,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	}
 	
 	@Override
-	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) { return null; }
+	protected Iterable<TransformableRecordInterface> getCandRecordListQuerySide(Record query, Dataset dataset) { return null; }
 	@Override
-	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) { return null; }
+	protected Iterable<TransformableRecordInterface> getCandRecordListTextSide(Record query, Dataset dataset) { return null; }
 	@Override
 	protected void searchRecordQuerySide(Record query, RecordInterface rec) { } 
 	@Override

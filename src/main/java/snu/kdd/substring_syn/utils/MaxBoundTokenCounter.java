@@ -22,17 +22,13 @@ public class MaxBoundTokenCounter {
 		counter = new Int2IntOpenHashMap();
 	}
 	
-	public boolean tryIncrement( int key, int token ) {
-		if ( counter.get(key) < tokenMaxCountMap.get(token) ) {
-			increment(key);
+	public boolean tryIncrement( int token ) {
+		if ( counter.get(token) < tokenMaxCountMap.get(token) ) {
+			counter.addTo(token, 1);
+			sum += 1;
 			return true;
 		}
 		else return false;
-	}
-
-	private void increment( int key ) {
-		counter.addTo(key, 1);
-		sum += 1;
 	}
 	
 	public int get( int key ) { return counter.get(key); }

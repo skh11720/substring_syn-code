@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import vldb18.PkduckDPEx;
 
 @RunWith(Parameterized.class)
@@ -71,12 +72,12 @@ public class PkduckDPExTest {
 	public void testCorrectness() throws IOException {
 		Dataset dataset = DatasetFactory.createInstanceByName("SPROT_long", param.size);
 		ObjectList<Record> searchedList = new ObjectArrayList<>(dataset.getSearchedList().iterator());
-		ObjectList<Record> indexedList = new ObjectArrayList<>(dataset.getIndexedList().iterator());
+		ObjectList<TransformableRecordInterface> indexedList = new ObjectArrayList<>(dataset.getIndexedList().iterator());
 		ObjectList<String> outputList = new ObjectArrayList<>();
 		long ts = System.nanoTime();
 		for ( int repeat=0; repeat<nSample; ++repeat ) {
 			Record query = searchedList.get( rn.nextInt(searchedList.size()) );
-			Record rec = indexedList.get( rn.nextInt(indexedList.size()) );
+			TransformableRecordInterface rec = indexedList.get( rn.nextInt(indexedList.size()) );
 			IntSet candTokenSet = new IntOpenHashSet(query.getTokens());
 			PkduckDPEx pkduckdp = new PkduckDPEx(query, rec, param.theta);
 			for ( int token : candTokenSet ) {

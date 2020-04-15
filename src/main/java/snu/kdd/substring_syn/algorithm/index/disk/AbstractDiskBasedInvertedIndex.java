@@ -3,7 +3,7 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 import java.math.BigInteger;
 
 import snu.kdd.substring_syn.algorithm.index.disk.objects.BytesMeasurableInterface;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.StatContainer;
 
 public abstract class AbstractDiskBasedInvertedIndex<S extends BytesMeasurableInterface, T extends BytesMeasurableInterface> {
@@ -13,7 +13,7 @@ public abstract class AbstractDiskBasedInvertedIndex<S extends BytesMeasurableIn
 	protected final InvertedListPool<S> invPool;
 	protected final InvertedListPool<T> tinvPool;
 	
-	public AbstractDiskBasedInvertedIndex( Iterable<Record> recordList ) {
+	public AbstractDiskBasedInvertedIndex( Iterable<TransformableRecordInterface> recordList ) {
 		invPool = new InvertedListPool<>();
 		tinvPool = new InvertedListPool<>();
 	}

@@ -44,6 +44,7 @@ public abstract class AbstractSearch {
 	}
 	
 	public final void run( Dataset dataset ) {
+		Log.log.trace("AbstractSearch.run()");
 		this.dataset = dataset;
 		statContainer.setAlgorithm(this);
 		statContainer.startWatch(Stat.Time_Total);
@@ -88,8 +89,8 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final void searchQuerySide( Record query, Dataset dataset ) {
-		Iterable<Record> candListQuerySide = getCandRecordListQuerySide(query, dataset);
-		for ( Record rec : candListQuerySide ) {
+		Iterable<TransformableRecordInterface> candListQuerySide = getCandRecordListQuerySide(query, dataset);
+		for ( TransformableRecordInterface rec : candListQuerySide ) {
 			if (rsltQuerySideContains(query, rec)) continue;
 			statContainer.addCount(Stat.Num_QS_Retrieved, 1);
 			statContainer.addCount(Stat.Len_QS_Retrieved, rec.size());
@@ -100,8 +101,8 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final void searchTextSide( Record query, Dataset dataset ) {
-		Iterable<Record> candListTextSide = getCandRecordListTextSide(query, dataset);
-		for ( Record rec : candListTextSide ) {
+		Iterable<TransformableRecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
+		for ( TransformableRecordInterface rec : candListTextSide ) {
 			if (rsltTextSideContains(query, rec)) continue;
 //			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 //			if ( rec.getID() != 946 ) continue;
@@ -114,35 +115,35 @@ public abstract class AbstractSearch {
 	}
 	
 	protected final boolean rsltQuerySideContains(Record query, RecordInterface rec) {
-		if (dataset.isDocInput()) return rsltQuerySide.contains(new IntPair(query.getIdx(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
+		if (dataset.isDocInput()) return rsltQuerySide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
 //		else return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
-		else return rsltQuerySide.contains(new IntPair(query.getID()-1, rec.getID()-1));
+		else return rsltQuerySide.contains(new IntPair(query.getID(), rec.getID()));
 	}
 
 	protected final boolean rsltTextSideContains(Record query, RecordInterface rec) {
-		if (dataset.isDocInput()) return rsltTextSide.contains(new IntPair(query.getIdx(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
+		if (dataset.isDocInput()) return rsltTextSide.contains(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
 //		else return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
-		else return rsltTextSide.contains(new IntPair(query.getID()-1, rec.getID()-1));
+		else return rsltTextSide.contains(new IntPair(query.getID(), rec.getID()));
 	}
 	
-	protected Iterable<Record> getCandRecordListQuerySide(Record query, Dataset dataset) {
+	protected Iterable<TransformableRecordInterface> getCandRecordListQuerySide(Record query, Dataset dataset) {
 		return dataset.getIndexedList();
 	}
 
-	protected Iterable<Record> getCandRecordListTextSide(Record query, Dataset dataset) {
+	protected Iterable<TransformableRecordInterface> getCandRecordListTextSide(Record query, Dataset dataset) {
 		return dataset.getIndexedList();
 	}
 	
 	protected final void addResultQuerySide(Record query, RecordInterface rec) {
 		if (dataset.isDocInput()) rsltQuerySide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
 //		else rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
-		else rsltQuerySide.add(new IntPair(query.getID()-1, rec.getID()-1));
+		else rsltQuerySide.add(new IntPair(query.getID(), rec.getID()));
 	}
 
 	protected void addResultTextSide(Record query, RecordInterface rec) {
 		if (dataset.isDocInput()) rsltTextSide.add(new IntPair(query.getID(), dataset.getRid2idpairMap().get(rec.getIdx()).i1));
 //		else rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
-		else rsltTextSide.add(new IntPair(query.getID()-1, rec.getID()-1));
+		else rsltTextSide.add(new IntPair(query.getID(), rec.getID()));
 	}
 	
 	protected final void putResultIntoStat() {

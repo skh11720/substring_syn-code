@@ -26,11 +26,11 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.algorithm.index.disk.objects.PostingListInterface;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -782,11 +782,11 @@ public class Util {
 		return new IntOpenHashSet( rec.getTokenList().stream().sorted().limit(prefixLen).iterator() );
 	}
 
-	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+	public static double getModifiedTheta( Record query, TransformableRecordInterface rec, double theta ) {
 		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
 	}
 	
-	public static double getModifiedTheta( int qlen, RecordInterface rec, double theta ) {
+	public static double getModifiedTheta( int qlen, TransformableRecordInterface rec, double theta ) {
 		return theta * qlen / (qlen + 2*(rec.getMaxRhsSize()-1));
 	}
 	
@@ -877,19 +877,19 @@ public class Util {
 		return mergedList;
 	}
 
-	public static int binarySearch(PostingListInterface invList, int key) {
-		int l = 0;
-		int r = invList.size();
-		while ( r-l > 1 ) {
-			int m = (l+r)/2;
-			int center = invList.getIdx(m);
-			if ( key > center ) l = m;
-			else r = m;
-		}
-		if ( key == invList.getIdx(l) ) return l;
-		else if ( r < invList.size() && key == invList.getIdx(r) ) return r;
-		else return -1;
-	}
+//	public static int binarySearch(PostingListInterface invList, int key) {
+//		int l = 0;
+//		int r = invList.size();
+//		while ( r-l > 1 ) {
+//			int m = (l+r)/2;
+//			int center = invList.getIdx(m);
+//			if ( key > center ) l = m;
+//			else r = m;
+//		}
+//		if ( key == invList.getIdx(l) ) return l;
+//		else if ( r < invList.size() && key == invList.getIdx(r) ) return r;
+//		else return -1;
+//	}
 	
 //	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
 //		int l = 0;

@@ -27,6 +27,7 @@ import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Log;
 
 
@@ -138,10 +139,10 @@ public class AppCompareSimLSimW {
     }
     
     private static int checkSimWSnt(DatasetContainer datasetContainer, Record query, int ridx) {
-		Record rec = datasetContainer.dataset.getRecord(ridx);
+		TransformableRecordInterface rec = datasetContainer.dataset.getRecord(ridx);
 		if ( rec.size() > maxlen ) return 0; // do nothing
-		rec.preprocessAll();
-		Log.log.trace("nar=%d", ()->rec.getNumApplicableNonselfRules());
+		rec.preprocessApplicableRules();
+		rec.preprocessSuffixApplicableRules();
 		double sim1 = val1.simTextSide(query, rec);
 		if ( sim1 >= theta-EPS ) return 2; // nL +=1, nW += 1
 		else return 1; // nL += 1
@@ -150,10 +151,11 @@ public class AppCompareSimLSimW {
     private static int checkSimWDoc(DatasetContainer datasetContainer, Record query, int didx) {
     	int out = 0;
     	for ( int ridx : datasetContainer.did2ridxListMap.get(didx) ) {
-    		Record rec = datasetContainer.dataset.getRecord(ridx);
+    		TransformableRecordInterface rec = datasetContainer.dataset.getRecord(ridx);
 			if ( rec.size() > maxlen ) continue;
 			out = 1;
-    		rec.preprocessAll();
+			rec.preprocessApplicableRules();
+			rec.preprocessSuffixApplicableRules();
     		double sim1 = val1.simTextSide(query, rec);
     		if( sim1 >= theta-EPS ) return 2;
     	}
@@ -170,7 +172,7 @@ public class AppCompareSimLSimW {
     		this.dataset = dataset;
     		if ( dataset.isDocInput() ) {
     			did2ridxListMap = new Int2ObjectOpenHashMap<>();
-    			for ( Record rec : dataset.getIndexedList() ) {
+    			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
     				int did = dataset.getRid2idpairMap().get(rec.getIdx()).i1;
     				if ( did2ridxListMap.get(did) == null ) did2ridxListMap.put(did, new IntArrayList());
     				did2ridxListMap.get(did).add(rec.getIdx());

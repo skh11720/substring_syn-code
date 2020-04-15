@@ -5,14 +5,13 @@ import java.io.IOException;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.index.disk.AbstractIndexStoreBuilder;
 import snu.kdd.substring_syn.algorithm.index.disk.IndexStoreAccessor;
 import snu.kdd.substring_syn.algorithm.index.disk.SegmentInfo;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Util;
 
 public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
@@ -21,11 +20,11 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	private final double theta;
 	private final PkwiseSignatureGenerator siggen;
 
-	public PkwiseQGramIndexStoreBuilder(Iterable<Record> recordList, double theta, PkwiseSignatureGenerator siggen ) {
+	public PkwiseQGramIndexStoreBuilder(Iterable<TransformableRecordInterface> recordList, double theta, PkwiseSignatureGenerator siggen ) {
 		this(recordList, theta, siggen, "NaiveIndexStore");
 	}
 
-	public PkwiseQGramIndexStoreBuilder(Iterable<Record> recordList, double theta, PkwiseSignatureGenerator siggen, String storeName ) {
+	public PkwiseQGramIndexStoreBuilder(Iterable<TransformableRecordInterface> recordList, double theta, PkwiseSignatureGenerator siggen, String storeName ) {
 		super(recordList);
 		this.theta = theta;
 		this.siggen = siggen;
@@ -38,15 +37,15 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	}
 
 	@Override
-	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<Record> recordList ) throws IOException {
-		Int2ObjectMap<IntList> invListMap = new Int2ObjectOpenHashMap<>();
+	protected Int2ObjectMap<ObjectList<SegmentInfo>> buildInvListSegment( Iterable<TransformableRecordInterface> recordList ) throws IOException {
+		Int2ObjectMap<IntArrayList> invListMap = new Int2ObjectOpenHashMap<>();
 		Int2ObjectMap<ObjectList<SegmentInfo>> tok2segList = new Int2ObjectOpenHashMap<>();
 		openNextTmpFile();
 		int size = 0;
 		int ridx = 0;
 		int maxDiff = -1;
 		int q = -1;
-		for ( Record rec : recordList ) {
+		for ( TransformableRecordInterface rec : recordList ) {
 			Subrecord qgram = new Subrecord(rec, 1, rec.size());
 			// Note that rec is an IntQGram: rec.arr[0] is the id and rec.arr[1:] is the actual qgram
 			if ( q != qgram.size() ) {
@@ -71,7 +70,7 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 		return tok2segList;
 	}
 	
-	protected void addQGramIdxToInvList( IntList list, int ridx ) {
+	protected void addQGramIdxToInvList( IntArrayList list, int ridx ) {
 		list.add(ridx);
 	}
 	
@@ -81,11 +80,21 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 	}
 
 	@Override
-	protected void addToInvList( IntList list, Record rec, int pos ) {
+	protected void addToInvList( IntArrayList list, TransformableRecordInterface rec, int pos ) {
 	}
 
 	@Override
-	protected void addToTrInvList( IntList list, Record rec, int pos, Rule rule ) {
+	protected void addToTrInvList( IntArrayList list, TransformableRecordInterface rec, int pos, Rule rule ) {
+	}
+
+	@Override
+	protected int invListEntrySize() {
+		return 1;
+	}
+
+	@Override
+	protected int trInvListEntrySize() {
+		return 1;
 	}
 
 	@Override

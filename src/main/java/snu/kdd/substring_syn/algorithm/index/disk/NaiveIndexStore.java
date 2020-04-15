@@ -2,19 +2,20 @@ package snu.kdd.substring_syn.algorithm.index.disk;
 
 import java.math.BigInteger;
 
+import snu.kdd.substring_syn.algorithm.index.disk.objects.BufferedNaiveInvList;
 import snu.kdd.substring_syn.algorithm.index.disk.objects.NaiveInvList;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class NaiveIndexStore {
 
 	final IndexStoreAccessor invListAccessor;
 	final IndexStoreAccessor tinvListAccessor;
 	
-	public NaiveIndexStore( Iterable<Record> recordList ) {
+	public NaiveIndexStore( Iterable<TransformableRecordInterface> recordList ) {
 		this(recordList, AbstractIndexStoreBuilder.INMEM_MAX_SIZE);
 	}
 
-	public NaiveIndexStore( Iterable<Record> recordList, int mem ) {
+	public NaiveIndexStore( Iterable<TransformableRecordInterface> recordList, int mem ) {
 		NaiveIndexStoreBuilder builder = new NaiveIndexStoreBuilder(recordList);
 		builder.setInMemMaxSize(mem);
 		invListAccessor = builder.buildInvList();
@@ -22,15 +23,15 @@ public class NaiveIndexStore {
 	}
 
 	public NaiveInvList getInvList( int token ) {
-		int num = invListAccessor.getList(token);
-		if ( invListAccessor.arr == null || num == 0 ) return null;
-		else return new NaiveInvList(invListAccessor.arr, num);
+		PostingListAccessor acc = invListAccessor.getPostingListAccessor(token);
+		if ( acc == null ) return null;
+		else return new BufferedNaiveInvList(acc);
 	}
 
 	public NaiveInvList getTrInvList( int token ) {
-		int num = tinvListAccessor.getList(token);
-		if ( tinvListAccessor.arr == null || num == 0 ) return null;
-		else return new NaiveInvList(tinvListAccessor.arr, num);
+		PostingListAccessor acc = tinvListAccessor.getPostingListAccessor(token);
+		if ( acc == null ) return null;
+		else return new BufferedNaiveInvList(acc);
 	}
 	
 	public final BigInteger diskSpaceUsage() {

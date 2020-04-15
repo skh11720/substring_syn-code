@@ -8,12 +8,13 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Records;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface {
 
 	final IntList eidxList;
 	
-	public AbstractFaerieSynIndex(Iterable<Record> records) {
+	public AbstractFaerieSynIndex(Iterable<TransformableRecordInterface> records) {
 		eidxList = buildEntryIdList(records);
 	}
 	
@@ -40,7 +41,7 @@ public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface 
 		};
 	}
 
-	protected final IntList buildEntryIdList(Iterable<Record> records) {
+	protected final IntList buildEntryIdList(Iterable<TransformableRecordInterface> records) {
 		IntList eidxList = new IntArrayList();
 		eidxList.add(0);
 		int eidx = 0;

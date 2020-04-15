@@ -5,16 +5,16 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import snu.kdd.substring_syn.data.QGram;
 import snu.kdd.substring_syn.data.Rule;
-import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 
 public class QGramGenerator {
 
-	final Record rec;
+	final TransformableRecordInterface rec;
 	final int q;
 	ObjectSet<QGram> qgramSet;
 	State state;
 	
-	public QGramGenerator( Record rec, int q ) {
+	public QGramGenerator( TransformableRecordInterface rec, int q ) {
 		this.rec = rec;
 		this.q = q;
 	}
