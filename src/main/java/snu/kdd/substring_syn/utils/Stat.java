@@ -18,33 +18,58 @@ public class Stat {
 //	public static final String Dataset_indexedPath = "Dataset_indexedPath";
 //	public static final String Dataset_rulePath = "Dataset_rulePath";
 	public static final String Dataset_Name = "Dataset_Name";
+	public static final String Dataset_nt= "Dataset_nt";
+	public static final String Dataset_nr= "Dataset_nr";
+	public static final String Dataset_qlen = "Dataset_qlen";
+	public static final String Dataset_lr = "Dataset_lr";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
+	public static final String Dataset_numDoc = "Dataset_numDoc";
 	public static final String Dataset_numRule= "Dataset_numRule";
 	
-	public static final String Time_0_Total = "Time_0_Total";
-	public static final String Time_1_QSTotal = "Time_1_QSTotal";
-	public static final String Time_2_TSTotal = "Time_2_TSTotal";
-	public static final String Time_3_Validation = "Time_3_Validation";
-	public static final String Time_4_BuildIndex = "Time_4_BuildIndex";
-	public static final String Time_5_IndexFilter = "Time_5_IndexFilter";
+	public static final String Time_Total = "Time_Total";
+	public static final String Time_QS_Total = "Time_QS_Total";
+	public static final String Time_TS_Total = "Time_TS_Total";
+	public static final String Time_SearchPerQuery = "Time_SearchPerQuery";
+	public static final String Time_Prepare_Data = "Time_Prepare_Data";
+	public static final String Time_Preprocess= "Time_Preprocess";
+	public static final String Time_QS_Validation = "Time_QS_Validation";
+	public static final String Time_TS_Validation = "Time_TS_Validation";
+	public static final String Time_BuildIndex = "Time_BuildIndex";
+	public static final String Time_QS_IndexFilter = "Time_QS_IndexFilter";
+	public static final String Time_TS_IndexFilter = "Time_TS_IndexFilter";
 
-//	public static final String Mem_,
+	/*
+	 * Searched: searched substrings
+	 * LF: substrings remaining after the length filtering
+	 * PF: substrings remaining after the prefix filtering
+	 * Verified: verified substrings
+	 */
+
 	public static final String Num_Result = "Num_Result";
 	public static final String Num_QS_Result = "Num_QS_Result";
 	public static final String Num_TS_Result = "Num_TS_Result";
+	public static final String Num_QS_Retrieved = "Num_QS_Retrieved";
+	public static final String Num_TS_Retrieved = "Num_TS_Retrieved";
 	public static final String Num_QS_Verified = "Num_QS_Verified";
 	public static final String Num_TS_Verified = "Num_TS_Verified";
-
-	public static final String Num_QS_WindowSizeLF = "Num_QS_WindowSizeLF";
-	public static final String Num_TS_WindowSizeLF = "Num_TS_WindowSizeLF";
-	public static final String Num_QS_WindowSizeVerified = "Num_QS_WindowSizeVerified";
-	public static final String Num_TS_WindowSizeVerified = "Num_TS_WindowSizeVerified";
-	public static final String Num_QS_WindowSizeAll = "Num_QS_WindowSizeAll";
-	public static final String Num_TS_WindowSizeAll = "Num_TS_WindowSizeAll";
 	
-	public static final String Num_QS_IndexFiltered = "Num_QS_IndexFiltered";
-	public static final String Num_TS_IndexFiltered = "Num_TS_IndexFiltered";
+	public static final String Len_SearchedAll= "Len_SearchedAll";
+	public static final String Len_IndexedAll= "Len_IndexedAll";
+	public static final String Size_Index_InvList = "Size_Index_InvList";
+	public static final String Size_Index_TransInvList = "Size_Index_TransInvList";
+	public static final String Len_QS_Retrieved = "Len_QS_Retrieved";
+	public static final String Len_TS_Retrieved = "Len_TS_Retrieved";
+	public static final String Len_QS_LF = "Len_QS_LF";
+	public static final String Len_TS_LF = "Len_TS_LF";
+	public static final String Len_QS_PF = "Len_QS_PF";
+	public static final String Len_TS_PF = "Len_TS_PF";
+	public static final String Len_QS_Verified = "Len_QS_Verified";
+	public static final String Len_TS_Verified = "Len_TS_Verified";
+	
+	public static final String Mem_Before_Index = "Mem_Before_Index";
+	public static final String Mem_After_Index = "Mem_After_Index";
+	public static final String Space_Index = "Space_Index";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();

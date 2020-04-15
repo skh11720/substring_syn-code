@@ -1,25 +1,36 @@
 package snu.kdd.substring_syn.utils;
 
-import java.io.IOException;
+import java.io.File;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.FileUtils;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntIterable;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.Record;
+import snu.kdd.substring_syn.data.IntPair;
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Records;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -499,14 +510,75 @@ public class Util {
 
 	public static double jaccard( IntList x, IntList y ) {
 		// consider x and y as sets, not multisets
-		IntList shorter = x.size() <= y.size()? x: y;
-		IntList longer = x.size() <= y.size()? y: x;
-		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
-		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
+		IntSet xSet = new IntOpenHashSet(x);
+		IntSet ySet = new IntOpenHashSet(y);
+		IntSet smaller = xSet.size() <= ySet.size()? xSet: ySet;
+		IntSet larger = xSet.size() <= ySet.size()? ySet: xSet;
 		int common = 0;
-		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
-		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
+		for ( int token : smaller ) if (larger.contains(token)) ++common;
+		double sim = 1.0*common/(larger.size() + smaller.size() - common);
 		return sim;
+	}
+
+	public static double jaccardM( int[] x, int[] y ) {
+		Int2IntOpenHashMap xCounter = new Int2IntOpenHashMap();
+		for ( int token : x ) xCounter.addTo(token, 1);
+		Int2IntOpenHashMap yCounter = new Int2IntOpenHashMap();
+		for ( int token : y ) yCounter.addTo(token, 1);
+		return jaccardM(xCounter, yCounter);
+	}
+
+	public static double jaccardM( Int2IntOpenHashMap x, Int2IntOpenHashMap y ) {
+		IntSet tokenSet = new IntOpenHashSet(x.keySet());
+		tokenSet.addAll(y.keySet());
+		int num = 0;
+		int denum = 0;
+		for ( int token : tokenSet ) {
+			num += Math.min(x.get(token), y.get(token));
+			denum += Math.max(x.get(token), y.get(token));
+		}
+		return (double)num/denum;
+	}
+
+	public static double jaccardM( IntList xList, IntList yList ) {
+		int num = 0;
+		int denum = 0;
+		IntIterator ix = IntIterators.asIntIterator(xList.stream().sorted().iterator());
+		IntIterator iy = IntIterators.asIntIterator(yList.stream().sorted().iterator());
+		int x = ix.nextInt();
+		int y = iy.nextInt();
+		while (true) {
+			++denum;
+			if ( x == y ) {
+				++num;
+				if ( !ix.hasNext() || !iy.hasNext() ) break;
+				x = ix.nextInt();
+				y = iy.nextInt();
+			}
+			else if ( x < y ) {
+				if ( !ix.hasNext() ) {
+					++denum;
+					break;
+				}
+				x = ix.nextInt();
+			}
+			else {
+				if ( !iy.hasNext() ) {
+					++denum;
+					break;
+				}
+				y = iy.nextInt();
+			}
+		}
+		while ( ix.hasNext() ) {
+			ix.nextInt();
+			++denum;
+		}
+		while ( iy.hasNext() ) {
+			iy.nextInt();
+			++denum;
+		}
+		return (double)num/denum;
 	}
 
 	public static double subJaccard0( int[] q, int[] t ) {
@@ -563,77 +635,122 @@ public class Util {
 
 		return simMax;
 	}
+	
+	public static double subJaccardM( int[] q, int[] t ) {
+		return subJaccardM(IntArrayList.wrap(q), IntArrayList.wrap(t));
+	}
 
-//	public static Dataset getDataset( String name, long size ) throws IOException {
-//
-//		String osName = System.getProperty( "os.name" );
-//		String prefix = null;
-//		String sep = null;
-//		if ( osName.startsWith( "Windows" ) ) {
-//			prefix = "D:\\ghsong\\data\\synonyms\\";
-//			sep = "\\";
-//		}
-//		else if ( osName.startsWith( "Linux" ) ) {
-//			prefix = "data_store/";
-//			sep = "/";
-//		}
-//		
-//		String searchedPath, indexedPath, rulePath;
-//		if ( name.equals( "AOL" )) {
-//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
-//			rulePath = prefix + "wordnet"+sep+"rules.noun";
-//		}
-//		else if ( name.equals( "AOL_1K" )) {
-//			searchedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-//			indexedPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
-//			rulePath = prefix + "wordnet"+sep+"rules.noun";
-//		}
-//		else if ( name.equals( "SPROT" ) ) {
-//			searchedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-//			indexedPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
-//			rulePath = prefix + "sprot"+sep+"rule.txt";
-//		}
-//		else if ( name.equals( "USPS" ) ) {
-//			searchedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-//			indexedPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-//		}
-//		else if ( name.startsWith("NAMES") ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_freebase.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_sport.txt" );
-//			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-//		}
-//		else if ( name.startsWith( "UNIV" ) ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
-//		}
-//		else if ( name.startsWith( "CONF" ) ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + name+sep+name+"_rule.txt";
-//		}
-//		else if ( name.startsWith("POLY") ) {
-//			searchedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			indexedPath = prefix + String.format( name+sep+name+"_data.txt" );
-//			rulePath = prefix + name+sep+name+"_rule.txt";
-//		}
-//		else if ( name.equals( "SPROT_long" ) ) {
-//			searchedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_short_%d.txt", size );
-//			indexedPath = prefix + String.format( "sprot_long"+sep+"splitted"+sep+"SPROT_long_%d.txt", size );
-//			rulePath = prefix + "sprot_long"+sep+"rule.txt";
-//		}
-//		else throw new RuntimeException();
-//
-//		String outputPath = "output";
-//		Dataset dataset = new Dataset(rulePath, searchedPath, indexedPath, outputPath);
-//
-//		return dataset;
-//	}
+	public static double subJaccardM( IntList q, IntList t ) {
+		double simMax = 0;
+		IntList idxList = new IntArrayList();
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		ObjectList<Int2IntOpenHashMap> counterList = new ObjectArrayList<>();
+		Int2IntOpenHashMap lastCounter = new Int2IntOpenHashMap();
 
-	public static Dataset getDatasetWithPreprocessing( String name, String size ) throws IOException {
-		return Dataset.createInstanceByName(name, size);
+		for ( int i=0; i<t.size(); ++i ) {
+			int token = t.get(i);
+			if ( qCounter.keySet().contains(token) ) {
+				lastCounter.addTo(token, 1);
+				idxList.add(i);
+				counterList.add(lastCounter);
+				lastCounter = new Int2IntOpenHashMap();
+			}
+			else lastCounter.addTo(token, 1);
+		}
+		
+		if ( idxList.size() > 0 ) simMax = 1.0/q.size();
+
+		for ( int i=0; i<idxList.size(); ++i ) {
+			int sidx = idxList.get(i);
+			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
+			tCounter.addTo(t.get(sidx), 1);
+			for ( int j=i+1; j<idxList.size(); ++j ) {
+				sumCounters(tCounter, counterList.get(j));
+				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
+			}
+		}
+
+		return simMax;
+	}
+
+	public static double subJaccardM2( IntList q, IntList t ) {
+		double simMax = 0;
+		IntList idxList = new IntArrayList();
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		ObjectList<Int2IntOpenHashMap> counterList = new ObjectArrayList<>();
+		Int2IntOpenHashMap lastCounter = new Int2IntOpenHashMap();
+
+		for ( int i=0; i<t.size(); ++i ) {
+			int token = t.get(i);
+			if ( qCounter.keySet().contains(token) ) {
+				lastCounter.addTo(token, 1);
+				idxList.add(i);
+				counterList.add(lastCounter);
+				lastCounter = new Int2IntOpenHashMap();
+			}
+			else lastCounter.addTo(token, 1);
+		}
+		
+		if ( idxList.size() > 0 ) simMax = 1.0/q.size();
+
+		for ( int i=0; i<idxList.size(); ++i ) {
+			int sidx = idxList.get(i);
+			Int2IntOpenHashMap tCounter = new Int2IntOpenHashMap();
+			tCounter.addTo(t.get(sidx), 1);
+			for ( int j=i+1; j<idxList.size(); ++j ) {
+				sumCounters(tCounter, counterList.get(j));
+				simMax = Math.max(simMax, jaccardM(qCounter, tCounter));
+			}
+		}
+
+		return simMax;
+	}
+	
+	public static void sumCounters( Int2IntOpenHashMap thisCounter, Int2IntOpenHashMap other ) {
+		for ( Int2IntMap.Entry entry : other.int2IntEntrySet() ) {
+			int key = entry.getIntKey();
+			int val = entry.getIntValue();
+			thisCounter.addTo(key, val);
+		}
+	}
+
+	public static double jaccardContainmentM( int[] q, int[] s ) {
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		Int2IntOpenHashMap sCounter = new Int2IntOpenHashMap();
+		for ( int token : s ) sCounter.addTo(token, 1);
+		int num = 0;
+		for ( int token : qCounter.keySet() ) {
+			num += Math.min(qCounter.get(token), sCounter.get(token));
+		}
+		return (double)num/q.length;
+	}
+	
+	public static double jaccardContainmentM( Int2IntOpenHashMap q, Int2IntOpenHashMap s, int qlen ) {
+		IntSet tokenSet = new IntOpenHashSet(q.keySet());
+		tokenSet.addAll(s.keySet());
+		int num = 0;
+		for ( int token : tokenSet ) {
+			num += Math.min(q.get(token), s.get(token));
+		}
+		return (double)num/qlen;
+	}
+
+	public static double subJaccardContainmentM( IntList q, IntList s ) {
+		Int2IntOpenHashMap qCounter = new Int2IntOpenHashMap();
+		for ( int token : q ) qCounter.addTo(token, 1);
+		Int2IntOpenHashMap sCounter = new Int2IntOpenHashMap();
+		sCounter.defaultReturnValue(0);
+		for ( int token : s ) sCounter.addTo(token, 1);
+
+		int num = 0;
+		for ( int token : qCounter.keySet() ) {
+			num += Math.min(qCounter.get(token), sCounter.get(token));
+		}
+		
+		return (double)num/q.size();
 	}
 
 	public static String getGroundTruthPath( String name ) {
@@ -652,35 +769,140 @@ public class Util {
 		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 	
-	public static int getPrefixLength( Record rec, double theta ) {
+	public static int getPrefixLength( int len, double theta ) {
+		return len - (int)(Math.ceil(theta*len)) + 1;
+	}
+
+	public static int getPrefixLength( RecordInterface rec, double theta ) {
 		return rec.size() - (int)(Math.ceil(theta*rec.size())) + 1;
 	}
 
-	public static IntOpenHashSet getPrefix( Record rec, double theta ) {
+	public static IntOpenHashSet getPrefix( RecordInterface rec, double theta ) {
 		int prefixLen = getPrefixLength(rec, theta);
-		return new IntOpenHashSet( rec.getTokens().stream().sorted().limit(prefixLen).iterator() );
+		return new IntOpenHashSet( rec.getTokenList().stream().sorted().limit(prefixLen).iterator() );
+	}
+
+	public static double getModifiedTheta( Record query, RecordInterface rec, double theta ) {
+		return theta * query.size() / (query.size() + 2*(rec.getMaxRhsSize()-1));
+	}
+	
+	public static double getModifiedTheta( int qlen, RecordInterface rec, double theta ) {
+		return theta * qlen / (qlen + 2*(rec.getMaxRhsSize()-1));
 	}
 	
 	public static IntOpenHashSet getExpandedPrefix( Record rec, double theta ) {
 		IntOpenHashSet prefix = new IntOpenHashSet();
-		for ( Record exp : rec.expandAll() ) {
+		for ( Record exp : Records.expandAll(rec) ) {
 			int prefixLen = getPrefixLength(exp, theta);
 			exp.getTokens().stream().sorted().limit(prefixLen).forEach(t -> prefix.add(t));
 		}
 		return prefix;
 	}
 	
-	public static boolean hasIntersection( IntSet set0, IntSet set1 ) {
-		IntSet smallSet = set1.size() < set0.size()? set1: set0;
-		IntSet largeSet = set1.size() < set0.size()? set0: set1;
+	public static boolean hasIntersection( IntCollection set0, IntCollection set1 ) {
+		IntCollection smallSet = set1.size() < set0.size()? set1: set0;
+		IntCollection largeSet = set1.size() < set0.size()? set0: set1;
 		for ( int token : smallSet ) {
 			if ( largeSet.contains(token) ) return true;
 		}
 		return false;
 	}
 
-	public static int sumWindowSize( Record rec ) {
+	public static int sumWindowSize( RecordInterface rec ) {
 		int n = rec.size();
 		return n*(n+1)*(n+1)/2 - n*(n+1)*(2*n+1)/6;
+	}
+	
+	public static String toFormattedString( double[] arr ) {
+		StringBuilder strbld = new StringBuilder("[");
+		for ( int i=0; i<arr.length; ++i ) {
+			if ( i > 0 ) strbld.append(", ");
+			strbld.append(String.format("%.3f", arr[0]));
+		}
+		strbld.append("]");
+		return strbld.toString();
+	}
+	
+	public static Int2IntOpenHashMap getCounter( int[] arr ) {
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		for ( int token : arr ) counter.addTo(token, 1);
+		return counter;
+	}
+
+	public static Int2IntOpenHashMap getCounter( IntIterable iter ) {
+		Int2IntOpenHashMap counter = new Int2IntOpenHashMap();
+		for ( int token : iter ) counter.addTo(token, 1);
+		return counter;
+	}
+	
+	public static double getMemoryUsage() {
+		// return in MB
+		Runtime inst = Runtime.getRuntime();
+		return (inst.totalMemory()-inst.freeMemory())/1e6;
+	}
+	
+	public static BigInteger getSpaceUsage(String path) {
+		return FileUtils.sizeOfAsBigInteger(new File(path));
+	}
+	
+	public static void unzip( ObjectList<IntPair> pairList, IntList list1, IntList list2 ) {
+		for ( IntPair pair : pairList ) {
+			list1.add(pair.i1);
+			list2.add(pair.i2);
+		}
+	}
+	
+	public static void addToIntList( IntList list, int c ) {
+		for ( int i=0; i<list.size(); ++i ) list.set(i, list.get(i)+c);
+	}
+	
+	public static IntList mergeSortedIntLists( ObjectList<IntList> intLists ) {
+		int[] cur = new int[intLists.size()];
+		IntBinaryHeap heap = new IntBinaryHeap(intLists.size());
+		for ( int lidx=0; lidx<intLists.size(); ++lidx ) {
+			IntList list = intLists.get(lidx);
+			if ( list != null && list.size() > 0 ) {
+				heap.insert(intLists.get(lidx).getInt(0), lidx);
+			}
+		}
+		IntList mergedList = new IntArrayList();
+		while ( !heap.isEmpty() ) {
+			IntPair minPair = heap.poll();
+			int pos = minPair.i1;
+			int lidx = minPair.i2;
+			mergedList.add(pos);
+			cur[lidx] += 1;
+			if ( cur[lidx] < intLists.get(lidx).size() ) heap.insert(intLists.get(lidx).getInt(cur[lidx]), lidx);
+		}
+		return mergedList;
+	}
+
+	public static int binarySearch(ObjectList<Integer> invList, int key) {
+		int l = 0;
+		int r = invList.size();
+		while ( r-l > 1 ) {
+			int m = (l+r)/2;
+			int center = invList.get(m);
+			if ( key > center ) l = m;
+			else r = m;
+		}
+		if ( key == invList.get(l) ) return l;
+		else if ( r < invList.size() && key == invList.get(r) ) return r;
+		else return -1;
+	}
+	
+	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
+		int l = 0;
+		int r = list.size();
+		while ( r-l > 1 ) {
+			int m = (l+r)/2;
+			T center = list.get(m);
+			int o = comp.compare(key, center);
+			if ( o == 1 ) l = m;
+			else r = m;
+		}
+		if ( comp.compare(key, list.get(l)) == 0 ) return l;
+		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
+		else return -1;
 	}
 }

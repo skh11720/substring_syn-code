@@ -1,7 +1,6 @@
 package snu.kdd.substring_syn.data;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -43,7 +42,7 @@ public class ACAutomataR {
 		// 2. Build Trie for rules
 		for( final Rule rule : rules ) {
 			State curr = root;
-			for( final int str : rule.lhs ) {
+			for( final int str : rule.getLhs() ) {
 				State next;
 				if( curr.split != null && ( next = curr.split.get( str ) ) != null ) {
 					curr = next;
@@ -122,31 +121,6 @@ public class ACAutomataR {
 		}
 	}
 
-	public Rule[] applicableRulesSIRecord( int[] tokens ) {
-		final HashSet<Rule> rslt = new HashSet<>();
-		State curr = root;
-		int i = 0;
-		while( i < tokens.length ) {
-			State next;
-			if( curr.split != null && ( next = curr.split.get( tokens[ i ] ) ) != null ) {
-				curr = next;
-				++i;
-				if( next.output != null ) {
-					for( final Rule rule : next.output ) {
-						rslt.add( rule );
-					}
-				}
-			}
-			else if( curr == root ) {
-				++i;
-			}
-			else {
-				curr = curr.func;
-			}
-		}
-		return rslt.toArray( new Rule[ 0 ] );
-	}
-
 	public Rule[][] applicableRules( int[] tokens ) {
 		@SuppressWarnings( "unchecked" )
 		final ObjectOpenHashSet<Rule>[] tmprslt = new ObjectOpenHashSet[ tokens.length ];
@@ -165,7 +139,7 @@ public class ACAutomataR {
 
 				if( next.output != null ) {
 					for( final Rule rule : next.output ) {
-						tmprslt[ i - rule.lhs.length ].add( rule );
+						tmprslt[ i - rule.getLhs().length ].add( rule );
 					}
 				}
 			}

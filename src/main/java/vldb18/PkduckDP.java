@@ -3,18 +3,18 @@ package vldb18;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import snu.kdd.substring_syn.data.RecordInterface;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.data.record.Record;
 
 public class PkduckDP {
 	
 	protected final int maxTransLen;
-	protected final RecordInterface rec;
+	protected final Record rec;
 	protected final double theta;
 	protected final IntList tokenList;
 	
 	
-	public PkduckDP( RecordInterface rec, double theta ) {
+	public PkduckDP( Record rec, double theta ) {
 		this.rec = rec;
 		this.theta = theta;
 		this.tokenList = rec.getTokenList();

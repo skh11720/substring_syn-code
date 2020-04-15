@@ -3,22 +3,23 @@ package snu.kdd.substring_syn.utils.window;
 import java.util.Iterator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import snu.kdd.substring_syn.data.Record;
-import snu.kdd.substring_syn.data.Subrecord;
+import snu.kdd.substring_syn.data.record.RecordInterface;
+import snu.kdd.substring_syn.data.record.Subrecord;
 
 public class SortedWindowExpander implements Iterator<Subrecord> {
 
 	final IntSet tokenSet;
 	final IntSet prefix;
-	final IntArrayList list;
-	final Record rec;
+	final IntList list;
+	final RecordInterface rec;
 	final int widx;
 	final double theta;
 	int w = 0;
 	
-	public SortedWindowExpander( Record rec, int widx, double theta ) {
+	public SortedWindowExpander( RecordInterface rec, int widx, double theta ) {
 		tokenSet = new IntOpenHashSet();
 		prefix = new IntOpenHashSet();
 		list = new IntArrayList();
@@ -51,12 +52,12 @@ public class SortedWindowExpander implements Iterator<Subrecord> {
 		return -l-1;
 	}
 
-	public IntSet getPrefix() {
+	public IntList getPrefix() {
 		int prefixLen = getPrefixLen();
 //		System.out.println("w: "+w);
 //		System.out.println("prefixLen: "+prefixLen);
 //		System.out.println("list.size: "+list.size());
-		return new IntOpenHashSet( list.subList(0, Math.min(prefixLen, list.size())) );
+		return list.subList(0, Math.min(prefixLen, list.size()));
 	}
 	
 	public int getSetSize() {

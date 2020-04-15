@@ -2,47 +2,38 @@ package snu.kdd.substring_syn.data;
 
 import java.util.Arrays;
 
+import snu.kdd.substring_syn.data.record.Record;
+import snu.kdd.substring_syn.data.record.Records;
+
 public class Rule implements Comparable<Rule> {
-	final int[] lhs;
-	final int[] rhs;
-	public final int id;
+
+//	private static int count = 0;
+	public static ACAutomataR automata;
+	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
+	
+	private final int id;
+	private final int[] lhs;
+	private final int[] rhs;
+//	private final int id;
 	public final boolean isSelfRule;
 
 	private final int hash;
 
-	private static int count = 0;
-
-	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
-	
-	public static Rule createRule( String str, TokenIndex tokenIndex ) {
-		String[] rstr = str.split(", ");
-		String[] lhsStr = rstr[0].trim().split(" ");
-		String[] rhsStr = rstr[1].trim().split(" ");
-		int[] lhs = getTokenIndexArray(lhsStr, tokenIndex);
-		int[] rhs = getTokenIndexArray(rhsStr, tokenIndex);
-		return new Rule(lhs, rhs);
-	}
-	
-	public static Rule createRule( int from, int to ) {
-		int[] lhs = new int[] {from};
-		int[] rhs = new int[] {to};
-		return new Rule(lhs, rhs);
-	}
-	
-	private static int[] getTokenIndexArray( String[] tokenArr, TokenIndex tokenIndex ) {
+	public static int[] getTokenIndexArray( String[] tokenArr ) {
 		int[] indexArr = new int[tokenArr.length];
 		for ( int i=0; i<tokenArr.length; ++i ) {
-			indexArr[i] = tokenIndex.getIDOrAdd(tokenArr[i]);
+			indexArr[i] = Record.tokenIndex.getIDOrAdd(tokenArr[i]);
 		}
 		return indexArr;
 	}
 
-	public Rule( int[] lhs, int[] rhs ) {
+	protected Rule( int id, int[] lhs, int[] rhs ) {
+		this.id = id;
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.hash = computeHash();
 		this.isSelfRule = Arrays.equals(lhs, rhs);
-		id = count++;
+//		id = count++;
 	}
 
 	private int computeHash() {
@@ -50,6 +41,10 @@ public class Rule implements Comparable<Rule> {
 		for( int i = 0; i < lhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + lhs[ i ];
 		for( int i = 0; i < rhs.length; ++i ) hash = 0x1f1f1f1f ^ hash + rhs[ i ];
 		return hash;
+	}
+	
+	public final int getID() {
+		return id;
 	}
 
 	public int[] getLhs() {
@@ -71,7 +66,7 @@ public class Rule implements Comparable<Rule> {
 	@Override
 	public int compareTo( Rule o ) {
 		// only compares lhs
-		return Record.compare( lhs, o.lhs );
+		return Records.compare( lhs, o.lhs );
 	}
 
 	@Override
@@ -123,14 +118,5 @@ public class Rule implements Comparable<Rule> {
 		}
 
 		return bld.toString();
-	}
-
-	public void reindex( TokenOrder order ) {
-		for ( int i=0; i<lhs.length; ++i ) {
-			lhs[i] = order.getOrder(lhs[i]);
-		}
-		for ( int i=0; i<rhs.length; ++i ) {
-			rhs[i] = order.getOrder(rhs[i]);
-		}
 	}
 }

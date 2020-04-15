@@ -1,11 +1,31 @@
 theta_list: &theta_list ['0.6', '0.7', '0.8', '0.9', '1.0']
+filter_list: &filter_list ['Fopt_None', 'Fopt_Index', 'Fopt_C', 'Fopt_P', 'Fopt_L', 'Fopt_R', 'Fopt_IL', 'Fopt_IR', 'Fopt_CP', 'Fopt_CL', 'Fopt_PL', 'Fopt_CPL', 'Fopt_CPLR']
  
-NaiveSearch:
+ExactNaiveSearch:
+  theta: *theta_list
+
+GreedyNaiveSearch:
   theta: *theta_list
  
 PrefixSearch:
   theta: *theta_list
-  bIFQ: ['false', 'true']
-  bIFT: ['false', 'true']
-  bLFQ: ['false', 'true']
-  bLFT: ['false', 'true']
+  filter: *filter_list
+
+PkwiseSynSearch:
+  theta: *theta_list
+  kmax: ['opt']
+
+FaerieSynSearch:
+   theta: *theta_list
+   isDiskBased: ['false', 'true']
+
+ZeroPrefixSearch:
+  theta: *theta_list
+  filter: *filter_list
+
+NaiveContainmentSearch:
+  theta: *theta_list
+
+ContainmentPrefixSearch:
+  theta: *theta_list
+  filter: ['Fopt_C']

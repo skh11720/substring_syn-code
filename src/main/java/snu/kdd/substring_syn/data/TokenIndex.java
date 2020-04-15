@@ -13,13 +13,9 @@ public class TokenIndex {
 	private final ObjectArrayList<String> int2TokenList;
 
 	public TokenIndex() {
-		this(10);
-	}
-	
-	public TokenIndex( int size ) {
-		token2IntMap = new Object2IntOpenHashMap<String>(size);
+		token2IntMap = new Object2IntOpenHashMap<String>();
 		token2IntMap.defaultReturnValue(-1);
-		int2TokenList = new ObjectArrayList<String>(size);
+		int2TokenList = new ObjectArrayList<String>();
 	}
 	
 	public int getIDOrAdd( String token ) {
@@ -36,12 +32,16 @@ public class TokenIndex {
 		}
 	}
 
-	private int getID( String token ) {
+	public int getID( String token ) {
 		return token2IntMap.getInt( token );
 	}
 
 	public String getToken( int index ) {
 		return int2TokenList.get( index );
+	}
+	
+	public int getMaxID() {
+		return int2TokenList.size()-1;
 	}
 	
 	public String toString( int[] arr ) {
