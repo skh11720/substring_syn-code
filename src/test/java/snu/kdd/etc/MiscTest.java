@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import org.junit.Test;
@@ -18,11 +19,14 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetInfo;
 import snu.kdd.substring_syn.data.DatasetParam;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
 import snu.kdd.substring_syn.data.Substring;
 import snu.kdd.substring_syn.data.record.Record;
@@ -30,6 +34,7 @@ import snu.kdd.substring_syn.data.record.Records;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.FileBasedLongList;
+import snu.kdd.substring_syn.utils.Int2IntBinaryHeap;
 import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.iterator.SortedRecordSlidingWindowIterator;
 import vldb18.PkduckDP;
@@ -517,5 +522,71 @@ public class MiscTest {
 		cbuf[0] = 'A';
 		System.out.println(Arrays.toString(cbuf));
 		System.out.println(s);
+	}
+	
+	@Test
+	public void testPriorityQueue() {
+		/*
+		 * when n = 100, 1000, q1 shows the best for poll and insert
+		 */
+		Random rn = new Random(0);
+		int n = 1000;
+		Int2IntBinaryHeap q0 = new Int2IntBinaryHeap();
+		PriorityQueue<IntPair> q1 = new PriorityQueue<>(IntPair.keyComparator());
+		ObjectHeapPriorityQueue<IntPair> q2 = new ObjectHeapPriorityQueue<>(IntPair.keyComparator());
+		ObjectArrayPriorityQueue<IntPair> q3 = new ObjectArrayPriorityQueue<>(IntPair.keyComparator());
+		long ts, t0, t1, t2, t3;
+
+		System.out.println("insert");
+		t0 = t1 = t2 = t3 = 0;
+		for ( int i=0; i<n; ++i ) {
+			IntPair e= new IntPair(rn.nextInt(), rn.nextInt());
+			ts = System.nanoTime();
+			q0.insert(e.i1, e.i2);
+			t0 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			q1.add(e);
+			t1 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			q2.enqueue(e);
+			t2 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			q3.enqueue(e);
+			t3 += System.nanoTime() - ts;
+		}
+		System.out.printf("%12d\n", t0);
+		System.out.printf("%12d\n", t1);
+		System.out.printf("%12d\n", t2);
+		System.out.printf("%12d\n", t3);
+		
+		System.out.println("Poll and insert");
+		t0 = t1 = 0;
+		for ( int i=0; i<10000; ++i ) {
+			IntPair e= new IntPair(rn.nextInt(), rn.nextInt());
+			ts = System.nanoTime();
+			IntPair h0 = q0.poll();
+			q0.insert(e.i1, e.i2);
+			t0 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			IntPair h1 = q1.poll();
+			q1.add(e);
+			t1 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			IntPair h2 = q2.dequeue();
+			q2.enqueue(e);
+			t2 += System.nanoTime() - ts;
+			ts = System.nanoTime();
+			IntPair h3 = q3.dequeue();
+			q3.enqueue(e);
+			t3 += System.nanoTime() - ts;
+			
+			assertEquals(h0, h1);
+			assertEquals(h0, h2);
+			assertEquals(h0, h3);
+		}
+		System.out.printf("%12d\n", t0);
+		System.out.printf("%12d\n", t1);
+		System.out.printf("%12d\n", t2);
+		System.out.printf("%12d\n", t3);
 	}
 }

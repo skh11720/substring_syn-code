@@ -1,5 +1,7 @@
 package snu.kdd.substring_syn.data;
 
+import java.util.Comparator;
+
 import snu.kdd.substring_syn.utils.Util;
 
 public class IntPair implements Comparable<IntPair> {
@@ -48,5 +50,15 @@ public class IntPair implements Comparable<IntPair> {
 			else if ( i2 > o.i2 ) return 1;
 			else return 0;
 		}
+	}
+	
+	public static Comparator<IntPair> keyComparator() {
+		return new Comparator<IntPair>() {
+
+			@Override
+			public int compare(IntPair o1, IntPair o2) {
+				return Integer.compare(o1.i1, o2.i1);
+			}
+		};
 	}
 }
