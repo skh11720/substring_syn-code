@@ -463,7 +463,8 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 6.29: use RecordPool
 		 * 6.30: Reduce pool size=1e4
 		 * 6.31: improve memory efficiency
+		 * 6.32: use java.util.PriorityQueue
 		 */
-		return "6.31";
+		return "6.32";
 	}
 }

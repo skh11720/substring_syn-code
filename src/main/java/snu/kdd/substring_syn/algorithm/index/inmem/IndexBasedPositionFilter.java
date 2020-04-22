@@ -2,6 +2,7 @@ package snu.kdd.substring_syn.algorithm.index.inmem;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.PriorityQueue;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -24,7 +25,6 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordWithEndpoints;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
-import snu.kdd.substring_syn.utils.Int2IntBinaryHeap;
 import snu.kdd.substring_syn.utils.MaxBoundTokenCounter;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.StatContainer;
@@ -108,7 +108,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 		class PosListPairIterator implements Iterator<PosListPair> {
 				
 			Int2ObjectMap<PositionInvList> tok2listMap = new Int2ObjectOpenHashMap<PositionInvList>();
-			Int2IntBinaryHeap heap = new Int2IntBinaryHeap();
+			PriorityQueue<IntPair> heap = new PriorityQueue<IntPair>(IntPair.keyComparator());
 			PosListPair e;
 			int nEntries = 0;
 			int nLists = 0;
@@ -120,7 +120,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( list != null ) {
 						list.init();
 						tok2listMap.put(token, list);
-						heap.insert(list.getIdx(), token);
+						heap.add(new IntPair(list.getIdx(), token));
 					}
 				}
 			}
@@ -130,7 +130,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				e = new PosListPair();
 				tokenCounter.clear();
 				e.ridx = extractHead();
-				while ( !heap.isEmpty() && heap.peekKey() == e.ridx ) extractHead();
+				while ( !heap.isEmpty() && heap.peek().i1 == e.ridx ) extractHead();
 				nLists += 1;
 				sumListLen += e.idxList.size();
 				return e;
@@ -152,7 +152,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			private void getNextFromList(int token) {
 				PositionInvList list = tok2listMap.get(token);
 				list.next();
-				if ( list.hasNext() ) heap.insert(list.getIdx(), token);
+				if ( list.hasNext() ) heap.add(new IntPair(list.getIdx(), token));
 			}
 			
 			@Override
@@ -286,7 +286,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				
 			Int2ObjectMap<PositionInvList> tok2listMap = new Int2ObjectOpenHashMap<PositionInvList>();
 			Int2ObjectMap<PositionTrInvList> tok2trlistMap = new Int2ObjectOpenHashMap<PositionTrInvList>();
-			Int2IntBinaryHeap heap = new Int2IntBinaryHeap();
+			PriorityQueue<IntPair> heap = new PriorityQueue<IntPair>(IntPair.keyComparator());
 			PosListPair e;
 			int nEntries = 0;
 			int nLists = 0;
@@ -298,13 +298,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 					if ( list != null ) {
 						list.init();
 						tok2listMap.put(token, list);
-						heap.insert(list.getIdx(), token);
+						heap.add(new IntPair(list.getIdx(), token));
 					}
 					PositionTrInvList trlist = index.getTransInvList(token);
 					if ( trlist != null ) {
 						trlist.init();
 						tok2trlistMap.put(token, trlist);
-						heap.insert(trlist.getIdx(), -token-1); // assume token >= 0
+						heap.add(new IntPair(trlist.getIdx(), -token-1)); // assume token >= 0
 					}
 				}
 			}
@@ -314,7 +314,7 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 				e = new PosListPair();
 				tokenCounter.clear();
 				e.ridx = extractHead();
-				while ( !heap.isEmpty() && heap.peekKey() == e.ridx ) extractHead();
+				while ( !heap.isEmpty() && heap.peek().i1 == e.ridx ) extractHead();
 				nLists += 1;
 				sumListLen += e.prefixList.size();
 				return e;
@@ -350,13 +350,13 @@ public class IndexBasedPositionFilter extends AbstractIndexBasedFilter implement
 			private void getNextFromList(int token) {
 				PositionInvList list = tok2listMap.get(token);
 				list.next();
-				if ( list.hasNext() ) heap.insert(list.getIdx(), token);
+				if ( list.hasNext() ) heap.add(new IntPair(list.getIdx(), token));
 			}
 
 			private void getNextFromTrList(int token) {
 				PositionTrInvList list = tok2trlistMap.get(token);
 				list.next();
-				if ( list.hasNext() ) heap.insert(list.getIdx(), -token-1);
+				if ( list.hasNext() ) heap.add(new IntPair(list.getIdx(), -token-1));
 			}
 			
 			@Override
