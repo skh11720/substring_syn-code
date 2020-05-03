@@ -80,21 +80,31 @@ public class AppValidationDifference {
 		NaiveValidator val0 = new NaiveValidator(theta, statContainer);
 		GreedyValidator val1 = new GreedyValidator(theta, statContainer);
 		int n = 0;
+		double diffsumQ = 0;
+		double diffsumT = 0;
 		double diffsum = 0;
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
 			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
 				rec.preprocessApplicableRules();
 				rec.preprocessSuffixApplicableRules();
-				double s0 = Math.max(val0.simQuerySide(query, rec), val0.simTextSide(query, rec));
-				double s1 = Math.max(val1.simQuerySide(query, rec), val1.simTextSide(query, rec));
-				assert s0 + EPS >= s1;
-				diffsum += (s0 - s1);
+				double simQ0 = val0.simQuerySide(query, rec);
+				double simT0 = val0.simTextSide(query, rec);
+				double sim0 = Math.max(simQ0, simT0);
+				double simQ1 = val1.simQuerySide(query, rec);
+				double simT1 = val1.simTextSide(query, rec);
+				double sim1 = Math.max(simQ1, simT1);
+				assert simQ0 + EPS >= simQ1;
+				assert simT0 + EPS >= simT1;
+				assert sim0 + EPS >= sim1;
+				diffsumQ += (simQ0 - simQ1);
+				diffsumT += (simT0 - simT1);
+				diffsum += (sim0 - sim1);
 				n += 1;
-				Log.log.trace("sim: %.6f\t%.6f\t%.6f", s0, s1, (s0-s1));
+				Log.log.trace("sim: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f", simQ0, simQ1, (simQ0-simQ1), simT0, simT1, (simT0-simT1), sim0, sim1, (sim0-sim1));
 			}
 		}
-		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnarMax=%s\tmaxlen=%d\tavgdiff=%.6f", dataset.name, nq, theta, dataset.param.nar, maxlen, diffsum/n);
+		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnarMax=%s\tmaxlen=%d\tavgdiff_Q=%.6f\tavgdiff_T=%.6f\tavgdiff=%.6f", dataset.name, nq, theta, dataset.param.nar, maxlen, diffsumQ/n, diffsumT/n, diffsum/n);
 		Log.log.info(summary);
 		pw.println(summary);
 		pw.flush();
