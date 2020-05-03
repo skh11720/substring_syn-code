@@ -64,7 +64,7 @@ public class AppValidationDifference {
 		maxlen = Integer.parseInt(cmd.getOptionValue("maxlen"));
 		theta = Double.parseDouble(cmd.getOptionValue("theta"));
 
-		String outputName = String.format("output/AppCompareSimLSimW.txt");
+		String outputName = String.format("output/AppValidationDifference.txt");
 		pw = new PrintWriter(new BufferedWriter(new FileWriter(outputName, true)));
 		DatasetParam param = new DatasetParam(dataName, size, nr, qlen, "1.0", nar);
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
