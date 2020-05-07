@@ -14,11 +14,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 
-import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import snu.kdd.substring_syn.algorithm.index.inmem.IndexBasedPositionFilter;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -28,8 +27,10 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
+import snu.kdd.substring_syn.utils.IntRange;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.StatContainer;
+import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 
 
@@ -80,10 +81,15 @@ public class AppValidationDifference {
 
 	protected static double searchRecordQuerySide( Record query, RecordInterface rec, GreedyValidator val ) {
 		double sim = 0;
+		int min = (int)Math.max(1, Math.ceil(theta*query.getMinTransLength()));
+		int max = (int)Math.min(1.0*query.getMaxTransLength()/theta, rec.size());
+		IntRange wRange = new IntRange(min, max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
+				if ( window.size() > wRange.max ) break;
+				if ( window.size() < wRange.min ) continue;
 				sim = Math.max(sim, val.simQuerySide(query, window));
 			}
 		}
@@ -92,10 +98,11 @@ public class AppValidationDifference {
 
 	protected static double searchRecordTextSide( Record query, TransformableRecordInterface rec, GreedyValidator val ) {
 		double sim = 0;
-//		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
+		double modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
-//			TransLenLazyCalculator transLenCalculator = new TransLenLazyCalculator(null, rec, widx, rec.size()-widx, modifiedTheta);
+			TransLenLazyCalculator transLenCalculator = new TransLenLazyCalculator(null, rec, widx, rec.size()-widx, modifiedTheta);
 			for ( int w=1; w<=rec.size()-widx; ++w ) {
+				if ( transLenCalculator.getLFLB(widx+w-1) > query.size() ) break;
 				Subrecord window = new Subrecord(rec, widx, widx+w);
 				sim = Math.max(sim, val.simTextSide(query, window));
 			}
@@ -108,77 +115,57 @@ public class AppValidationDifference {
     	StatContainer statContainer = new StatContainer();
     	StatContainer.global = new StatContainer();
     	Log.log.info(dataset.name);
-    	IndexBasedPositionFilter filter = new IndexBasedPositionFilter(dataset, theta, true, statContainer);
 		NaiveValidator val0 = new NaiveValidator(theta, statContainer);
 		GreedyValidator val1 = new GreedyValidator(theta, statContainer);
-		int n = 0;
-		int nQ = 0;
-		int nT = 0;
+		int n0 = 0;
+		int n1 = 0;
+		int nQ0 = 0;
+		int nQ1 = 0;
+		int nT0 = 0;
+		int nT1 = 0;
 		double diffsumQ = 0;
 		double diffsumT = 0;
 		double diffsum = 0;
 		for ( Record query : dataset.getSearchedList() ) {
 			query.preprocessAll();
-			Int2DoubleOpenHashMap simQ0map = new Int2DoubleOpenHashMap();
-			Int2DoubleOpenHashMap simQ1map = new Int2DoubleOpenHashMap();
-			for ( TransformableRecordInterface w : filter.getCandRecordsQuerySide(query) ) {
-				simQ0map.put(w.getID(), Math.max(simQ0map.get(w.getID()), val0.simQuerySide(query, w)));
-				simQ1map.put(w.getID(), Math.max(simQ1map.get(w.getID()), searchRecordQuerySide(query, w, val1)));
-			}
-			
-			for ( int ridx : simQ0map.keySet() ) {
-				double simQ0 = simQ0map.get(ridx);
-				double simQ1 = simQ1map.get(ridx);
-				diffsumQ += (simQ0 - simQ1);
-				nQ += 1;
-				Log.log.trace("simQ: %.6f\t%.6f\t%.6f", simQ0, simQ1, (simQ0-simQ1));
-			}
 
-			Int2DoubleOpenHashMap simT0map = new Int2DoubleOpenHashMap();
-			Int2DoubleOpenHashMap simT1map = new Int2DoubleOpenHashMap();
-			for ( TransformableRecordInterface w : filter.getCandRecordsTextSide(query) ) {
-				simT0map.put(w.getID(), Math.max(simT0map.get(w.getID()), val0.simTextSide(query, w)));
-				simT1map.put(w.getID(), Math.max(simT1map.get(w.getID()), searchRecordTextSide(query, w, val1)));
-			}
+			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
+				double simQ0 = val0.simQuerySide(query, rec);
+				double simQ1 = searchRecordQuerySide(query, rec, val1);
+					
+				if ( simQ0 >= theta ) {
+					diffsumQ += (simQ0 - simQ1);
+					nQ0 += 1;
+					if ( simQ1 >= theta ) nQ1 += 1;
+					Log.log.trace("simQ: %.6f\t%.6f\t%.6f", simQ0, simQ1, (simQ0-simQ1));
+				}
+				
+				double simT0 = val0.simTextSide(query, rec);
+				double simT1 = searchRecordTextSide(query, rec, val1);
 
-			for ( int ridx : simT0map.keySet() ) {
-				double simT0 = simT0map.get(ridx);
-				double simT1 = simT1map.get(ridx);
-				diffsumT += (simT0 - simT1);
-				nT += 1;
-				Log.log.trace("simT: %.6f\t%.6f\t%.6f", simT0, simT1, (simT0-simT1));
-			}
+				if ( simT0 >= theta ) {
+					diffsumT += (simT0 - simT1);
+					nT0 += 1;
+					if ( simT1 >= theta ) nT1 += 1;
+					Log.log.trace("simT: %.6f\t%.6f\t%.6f", simT0, simT1, (simT0-simT1));
+				}
 
-//			for ( TransformableRecordInterface rec : dataset.getIndexedList() ) {
-//				double simQ0 = val0.simQuerySide(query, rec);
-//				double simQ1 = val1.simQuerySide(query, rec);
-//				assert simQ0 + EPS >= simQ1;
-//				if ( simQ0 >= theta ) {
-//					diffsumQ += (simQ0 - simQ1);
-//					nQ += 1;
-//					Log.log.trace("simQ: %.6f\t%.6f\t%.6f", simQ0, simQ1, (simQ0-simQ1));
-//				}
-//
-//				double simT0 = val0.simTextSide(query, rec);
-//				double simT1 = val1.simTextSide(query, rec);
-//				assert simT0 + EPS >= simT1;
-//				if ( simT0 >= theta ) {
-//					diffsumT += (simT0 - simT1);
-//					nT += 1;
-//					Log.log.trace("simT: %.6f\t%.6f\t%.6f", simT0, simT1, (simT0-simT1));
-//				}
-//
-//				double sim0 = Math.max(simQ0, simT0);
-//				double sim1 = Math.max(simQ1, simT1);
-//				assert sim0 + EPS >= sim1;
-//				if ( sim0 >= theta ) {
-//					diffsum += (sim0 - sim1);
-//					n += 1;
-//					Log.log.trace("sim: %.6f\t%.6f\t%.6f", sim0, sim1, (sim0-sim1));
-//				}
-//			}
+				double sim0 = Math.max(simQ0, simT0);
+				double sim1 = Math.max(simQ1, simT1);
+				assert sim0 + EPS >= sim1;
+				if ( sim0 >= theta ) {
+					diffsum += (sim0 - sim1);
+					n0 += 1;
+					if ( sim1 >= theta ) n1 += 1;
+					Log.log.trace("sim: %.6f\t%.6f\t%.6f", sim0, sim1, (sim0-sim1));
+				}
+			}
 		}
-		String summary = String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnarMax=%s\tmaxlen=%d\tavgdiff_Q=%.6f\tavgdiff_T=%.6f\tavgdiff=%.6f", dataset.name, nq, theta, dataset.param.nar, maxlen, diffsumQ/nQ, diffsumT/nT, diffsum/n);
+		String summary = "";
+		summary += String.format("dataset=%s\tnq=%s\ttheta=%.1f\tnarMax=%s\tmaxlen=%d", dataset.name, nq, theta, dataset.param.nar, maxlen);
+		summary += String.format("\tavgdiff_Q=%.6f\tnQ0=%d\tnQ1=%d\tnQ1/nQ0=%.6f", diffsumQ/nQ0, nQ0, nQ1, 1.0*nQ1/nQ0);
+		summary += String.format("\tavgdiff_T=%.6f\tnT0=%d\tnT1=%d\tnT1/nT0=%.6f", diffsumT/nT0, nT0, nT1, 1.0*nT1/nT0);
+		summary += String.format("\tavgdiff=%.6f\tn0=%d\tn1=%d\tn1/n0=%.6f", diffsum/n0, n0, n1, 1.0*n1/n0);
 		Log.log.info(summary);
 		pw.println(summary);
 		pw.flush();
