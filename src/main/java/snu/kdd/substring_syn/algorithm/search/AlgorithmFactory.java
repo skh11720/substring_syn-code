@@ -46,9 +46,13 @@ public class AlgorithmFactory {
 		Fopt_CP,
 		Fopt_CL,
 		Fopt_PL,
+		Fopt_CR,
+		Fopt_PR,
 		Fopt_LR, 
 		Fopt_CPL,
 		Fopt_CPR,
+		Fopt_CLR,
+		Fopt_PLR,
 		Fopt_CPLR,
 	}
 	
@@ -81,9 +85,13 @@ public class AlgorithmFactory {
 			case Fopt_CP: indexChoice = IndexChoice.CountPosition; break;
 			case Fopt_CL: bLF = true; indexChoice = IndexChoice.Count; break;
 			case Fopt_PL: bLF = true; indexChoice = IndexChoice.Position; break;
+			case Fopt_CR: bLF = false; bPF = true; indexChoice = IndexChoice.Count; break;
+			case Fopt_PR: bLF = false; bPF = true; indexChoice = IndexChoice.Position; break;
 			case Fopt_LR: bLF = true; bPF = true; indexChoice = IndexChoice.None; break;
 			case Fopt_CPL: bLF = true; indexChoice = IndexChoice.CountPosition; break;
 			case Fopt_CPR: bPF = true; indexChoice = IndexChoice.CountPosition; break;
+			case Fopt_CLR: bLF = true; bPF = true; indexChoice = IndexChoice.Count; break;
+			case Fopt_PLR: bLF = true; bPF = true; indexChoice = IndexChoice.Position; break;
 			case Fopt_CPLR: bLF = true; bPF = true; indexChoice = IndexChoice.CountPosition; break;
 			default: throw new RuntimeException("Unexpected error");
 			}
