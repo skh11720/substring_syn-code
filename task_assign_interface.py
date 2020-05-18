@@ -53,7 +53,7 @@ def connect(host):
 
 def get_worker_list(n_max_worker):
     worker_list = [Worker('cherry{:02d}'.format(idx+1)) for idx in range(n_max_worker)]
-    worker_list = filter(lambda w: w.ssh is not None, worker_list)
+    #worker_list = filter(lambda w: w.ssh is not None, worker_list)
     worker_list = filter(lambda w: w.host not in worker_blacklist, worker_list)
     #try: assert len(ssh_list) == 38
     #except: AssertionError('len(ssh_list) == %d != 38'%len(ssh_list))
@@ -346,15 +346,16 @@ def init_env():
 
 
 #worker_blacklist = set(['cherry01', 'cherry02', 'cherry04', 'cherry11', 'cherry28'])
-worker_blacklist = set([])
+worker_blacklist = set(['cherry{:02d}'.format(idx) for idx in [3, 24, 28, 31, 35]])
 
 if __name__ == '__main__':
     #init_env()
     n_max_worker = 42
     worker_list = get_worker_list(n_max_worker)
+    #worker_list = worker_list[:11] ########################################
     print(worker_list)
     print('Num workers:', len(worker_list))
-    assert len(worker_list) == 37
+    assert len(worker_list) == 37 ###########################################
     status_list = ["NONE"] * len(worker_list)
     prev_status_list = ["NONE"] * len(worker_list)
     assigned_job_list = [""] * len(worker_list)

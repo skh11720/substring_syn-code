@@ -11,11 +11,12 @@ dict_alg = yaml.load(open('alg_info.yml'), Loader=yaml.FullLoader)
 #alg_list = ['ZeroPrefixSearch']
 #alg_list = ['PkwiseSynSearch']
 alg_list = [
-		'PrefixSearch',
+#		'PrefixSearch',
 #		'PkwiseSynSearch',
 #		'FaerieSynSearch',
 #		'NaiveContainmentSearch',
 #		'ContainmentPrefixSearch',
+		'ZeroPrefixSearch',
 		]
 alg_order = {
 		'PrefixSearch':0, 
@@ -23,26 +24,31 @@ alg_order = {
 		'FaerieSynSearch':2,
 		'NaiveContainmentSearch':3,
 		'ContainmentPrefixSearch':4,
+		'ZeroPrefixSearch':9,
 }
 
 data_list = [
 		'WIKI',
 		'PUBMED',
 		'AMAZON',
-		'WIKI-DOC',
-		'PUBMED-DOC',
-		'AMAZON-DOC',
+#		'WIKI-DOC',
+#		'PUBMED-DOC',
+#		'AMAZON-DOC',
 		]
 data_order = {'WIKI':0, 'PUBMED':1, 'AMAZON':2, 'WIKI-LONG':3, 'PUBMED-LONG':4, 'AMAZON-LONG':5, 'WIKI-DOC':6, 'PUBMED-DOC':7, 'AMAZON-DOC':8}
 
-task_tmpl = 'timeout -k 1 28800 java -Xmx8g -cp target/substring-syn-0.0.1-SNAPSHOT.jar snu.kdd.substring_syn.App -data {data} -nt {nt} -nr {nr} -ql {ql} -lr {lr} -nar {nar} -alg {alg} -param {param} && bash ./upload.sh || (touch MSG && scp -q MSG cherry-manage:/home/hadoop/ghsong/substring_syn/failed/{data}_{alg}_{param}_{nt}_{nr}_{ql}_{lr}_{nar} && rm MSG)'
 
-
-nt_max = '1000000'
+TIMEOUT = '14400'
+nt_max = '100000000000'
 nt0 = '100000'
 ql0 = '5'
 lr0 = '1.0'
+nar0 = '-1'
 
+task_tmpl = f'timeout -k 1 {TIMEOUT}'+' java -Xmx8g -cp target/substring-syn-0.0.1-SNAPSHOT.jar snu.kdd.substring_syn.App -data {data} -nt {nt} -nr {nr} -ql {ql} -lr {lr} -nar {nar} -alg {alg} -param {param} && bash ./upload.sh || (touch MSG && scp -q MSG cherry-manage:/home/hadoop/ghsong/substring_syn/failed/{data}_{alg}_{param}_{nt}_{nr}_{ql}_{lr}_{nar} && rm MSG)'
+
+if 'ZeroPrefixSearch' in alg_list:
+	task_tmpl = f'timeout -k 1 {TIMEOUT}'+' java -Xmx8g -cp target/substring-syn-0.0.1-SNAPSHOT.jar snu.kdd.substring_syn.App -data {data} -nt {nt} -nr {nr} -ql {ql} -lr {lr} -nar {nar} -alg {alg} -param {param} && tail -n 1 output/summary.txt >> ZeroPrefixSearch.out'
 
 
 def add_data_setting_all(data, nt_list_=None, ql_list_=None, nr_list_=None, lr_list_=None, nar_list_=None, opt=None):
@@ -55,40 +61,46 @@ def add_data_setting_all(data, nt_list_=None, ql_list_=None, nr_list_=None, lr_l
 	def iter_vary_nt():
 		for nt in nt_list:
 			if int(nt) <= int(nt_max):
-				yield nt, ql0, nr_list[-1], lr0, -1
+				yield nt, ql0, nr_list[-1], lr0, nar0
 	
 	def iter_vary_ql():
 		for ql in ql_list:
-			yield nt0, ql, nr_list[-1], lr0, -1
+			yield nt0, ql, nr_list[-1], lr0, nar0
 	
 	def iter_vary_nr():
 		for nr in nr_list:
-			yield nt0, ql0, nr, lr0, -1
+			yield nt0, ql0, nr, lr0, nar0
 	
 	def iter_vary_lr():
 		for lr in lr_list:
-			yield nt0, ql0, nr_list[-1], lr, -1
+			yield nt0, ql0, nr_list[-1], lr, nar0
 	
 	def iter_vary_theta():
-		yield nt0, ql0, nr_list[-1], lr0, -1
+		yield nt0, ql0, nr_list[-1], lr0, nar0
 
 	def iter_vary_nar():
 		for nt in nt_list:
 			for nar in nar_list:
 				yield nt, ql0, nr_list[-1], lr0, nar
 
+	def iter_comp_filter():
+		yield nt0, ql0, nr_list[-1], lr0, nar0
+
 	if opt is None: add_exp_all(data, [
 		iter_vary_nt(), 
 		iter_vary_ql(), 
 		iter_vary_nr(), 
-		iter_vary_lr()
+		iter_vary_lr(),
+		iter_vary_nar(),
+		iter_vary_theta(),
 		])
 	elif opt == 'nt': add_exp_all(data, [iter_vary_nt()])
 	elif opt == 'ql': add_exp_all(data, [iter_vary_ql()])
 	elif opt == 'nr': add_exp_all(data, [iter_vary_nr()])
 	elif opt == 'lr': add_exp_all(data, [iter_vary_lr()])
-	elif opt == 'nar': add_exp_all(data, [iter_vary_nar()])
+	#elif opt == 'nar': add_exp_all(data, [iter_vary_nar()])
 	elif opt == 'theta': add_exp_all(data, [iter_vary_theta()])
+	elif opt == 'comp_filter': add_exp_all(data, [iter_comp_filter()])
 	else: print(opt)
 
 
@@ -123,8 +135,11 @@ def sort_exp_list(exp_list):
 
 
 def output_exp_list(exp_list):
-	with open('exp_list.txt', 'w') as f:
+	exp_prev = None
+	with open('exp_list.txt', 'a') as f:
 		for exp in exp_list:
+			if exp_prev == exp: continue
+			else: exp_prev = exp
 			key_list = dict_alg[exp['alg']].keys()
 			param = ','.join([k+':'+exp[k] for k in key_list])
 			exp['param'] = param
@@ -134,9 +149,27 @@ def output_exp_list(exp_list):
 			f.write(task+'\n')
 
 
-filter_order = {'Fopt_None':13, 'Fopt_Index':12, 'Fopt_C':11, 'Fopt_P':10, 'Fopt_L':9, 'Fopt_R':8, 'Fopt_IL':7, 'Fopt_IR':6, 'Fopt_CP':5, 'Fopt_CL':4, 'Fopt_PL':3, 'Fopt_CPL':2, 'Fopt_CPLR':1}
+filter_order = {
+		'Fopt_None':15,
+		'Fopt_C':14,
+		'Fopt_P':13,
+		'Fopt_L':12,
+		'Fopt_R':11,
+		'Fopt_CP':10,
+		'Fopt_CL':9,
+		'Fopt_PL':8,
+		'Fopt_CR':7,
+		'Fopt_PR':6,
+		'Fopt_LR':5,
+		'Fopt_CPL':4,
+		'Fopt_CPR':3,
+		'Fopt_CLR':2,
+		'Fopt_PLR':1,
+		'Fopt_CPLR':0,
+}
+
 exp_list = []
-for data in data_list: add_data_setting_all(data, opt='nar')
+for data in data_list: add_data_setting_all(data, opt='comp_filter')
 exp_list = sort_exp_list(exp_list)
 output_exp_list(exp_list)
 
