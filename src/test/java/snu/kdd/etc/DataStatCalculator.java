@@ -151,6 +151,7 @@ public class DataStatCalculator {
 		long sum = 0;
 		long sqsum = 0;
 		for ( Rule rule : dataset.ruleset.get() ) {
+			if ( rule.isSelfRule ) continue;
 			dataStat.lenRHS.max = Math.max(dataStat.lenRHS.max, rule.rhsSize());
 			dataStat.lenRHS.min = Math.min(dataStat.lenRHS.min, rule.rhsSize());
 			++n;
