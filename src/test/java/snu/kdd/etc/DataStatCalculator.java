@@ -34,9 +34,12 @@ public class DataStatCalculator {
 	@Test
 	public void test() throws IOException {
 		String[] targetList = {
-				"WIKI-DOC,"+DatasetInfo.getMaxSize("WIKI-DOC")+",107836",
-				"PUBMED-DOC,"+DatasetInfo.getMaxSize("PUBMED-DOC")+",79011",
-				"AMAZON-DOC,"+DatasetInfo.getMaxSize("AMAZON-DOC")+",107836"
+				"WIKI,10000000,107836",
+				"PUBMED,"+DatasetInfo.getMaxSize("PUBMED")+",79011",
+				"AMAZON,10000000,107836"
+//				"WIKI-DOC,"+DatasetInfo.getMaxSize("WIKI-DOC")+",107836",
+//				"PUBMED-DOC,"+DatasetInfo.getMaxSize("PUBMED-DOC")+",79011",
+//				"AMAZON-DOC,"+DatasetInfo.getMaxSize("AMAZON-DOC")+",107836"
 				};
 		for ( int i=0; i<targetList.length; ++i ) {
 			String[] tokens =  targetList[i].split(",");
@@ -54,6 +57,7 @@ public class DataStatCalculator {
 		countNumRule(dataset, dataStat);
 		countLenRecords(dataset, dataStat);
 		countNumApplicableRules(dataset, dataStat);
+		countLenRHS(dataset, dataStat);
 		writeResult(dataset, dataStat);
 	}
 	
@@ -142,6 +146,23 @@ public class DataStatCalculator {
 		dataStat.nApp.std = std;
 	}
 	
+	public static void countLenRHS( Dataset dataset, DatasetStat dataStat ) {
+		long n = 0;
+		long sum = 0;
+		long sqsum = 0;
+		for ( Rule rule : dataset.ruleset.get() ) {
+			dataStat.lenRHS.max = Math.max(dataStat.lenRHS.max, rule.rhsSize());
+			dataStat.lenRHS.min = Math.min(dataStat.lenRHS.min, rule.rhsSize());
+			++n;
+			sum += rule.rhsSize();
+			sqsum += rule.rhsSize() * rule.rhsSize();
+		}
+		double mean = 1.0*sum/n;
+		double std = Math.sqrt(1.0*sqsum/n - mean*mean);
+		dataStat.lenRHS.avg = mean;
+		dataStat.lenRHS.std = std;
+	}
+	
 	static class StatTuple {
 		int min = Integer.MAX_VALUE;
 		int max = Integer.MIN_VALUE;
@@ -162,10 +183,11 @@ public class DataStatCalculator {
 		StatTuple nSnt = new StatTuple();
 		StatTuple len = new StatTuple();
 		StatTuple nApp = new StatTuple();
+		StatTuple lenRHS = new StatTuple();
 		
 		@Override
 		public String toString() {
-			return String.format("%d\t%d\t%d\t%d\t%s\t%s\t%s", nDoc, nRecord, nToken, nRule, nSnt, len, nApp);
+			return String.format("%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s", nDoc, nRecord, nToken, nRule, nSnt, len, nApp, lenRHS);
 		}
 	}
 }
