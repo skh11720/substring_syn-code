@@ -1,0 +1,70 @@
+1. disk-based search
+
+1.1. data store
+- serialize record
+- store records in multiple chunks
+- build an in-mem map from id to record location (chunck idx, in-chunk position)
+- retrieving n records takes O(n) disk access
+- consts:
+    CHUNK_SIZE
+
+1.2. index store
+- scan records and build an in-mem index
+- periodically flush the index to the disk
+- while scanning build a map from token to the fragmented inv list
+- after scanning merge the fragmented lists
+- update the map from token to the inv list
+- consts:
+    INMEM_MAX_SIZE
+
+1.3. buffer manager
+- build an in-mem map from token to the inv list
+- for a query token load the inv list from disk if necessary
+- use LRU policy
+- consts:
+    BUFFER_SIZE
+
+1.4. vs using DB
+- fast, specialized
+
+
+
+2. improvement
+
+2.1. use overlap threshold > 1 in the prefix search
+
+2.2. segment texts given a maximum query length
+
+
+
+
+3. pkwise implementation
+
+3.1. overview
+- given qlen and theta, compute the range of window size
+- enumerate all windows of valid size
+- query-side: transform query and search for each transformed query
+- data-side: build index with windows of the valid size which are substrings
+  of transforomed data strings, then search for the query itself
+
+3.2. plan
+(*) indexing
+(*) token ordering
+(*) token partitioning
+(*) sig gen
+(*) search
+(-) optimization
+
+3.3. Misthinkings
+- enumerating only the maximum-sized windows may fail, since even though
+  signatures do not have an overlap, a substring of a window can be similar to
+  the query.
+- cost estimation is not straightforward, since problem definition changed
+
+
+
+BUG REPORT
+when: 191126
+where: the length filter
+problem: -
+evidence: exp 1024193006, 1024193219, 1025104439

@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import snu.kdd.substring_syn.data.IntPair;
 
 /**
  * 
@@ -106,16 +107,26 @@ public class IntBinaryHeap {
 		heapify(0);
 	}
 	
-	public int peek() {
+	public int peekKey() {
 		if ( isEmpty() ) throw new RuntimeException();
 		return keys[0];
 	}
 	
-	public int poll() {
-		if ( isEmpty() ) throw new RuntimeException();
-		int minKey = keys[0];
+	public int pollKey() {
+		int minKey = peekKey();
 		deleteMin();
 		return minKey;
+	}
+	
+	public IntPair peek() {
+		if ( isEmpty() ) throw new RuntimeException();
+		return new IntPair(keys[0], values[0]);
+	}
+	
+	public IntPair poll() {
+		IntPair minKV = peek();
+		deleteMin();
+		return minKV;
 	}
 	
 	public boolean isValidHeap() {
@@ -237,7 +248,7 @@ public class IntBinaryHeap {
 		}
 		
 		for ( int i=0; i<17; ++i ) {
-			int minKey = heap.poll();
+			int minKey = heap.pollKey();
 			System.out.println(minKey);
 			System.out.println(heap);
 			if ( !heap.isValidHeap() ) throw new RuntimeException();

@@ -1,34 +1,52 @@
 package snu.kdd.substring_syn.data.record;
 
+import java.rmi.UnexpectedException;
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import snu.kdd.substring_syn.algorithm.filter.TransLenLazyCalculator;
+import snu.kdd.substring_syn.data.IntPair;
 import snu.kdd.substring_syn.data.Rule;
+import snu.kdd.substring_syn.utils.Util;
 
-public class Subrecord implements RecordInterface {
+public class Subrecord implements TransformableRecordInterface, RecursiveRecordInterface {
 	
-	private final Record rec;
+	protected final TransformableRecordInterface rec;
 	public final int sidx;
 	public final int eidx;
-	private final int hash;
+	protected final int hash;
 	protected int maxRhsSize = 0;
+	protected int maxTransLen = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
-		this.rec = rec.getSuperRecord();
-		this.sidx = sidx + rec.getSidx(); // inclusive
-		this.eidx = eidx + rec.getSidx(); // exclusive
+		// TODO: remove the cast
+		this.rec = ((RecursiveRecordInterface)rec).getSuperRecord();
+		this.sidx = sidx + ((RecursiveRecordInterface)rec).getSidx(); // inclusive
+		this.eidx = eidx + ((RecursiveRecordInterface)rec).getSidx(); // exclusive
 		hash = getHash();
 	}
 	
-	private int getHash() {
-		int hash = rec.hashCode();
-		hash = 0x1f1f1f1f ^ hash+ sidx;
-		hash = 0x1f1f1f1f ^ hash+ eidx;
-		return hash;
+	protected int getHash() {
+		// djb2-like
+		int hash = Util.bigprime + rec.getIdx();
+		for( int i=sidx; i<eidx; ++i ) {
+			int token = rec.getToken(i);
+			hash = ( hash << 5 ) + Util.bigprime + token;
+//                tmp = 0x1f1f1f1f ^ tmp + token;
+//			hash = hash % Util.bigprime;
+		}
+		return (int) ( hash % Integer.MAX_VALUE );
+	}
+	
+	@Override
+	public int getIdx() {
+		return rec.getIdx();
 	}
 	
 	@Override
@@ -61,17 +79,54 @@ public class Subrecord implements RecordInterface {
 	}
 
 	@Override
-	public int getMaxTransLength() {
-		// TODO: return more tight (accurate) value
-		return rec.getMaxTransLength();
-	}
-
-	@Override
 	public int size() {
 		return eidx-sidx;
 	}
+	
+	@Override
+	public int getNumApplicableNonselfRules() {
+		return (int)StreamSupport.stream(getApplicableRuleIterable().spliterator(), true).filter(x->!x.isSelfRule).count();
+	}
 
 	@Override
+	public int getNumApplicableRules(int i) {
+		return (int)StreamSupport.stream(getApplicableRules(i).spliterator(), true).count();
+	}
+	
+	@Override
+	public int getNumSuffixApplicableRules(int i) {
+		return (int)StreamSupport.stream(getSuffixApplicableRules(i).spliterator(), true).count();
+	}
+	
+	@Override
+	public int getNumSuffixRuleLens(int i) {
+		//TODO: subrec.suffixRuleLens should be computed exactly
+		return rec.getNumSuffixRuleLens(i);
+	}
+
+	@Override
+	public final int getMaxTransLength() {
+		if ( maxTransLen == 0 ) preprocessTransformLength();
+		return maxTransLen;
+	}
+	
+	@Override
+	public void preprocessApplicableRules() {
+		(new UnexpectedException("")).printStackTrace();
+		System.exit(1);
+	}
+	
+	@Override
+	public void preprocessSuffixApplicableRules() {
+		(new UnexpectedException("")).printStackTrace();
+		System.exit(1);
+	}
+
+	private void preprocessTransformLength() {
+		TransLenLazyCalculator cal = new TransLenLazyCalculator(null, this, 0, size(), 0);
+		maxTransLen = cal.getUB(size()-1);
+	}
+
 	public Iterable<Rule> getApplicableRuleIterable() {
 		return new Iterable<Rule>() {
 			
@@ -82,7 +137,6 @@ public class Subrecord implements RecordInterface {
 		};
 	}
 
-	@Override
 	public Iterable<Rule> getApplicableRules( int i ) {
 		return new Iterable<Rule>() {
 			
@@ -93,17 +147,16 @@ public class Subrecord implements RecordInterface {
 		};
 	}
 	
-	public Iterable<Rule> getSuffixApplicableRuleIterable() {
-		return new Iterable<Rule>() {
-			
-			@Override
-			public Iterator<Rule> iterator() {
-				return new SuffixRuleIterator();
-			}
-		};
-	}
+//	public Iterable<Rule> getSuffixApplicableRuleIterable() {
+//		return new Iterable<Rule>() {
+//			
+//			@Override
+//			public Iterator<Rule> iterator() {
+//				return new SuffixRuleIterator();
+//			}
+//		};
+//	}
 
-	@Override
 	public Iterable<Rule> getSuffixApplicableRules( int i ) {
 		return new Iterable<Rule>() {
 			
@@ -113,18 +166,16 @@ public class Subrecord implements RecordInterface {
 			}
 		};
 	}
-
-	@Override
-	public Iterable<Rule> getIncompatibleRules( int k ) {
-		ObjectOpenHashSet<Rule> rules = new ObjectOpenHashSet<>();
-		rules.addAll( new ObjectArrayList<Rule>(getApplicableRules(k).iterator()) );
-		rules.addAll( new ObjectArrayList<Rule>(getSuffixApplicableRules(k).iterator()) );
-		return rules;
-	}
 	
+	public Iterable<IntPair> getSuffixRuleLens( int k ) {
+		//TODO: subrec.suffixRuleLens should be computed exactly
+		return rec.getSuffixRuleLens(sidx+k);
+	}
+
 	@Override
 	public int getMaxRhsSize() {
 		if ( maxRhsSize == 0 ) {
+			maxRhsSize = 1;
 			for ( int k=sidx; k<eidx; ++k ) {
 				for ( Rule rule : rec.getApplicableRules(k) ) {
 					if ( rule.lhsSize() <= eidx-k ) 
@@ -188,44 +239,32 @@ public class Subrecord implements RecordInterface {
 		return toRecord().toStringDetails();
 	}
 	
-	public Record toRecord() {
-		Record newrec = new Record(getTokenList().toIntArray());
-		newrec.id = getID();
-		Rule[][] applicableRules = new Rule[this.size()][];
-		if ( rec.getApplicableRules() != null ) {
-			for ( int k=sidx; k<eidx; ++k ) {
-				ObjectArrayList<Rule> ruleList = new ObjectArrayList<>();
-				for ( Rule rule : rec.getApplicableRules(k) ) {
-					if ( rule.lhsSize() <= eidx-k ) ruleList.add(rule);
-				}
-				applicableRules[k-sidx] = new Rule[ruleList.size()];
-				ruleList.toArray( applicableRules[k-sidx] );
-			}
-		}
-		newrec.applicableRules = applicableRules;
-		RecordPreprocess.preprocessSuffixApplicableRules(newrec);
-		return newrec;
-	}
-	
-	public Record getSuperRecord() {
+	@Override
+	public TransformableRecordInterface getSuperRecord() {
 		return rec;
 	}
 
 	abstract class RuleIterator implements Iterator<Rule> {
 		final int kMax;
 		int k;
-		int i = 0;
-		Rule[][] rules;
+		Rule nextRule = null;
+		Iterator<Rule> rIter = null;
 		
 		RuleIterator() {
-			k = sidx;
-			kMax = eidx;
+			this(sidx, eidx);
 		}
 
 		RuleIterator( int k ) {
-			this.k = sidx+k;
-			kMax = this.k+1;
+			this(sidx+k, sidx+k+1);
 		}
+		
+		RuleIterator( int k, int kMax ) {
+			this.k = k;
+			this.kMax = kMax;
+			rIter = getRuleIterator(k);
+		}
+		
+		abstract Iterator<Rule> getRuleIterator(int k);
 		
 		@Override
 		public boolean hasNext() {
@@ -234,20 +273,22 @@ public class Subrecord implements RecordInterface {
 
 		@Override
 		public Rule next() {
-			Rule rule = rules[k][i++];
+			Rule rule = nextRule;
 			findNext();
 			return rule;
 		}
 		
 		void findNext() {
 			while ( k < kMax) {
-				while ( i < rules[k].length ) {
-					if ( isValid(rules[k][i]) ) return;
-					++i;
+				while ( rIter.hasNext() ) {
+					nextRule = rIter.next();
+					if ( isValid(nextRule) ) return;
 				}
 				++k;
-				i = 0;
+				if ( k < kMax ) rIter = getRuleIterator(k);
+				else break;
 			}
+			nextRule = null;
 		}
 		
 		abstract boolean isValid( Rule rule );
@@ -256,13 +297,17 @@ public class Subrecord implements RecordInterface {
 	class PrefixRuleIterator extends RuleIterator {
 		
 		PrefixRuleIterator() {
-			rules = rec.applicableRules;
 			findNext();
 		}
 		
 		PrefixRuleIterator( int k ) {
-			this();
+			super(k);
 			findNext();
+		}
+		
+		@Override
+		Iterator<Rule> getRuleIterator(int k) {
+			return rec.getApplicableRules(k).iterator();
 		}
 		
 		@Override
@@ -274,14 +319,17 @@ public class Subrecord implements RecordInterface {
 	class SuffixRuleIterator extends RuleIterator {
 		
 		SuffixRuleIterator() {
-			rules = rec.suffixApplicableRules;
 			findNext();
 		}
 		
 		SuffixRuleIterator( int k ) {
 			super(k);
-			rules = rec.suffixApplicableRules;
 			findNext();
+		}
+		
+		@Override
+		Iterator<Rule> getRuleIterator(int k) {
+			return rec.getSuffixApplicableRules(k).iterator();
 		}
 		
 		@Override
@@ -289,4 +337,55 @@ public class Subrecord implements RecordInterface {
 			return k-rule.lhsSize()+1 >= sidx;
 		}
 	}
+	
+	public Record toRecord() {
+		Record newrec = new Record(this.getIdx(), this.getID(), this.getTokenList().toIntArray());
+
+		Rule[][] applicableRules = null;
+		applicableRules = new Rule[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			applicableRules[i] = (new ObjectArrayList<Rule>(getApplicableRules(i).iterator())).toArray(new Rule[0]);
+		}
+        
+		newrec.applicableRules = applicableRules;
+
+		Rule[][] suffixApplicableRules = null;
+		suffixApplicableRules = new Rule[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			suffixApplicableRules[i] = (new ObjectArrayList<Rule>(getSuffixApplicableRules(i).iterator())).toArray(new Rule[0]);
+		}
+		
+		newrec.suffixApplicableRules = suffixApplicableRules;
+
+		int[][] suffixRuleLenPairs = null;
+		suffixRuleLenPairs = new int[size()][];
+		for ( int i=0; i<size(); ++i ) {
+			ObjectSet<IntPair> pairSet = new ObjectOpenHashSet<>();
+			for ( Rule rule : suffixApplicableRules[i] ) pairSet.add(new IntPair(rule.lhsSize(), rule.rhsSize()));
+			suffixRuleLenPairs[i] = new int[2*pairSet.size()];
+			Iterator<IntPair> iter = pairSet.iterator();
+			for ( int j=0; iter.hasNext(); j++ ) {
+				IntPair pair = iter.next();
+				suffixRuleLenPairs[i][2*j] = pair.i1;
+				suffixRuleLenPairs[i][2*j+1] = pair.i2;
+			}
+		}
+		
+		newrec.suffixRuleLenPairs = suffixRuleLenPairs;
+		return newrec;
+	}
+	
+//    public static Record toRecord( Subrecord subrec, TransLenCalculator transLen ) {
+//        Record newrec = toRecord(subrec);
+//        int[][] transformLengths = null;
+//        if ( transLen != null ) {
+//            transformLengths = new int[subrec.size()][2];
+//            for ( int i=0; i<subrec.size(); ++i ) {
+//                transformLengths[i][0] = transLen.getLB(subrec.sidx, subrec.sidx+i);
+//                transformLengths[i][1] = transLen.getUB(subrec.sidx, subrec.sidx+i);
+//            }
+//        }
+//        newrec.transformLengths = transformLengths;
+//        return newrec;
+//    }
 }

@@ -9,17 +9,19 @@ public class ExactPrefixSearch extends PrefixSearch {
 	protected final NaivePkduckValidator validator;
 
 	
-	public ExactPrefixSearch( double theta, boolean idxFilter_query, boolean idxFilter_text, boolean lf_query, boolean lf_text, IndexChoice indexChoice ) {
-		super(theta, idxFilter_query, idxFilter_text, lf_text, lf_text, indexChoice);
-		validator = new NaivePkduckValidator();
+	public ExactPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+		super(theta, bLF, bPF, indexChoice);
+		validator = new NaivePkduckValidator(theta, statContainer);
 	}
 
+	@Override
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
-		return validator.isSimx2yOverThreahold(query, window.toRecord(), theta);
+		return validator.verifyQuerySide(query, window, theta);
 	}
 
+	@Override
 	protected boolean verifyTextSide( Record query, Subrecord window ) {
-		return validator.isSimx2yOverThreahold(window.toRecord(), query, theta);
+		return validator.verifyTextSide(query, window, theta);
 	}
 
 	@Override

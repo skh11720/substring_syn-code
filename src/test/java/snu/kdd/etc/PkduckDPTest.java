@@ -14,7 +14,7 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.substring_syn.data.Dataset;
-import snu.kdd.substring_syn.data.TokenOrder;
+import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.utils.Util;
 import vldb18.PkduckDP;
@@ -25,11 +25,11 @@ public class PkduckDPTest {
 
 	@Test
 	public void test() throws IOException {
-		Dataset dataset = Util.getDatasetWithPreprocessing("SPROT", "10000");
+		Dataset dataset = DatasetFactory.createInstanceByName("SPROT", "10000");
 		long ts;
 		long[] tArr = new long[1];
 		for ( double theta : thetaList ) {
-			for ( Record rec : dataset.searchedList ) {
+			for ( Record rec : dataset.getSearchedList() ) {
 				PkduckDP pkduckDP0 = new PkduckDP(rec, theta);
 				IntOpenHashSet tokenSet = rec.getCandTokenSet();
 				IntOpenHashSet prefix = Util.getExpandedPrefix(rec, theta);
@@ -48,12 +48,12 @@ public class PkduckDPTest {
 	public void outputAnswer( Dataset dataset, double theta ) throws FileNotFoundException {
 		String path = String.format("tmp/PkduckDPTest_Answer_%s_%.2f.txt", dataset.name, theta);
 		PrintStream ps = new PrintStream(path);
-		for ( Record rec : dataset.searchedList ) {
+		for ( Record rec : dataset.getSearchedList() ) {
 			PkduckDP pkduckDP = new PkduckDP(rec, theta);
 			IntOpenHashSet tokenSet = rec.getCandTokenSet();
 			
 			for ( int token : tokenSet ) {
-				int rid = rec.getID();
+				int rid = rec.getIdx();
 				boolean inSig = pkduckDP.isInSigU(token);
 				ps.println(rid+"\t"+token+"\t"+(inSig?1:0));
 			}

@@ -1,25 +1,23 @@
 package snu.kdd.substring_syn.data.record;
 
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Iterator;
 
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.data.Rule;
 
 public class Records {
 
-	public static ObjectList<Record> expandAll( RecordInterface rec ) {
+	public static ObjectList<Record> expandAll( TransformableRecordInterface rec ) {
 		ObjectList<Record> rslt = new ObjectArrayList<Record>();
 		int[] tokens = rec.getTokenArray();
 		expandAll( rslt, rec, 0, tokens );
 		return rslt;
 	}
 
-	private static void expandAll( ObjectList<Record> rslt, RecordInterface rec, int idx, int[] t ) {
+	private static void expandAll( ObjectList<Record> rslt, TransformableRecordInterface rec, int idx, int[] t ) {
 
 		Iterable<Rule> rules = rec.getApplicableRules(idx);
 
@@ -63,67 +61,160 @@ public class Records {
 			}
 		}
 	}
+	
+	public static Iterable<Record> expands( Iterable<TransformableRecordInterface> records ) {
+		return new Iterable<Record>() {
 
-
-	static int getTransSetSizeLowerBound( Record rec ) {
-		Iterator<Int2DoubleMap.Entry> tokenCountIter = getTokenCountUpperBoundIterator(rec);
-		return computeLowerBound(rec, tokenCountIter);
-	}
-
-	private static Iterator<Int2DoubleMap.Entry> getTokenCountUpperBoundIterator( Record rec ) {
-		Comparator<Int2DoubleMap.Entry> comp = new Comparator<Int2DoubleMap.Entry>() {
 			@Override
-			public int compare(Int2DoubleMap.Entry o1, Int2DoubleMap.Entry o2) {
-				if ( o1.getDoubleValue() > o2.getDoubleValue() ) return -1;
-				else if ( o1.getDoubleValue() < o2.getDoubleValue() ) return 1;
-				else return 0;
+			public Iterator<Record> iterator() {
+				return new ExpandMultipleIterator(records);
 			}
 		};
+	}
+	
+	private static class ExpandMultipleIterator implements Iterator<Record> {
 		
-		Int2DoubleOpenHashMap counter = new Int2DoubleOpenHashMap();
-		Object2ObjectOpenHashMap<Rule, Int2DoubleMap> counterByRule = new Object2ObjectOpenHashMap<>();
-		for ( Rule rule : rec.getApplicableRuleIterable() ) {
-			Int2DoubleOpenHashMap counterOfRule = new Int2DoubleOpenHashMap();
-			for ( int token : rule.getRhs() ) counterOfRule.addTo(token, 1.0/rule.lhsSize());
-			counterByRule.put(rule, counterOfRule);
+		Iterator<TransformableRecordInterface> rIter = null;
+		TransformableRecordInterface rec = null;
+		ExpandIterator eIter = null;
+
+		public ExpandMultipleIterator(Iterable<TransformableRecordInterface> records) {
+			rIter = records.iterator();
+			findNext();
 		}
-		for ( int i=0; i<rec.size(); ++i ) {
-			Int2DoubleOpenHashMap counterByPos = new Int2DoubleOpenHashMap();
-			for ( Rule rule : rec.getIncompatibleRules(i) ) {
-				aggregateByMax(counterByPos, counterByRule.get(rule));
+
+		@Override
+		public Record next() {
+			Record recExp = eIter.next();
+			findNext();
+			return recExp;
+		}
+		
+		protected void findNext() {
+			while ( eIter == null || !eIter.hasNext() ) {
+				if ( !rIter.hasNext() ) {
+					rIter = null;
+					eIter = null;
+					rec = null;
+					return;
+				}
+				else {
+					rec = rIter.next();
+//					Log.log.trace("rec.idx=%d, rec.nar=%d", ()->rec.getIdx(), ()->rec.getNumApplicableNonselfRules());
+					eIter = new ExpandIterator(rec);
+				}
 			}
-			aggregateBySum(counter, counterByPos);
 		}
-		Iterator<Int2DoubleMap.Entry> tokenCountIter = counter.int2DoubleEntrySet().stream().sorted(comp).iterator();
-		return tokenCountIter;
-	}
-
-	private static void aggregateByMax( Int2DoubleMap counter, Int2DoubleMap other ) {
-		for ( it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry entry : other.int2DoubleEntrySet() ) {
-			int key = entry.getIntKey();
-			double value = entry.getDoubleValue();
-			if ( counter.containsKey(key) ) counter.put(key, Math.max(counter.get(key), value));
-			else counter.put(key, value);
-		}
-	}
-
-	private static void aggregateBySum( Int2DoubleMap counter, Int2DoubleMap other ) {
-		for ( it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry entry : other.int2DoubleEntrySet() ) {
-			int key = entry.getIntKey();
-			double value = entry.getDoubleValue();
-			if ( counter.containsKey(key) ) counter.put(key, counter.get(key)+value);
-			else counter.put(key, value);
+		
+		@Override
+		public boolean hasNext() {
+			return eIter != null && eIter.hasNext();
 		}
 	}
 	
-	private static int computeLowerBound( Record rec, Iterator<Int2DoubleMap.Entry> tokenCountIter ) {
-		int lb = 0;
-		double len = 0;
-		while ( tokenCountIter.hasNext() && len < rec.getMinTransLength() ) {
-			++lb;
-			len += tokenCountIter.next().getDoubleValue();
+	public static Iterable<Record> expands( TransformableRecordInterface rec ) {
+		return new Iterable<Record>() {
+			
+			@Override
+			public Iterator<Record> iterator() {
+				return new ExpandIterator(rec);
+			}
+		};
+	}
+	
+	private static class ExpandIterator implements Iterator<Record> {
+
+		final State state;
+		boolean hasNext = true;
+		
+		public ExpandIterator( TransformableRecordInterface rec ) {
+			state = new State(rec);
+			findNext();
 		}
-		return Math.max(1, lb);
+
+		@Override
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		@Override
+		public Record next() {
+			Record exp = state.getRecord();
+			findNext();
+			return exp;
+		}
+		
+		private void findNext() {
+			hasNext = state.transit();
+		}
+
+		private class State {
+			TransformableRecordInterface rec;
+			Rule[] ruleList;
+			Iterator<Rule>[] riterList;
+			int[] expand;
+			int nRule;
+			int lhsSize;
+			int rhsSize;
+			
+			@SuppressWarnings("unchecked")
+			public State( TransformableRecordInterface rec ) {
+				this.rec = rec;
+				ruleList = new Rule[rec.size()];
+				riterList = new Iterator[rec.size()];
+				for ( int i=0; i<rec.size(); ++i ) riterList[i] = rec.getApplicableRules(i).iterator();
+				expand = new int[rec.getMaxTransLength()];
+				nRule = 0;
+				lhsSize = 0;
+				rhsSize = 0;
+			}
+			
+			public boolean transit() {
+				while ( lhsSize >= rec.size() || !riterList[lhsSize].hasNext() ) {
+					if ( lhsSize < rec.size() ) {
+						riterList[lhsSize] = rec.getApplicableRules(lhsSize).iterator();
+					}
+					if ( nRule > 0 ) removeRule();
+					else return false;
+				}
+				while ( lhsSize < rec.size() ) {
+					if ( riterList[lhsSize].hasNext() ) {
+						Rule r = riterList[lhsSize].next();
+						if ( lhsSize + r.lhsSize() <= rec.size() ) addRule(r);
+					}
+				}
+				return true;
+			}
+			
+			public void addRule( Rule r ) {
+				ruleList[nRule] = r;
+				nRule += 1;
+				for ( int i=0; i<r.rhsSize(); ++i  ) expand[i+rhsSize] = r.getRhs()[i];
+				lhsSize += r.lhsSize();
+				rhsSize += r.rhsSize();
+			}
+			
+			public void removeRule() {
+				nRule -= 1;
+				Rule r = ruleList[nRule];
+				lhsSize -= r.lhsSize();
+				rhsSize -= r.rhsSize();
+			}
+			
+			public Record getRecord() {
+				return new Record(rec.getIdx(), rec.getID(), IntArrayList.wrap(expand).subList(0, rhsSize).toIntArray());
+			}
+			
+			public String getExpandString() {
+				if (nRule == 0 ) return "";
+				else return getRecord().toOriginalString();
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("%s, %d, %d, %d, %s", Arrays.toString(riterList), nRule, lhsSize, rhsSize, getExpandString());
+			}
+		}
 	}
 
 	public static int compare( int[] str1, int[] str2 ) {
@@ -151,4 +242,63 @@ public class Records {
 			return 1;
 		}
 	}
+	
+	public static Iterable<Subrecord> getSubrecords(RecordInterface rec) {
+		return new Iterable<Subrecord>() {
+			
+			@Override
+			public Iterator<Subrecord> iterator() {
+				return new Iterator<Subrecord>() {
+					
+					int w = 1;
+					int i = 0;
+					
+					@Override
+					public Subrecord next() {
+						Subrecord window = new Subrecord(rec,i, i+w);
+						findNext();
+						return window;
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return w <= rec.size();
+					}
+					
+					private final void findNext() {
+						i += 1;
+						if ( i+w > rec.size() ) {
+							w += 1;
+							i = 0;
+						}
+					}
+				};
+			}
+		};
+	}
+
+//	public static int getMaxTransformLength(TransformableRecordInterface rec) {
+//		int[] transformLengths = new int[rec.size()];
+//		for( int i = 0; i < rec.size(); ++i )
+//			transformLengths[ i ] = i + 1;
+//
+//		for( Rule rule : rec.getApplicableRules(0) ) {
+//			int fromSize = rule.lhsSize();
+//			int toSize = rule.rhsSize();
+//			if( fromSize < toSize ) {
+//				transformLengths[ fromSize - 1 ] = Math.max( transformLengths[ fromSize - 1 ], toSize );
+//			}
+//		}
+//		for( int i = 1; i < rec.size(); ++i ) {
+//			transformLengths[ i ] = Math.max( transformLengths[ i ], transformLengths[ i - 1 ] + 1 );
+//			for( Rule rule : rec.getApplicableRules(i) ) {
+//				int fromSize = rule.lhsSize();
+//				int toSize = rule.rhsSize();
+//				if( fromSize < toSize ) {
+//					transformLengths[ i + fromSize - 1 ] = Math.max( transformLengths[ i + fromSize - 1 ], transformLengths[ i - 1 ] + toSize );
+//				}
+//			}
+//		}
+//		return transformLengths[rec.size()-1];
+//	}
 }

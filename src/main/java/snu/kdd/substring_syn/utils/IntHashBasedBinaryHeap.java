@@ -64,7 +64,7 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 		int i = val2idxMap.get(value);
 		val2idxMap.remove(value);
 		decreaseKey(i, getMinimumKey());
-		poll();
+		pollKey();
 	}
 
 	public void deleteByValueIfExists( int value ) {
@@ -72,7 +72,7 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 		int i = val2idxMap.get(value);
 		val2idxMap.remove(value);
 		decreaseKey(i, getMinimumKey());
-		poll();
+		pollKey();
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class IntHashBasedBinaryHeap extends IntBinaryHeap {
 			}
 			
 			for ( int i=0; i<17; ++i ) {
-				int minKey = heap.poll();
+				int minKey = heap.pollKey();
 				System.out.println(minKey);
 				System.out.println(heap);
 			}

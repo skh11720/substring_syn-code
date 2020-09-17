@@ -5,33 +5,200 @@ SPROT_long:
     rulePath: 'sprot_long/rule.txt'
     nt: ['100', '101', '102', '103', '104', '105']
 
-# WIKI
-WIKI_1:
-    searchedPath: 'wiki/queries/queries_1.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+WIKI:
+    searchedPath: 'wiki/queries/queries_%s.txt'
+    indexedPath: 'wiki/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
 
-WIKI_3:
-    searchedPath: 'wiki/queries/queries_3.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+PUBMED:
+    searchedPath: 'PubMed/queries/queries_%s.txt'
+    indexedPath: 'PubMed/records_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
 
-WIKI_5:
-    searchedPath: 'wiki/queries/queries_5.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+AMAZON:
+   searchedPath: 'Amazon/queries/queries_%s.txt'
+   indexedPath: 'Amazon/records_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['1', '3', '5', '7', '9']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
 
-WIKI_7:
-    searchedPath: 'wiki/queries/queries_7.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['13657', '27314', '54629', '109258', '218517', '437035', '874070', '1748140', '3496280', '6992560', '13985121', '27970242', '55940485']
+USPS:
+    searchedPath: 'USPS/queries/queries_%s.txt'
+    indexedPath: 'USPS/records_all.txt'
+    rulePath: 'USPS/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000']
+    ql: ['1', '3', '5']
+    nr: ['142']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
 
-WIKI_0:
-    searchedPath: 'wiki/queries/queries_0.txt'
-    indexedPath: 'wiki/splitted/sentences_%s.txt'
-    rulePath: 'wordnet/rules.noun'
-    nt: ['0']
+WIKI-LONG:
+    searchedPath: 'wiki/queries/queries_%s.txt'
+    indexedPath: 'wiki/docs_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '5170114']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-LONG:
+    searchedPath: 'PubMed/queries/queries_%s.txt'
+    indexedPath: 'PubMed/docs_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '707442']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-LONG:
+   searchedPath: 'Amazon/queries/queries_%s.txt'
+   indexedPath: 'Amazon/docs_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '12917322']
+   ql: ['1', '3', '5', '7', '9']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-DOC:
+    searchedPath: 'wiki-doc/queries/queries_%s.txt'
+    indexedPath: 'wiki-doc/docs_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '5170114']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-DOC:
+    searchedPath: 'PubMed-doc/queries/queries_%s.txt'
+    indexedPath: 'PubMed-doc/docs_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '707442']
+    ql: ['1', '3', '5', '7', '9']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-DOC:
+   searchedPath: 'Amazon-doc/queries/queries_%s.txt'
+   indexedPath: 'Amazon-doc/docs_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '12917322']
+   ql: ['1', '3', '5', '7', '9']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-Q1M:
+    searchedPath: 'wiki/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'wiki/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-Q1M:
+    searchedPath: 'PubMed/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'PubMed/records_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-Q1M:
+   searchedPath: 'Amazon/queries/queries_for_comp_%s_1M.txt'
+   indexedPath: 'Amazon/records_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-Q10M:
+    searchedPath: 'wiki/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'wiki/records_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-Q10M:
+    searchedPath: 'PubMed/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'PubMed/records_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-Q10M:
+   searchedPath: 'Amazon/queries/queries_for_comp_%s_10M.txt'
+   indexedPath: 'Amazon/records_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-DOC-Q1M:
+    searchedPath: 'wiki-doc/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'wiki-doc/docs_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-DOC-Q1M:
+    searchedPath: 'PubMed-doc/queries/queries_for_comp_%s_1M.txt'
+    indexedPath: 'PubMed-doc/docs_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-DOC-Q1M:
+   searchedPath: 'Amazon-doc/queries/queries_for_comp_%s_1M.txt'
+   indexedPath: 'Amazon-doc/docs_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+WIKI-DOC-Q10M:
+    searchedPath: 'wiki-doc/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'wiki-doc/docs_all.txt'
+    rulePath: 'wordnet/rules_%s.noun'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '68387623']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '107836']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+PUBMED-DOC-Q10M:
+    searchedPath: 'PubMed-doc/queries/queries_for_comp_%s_10M.txt'
+    indexedPath: 'PubMed-doc/docs_all.txt'
+    rulePath: 'PubMed/rules/rules_%s.txt'
+    nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '7721130']
+    ql: ['3', '5']
+    nr: ['1000', '3162', '10000', '31622', '79011']
+    lr: ['0.2', '0.4', '0.6', '0.8', '1.0']
+
+AMAZON-DOC-Q10M:
+   searchedPath: 'Amazon-doc/queries/queries_for_comp_%s_10M.txt'
+   indexedPath: 'Amazon-doc/docs_all.txt'
+   rulePath: 'wordnet/rules_%s.noun'
+   nt: ['10000', '31622', '100000', '316227', '1000000', '3162277', '10000000', '31622776', '73856337']
+   ql: ['3', '5']
+   nr: ['1000', '3162', '10000', '31622', '107836']
+   lr: ['0.2', '0.4', '0.6', '0.8', '1.0']

@@ -18,15 +18,24 @@ public class Stat {
 //	public static final String Dataset_indexedPath = "Dataset_indexedPath";
 //	public static final String Dataset_rulePath = "Dataset_rulePath";
 	public static final String Dataset_Name = "Dataset_Name";
+	public static final String Dataset_nt= "Dataset_nt";
+	public static final String Dataset_nr= "Dataset_nr";
+	public static final String Dataset_qlen = "Dataset_qlen";
+	public static final String Dataset_lr = "Dataset_lr";
+	public static final String Dataset_nar = "Dataset_nar";
 	public static final String Dataset_numSearched = "Dataset_numSearched";
 	public static final String Dataset_numIndexed= "Dataset_numIndexed";
+	public static final String Dataset_numDoc = "Dataset_numDoc";
 	public static final String Dataset_numRule= "Dataset_numRule";
 	
 	public static final String Time_Total = "Time_Total";
-	public static final String Time_QSTotal = "Time_QSTotal";
-	public static final String Time_TSTotal = "Time_TSTotal";
+	public static final String Time_QS_Total = "Time_QS_Total";
+	public static final String Time_TS_Total = "Time_TS_Total";
+	public static final String Time_SearchPerQuery = "Time_SearchPerQuery";
+	public static final String Time_Prepare_Data = "Time_Prepare_Data";
 	public static final String Time_Preprocess= "Time_Preprocess";
-	public static final String Time_Validation = "Time_Validation";
+	public static final String Time_QS_Validation = "Time_QS_Validation";
+	public static final String Time_TS_Validation = "Time_TS_Validation";
 	public static final String Time_BuildIndex = "Time_BuildIndex";
 	public static final String Time_QS_IndexFilter = "Time_QS_IndexFilter";
 	public static final String Time_TS_IndexFilter = "Time_TS_IndexFilter";
@@ -41,19 +50,27 @@ public class Stat {
 	public static final String Num_Result = "Num_Result";
 	public static final String Num_QS_Result = "Num_QS_Result";
 	public static final String Num_TS_Result = "Num_TS_Result";
+	public static final String Num_QS_Retrieved = "Num_QS_Retrieved";
+	public static final String Num_TS_Retrieved = "Num_TS_Retrieved";
 	public static final String Num_QS_Verified = "Num_QS_Verified";
 	public static final String Num_TS_Verified = "Num_TS_Verified";
 	
 	public static final String Len_SearchedAll= "Len_SearchedAll";
 	public static final String Len_IndexedAll= "Len_IndexedAll";
-	public static final String Len_QS_Searched = "Len_QS_Searched";
-	public static final String Len_TS_Searched = "Len_TS_Searched";
+	public static final String Size_Index_InvList = "Size_Index_InvList";
+	public static final String Size_Index_TransInvList = "Size_Index_TransInvList";
+	public static final String Len_QS_Retrieved = "Len_QS_Retrieved";
+	public static final String Len_TS_Retrieved = "Len_TS_Retrieved";
 	public static final String Len_QS_LF = "Len_QS_LF";
 	public static final String Len_TS_LF = "Len_TS_LF";
 	public static final String Len_QS_PF = "Len_QS_PF";
 	public static final String Len_TS_PF = "Len_TS_PF";
 	public static final String Len_QS_Verified = "Len_QS_Verified";
 	public static final String Len_TS_Verified = "Len_TS_Verified";
+	
+	public static final String Mem_Before_Index = "Mem_Before_Index";
+	public static final String Mem_After_Index = "Mem_After_Index";
+	public static final String Space_Index = "Space_Index";
 	
 	public static List<String> getList() {
 		Field[] fieldList = Stat.class.getDeclaredFields();
