@@ -103,6 +103,7 @@ public abstract class AbstractSearch {
 	protected final void searchTextSide( Record query, Dataset dataset ) {
 		Iterable<TransformableRecordInterface> candListTextSide = getCandRecordListTextSide(query, dataset);
 		for ( TransformableRecordInterface rec : candListTextSide ) {
+			if (rsltQuerySideContains(query, rec)) continue;
 			if (rsltTextSideContains(query, rec)) continue;
 //			else Log.log.trace("rec_%d=%s", rec.getID(), rec.toOriginalString());
 //			if ( rec.getID() != 946 ) continue;
