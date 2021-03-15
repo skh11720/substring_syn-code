@@ -63,7 +63,8 @@ public class ContainmentPrefixSearch extends AbstractIndexBasedSearch {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: enable skip in data-side
 		 */
-		return "1.00";
+		return "1.01";
 	}
 }
