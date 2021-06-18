@@ -103,6 +103,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
+//			if (rsltQuerySideContains(query, window)) continue;
 			if (rsltTextSideContains(query, window)) continue;
 //			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
