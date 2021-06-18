@@ -4,12 +4,12 @@ import snu.kdd.substring_syn.algorithm.validator.ImprovedGreedyWindowValidator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 
-public class SimWPositionPrefixSearch extends PositionPrefixSearch {
+public class SimWPositionRSSearch extends PositionRSSearch {
 
 	protected final ImprovedGreedyWindowValidator validator;
 
 	
-	public SimWPositionPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public SimWPositionRSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
 		validator = new ImprovedGreedyWindowValidator(theta, statContainer);
 	}
@@ -28,7 +28,7 @@ public class SimWPositionPrefixSearch extends PositionPrefixSearch {
 
 	@Override
 	public String getName() {
-		return "SimWPositionPrefixSearch";
+		return "SimWPositionRSSearch";
 	}
 	
 	@Override

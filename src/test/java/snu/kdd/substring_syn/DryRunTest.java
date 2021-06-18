@@ -27,11 +27,11 @@ public class DryRunTest extends TestCase {
 	@Test
 	public void test() throws IOException, ParseException {
 		/*
-		PrefixSearch	544.388	2.900	60	60
+		RSSearch	544.388	2.900	60	60
 		PkwiseSynSearch	4450.524	3.354	60	60
 		FaerieSynSearch	9679.844	95.270	60	60
 		 */
-		runAlgorithm("PrefixSearch", "theta:"+theta+",filter:Fopt_CPLR");
+		runAlgorithm("RSSearch", "theta:"+theta+",filter:Fopt_CPLR");
 		runAlgorithm("PkwiseSynSearch", "theta:"+theta+",kmax:opt");
 		runAlgorithm("FaerieSynSearch", "theta:"+theta+",isDiskBased:true");
 		System.out.println(strbld.toString());

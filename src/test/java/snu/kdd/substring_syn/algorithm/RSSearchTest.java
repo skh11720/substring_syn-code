@@ -20,9 +20,9 @@ import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
-import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactRSSearch;
+import snu.kdd.substring_syn.algorithm.search.PositionRSSearch;
+import snu.kdd.substring_syn.algorithm.search.RSSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -31,7 +31,7 @@ import snu.kdd.substring_syn.utils.InputArgument;
 import snu.kdd.substring_syn.utils.Log;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class PrefixSearchTest {
+public class RSSearchTest {
 
 	double[] thetaList = {0.6, 0.7, 0.8, 0.9, 1.0};
 	String[] sizeList = {"100", "101", "102", "103", "104", "105"};
@@ -44,7 +44,7 @@ public class PrefixSearchTest {
 		DatasetParam param = new DatasetParam("AMAZON", "10000", "107836", "5", "1.0");
 		double theta = 0.6;
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
-		AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+		AbstractSearch alg = new PositionRSSearch(theta, false, false, IndexChoice.CountPosition);
 		alg.run(dataset);
 	}
 	
@@ -69,7 +69,7 @@ public class PrefixSearchTest {
 		 */
 		DatasetParam param = new DatasetParam("WIKI", "100", "1000", "5", "1.0");
 //		DatasetParam param = new DatasetParam("WIKI-DOC", "20", "1000", "5", "1.0");
-		String argsTmpl = "-data %s -alg PrefixSearch -nt %s -nr %s -ql %s -lr %s -param theta:0.6,filter:%s";
+		String argsTmpl = "-data %s -alg RSSearch -nt %s -nr %s -ql %s -lr %s -param theta:0.6,filter:%s";
 		String outputTmpl = "%15s%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d%10d\n";
 		StringBuilder strbld = new StringBuilder(String.format("%15s%12s%12s%12s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s%10s\n", "FilterOption", 
 				"T_Total", "T_Qside", "T_Tside", 
@@ -110,7 +110,7 @@ public class PrefixSearchTest {
 		String[] results = new String[4];
 		int i = 0;
 		for ( boolean bLF: new boolean[]{false, true} ) {
-			AbstractSearch prefixSearch = new PrefixSearch(theta, bLF, false, IndexChoice.Naive);
+			AbstractSearch prefixSearch = new RSSearch(theta, bLF, false, IndexChoice.Naive);
 			prefixSearch.run(dataset);
 			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
 			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_Total);
@@ -132,7 +132,7 @@ public class PrefixSearchTest {
 		String[] results = new String[4];
 		int i = 0;
 		for ( IndexChoice indexChoice : IndexChoice.values() ) {
-			AbstractSearch prefixSearch = new PrefixSearch(theta, true, true, indexChoice);
+			AbstractSearch prefixSearch = new RSSearch(theta, true, true, indexChoice);
 			prefixSearch.run(dataset);
 			String time_0 = prefixSearch.getStatContainer().getStat(Stat.Time_Total);
 			String time_1 = prefixSearch.getStatContainer().getStat(Stat.Time_QS_Total);
@@ -153,7 +153,7 @@ public class PrefixSearchTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+		prefixSearch = new ExactRSSearch(theta, true, true, IndexChoice.CountPosition);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);
@@ -192,11 +192,11 @@ public class PrefixSearchTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(name, size);
 		
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.Count);
+		prefixSearch = new ExactRSSearch(theta, true, true, IndexChoice.Count);
 		prefixSearch.run(dataset);
 		String num_qs0 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts0 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
-		prefixSearch = new ExactPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+		prefixSearch = new ExactRSSearch(theta, true, true, IndexChoice.CountPosition);
 		prefixSearch.run(dataset);
 		String num_qs1 = prefixSearch.getStatContainer().getStat(Stat.Num_QS_Result);
 		String num_ts1 =prefixSearch.getStatContainer().getStat(Stat.Num_TS_Result);
@@ -226,7 +226,7 @@ public class PrefixSearchTest {
 		for ( String lenRatio : new String[] {"0.2", "0.4", "0.6", "0.8", "1.0"}) {
 			Dataset dataset = TestDatasetManager.getDataset("WIKI", "10000", "3162", "3", lenRatio);
 			double theta = 1.0;
-			AbstractSearch alg1 = new PositionPrefixSearch(theta, true, true, IndexChoice.CountPosition);
+			AbstractSearch alg1 = new PositionRSSearch(theta, true, true, IndexChoice.CountPosition);
 			alg1.run(dataset);
 			System.out.println(lenRatio
 					+"\t"+alg1.getStatContainer().getStat(Stat.Time_Total)
@@ -267,7 +267,7 @@ public class PrefixSearchTest {
 		for ( double size : new double[] {0, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8} ) {
 			RecordPool.BUFFER_SIZE = (int)size;
 			Dataset dataset = DatasetFactory.createInstanceByName(param);
-			AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+			AbstractSearch alg = new PositionRSSearch(theta, false, false, IndexChoice.CountPosition);
 			alg.run(dataset);
 			strbld.append(String.format(outputTmpl, 
 					size, 
@@ -306,7 +306,7 @@ public class PrefixSearchTest {
 			DatasetParam param = new DatasetParam("AMAZON", "10000", "107836", "5", "1.0", ""+nar);
 			double theta = 0.6;
 			Dataset dataset = DatasetFactory.createInstanceByName(param);
-			AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+			AbstractSearch alg = new PositionRSSearch(theta, false, false, IndexChoice.CountPosition);
 			alg.run(dataset);
 			strbld.append(String.format("%4d%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d\n",
 					nar, 
@@ -362,7 +362,7 @@ public class PrefixSearchTest {
 		for ( int val : valArr ) {
 			AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK = Math.max(8, val * 1024);
 			PostingListAccessor.MAX_BYTES_PER_CHUNK = Snappy.maxCompressedLength(AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK*Integer.BYTES);
-			AbstractSearch alg = new PositionPrefixSearch(theta, false, false, IndexChoice.CountPosition);
+			AbstractSearch alg = new PositionRSSearch(theta, false, false, IndexChoice.CountPosition);
 			alg.run(dataset);
 			strbld.append(String.format("%8d%12.3f%12.3f%12.3f%10d%10d%10d%10d%10d%10d\n",
 					AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK,

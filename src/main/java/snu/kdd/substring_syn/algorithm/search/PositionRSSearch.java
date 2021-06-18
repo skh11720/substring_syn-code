@@ -16,9 +16,9 @@ import snu.kdd.substring_syn.utils.ReturnStatus;
 import snu.kdd.substring_syn.utils.Stat;
 import snu.kdd.substring_syn.utils.Util;
 
-public class PositionPrefixSearch extends PrefixSearch {
+public class PositionRSSearch extends RSSearch {
 	
-	public PositionPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public PositionRSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
 	}
 

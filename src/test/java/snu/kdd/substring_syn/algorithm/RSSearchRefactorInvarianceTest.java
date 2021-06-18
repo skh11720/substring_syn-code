@@ -8,11 +8,11 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import snu.kdd.substring_syn.TestDatasetManager;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.RSSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class PrefixSearchRefactorInvarianceTest {
+public class RSSearchRefactorInvarianceTest {
 	
 
 	@Test
@@ -67,7 +67,7 @@ public class PrefixSearchRefactorInvarianceTest {
 				11, 11, 11, 53, 210, 297, 1347, 623, 432, 7205, 15734, 297, 1347, 
 				11, 11, 11, 50, 1142, 282, 2983, 346, 1276, 1500, 9853, 282, 2983, 
 				11, 11, 11, 50, 96, 282, 424, 346, 95, 1500, 1502, 282, 424, 
-		}; // commit d4c6474, PrefixSearch6.30
+		}; // commit d4c6474, RSSearch6.30
 
 		Dataset dataset = TestDatasetManager.getDataset("WIKI", "1000", "31622", "5");
 		IntIterator iter = null;
@@ -78,7 +78,7 @@ public class PrefixSearchRefactorInvarianceTest {
 			for ( boolean bLF : new boolean[] {false, true} ) {
 				for ( boolean bPF : new boolean[] {false, true} ) {
 					for ( IndexChoice indexChoice : new IndexChoice[] {IndexChoice.Naive, IndexChoice.Count, IndexChoice.Position, IndexChoice.CountPosition}) {
-						PrefixSearch alg0 = new PrefixSearch(theta, bLF, bPF, indexChoice);
+						RSSearch alg0 = new RSSearch(theta, bLF, bPF, indexChoice);
 						alg0.run(dataset);
 						if (onTest) {
 							for ( String attr : attrs ) 

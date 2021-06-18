@@ -4,12 +4,12 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import vldb18.NaivePkduckValidator;
 
-public class ExactPrefixSearch extends PrefixSearch {
+public class ExactRSSearch extends RSSearch {
 
 	protected final NaivePkduckValidator validator;
 
 	
-	public ExactPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public ExactRSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
 		validator = new NaivePkduckValidator(theta, statContainer);
 	}
@@ -26,6 +26,6 @@ public class ExactPrefixSearch extends PrefixSearch {
 
 	@Override
 	public String getName() {
-		return "ExactPrefixSearch";
+		return "ExactRSSearch";
 	}
 }

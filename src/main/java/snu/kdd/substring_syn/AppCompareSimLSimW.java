@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
-import snu.kdd.substring_syn.algorithm.search.variants.PerQueryExactPositionPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.variants.PerQueryExactPositionRSSearch;
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.algorithm.validator.NaiveWindowBasedValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -95,7 +95,7 @@ public class AppCompareSimLSimW {
     public static void runAlg(DatasetContainer datasetContainer, String nq, double theta) throws InterruptedException, ExecutionException {
     	Dataset dataset = datasetContainer.dataset;
     	Log.log.info(dataset.name);
-		PerQueryExactPositionPrefixSearch alg = new PerQueryExactPositionPrefixSearch(dataset, theta, true, false, IndexChoice.CountPosition);
+		PerQueryExactPositionRSSearch alg = new PerQueryExactPositionRSSearch(dataset, theta, true, false, IndexChoice.CountPosition);
 		IntArrayList nL_List = new IntArrayList();
 		IntArrayList nW_List = new IntArrayList();
 		int nQ = 0;

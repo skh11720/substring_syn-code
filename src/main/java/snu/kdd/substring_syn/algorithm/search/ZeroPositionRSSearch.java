@@ -4,9 +4,9 @@ import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class ZeroPrefixSearch extends PrefixSearch {
+public class ZeroPositionRSSearch extends PositionRSSearch {
 
-	public ZeroPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public ZeroPositionRSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
 	}
 	
@@ -26,6 +26,6 @@ public class ZeroPrefixSearch extends PrefixSearch {
 
 	@Override
 	public String getName() {
-		return "ZeroPrefixSearch";
+		return "ZeroRSSearch";
 	}
 }

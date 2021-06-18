@@ -1,17 +1,17 @@
 package snu.kdd.substring_syn.algorithm.search;
 
-import snu.kdd.substring_syn.algorithm.validator.NaiveWindowBasedValidator;
+import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.data.record.Record;
 import snu.kdd.substring_syn.data.record.Subrecord;
 
-public class ExactSimWPositionPrefixSearch extends PositionPrefixSearch {
+public class ExactPositionRSSearch extends PositionRSSearch {
 
-	protected final NaiveWindowBasedValidator validator;
+	protected final NaiveValidator validator;
 
 	
-	public ExactSimWPositionPrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public ExactPositionRSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, bLF, bPF, indexChoice);
-		validator = new NaiveWindowBasedValidator(theta, statContainer);
+		validator = new NaiveValidator(theta, statContainer);
 	}
 
 	@Override
@@ -28,6 +28,6 @@ public class ExactSimWPositionPrefixSearch extends PositionPrefixSearch {
 
 	@Override
 	public String getName() {
-		return "ExactSimWPositionPrefixSearch";
+		return "ExactPositionRSSearch";
 	}
 }

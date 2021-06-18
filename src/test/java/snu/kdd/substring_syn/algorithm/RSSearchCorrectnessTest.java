@@ -19,12 +19,12 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveSearch;
-import snu.kdd.substring_syn.algorithm.search.ExactPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactRSSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 
 @RunWith(Parameterized.class)
-public class PrefixSearchCorrectnessTest {
+public class RSSearchCorrectnessTest {
 	
 	Param param;
 	
@@ -58,7 +58,7 @@ public class PrefixSearchCorrectnessTest {
 		return paramList;
 	}
 	
-	public PrefixSearchCorrectnessTest( Param param ) {
+	public RSSearchCorrectnessTest( Param param ) {
 		this.param = param;
 	}
 
@@ -68,7 +68,7 @@ public class PrefixSearchCorrectnessTest {
 		
 		ExactNaiveSearch naiveSearch = new ExactNaiveSearch(param.theta);
 		AbstractSearch prefixSearch = null;
-		prefixSearch = new ExactPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		prefixSearch = new ExactRSSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		long ts = System.nanoTime();
 		prefixSearch.run(dataset);

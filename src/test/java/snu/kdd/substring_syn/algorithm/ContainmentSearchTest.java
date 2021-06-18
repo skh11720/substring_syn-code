@@ -7,7 +7,7 @@ import org.junit.Test;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.faerie.FaerieSynContainmentSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.algorithm.search.ContainmentPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ContainmentRSSearch;
 import snu.kdd.substring_syn.algorithm.search.ExactNaiveContainmentSearch;
 import snu.kdd.substring_syn.algorithm.search.NaiveContainmentSearch;
 import snu.kdd.substring_syn.data.Dataset;
@@ -31,7 +31,7 @@ public class ContainmentSearchTest {
 				AbstractSearch[] algArray = new  AbstractSearch[3];
 				algArray[0] = new ExactNaiveContainmentSearch(theta);
 				algArray[1] = new NaiveContainmentSearch(theta);
-				algArray[2] = new ContainmentPrefixSearch(theta, IndexChoice.Count);
+				algArray[2] = new ContainmentRSSearch(theta, IndexChoice.Count);
 				
 				for ( AbstractSearch alg : algArray ) {
 					alg.run(dataset);
@@ -47,7 +47,7 @@ public class ContainmentSearchTest {
 		DatasetParam param = new DatasetParam("WIKI", "10000", "3162", "5", "1.0");
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( double theta : thetaList ) {
-			AbstractSearch alg0 = new ContainmentPrefixSearch(theta, IndexChoice.Count);
+			AbstractSearch alg0 = new ContainmentRSSearch(theta, IndexChoice.Count);
 			alg0.run(dataset);
 			AbstractSearch alg1 = new FaerieSynContainmentSearch(theta, true);
 			alg1.run(dataset);

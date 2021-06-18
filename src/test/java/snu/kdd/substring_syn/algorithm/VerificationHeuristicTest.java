@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.PositionRSSearch;
 import snu.kdd.substring_syn.algorithm.validator.AbstractGreedyValidator;
 import snu.kdd.substring_syn.algorithm.validator.GreedyValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -37,7 +37,7 @@ public class VerificationHeuristicTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(param);
 		for ( int i=0; i<optArr.length; ++i ) {
 			AbstractGreedyValidator.optScore = optArr[i];
-			AbstractSearch prefixSearch = new PositionPrefixSearchWithVerifyOption(0.6, true, true, IndexChoice.CountPosition);
+			AbstractSearch prefixSearch = new PositionRSSearchWithVerifyOption(0.6, true, true, IndexChoice.CountPosition);
 			prefixSearch.run(dataset);
 			StatContainer stat = prefixSearch.getStatContainer();
 			output[i][0] = Integer.parseInt(stat.getStat(Stat.Num_Result));
@@ -55,15 +55,15 @@ public class VerificationHeuristicTest {
 	}
 }
 
-class PositionPrefixSearchWithVerifyOption extends PositionPrefixSearch {
+class PositionRSSearchWithVerifyOption extends PositionRSSearch {
 
-	public PositionPrefixSearchWithVerifyOption(double theta, boolean bLF, boolean bPF, IndexChoice indexChoice) {
+	public PositionRSSearchWithVerifyOption(double theta, boolean bLF, boolean bPF, IndexChoice indexChoice) {
 		super(theta, bLF, bPF, indexChoice);
 	}
 	
 	@Override
 	public String getName() {
-		return "PrefixSearch"+"-v"+GreedyValidator.optScore;
+		return "RSSearch"+"-v"+GreedyValidator.optScore;
 	}
 }
 

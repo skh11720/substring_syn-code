@@ -18,14 +18,14 @@ import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoi
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOption;
 import snu.kdd.substring_syn.algorithm.search.AlgorithmFactory.FilterOptionLabel;
-import snu.kdd.substring_syn.algorithm.search.ZeroPositionPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.ZeroPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ZeroPositionRSSearch;
+import snu.kdd.substring_syn.algorithm.search.ZeroRSSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
 
 @RunWith(Parameterized.class)
-public class PrefixSearchFilterPowerTest {
+public class RSSearchFilterPowerTest {
 	
 	static PrintStream ps;
 	Param param;
@@ -57,7 +57,7 @@ public class PrefixSearchFilterPowerTest {
 	
 	@BeforeClass
 	public static void setup() throws FileNotFoundException {
-		ps = new PrintStream("tmp/PrefixSearchFilterPowerTest.txt");
+		ps = new PrintStream("tmp/RSSearchFilterPowerTest.txt");
 	}
 	
 	@AfterClass
@@ -103,7 +103,7 @@ public class PrefixSearchFilterPowerTest {
 		return paramList;
 	}
 	
-	public PrefixSearchFilterPowerTest( Param param ) {
+	public RSSearchFilterPowerTest( Param param ) {
 		this.param = param;
 	}
 
@@ -113,8 +113,8 @@ public class PrefixSearchFilterPowerTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(dParam);
 		
 		AbstractSearch prefixSearch = null;
-		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new ZeroPositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
-		else prefixSearch = new ZeroPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new ZeroPositionRSSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		else prefixSearch = new ZeroRSSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		prefixSearch.run(dataset);
 		ps.println(prefixSearch.getStatContainer().outputSummaryString());

@@ -7,11 +7,11 @@ import snu.kdd.substring_syn.data.record.RecordInterface;
 import snu.kdd.substring_syn.data.record.TransformableRecordInterface;
 import snu.kdd.substring_syn.utils.Stat;
 
-public class ContainmentPrefixSearch extends AbstractIndexBasedSearch {
+public class ContainmentRSSearch extends AbstractIndexBasedSearch {
 
 	private final GreedyQueryContainmentValidator validator;
 	
-	public ContainmentPrefixSearch( double theta, IndexChoice indexChoice ) {
+	public ContainmentRSSearch( double theta, IndexChoice indexChoice ) {
 		super(theta, indexChoice);
 		assert ( indexChoice == IndexChoice.None || indexChoice == IndexChoice.Count || indexChoice == IndexChoice.Naive );
 		param.put("index_impl", indexChoice.toString());
@@ -56,7 +56,7 @@ public class ContainmentPrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	public String getName() {
-		return "ContainmentPrefixSearch";
+		return "ContainmentRSSearch";
 	}
 
 	@Override

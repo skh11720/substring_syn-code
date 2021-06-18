@@ -30,7 +30,7 @@ import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import vldb18.PkduckDP;
 
-public class PrefixSearch extends AbstractIndexBasedSearch {
+public class RSSearch extends AbstractIndexBasedSearch {
 
 	protected IntSet queryCandTokenSet;
 	protected IntSet expandedPrefix;
@@ -40,7 +40,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected double modifiedTheta;
 
 	
-	public PrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public RSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, indexChoice);
 		this.bLF = bLF;
 		this.bPF = bPF;
@@ -401,7 +401,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	public String getName() {
-		return "PrefixSearch";
+		return "RSSearch";
 	}
 
 	@Override
@@ -422,7 +422,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		 * 4.06: fix bug in position filter
 		 * 4.07: fix bug in pkduckdp text-side
 		 * 4.08: fix bug
-		 * 4.09: PositionPrefixSearch
+		 * 4.09: PositionRSSearch
 		 * 4.10: use self rules in verification
 		 * 4.11: fix bug in position filter
 		 * 4.12: fix bug in position filter, segment-wise count filter in text-side

@@ -12,8 +12,8 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
-import snu.kdd.substring_syn.algorithm.search.ExactPositionPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.ExactSimWPositionPrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactPositionRSSearch;
+import snu.kdd.substring_syn.algorithm.search.ExactSimWPositionRSSearch;
 import snu.kdd.substring_syn.algorithm.validator.NaiveValidator;
 import snu.kdd.substring_syn.algorithm.validator.NaiveWindowBasedValidator;
 import snu.kdd.substring_syn.data.Dataset;
@@ -106,7 +106,7 @@ public class LRSimEffectivenessTest {
 	
 	
 	@Test
-	public void testUsingPositionPrefixSearch() throws IOException {
+	public void testUsingPositionRSSearch() throws IOException {
 //		Log.disable();
 		for ( String dataName : dataNameArray ) {
 			this.dataName = dataName;
@@ -120,8 +120,8 @@ public class LRSimEffectivenessTest {
 				indexedList = getIndexedList(dataset);
 				
 				for ( double theta : thetaArray ) {
-					ExactPositionPrefixSearch alg0 = new ExactPositionPrefixSearch(theta, true, false, IndexChoice.CountPosition);
-					ExactSimWPositionPrefixSearch alg1 = new ExactSimWPositionPrefixSearch(theta, true, false, IndexChoice.CountPosition);
+					ExactPositionRSSearch alg0 = new ExactPositionRSSearch(theta, true, false, IndexChoice.CountPosition);
+					ExactSimWPositionRSSearch alg1 = new ExactSimWPositionRSSearch(theta, true, false, IndexChoice.CountPosition);
 					alg0.run(dataset);
 					alg1.run(dataset);
 					Set<IntPair> rslt0 = alg0.getResultTextSide();

@@ -16,8 +16,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.algorithm.search.AbstractSearch;
-import snu.kdd.substring_syn.algorithm.search.PositionPrefixSearch;
-import snu.kdd.substring_syn.algorithm.search.PrefixSearch;
+import snu.kdd.substring_syn.algorithm.search.PositionRSSearch;
+import snu.kdd.substring_syn.algorithm.search.RSSearch;
 import snu.kdd.substring_syn.data.Dataset;
 import snu.kdd.substring_syn.data.DatasetFactory;
 import snu.kdd.substring_syn.data.DatasetParam;
@@ -53,7 +53,7 @@ public class MultipleOptionTest {
 	
 	@BeforeClass
 	public static void setup() throws FileNotFoundException {
-		ps = new PrintStream("tmp/PrefixSearchFilterPowerTest.txt");
+		ps = new PrintStream("tmp/RSSearchFilterPowerTest.txt");
 	}
 	
 	@AfterClass
@@ -101,8 +101,8 @@ public class MultipleOptionTest {
 		Dataset dataset = DatasetFactory.createInstanceByName(dParam);
 		
 		AbstractSearch prefixSearch = null;
-		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new PositionPrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
-		else prefixSearch = new PrefixSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		if ( param.index_impl == IndexChoice.CountPosition ) prefixSearch = new PositionRSSearch(param.theta, param.bLF, param.bPF, param.index_impl);
+		else prefixSearch = new RSSearch(param.theta, param.bLF, param.bPF, param.index_impl);
 		
 		prefixSearch.run(dataset);
 		ps.println(prefixSearch.getStatContainer().outputSummaryString());

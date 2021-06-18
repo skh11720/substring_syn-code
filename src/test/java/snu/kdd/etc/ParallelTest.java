@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.experimental.ParallelComputer;
 import org.junit.runner.JUnitCore;
 
-import snu.kdd.substring_syn.algorithm.PrefixSearchFilterPowerTest;
+import snu.kdd.substring_syn.algorithm.RSSearchFilterPowerTest;
 
 @SuppressWarnings("rawtypes")
 public class ParallelTest {
@@ -17,8 +17,8 @@ public class ParallelTest {
 	}
 
 	@Test
-	public void runPrefixSearchFilterPowerTest() {
-		Class[] cls = {PrefixSearchFilterPowerTest.class};
+	public void runRSSearchFilterPowerTest() {
+		Class[] cls = {RSSearchFilterPowerTest.class};
 		JUnitCore.runClasses(new ParallelComputer(true, true), cls);
 	}
 }
