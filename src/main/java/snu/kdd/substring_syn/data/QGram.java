@@ -37,7 +37,6 @@ public class QGram {
 	}
 
 	private int getHash() {
-		// djb2-like
 		int hash = 0;
 		for( int token : tokens ) {
 			hash = ( hash << 5 ) + Util.bigprime + token;

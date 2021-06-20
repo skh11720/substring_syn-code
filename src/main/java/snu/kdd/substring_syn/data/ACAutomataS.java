@@ -41,7 +41,6 @@ public class ACAutomataS {
 	private final State root;
 	ObjectList<String> ruleStrList;
 
-	// creates an automata with left hand sides of rules
 	public ACAutomataS( Iterable<String> ruleStrs ) {
 		ObjectSet<String> ruleStrSet = new ObjectOpenHashSet<>();
 		for ( String ruleStr : ruleStrs ) {
@@ -50,10 +49,8 @@ public class ACAutomataS {
 		}
 		ruleStrList = new ObjectArrayList<>(ruleStrSet);
 
-		// 1. Create a root state
 		root = new State();
 
-		// 2. Build Trie for rules
 		int ridx = 0;
 		for( final String ruleStr : ruleStrList ) {
 			State curr = root;
@@ -80,16 +77,12 @@ public class ACAutomataS {
 			ridx += 1;
 		}
 
-		// 3. Calculate the failure function
-		// Use BFS
 		ArrayList<State> currdepth = new ArrayList<>();
 		ArrayList<State> nextdepth = new ArrayList<>();
 
-		// Calculate depth-1 states
 		for( final Entry<String, State> depth_1_entries : root.split.entrySet() ) {
 			final State state = depth_1_entries.getValue();
 			state.func = root;
-			// Add depth-2 states
 			if( state.split != null ) {
 				for( final Entry<String, State> depth_2_entries : state.split.entrySet() ) {
 					currdepth.add( depth_2_entries.getValue() );
@@ -97,7 +90,6 @@ public class ACAutomataS {
 			}
 		}
 
-		// Calculate depth-x states
 		while( !currdepth.isEmpty() ) {
 			for( final State curr : currdepth ) {
 				State r = curr.parent.func;
@@ -116,7 +108,6 @@ public class ACAutomataS {
 					curr.func = root;
 				}
 
-				// Compute output function
 				if( curr.func.output != null ) {
 					if( curr.output == null ) {
 						curr.output = new IntArrayList();
@@ -124,7 +115,6 @@ public class ACAutomataS {
 					curr.output.addAll( curr.func.output );
 				}
 
-				// Add next states
 				if( curr.split != null ) {
 					for( final Entry<String, State> child : curr.split.entrySet() ) {
 						nextdepth.add( child.getValue() );
@@ -139,26 +129,19 @@ public class ACAutomataS {
 		}
 	}
 	
-//	public int getNumApplicableRules( String[] rec ) {
-//		return getNumApplicableRules(ObjectArrayList.wrap(rec).iterator());
-//	}
-
 	public int getNumApplicableRules( Iterator<Substring> tokenIter ) {
 		int nar = 0;
 		State curr = root;
 		Substring token = tokenIter.next();
 		while (true) {
 			State next;
-//			System.out.println(curr.split.keySet());
 			if ( curr.split != null && ( next = curr.split.get(token) ) != null ) {
 				curr = next;
 				if ( tokenIter.hasNext() ) token = tokenIter.next();
 				else break;
 
-//				System.out.println("next.output: "+next.output);
 				if ( next.output != null ) {
 					nar += next.output.size();
-//					for ( int ridx : next.output ) System.out.println(ruleStrList.get(ridx));
 				}
 			}
 			else if ( curr == root ) {
@@ -176,12 +159,10 @@ public class ACAutomataS {
 		State curr = root;
 		for ( int i=0; i< rec.length; ) {
 			State next;
-//			System.out.println(curr.split.keySet());
 			if ( curr.split != null && ( next = curr.split.get( rec[i] ) ) != null ) {
 				curr = next;
 				++i;
 
-//				System.out.println("next.output: "+next.output);
 				if ( next.output != null ) {
 					for ( int ridx : next.output ) System.err.println(ruleStrList.get(ridx));
 				}

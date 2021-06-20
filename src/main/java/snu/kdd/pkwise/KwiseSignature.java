@@ -52,7 +52,6 @@ public class KwiseSignature {
 	}
 
 	private int setHash() {
-		// djb2-like
 		int hash = Util.bigprime;
 		for( int val : values ) {
 			hash = ( hash << 5 ) + Util.bigprime + val;

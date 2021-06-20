@@ -47,7 +47,6 @@ public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface 
 		int eidx = 0;
 		int ridx = 0;
 		for ( Record recExp : Records.expands(records) ) {
-//			Log.log.trace("eid=%d, recExp.id=%d", eid, recExp.getID());
 			if ( ridx != recExp.getIdx() ) {
 				eidxList.add(eidx);
 				ridx += 1;
@@ -55,8 +54,6 @@ public abstract class AbstractFaerieSynIndex implements FaerieSynIndexInterface 
 			eidx += 1;
 		}
 		eidxList.add(eidx);
-//		Log.log.trace("AbstractFaerieSynIndex.buildEntryIdList finished");
-//		Log.log.trace("eidList.size=%d", eidList.size());
 		return eidxList;
 	}
 

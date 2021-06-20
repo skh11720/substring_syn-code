@@ -40,14 +40,11 @@ public class PkwiseSignatureGenerator {
 		int l = prefix.size();
 		int sidx = 0;
 		int eidx = 0;
-//		System.out.println("prefix="+prefix);
 		for ( int cidx=0; cidx<kmax; ++cidx ) {
 			while ( eidx < l && partitioner.getTokenClass(prefix.get(eidx)) == cidx ) eidx += 1;
-//			System.out.println("tokens of class "+(cidx+1)+"="+prefix.subList(sidx, eidx).toString());
 			IntCollection ksig;
 			if ( cidx == 0 ) ksig = prefix.subList(sidx, eidx);
 			else ksig = genKwiseSignature(prefix.subList(sidx, eidx), cidx, indexing);
-//			System.out.println("sig of class "+(cidx+1)+"="+ksig);
 			if ( ksig != null ) sig.addAll(ksig);
 			sidx = eidx;
 		}
@@ -56,11 +53,6 @@ public class PkwiseSignatureGenerator {
 	}
 	
 	public IntList genKwiseSignature( IntList list, int cidx, boolean indexing ) {
-		/*
-		 * CAUTION: 
-		 *   - perfix must be sorted
-		 *   - cidx is zero-based
-		 */
 		if ( list.size() < cidx+1 ) return null;
 		int[] arr = new int[cidx+1];
 		IntList sig = new IntArrayList();
@@ -72,7 +64,6 @@ public class PkwiseSignatureGenerator {
 			int key;
 			if (indexing) key = sigMap.getIfExistsOrPut(arr);
 			else key = sigMap.get(arr);
-//			System.out.println("key="+key+"\tarr="+Arrays.toString(arr));
 			sig.add(key);
 		}
 		return sig;

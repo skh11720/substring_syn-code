@@ -31,38 +31,15 @@ public class PkwiseSynIndex {
 		siggen = alg.getSiggen();
 		int wMin = (int)Math.ceil(dataset.getMinQueryTransformLength()*theta);
 		int wMax = (int)Math.floor(dataset.getMaxQueryTransformLength()/theta);
-//		Log.log.trace("PkwiseSynIndex: wMin=%d", wMin);
-//		Log.log.trace("PkwiseSynIndex: wMax=%d", wMax);
 		witvMap = PkwiseIndexBuilder.buildTok2WitvMap(alg, dataset, wMin, wMax, theta);
 		qgramIndexStore = new PkwiseQGramIndexStore(dataset.getIntQGrams(), theta, siggen, "PkwiseQGramIndexStore");
 	}
 	
-//	private Int2ObjectMap<IntList> buildTok2iqgramsMap( TransWindowDataset dataset, int qlen, double theta ) {
-//		Int2ObjectMap<IntList> tok2iqgramsMap = new Int2ObjectOpenHashMap<>();
-//		int maxDiff = -1;
-//		int q = -1;
-//		int idx = 0;
-//		for ( Record iqgram : dataset.getIntQGrams() ) {
-//			if ( q != iqgram.size() ) {
-//				q = iqgram.size();
-//				maxDiff = Util.getPrefixLength(q, theta);
-//			}
-//			Record rec = iqgram.toRecord();
-//			IntArrayList sig = siggen.genSignature(rec, maxDiff, true);
-//			for ( int token : sig ) {
-//				if ( !tok2iqgramsMap.containsKey(token) ) tok2iqgramsMap.put(token, new IntArrayList());
-//				tok2iqgramsMap.get(token).add(idx);
-//			}
-//			idx += 1;
-//		}
-//		return tok2iqgramsMap;
-//	}
 
 	public final Iterable<RecordInterface> getCandWindowQuerySide( Record query ) {
 		IterableConcatenator<RecordInterface> iterableList = new IterableConcatenator<>();
 		int maxDiff = Util.getPrefixLength(query, theta);
 		IntArrayList sig = siggen.genSignature(query, maxDiff, false);
-//		Log.log.trace("sig=%s", sig);
 		for ( int token : sig ) iterableList.addIterable(getWitvIterable(token));
 		return iterableList.iterable();
 	}
@@ -123,15 +100,6 @@ public class PkwiseSynIndex {
 				}
 			}
 			ps.close();
-//			ps = new PrintStream("tmp/PkwiseSynIndex.twitvMap.txt");
-//			for (  Entry<Integer, IntList> e : getTwitvMap().entrySet() ) {
-//				if ( e.getKey() <= Record.tokenIndex.getMaxID() ) ps.println(Record.tokenIndex.getToken(e.getKey())+"\t"+e);
-//				else {
-//					KwiseSignature ksig = sigMap.get(e.getKey());
-//					ps.println(ksig.toOriginalString()+"\t"+ksig+"\t"+e);
-//				}
-//			}
-//			ps.close();
 		}
 		catch ( IOException e ) {
 			e.printStackTrace();
@@ -166,7 +134,6 @@ public class PkwiseSynIndex {
 			int sidx0 = widx;
 			int eidx0 = widx+w;
 			findNext();
-//			Log.log.trace("PkwiseSynIndex.WitvIterator\t"+(new Subrecord(rec0, sidx0, eidx0))+"\t"+(new Subrecord(rec0, sidx0, eidx0)).toOriginalString());
 			return new Subrecord(rec0, sidx0, eidx0);
 		}
 		

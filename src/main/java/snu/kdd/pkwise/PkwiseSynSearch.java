@@ -75,13 +75,11 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	
 	@Override
 	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
-//		if ( query.getID() != 66 ) return;
 		statContainer.startWatch(Stat.Time_Preprocess);
 		prepareSearchGivenQuery(query);
 		statContainer.stopWatch(Stat.Time_Preprocess);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		for ( Record queryExp : Records.expands(query) ) {
-//			Log.log.trace("queryExp=%s\t%s", ()->queryExp, ()->queryExp.toOriginalString());
 			pkwiseSearchQuerySide(queryExp, dataset);
 		}
 		statContainer.stopWatch(Stat.Time_QS_Total);
@@ -94,7 +92,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
 			if (rsltQuerySideContains(query, window)) continue;
-//			if ( window.getID() >= 0 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
 		}
@@ -103,9 +100,7 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	protected final void pkwiseSearchTextSide( Record query, WindowDataset dataset ) {
 		Iterable<RecordInterface> candListTextSide = getCandWindowListTextSide(query, dataset);
 		for ( RecordInterface window : candListTextSide ) {
-//			if (rsltQuerySideContains(query, window)) continue;
 			if (rsltTextSideContains(query, window)) continue;
-//			if ( window.getID() != 5189 ) continue;
 			statContainer.addCount(Stat.Len_TS_Retrieved, window.size());
 			searchWindowTextSide(query, window);
 		}
@@ -121,12 +116,9 @@ public class PkwiseSynSearch extends PkwiseSearch {
 	}
 
 	protected final void searchWindowTextSide(Record query, RecordInterface window) {
-//		Log.log.trace("searchWindowTextSide: query=%s\t%s", ()->query, ()->query.toOriginalString());
-//		Log.log.trace("searchWindowTextSide: window=%s\t%s", ()->window, ()->window.toOriginalString());
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		statContainer.addCount(Stat.Num_TS_Verified, 1);
 		double sim = Util.jaccardM(query.getTokenList(), window.getTokenList());
-//		Log.log.trace("sim=%f", ()->sim);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( sim >= theta ) {
 			addResultTextSide(query, window);
@@ -162,14 +154,6 @@ public class PkwiseSynSearch extends PkwiseSearch {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: modify IntQGramStore
-		 * 1.02: use disk-based qgram index
-		 * 1.03: fix OOM issue by using FileBasedLongList
-		 * 1.04: remodel RecordStore
-		 * 2.00: choose optimal k automatically
-		 */
 		return "2.00";
 	}
 }

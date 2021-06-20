@@ -20,7 +20,6 @@ public abstract class AbstractValidator {
 		return Arrays.equals(x.getTokenArray(), y.getTokenArray());
 	}
 
-//	public abstract boolean isSimx2yOverThreahold( Record x, Record y, double theta );
 
 	public abstract String getName();
 }

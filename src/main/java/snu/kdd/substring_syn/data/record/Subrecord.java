@@ -25,21 +25,17 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	protected int maxTransLen = 0;
 
 	public Subrecord( RecordInterface rec, int sidx, int eidx ) {
-		// TODO: remove the cast
 		this.rec = ((RecursiveRecordInterface)rec).getSuperRecord();
-		this.sidx = sidx + ((RecursiveRecordInterface)rec).getSidx(); // inclusive
-		this.eidx = eidx + ((RecursiveRecordInterface)rec).getSidx(); // exclusive
+		this.sidx = sidx + ((RecursiveRecordInterface)rec).getSidx();
+		this.eidx = eidx + ((RecursiveRecordInterface)rec).getSidx();
 		hash = getHash();
 	}
 	
 	protected int getHash() {
-		// djb2-like
 		int hash = Util.bigprime + rec.getIdx();
 		for( int i=sidx; i<eidx; ++i ) {
 			int token = rec.getToken(i);
 			hash = ( hash << 5 ) + Util.bigprime + token;
-//                tmp = 0x1f1f1f1f ^ tmp + token;
-//			hash = hash % Util.bigprime;
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
@@ -100,7 +96,6 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	
 	@Override
 	public int getNumSuffixRuleLens(int i) {
-		//TODO: subrec.suffixRuleLens should be computed exactly
 		return rec.getNumSuffixRuleLens(i);
 	}
 
@@ -147,15 +142,6 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		};
 	}
 	
-//	public Iterable<Rule> getSuffixApplicableRuleIterable() {
-//		return new Iterable<Rule>() {
-//			
-//			@Override
-//			public Iterator<Rule> iterator() {
-//				return new SuffixRuleIterator();
-//			}
-//		};
-//	}
 
 	public Iterable<Rule> getSuffixApplicableRules( int i ) {
 		return new Iterable<Rule>() {
@@ -168,7 +154,6 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 	}
 	
 	public Iterable<IntPair> getSuffixRuleLens( int k ) {
-		//TODO: subrec.suffixRuleLens should be computed exactly
 		return rec.getSuffixRuleLens(sidx+k);
 	}
 
@@ -375,17 +360,4 @@ public class Subrecord implements TransformableRecordInterface, RecursiveRecordI
 		return newrec;
 	}
 	
-//    public static Record toRecord( Subrecord subrec, TransLenCalculator transLen ) {
-//        Record newrec = toRecord(subrec);
-//        int[][] transformLengths = null;
-//        if ( transLen != null ) {
-//            transformLengths = new int[subrec.size()][2];
-//            for ( int i=0; i<subrec.size(); ++i ) {
-//                transformLengths[i][0] = transLen.getLB(subrec.sidx, subrec.sidx+i);
-//                transformLengths[i][1] = transLen.getUB(subrec.sidx, subrec.sidx+i);
-//            }
-//        }
-//        newrec.transformLengths = transformLengths;
-//        return newrec;
-//    }
 }

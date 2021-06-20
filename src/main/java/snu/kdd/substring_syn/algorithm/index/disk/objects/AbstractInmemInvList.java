@@ -30,7 +30,6 @@ public abstract class AbstractInmemInvList implements BytesMeasurableInterface, 
 	
 	@Override
 	public int getIdx() {
-//		assert (entrySize()*listIdx < size);
 		return arr[entrySize()*listIdx];
 	}
 	

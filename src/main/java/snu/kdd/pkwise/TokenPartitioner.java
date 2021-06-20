@@ -10,8 +10,7 @@ public class TokenPartitioner {
 	 * equi-width partitioning
 	 */
 
-	private final int[] partRange; // interval of class i is [partRange[i-1], partRange[i])
-
+	private final int[] partRange; 
 	public TokenPartitioner( int kmax ) {
 		partRange = new int[kmax];
 		int maxTokenId = Record.tokenIndex.getMaxID();

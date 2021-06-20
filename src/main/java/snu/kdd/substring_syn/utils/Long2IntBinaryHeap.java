@@ -6,17 +6,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import snu.kdd.substring_syn.data.IntLong;
 
-/**
- * 
- * @author ghsong
- *
- */
 
 public class Long2IntBinaryHeap {
-	/*
-	 * The naming convention assumes that the heap is a min-heap.
-	 */
-	
 	protected long[] keys;
 	protected int[] values;
 	protected int size = 0;

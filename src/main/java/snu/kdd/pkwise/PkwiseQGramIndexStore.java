@@ -27,6 +27,6 @@ public class PkwiseQGramIndexStore {
 	public NaiveInvList getInvList( int token ) {
 		PostingListAccessor acc = invListAccessor.getPostingListAccessor(token);
 		if ( acc == null ) return null;
-		else return InmemNaiveInvList.copy(new BufferedNaiveInvList(acc)); // copying is necessary
+		else return InmemNaiveInvList.copy(new BufferedNaiveInvList(acc));
 	}
 }

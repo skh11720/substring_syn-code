@@ -48,13 +48,6 @@ public class Ruleset {
 		return new Rule(idx, lhs, rhs);
 	}
 
-//	public static String[][] tokenize( String str ) {
-//		String[][] rstr = new String[2][];
-//		String[] tokens = str.toLowerCase().split("\\|\\|\\|");
-//		rstr[0] = tokens[0].trim().split(" ");
-//		rstr[1] = tokens[1].trim().split(" ");
-//		return rstr;
-//	}
 	
 	public static Substring getLhs( String str ) {
 		int p = str.indexOf('|');

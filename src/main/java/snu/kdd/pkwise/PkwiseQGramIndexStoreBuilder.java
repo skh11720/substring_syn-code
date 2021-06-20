@@ -47,7 +47,6 @@ public class PkwiseQGramIndexStoreBuilder extends AbstractIndexStoreBuilder {
 		int q = -1;
 		for ( TransformableRecordInterface rec : recordList ) {
 			Subrecord qgram = new Subrecord(rec, 1, rec.size());
-			// Note that rec is an IntQGram: rec.arr[0] is the id and rec.arr[1:] is the actual qgram
 			if ( q != qgram.size() ) {
 				q = qgram.size();
 				maxDiff = Util.getPrefixLength(qgram.size(), theta);

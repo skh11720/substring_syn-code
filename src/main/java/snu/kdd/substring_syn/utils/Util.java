@@ -44,7 +44,6 @@ public class Util {
 	}
 
 	public static String toLogString( String message ) {
-		// print log messages
 		StackTraceElement[] tr = new Throwable().getStackTrace();
 		String className = tr[ 2 ].getClassName();
 
@@ -164,7 +163,6 @@ public class Util {
 	}
 
 	public static boolean equalsToSubArray( int[] a, int start, int end, int[] b ) {
-		// return true if a[start:end] is equal to b; otherwise false.
 		if ( b.length != end - start ) return false;
 		for ( int i=0; i<b.length; i++ ) {
 			if ( a[start+i] != b[i] ) return false;
@@ -173,12 +171,6 @@ public class Util {
 	}
 	
 	public static int[] pad( int[] a, int len, int padding ) {
-		/*
-		 * Return the padded array of length len.
-		 * padding: the token used to pad.
-		 * 	- Integer.MAX_VALUE is the dummy token.
-		 * 	- -1: the wildcard.
-		 */
 		if ( a.length > len ) throw new RuntimeException( "the resulting length must be larger than the length of input array." );
 		int[] a_padded = new int[len];
 		int i;
@@ -188,10 +180,6 @@ public class Util {
 	}
 
 	public static List<IntArrayList> getCombinations( int n, int k ) {
-		/*
-		 * Return all combinations of n choose k.
-		 * TODO slow when k is large...!
-		 */
 		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
 
 		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
@@ -215,9 +203,6 @@ public class Util {
 	}
 
 	public static List<IntArrayList> getCombinationsAll( int n, int k ) {
-		/*
-		 * Return all combinations of n choose k' for all k'<=k.
-		 */
 		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
 
 		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
@@ -241,13 +226,6 @@ public class Util {
 	}
 	
 	public static List<List<IntArrayList>> getCombinationsAllByDelta( int n, int k) {
-		/*
-		 * Return a list of length (k+1) whose elements are
-		 * 		lists of n choose 0
-		 * 		lists of n choose 1
-		 *      ...
-		 * 		lists of n choose k
-		 */
 		List<List<IntArrayList>> combDeltaList = new ObjectArrayList<>();
 		for ( int d=0; d<=k; ++d ) combDeltaList.add(new ObjectArrayList<>());
 
@@ -272,9 +250,6 @@ public class Util {
 	}
 
 	public static int[] getSubsequence( int[] arr, IntArrayList idxList ) {
-		/*
-		 * Return the subsequence of arr with indexes in idxList.
-		 */
 		if ( idxList.size() == 0 ) return null;
 		else {
 			int[] out = new int[idxList.size()];
@@ -285,9 +260,6 @@ public class Util {
 	}
 	
 	public static int[] getSubsequenceNotIn( int[] arr, IntArrayList notInIdxList ) {
-		/*
-		 * Return the subsequence of arr with indexes in idxList.
-		 */
 		if ( notInIdxList.size() == arr.length ) return null;
 		else {
 			int[] out = new int[arr.length - notInIdxList.size()];
@@ -300,15 +272,10 @@ public class Util {
 	}
 	
 	public static int lcs( int[] x, int[] y ) {
-		/*
-		 * Compute the length of the LCS.
-		 * Note that the return value is NOT the LCS distance value.
-		 */
 		int[] L = new int[x.length+1];
 		int[] L_prev = new int[x.length+1];
 		Arrays.fill( L, 0 );
 		for ( int j=0; j<y.length; ++j ) {
-			// swap tables
 			int[] tmp = L_prev;
 			L_prev = L;
 			L = tmp;
@@ -322,39 +289,24 @@ public class Util {
 		return L[x.length];
 	}
 
-	@Deprecated // since TOOOOO SLOW compared to edit(int[], int[], int, int, int, int, int)
+	@Deprecated
 	public static int edit( int[] x, int[] y ) {
-		/*
-		 * Compute and return the edit distance between x and y.
-		 */
 		return edit_all( x, y )[y.length];
 	}
 	
 	public static int lcs( int[] x, int[] y, int threshold ) {
-		/*
-		 * Compute and return the exact lcs distance between x and y if the value is at most threshold.
-		 * Otherwise, it returns any value larger then the threshold.
-		 */
 		return lcs(x, y, threshold, 0, 0, x.length, y.length );
 	}
 
 	public static int edit( int[] x, int[] y, int threshold ) {
-		/*
-		 * Compute and return the exact edit distance between x and y if the value is at most threshold.
-		 * Otherwise, it returns any value larger then the threshold.
-		 */
 		return edit(x, y, threshold, 0, 0, x.length, y.length );
 	}
 	
 	public static int[] edit_all( int[] x, int[] y ) {
-		/*
-		 * Compute and return the edit distances between x and y[:1], y[:2], ... y[:y.length].
-		 */
 		int[] D = new int[y.length+1];
 		int[] D_prev = new int[y.length+1];
 		for ( int j=0; j<=y.length; ++j ) D[j] = j;
 		for ( int i=0; i<x.length; ++i ) {
-			// swap tables
 			int[] tmp = D_prev;
 			D_prev = D;
 			D = tmp;
@@ -370,15 +322,10 @@ public class Util {
 	}
 
 	public static int[] lcs_all( int[] x, int[] y, int j0 ) {
-		/*
-		 * Compute and return the lcs distances between x and y[j0:j0], y[j0:j0+1], y[j0:j0+2], ..., y[j0:y.length].
-		 * The range of j0 is 0 <= j0 <= y.length.
-		 */
 		int[] D = new int[y.length+1];
 		int[] D_prev = new int[y.length+1];
 		for ( int j=j0; j<=y.length; ++j ) D[j] = j-j0;
 		for ( int i=0; i<x.length; ++i ) {
-			// swap tables
 			int[] tmp = D_prev;
 			D_prev = D;
 			D = tmp;
@@ -393,22 +340,16 @@ public class Util {
 	}
 
 	public static int[] edit_all( int[] x, int[] y, int j0 ) {
-		/*
-		 * Compute and return the edit distances between x and y[j0:j0], y[j0:j0+1], y[j0:j0+2], ..., y[j0:y.length].
-		 * The range of j0 is 0 <= j0 <= y.length.
-		 */
 		int[] D = new int[y.length+1];
 		int[] D_prev = new int[y.length+1];
 		for ( int j=j0; j<=y.length; ++j ) D[j] = j-j0;
 		for ( int i=0; i<x.length; ++i ) {
-			// swap tables
-			int[] tmp = D_prev;
+						int[] tmp = D_prev;
 			D_prev = D;
 			D = tmp;
 
 			D[j0] = i+1;
 			for ( int j=j0; j<y.length; ++j ) {
-//				 compute the edit distances between x and y[jj0:j0+1], ..., y[j0:y0.length();
 				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
 				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
@@ -441,7 +382,6 @@ public class Util {
 				if (x[xpos + i - 1] == y[ypos + j - 1]) matrix[i][j - i + threshold] = matrix[i - 1][j - i + threshold];
 				else
 					matrix[i][j - i + threshold] = Math.min(
-//							matrix[i - 1][j - i + threshold], // for edit operation
 							j - 1 >= i - left ? matrix[i][j - i + threshold - 1] : threshold,
 							j + 1 <= i + right ? matrix[i - 1][j - i + threshold + 1] : threshold)
 					+ 1;
@@ -455,9 +395,6 @@ public class Util {
 	private static int[][] matrix = new int[1][1];
 	
 	public static int edit( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
-		/*
-		 *  G. Li, D. Deng, J. Wang, and J. Feng: PVLDB 2011
-		 */
 		if (xlen == -1) xlen = x.length - xpos;
 		if (ylen == -1) ylen = y.length - ypos;
 		if ( xlen > ylen + threshold || ylen > xlen + threshold ) return threshold+1;
@@ -485,7 +422,7 @@ public class Util {
 				if (x[xpos + i - 1] == y[ypos + j - 1]) matrix[i][j - i + threshold] = matrix[i - 1][j - i + threshold];
 				else
 					matrix[i][j - i + threshold] = Math.min(
-							matrix[i - 1][j - i + threshold], Math.min( // for edit operation
+							matrix[i - 1][j - i + threshold], Math.min(
 							j - 1 >= i - left ? matrix[i][j - i + threshold - 1] : threshold,
 							j + 1 <= i + right ? matrix[i - 1][j - i + threshold + 1] : threshold))
 					+ 1;
@@ -497,7 +434,6 @@ public class Util {
 	}
 	
 	public static double jaccard( int[] x, int[] y ) {
-		// consider x and y as sets, not multisets
 		int[] shorter = x.length <= y.length? x: y;
 		int[] longer = x.length <= y.length? y: x;
 		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
@@ -509,7 +445,6 @@ public class Util {
 	}
 
 	public static double jaccard( IntList x, IntList y ) {
-		// consider x and y as sets, not multisets
 		IntSet xSet = new IntOpenHashSet(x);
 		IntSet ySet = new IntOpenHashSet(y);
 		IntSet smaller = xSet.size() <= ySet.size()? xSet: ySet;
@@ -836,7 +771,6 @@ public class Util {
 	}
 	
 	public static double getMemoryUsage() {
-		// return in MB
 		Runtime inst = Runtime.getRuntime();
 		return (inst.totalMemory()-inst.freeMemory())/1e6;
 	}
@@ -877,34 +811,7 @@ public class Util {
 		return mergedList;
 	}
 
-//	public static int binarySearch(PostingListInterface invList, int key) {
-//		int l = 0;
-//		int r = invList.size();
-//		while ( r-l > 1 ) {
-//			int m = (l+r)/2;
-//			int center = invList.getIdx(m);
-//			if ( key > center ) l = m;
-//			else r = m;
-//		}
-//		if ( key == invList.getIdx(l) ) return l;
-//		else if ( r < invList.size() && key == invList.getIdx(r) ) return r;
-//		else return -1;
-//	}
 	
-//	public static <T> int binarySearch(List<T> list, T key, Comparator<T> comp) {
-//		int l = 0;
-//		int r = list.size();
-//		while ( r-l > 1 ) {
-//			int m = (l+r)/2;
-//			T center = list.get(m);
-//			int o = comp.compare(key, center);
-//			if ( o == 1 ) l = m;
-//			else r = m;
-//		}
-//		if ( comp.compare(key, list.get(l)) == 0 ) return l;
-//		else if ( r < list.size() && comp.compare(key, list.get(r)) == 0 ) return r;
-//		else return -1;
-//	}
 	
 	public static <S extends T,T> Iterable<T> convert(Iterable<S> src) {
 		return new Iterable<T>() {

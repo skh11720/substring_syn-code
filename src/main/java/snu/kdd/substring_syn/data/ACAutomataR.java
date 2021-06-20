@@ -35,12 +35,9 @@ public class ACAutomataR {
 
 	private final State root;
 
-	// creates an automata with left hand sides of rules
 	public ACAutomataR( Iterable<Rule> rules ) {
-		// 1. Create a root state
 		root = new State();
 
-		// 2. Build Trie for rules
 		for( final Rule rule : rules ) {
 			State curr = root;
 			for( final int str : rule.getLhs() ) {
@@ -63,16 +60,12 @@ public class ACAutomataR {
 			curr.output.add( rule );
 		}
 
-		// 3. Calculate the failure function
-		// Use BFS
 		ArrayList<State> currdepth = new ArrayList<>();
 		ArrayList<State> nextdepth = new ArrayList<>();
 
-		// Calculate depth-1 states
 		for( final Entry<Integer, State> depth_1_entries : root.split.entrySet() ) {
 			final State state = depth_1_entries.getValue();
 			state.func = root;
-			// Add depth-2 states
 			if( state.split != null ) {
 				for( final Entry<Integer, State> depth_2_entries : state.split.entrySet() ) {
 					currdepth.add( depth_2_entries.getValue() );
@@ -80,7 +73,6 @@ public class ACAutomataR {
 			}
 		}
 
-		// Calculate depth-x states
 		while( !currdepth.isEmpty() ) {
 			for( final State curr : currdepth ) {
 				State r = curr.parent.func;
@@ -99,7 +91,6 @@ public class ACAutomataR {
 					curr.func = root;
 				}
 
-				// Compute output function
 				if( curr.func.output != null ) {
 					if( curr.output == null ) {
 						curr.output = new ArrayList<>();
@@ -107,7 +98,6 @@ public class ACAutomataR {
 					curr.output.addAll( curr.func.output );
 				}
 
-				// Add next states
 				if( curr.split != null ) {
 					for( final Entry<Integer, State> child : curr.split.entrySet() ) {
 						nextdepth.add( child.getValue() );
@@ -126,7 +116,6 @@ public class ACAutomataR {
 		@SuppressWarnings( "unchecked" )
 		final ObjectOpenHashSet<Rule>[] tmprslt = new ObjectOpenHashSet[ tokens.length ];
 		for( int i = 0; i < tokens.length; ++i ) {
-			// the set of applicable rules in each position
 			tmprslt[ i ] = new ObjectOpenHashSet<>();
 		}
 

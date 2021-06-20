@@ -52,7 +52,6 @@ public class IntQGram {
 	}
 
 	private int getHash() {
-		// djb2-like
 		int hash = 0;
 		for( int val : arr ) {
 			hash = ( hash << 5 ) + Util.bigprime + val;

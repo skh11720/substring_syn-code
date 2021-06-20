@@ -40,7 +40,6 @@ public abstract class AbstractBufferedInvList implements BytesMeasurableInterfac
 	
 	@Override
 	public final int getIdx() {
-//		assert (entrySize()*listIdx < listSize);
 		return acc.getIBuf()[entrySize()*listIdx];
 	}
 

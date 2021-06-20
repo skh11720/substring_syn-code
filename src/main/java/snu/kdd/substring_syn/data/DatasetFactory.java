@@ -33,7 +33,6 @@ public class DatasetFactory {
 	public static Dataset createInstance( InputArgument arg ) throws IOException {
 		setRecordPoolSize(arg);
 		param = new DatasetParam(arg);
-//		initCreationProcess(new DatasetParam(arg));
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
 		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
 			return createWindowInstanceByName(param);
@@ -165,12 +164,6 @@ public class DatasetFactory {
 		};
 	}
 	
-//	private static final Iterable<Record> rawIndexedRecords() {
-//		if (!isDocInput)
-//			return rawIndexedRecordsInSnt();
-//		else 
-//			return indexedRecordsInDocs();
-//	}
 	
 	private static final Iterable<TransformableRecordInterface> indexedRecords() {
 		if (!isDocInput)
@@ -179,16 +172,6 @@ public class DatasetFactory {
 			return indexedRecordsInDocs();
 	}
 
-//	private static final Iterable<Record> rawIndexedRecordsInSnt() {
-//		String indexedPath = DatasetInfo.getIndexedPath(param.name);
-//		return new Iterable<Record>() {
-//			
-//			@Override
-//			public Iterator<Record> iterator() {
-//				return new SntRecordIterator(indexedPath);
-//			}
-//		};
-//	}
 
 	private static final Iterable<TransformableRecordInterface> indexedRecordsInDocs() {
 		return new Iterable<TransformableRecordInterface>() {
@@ -263,12 +246,10 @@ public class DatasetFactory {
 			return iter.hasNext();
 		}
 		
-//		abstract protected T findNext();
 	}
 	
 	protected static class SntRecordRawIterator extends AbstractFileBasedIterator<TransformableRecordInterface> {
 
-//		String indexedPath = DatasetInfo.getIndexedPath(param.name);
 		final double lenRatio;
 		final int size;
 		final int narMax;
@@ -324,29 +305,6 @@ public class DatasetFactory {
 		}
 	}
 	
-//	protected static class SntRecordIterator extends SntRecordRawIterator {
-//		
-//		final int narMax = Integer.parseInt(param.nar);
-//		
-//		public SntRecordIterator(String path) {
-//			super(path);
-//		}
-//		
-//		@Override
-//		protected Record findNext() {
-//			while (iter.hasNext()) {
-//				String line = getPrefixWithLengthRatio(iter.next());
-//				id += 1;
-//				Record rec = new Record(idx, id, line);
-//				rec.preprocessApplicableRules();
-//				if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
-//					idx += 1;
-//					return rec;
-//				}
-//			}
-//			return null;
-//		}
-//	}
 
 	protected static class DocRecordRawIterator extends AbstractFileBasedIterator<TransformableRecordInterface> {
 		
@@ -396,7 +354,6 @@ public class DatasetFactory {
 						if ( !isDocCounted ) {
 							isDocCounted = true;
 							nd += 1;
-//							Log.log.trace("nd=%d", nd);
 						}
 						return snt;
 					}
@@ -416,34 +373,4 @@ public class DatasetFactory {
 		}
 	}
 
-//	protected static class DocRecordIterator extends DocRecordRawIterator {
-//
-//		public DocRecordIterator(String path) {
-//			super(path);
-//		}
-//
-//		@Override
-//		protected Record findNext() {
-//			while (true) {
-//				while (inDocIter != null && inDocIter.hasNext()) {
-//					String snt = inDocIter.next();
-//					sid += 1;
-//					Record rec = new Record(idx, sid, snt);
-//					rec.preprocessApplicableRules();
-//					if ( narMax < 0 || rec.getNumApplicableNonselfRules() <= narMax ) {
-//						idx += 1;
-//						if ( !isDocCounted ) {
-//							isDocCounted = true;
-//							nd += 1;
-//						}
-//						return rec;
-//					}
-//				}
-//				if ( !iter.hasNext() ) break;
-//				inDocIter = parseDocument(iter.next());
-//				isDocCounted = false;
-//			}
-//			return null;
-//		}
-//	}
 }

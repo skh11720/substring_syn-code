@@ -40,7 +40,6 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 	}
 
 	protected void pkwiseSearchGivenQuery( Record query, WindowDataset dataset ) {
-//		if ( query.getID() != 0 ) return;
 		prepareSearchGivenQuery(query);
 		statContainer.startWatch(Stat.Time_QS_Total);
 		pkwiseSearchQuerySide(query, dataset);
@@ -51,7 +50,6 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		Iterable<RecordInterface> candListQuerySide = getCandWindowListQuerySide(query, dataset);
 		for ( RecordInterface window : candListQuerySide ) {
 			if (rsltQuerySideContains(query, window)) continue;
-//			if ( window.getID() != 7324 ) continue;
 			statContainer.addCount(Stat.Len_QS_Retrieved, window.size());
 			searchWindowQuerySide(query, window);
 		}
@@ -65,12 +63,8 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 		statContainer.startWatch(Stat.Time_QS_Validation);
 		double sim = verifyQuerySide(query, window);
 		statContainer.stopWatch(Stat.Time_QS_Validation);
-//		Log.log.trace("q=[%d]  %s", query.getID(), query.toOriginalString());
-//		Log.log.trace("w=[%d]  %s", window.getID(), window.toOriginalString());
-//		Log.log.trace("sim=%.3f", sim);
 		if ( sim >= theta ) {
 			addResultQuerySide(query, window);
-//			Log.log.trace("rsltQuerySide = %d", rsltQuerySide.size());
 			return;
 		}
 	}
@@ -96,9 +90,6 @@ public class PkwiseNaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 */
 		return "1.00";
 	}
 }

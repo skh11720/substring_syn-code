@@ -24,7 +24,6 @@ public class StatContainer {
 
 	private AbstractSearch alg;
 	private final Object2ObjectMap<String, String> statMap;
-//	private Object2ObjectArrayMap<String, String> optionalStatMap;
 	
 	private final Object2ObjectMap<String, Counter> counterBuffer;
 	private final Object2ObjectMap<String, StopWatch> stopwatchBuffer;
@@ -34,7 +33,6 @@ public class StatContainer {
 	public StatContainer() {
 		statMap = new Object2ObjectArrayMap<>();
 		statMap.defaultReturnValue("null");
-//		optionalStatMap = new Object2ObjectArrayMap<>();
 		counterBuffer = new Object2ObjectOpenHashMap<>();
 		stopwatchBuffer = new Object2ObjectOpenHashMap<>();
 		statBuffer = new Object2ObjectOpenHashMap<>();
@@ -42,7 +40,6 @@ public class StatContainer {
 	
 	public void setAlgorithm( AbstractSearch alg ) {
 		this.alg = alg;
-//		putParam(alg.getParam());
 		statMap.put(Stat.Alg_ID, alg.getID());
 		statMap.put(Stat.Alg_Name, alg.getName());
 		statMap.put(Stat.Alg_Version, alg.getVersion());
@@ -151,8 +148,7 @@ public class StatContainer {
 		return "";
 	}
 	
-	// interfaces for counters
-
+	
 	public void increment( String key ) {
 		if ( !counterBuffer.containsKey(key) ) counterBuffer.put(key, new Counter());
 		counterBuffer.get(key).increment();
@@ -171,8 +167,7 @@ public class StatContainer {
 	
 	
 	
-	// interfaces for stopwatches
-	
+		
 	public void startWatch( String key ) {
 		if ( !stopwatchBuffer.containsKey(key) ) stopwatchBuffer.put(key, new StopWatch());
 		stopwatchBuffer.get(key).start();
@@ -180,11 +175,6 @@ public class StatContainer {
 	
 	public void stopWatch( String key ) {
 		stopwatchBuffer.get(key).stop();
-//		StopWatch watch = stopwatchBuffer.get(key);
-//		double t = 0;
-//		if ( statMap.containsKey(key) ) t = Double.parseDouble(statMap.get(key));
-//		statMap.put(key, Double.toString(t+watch.stop()));
-//		stopwatchBuffer.remove(key);
 	}
 	
 	public void addSampleValue( String key, double value ) {
