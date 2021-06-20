@@ -34,8 +34,6 @@ public class DatasetFactory {
 		setRecordPoolSize(arg);
 		param = new DatasetParam(arg);
 		AlgorithmName algName = AlgorithmName.valueOf( arg.getOptionValue("alg") );
-		if ( algName == AlgorithmName.PkwiseSearch || algName == AlgorithmName.PkwiseNaiveSearch )
-			return createWindowInstanceByName(param);
 		if ( algName == AlgorithmName.PkwiseSynSearch ) {
 			String paramStr = arg.getOptionValue("param");
 			String theta = paramStr.split(",")[0].split(":")[1];
