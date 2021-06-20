@@ -2,8 +2,6 @@ package snu.kdd.substring_syn.algorithm.search;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.faerie.FaerieSynSearch;
-import snu.kdd.pkwise.PkwiseNaiveSearch;
-import snu.kdd.pkwise.PkwiseSearch;
 import snu.kdd.pkwise.PkwiseSynSearch;
 import snu.kdd.substring_syn.algorithm.search.AbstractIndexBasedSearch.IndexChoice;
 import snu.kdd.substring_syn.utils.InputArgument;
@@ -13,23 +11,9 @@ public class AlgorithmFactory {
 
 	public enum AlgorithmName {
 		ExactNaiveSearch,
-		GreedyNaiveSearch,
 		RSSearch,
-		SimWRSSearch,
-		ExactRSSearch,
-		ExactSimWRSSearch,
-		PkwiseNaiveSearch,
-		PkwiseSearch,
 		PkwiseSynSearch,
-		FaerieSynNaiveSearch,
 		FaerieSynSearch,
-
-		ZeroRSSearch,
-		
-		ExactNaiveContainmentSearch,
-		NaiveContainmentSearch,
-		ContainmentRSSearch,
-		FaerieSynContainmentSearch,
 	}
 	
 	public enum FilterOptionLabel {
@@ -107,14 +91,8 @@ public class AlgorithmFactory {
 		switch ( algName ) {
 		case ExactNaiveSearch: return createExactNaiveSearch(param);
 		case RSSearch: return createRSSearch(param, GoalOption.None);
-		case SimWRSSearch: return createRSSearch(param, GoalOption.SimW);
-		case ExactRSSearch: return createRSSearch(param, GoalOption.Exact);
-		case ExactSimWRSSearch: return createRSSearch(param, GoalOption.ExactSimW);
-		case PkwiseNaiveSearch: return createPkwiseNaiveSearch(param);
-		case PkwiseSearch: return createPkwiseSearch(param);
 		case PkwiseSynSearch: return createPkwiseSynSearch(param, arg);
 		case FaerieSynSearch: return createFaerieSynSearch(param);
-		case ZeroRSSearch: return createRSSearch(param, GoalOption.Zero);
 		default: throw new RuntimeException("Unexpected error");
 		}
 	}
@@ -149,19 +127,6 @@ public class AlgorithmFactory {
 		}
 	}
 	
-	private static PkwiseNaiveSearch createPkwiseNaiveSearch( DictParam param ) {
-		double theta = Double.parseDouble(param.get("theta"));
-		int qlen = Integer.parseInt(param.get("qlen"));
-		return new PkwiseNaiveSearch(theta, qlen);
-	}
-	
-	private static PkwiseSearch createPkwiseSearch( DictParam param ) {
-		double theta = Double.parseDouble(param.get("theta"));
-		int qlen = Integer.parseInt(param.get("qlen"));
-		String kmax = param.get("kmax");
-		return new PkwiseSearch(theta, qlen, kmax);
-	}
-	
 	private static PkwiseSynSearch createPkwiseSynSearch( DictParam param, InputArgument arg ) {
 		double theta = Double.parseDouble(param.get("theta"));
 		int qlen = Integer.parseInt(arg.getOptionValue("ql"));
@@ -171,7 +136,7 @@ public class AlgorithmFactory {
 
 	private static FaerieSynSearch createFaerieSynSearch( DictParam param ) {
 		double theta = Double.parseDouble(param.get("theta"));
-		boolean isDiskBased = Boolean.parseBoolean(param.get("isDiskBased"));
+		boolean isDiskBased = true;
 		return new FaerieSynSearch(theta, isDiskBased);
 	}
 	
