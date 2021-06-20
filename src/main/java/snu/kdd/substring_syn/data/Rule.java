@@ -7,14 +7,12 @@ import snu.kdd.substring_syn.data.record.Records;
 
 public class Rule implements Comparable<Rule> {
 
-//	private static int count = 0;
 	public static ACAutomataR automata;
 	public static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	
 	private final int idx;
 	private final int[] lhs;
 	private final int[] rhs;
-//	private final int id;
 	public final boolean isSelfRule;
 
 	private final int hash;
@@ -25,7 +23,6 @@ public class Rule implements Comparable<Rule> {
 		this.rhs = rhs;
 		this.hash = computeHash();
 		this.isSelfRule = Arrays.equals(lhs, rhs);
-//		id = count++;
 	}
 
 	private int computeHash() {

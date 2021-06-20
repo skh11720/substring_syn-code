@@ -100,7 +100,6 @@ public class Records {
 				}
 				else {
 					rec = rIter.next();
-//					Log.log.trace("rec.idx=%d, rec.nar=%d", ()->rec.getIdx(), ()->rec.getNumApplicableNonselfRules());
 					eIter = new ExpandIterator(rec);
 				}
 			}
@@ -277,28 +276,4 @@ public class Records {
 		};
 	}
 
-//	public static int getMaxTransformLength(TransformableRecordInterface rec) {
-//		int[] transformLengths = new int[rec.size()];
-//		for( int i = 0; i < rec.size(); ++i )
-//			transformLengths[ i ] = i + 1;
-//
-//		for( Rule rule : rec.getApplicableRules(0) ) {
-//			int fromSize = rule.lhsSize();
-//			int toSize = rule.rhsSize();
-//			if( fromSize < toSize ) {
-//				transformLengths[ fromSize - 1 ] = Math.max( transformLengths[ fromSize - 1 ], toSize );
-//			}
-//		}
-//		for( int i = 1; i < rec.size(); ++i ) {
-//			transformLengths[ i ] = Math.max( transformLengths[ i ], transformLengths[ i - 1 ] + 1 );
-//			for( Rule rule : rec.getApplicableRules(i) ) {
-//				int fromSize = rule.lhsSize();
-//				int toSize = rule.rhsSize();
-//				if( fromSize < toSize ) {
-//					transformLengths[ i + fromSize - 1 ] = Math.max( transformLengths[ i + fromSize - 1 ], transformLengths[ i - 1 ] + toSize );
-//				}
-//			}
-//		}
-//		return transformLengths[rec.size()-1];
-//	}
 }

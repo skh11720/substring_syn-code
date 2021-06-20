@@ -43,7 +43,6 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 			ObjectSet<PosRule> posRuleSet = new ObjectOpenHashSet<PosRule>();
 			for (int k=0; k<rec.size(); ++k) {
 				for (Rule rule : rec.getApplicableRules(k)) {
-//					if ( rule.isSelfRule ) continue;
 					for ( int token : rule.getRhs() ) {
 						if ( counter.containsKey(token) ) {
 							posRuleSet.add( new PosRule(rule, k) );
@@ -85,7 +84,6 @@ public abstract class AbstractGreedyValidator extends AbstractValidator {
 					bestScore = score;
 					bestRule = rule;
 				}
-//				if (bestScore == 1) break;
 			}
 			if ( bestScore <= 0) return null;
 			else return bestRule;

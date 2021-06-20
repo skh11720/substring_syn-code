@@ -6,17 +6,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import snu.kdd.substring_syn.data.IntPair;
 
-/**
- * 
- * @author ghsong
- *
- */
 
 public class Int2IntBinaryHeap {
-	/*
-	 * The naming convention assumes that the heap is a min-heap.
-	 */
-	
 	protected int[] keys;
 	protected int[] values;
 	protected int size = 0;

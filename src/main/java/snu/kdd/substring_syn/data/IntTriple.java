@@ -15,7 +15,6 @@ public class IntTriple {
 	}
 
 	private int getHash() {
-		// djb2-like
 		int hash = Util.bigprime;
 		hash = ( hash << 5 ) + Util.bigprime + i1;
 		hash = ( hash << 5 ) + Util.bigprime + i2;

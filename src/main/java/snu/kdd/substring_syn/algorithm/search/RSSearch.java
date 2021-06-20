@@ -30,7 +30,7 @@ import snu.kdd.substring_syn.utils.Util;
 import snu.kdd.substring_syn.utils.window.SortedWindowExpander;
 import vldb18.PkduckDP;
 
-public class PrefixSearch extends AbstractIndexBasedSearch {
+public class RSSearch extends AbstractIndexBasedSearch {
 
 	protected IntSet queryCandTokenSet;
 	protected IntSet expandedPrefix;
@@ -40,7 +40,7 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected double modifiedTheta;
 
 	
-	public PrefixSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
+	public RSSearch( double theta, boolean bLF, boolean bPF, IndexChoice indexChoice ) {
 		super(theta, indexChoice);
 		this.bLF = bLF;
 		this.bPF = bPF;
@@ -59,14 +59,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	protected void searchRecordQuerySide( Record query, RecordInterface rec ) {
-//		Log.log.trace("searchRecordQuerySide(%d, %d)", ()->query.getID(), ()->rec.getID());
 		IntRange wRange = getWindowSizeRangeQuerySide(query, rec);
-//		Log.log.trace("wRange=(%d,%d)", ()->wRange.min, ()->wRange.max);
 		for ( int widx=0; widx<rec.size(); ++widx ) {
 			SortedWindowExpander witer = new SortedWindowExpander(rec, widx, theta);
 			while ( witer.hasNext() ) {
 				Subrecord window = witer.next();
-//				Log.log.trace("window=[%d,%d]", ()->window.sidx, ()->window.eidx);
 				IntCollection wprefix = witer.getPrefix();
 				ReturnStatus status = searchWindowQuerySide(query, window, wRange, wprefix);
 				if (status == ReturnStatus.Continue ) continue;
@@ -113,8 +110,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		statContainer.stopWatch(Stat.Time_QS_Validation);
 		if ( isSim ) {
 			addResultQuerySide(query, window);
-//					Log.log.trace("rsltFromQuery.add(%d, %d), w=%d, widx=%d", ()->query.getID(), ()->rec.getID(), ()->window.size(), ()->window.sidx);
-//					Log.log.trace("rsltFromQueryMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 			return ReturnStatus.Terminate;
 		}
 		return ReturnStatus.None;
@@ -132,20 +127,13 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	protected boolean verifyQuerySide( Record query, Subrecord window ) {
 		double sim = validator.simQuerySide(query, window);
-//		if ( sim >= theta ) Log.log.trace("verifyQuerySide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
 	
 	@Override
 	protected void searchRecordTextSide( Record query, TransformableRecordInterface rec ) {
-//		Log.log.trace("searchRecordFromText(%d, %d)", ()->query.getIdx(), ()->rec.getIdx());
 		modifiedTheta = Util.getModifiedTheta(query, rec, theta);
 		
-//		if (bLF || bPF) {
-//			statContainer.startWatch("Time_TS_searchRecord.transLen");
-//			transLenCalculator = new TransLenLazyCalculator(statContainer, rec, 0, rec.size(), modifiedTheta);
-//			statContainer.stopWatch("Time_TS_searchRecord.transLen");
-//		}
 		
 		if (bPF) searchRecordTextSideWithPrefixFilter(query, rec);
 		else searchRecordTextSideWithoutPrefixFilter(query, rec);
@@ -154,7 +142,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	protected void searchRecordTextSideWithPrefixFilter( Record query, TransformableRecordInterface rec ) {
 		IntList candTokenList = getCandTokenList(query, rec, modifiedTheta);
 		PkduckDPExIncremental pkduckdp = new PkduckDPExIncrementalOpt(query, rec, modifiedTheta);
-//		Log.log.trace("searchRecordTextSideWithPF(%d, %d)\tcandTokenList=%s", ()->query.getIdx(), ()->rec.getIdx(), ()->candTokenList);
 		ObjectSet<IntPair> verifiedWindowSet = new ObjectOpenHashSet<>();
 		
 		for ( int target : candTokenList ) {
@@ -163,7 +150,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 				transLenCalculator = new TransLenLazyCalculator(statContainer, rec, widx, rec.size()-widx, modifiedTheta);
 				pkduckdp.init();
 				for ( int w=1; w<=rec.size()-widx; ++w ) {
-//					Log.log.trace("target=%s (%d), widx=%d, w=%d", Record.tokenIndex.getToken(target), target, widx, w);
 					if ( bLF && applyLengthFilterTextSide(query, widx, w) == ReturnStatus.Break ) break;
 					if ( bPF && applyPrefixFilterTextSide(pkduckdp, widx, w, verifiedWindowSet) == ReturnStatus.Continue ) continue;
 					if ( verifyTextSideWrapper(query, rec, widx, w) == ReturnStatus.Terminate ) return;
@@ -201,7 +187,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 		statContainer.startWatch("Time_TS_searchRecordPF.pkduck");
 		pkduckdp.compute(widx+1, w);
 		statContainer.stopWatch("Time_TS_searchRecordPF.pkduck");
-//		Log.log.trace("applyPrefixFilterTextSide: rec.idx=%d, widx=%d, w=%d, isInSigU=%s", pkduckdp.rec.getIdx(), widx, w, pkduckdp.isInSigU(widx, w));
 		if ( verifiedWindowSet.contains(new IntPair(widx, w)) ) return ReturnStatus.Continue;
 		if ( !pkduckdp.isInSigU(widx, w) ) return ReturnStatus.Continue;
 		verifiedWindowSet.add(new IntPair(widx, w));
@@ -210,15 +195,12 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	}
 	
 	protected final ReturnStatus verifyTextSideWrapper( Record query, TransformableRecordInterface rec, int widx, int w ) {
-//		Log.log.trace("verifyTextSideWrapper: query.idx=%d, rec.idx=%d, widx=%d, w=%d", ()->query.getIdx(), ()->rec.getIdx(), ()->widx, ()->w);
 		Subrecord window = new Subrecord(rec, widx, widx+w);
 		statContainer.startWatch(Stat.Time_TS_Validation);
 		boolean isSim = verifyTextSide(query, window);
 		statContainer.stopWatch(Stat.Time_TS_Validation);
 		if ( isSim ) {
 			addResultTextSide(query, rec);
-//			Log.log.trace("rsltFromText.add(%d, %d), w=%d, widx=%d", ()->query.getIdx(), ()->rec.getIdx(), ()->window.size(), ()->window.sidx);
-//			Log.log.trace("rsltFromTextMatch\t%s ||| %s", ()->query.toOriginalString(), ()->window.toOriginalString());
 			return ReturnStatus.Terminate;
 		}
 		return ReturnStatus.None;
@@ -226,7 +208,6 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 
 	protected boolean verifyTextSide( Record query, Subrecord window ) {
 		double sim = validator.simTextSide(query, window);
-//		if ( sim >= theta ) Log.log.trace("verifyTextSide(%d, %d): sim=%.3f", ()->query.getID(), ()->window.getSuperRecord().getID(), ()->sim);
 		return sim >= theta;
 	}
 
@@ -401,70 +382,11 @@ public class PrefixSearch extends AbstractIndexBasedSearch {
 	
 	@Override
 	public String getName() {
-		return "PrefixSearch";
+		return "RSSearch";
 	}
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 2.00: length filtering
-		 * 3.00: index filtering for query-side
-		 * 3.01: takes O(n^2) time to split records
-		 * 3.02: position filter text-side
-		 * 3.03: multiset
-		 * 4.00: multiset
-		 * 4.01: refactor
-		 * 4.02: filter option
-		 * 4.03: filter option
-		 * 4.04: fit stat bug
-		 * 4.05: skip text-side if a pair is an answer
-		 * 4.06: fix bug in position filter
-		 * 4.07: fix bug in pkduckdp text-side
-		 * 4.08: fix bug
-		 * 4.09: PositionPrefixSearch
-		 * 4.10: use self rules in verification
-		 * 4.11: fix bug in position filter
-		 * 4.12: fix bug in position filter, segment-wise count filter in text-side
-		 * 5.00: refactor and use disk-based dataset
-		 * 5.01: prune substrings by using prefix and suffix list
-		 * 5.02: reduce redundant computation in TransLenCalculator
-		 * 5.03: reduce redundant computation by Subrecord.toRecord()
-		 * 5.04: ignore rules with score zero in GreedyValidator
-		 * 6.00: use DiskBasedNaiveInvertedIndex
-		 * 6.01: use DiskBasedNaiveInvertedIndex in CountFilter
-		 * 6.02: use DiskBasedPositionalInvertedIndex in PositionFilter
-		 * 6.03: do not use OjbectSet to improve speed
-		 * 6.04: eliminate duplicated record preprocessing
-		 * 6.05: modify dataset instantiation
-		 * 6.06: fix a bug in transLen calculator
-		 * 6.07: fix a bug in position filter
-		 * 6.08: optimization
-		 * 6.09: improve position filter
-		 * 6.10: fix a bug
-		 * 6.11: update score function in position filter
-		 * 6.12: fix bugs in position filter (ERROR)
-		 * 6.13: fix bugs in count and position filter
-		 * 6.14: fix bugs in IndexNaiveFilter
-		 * 6.15: update score functions
-		 * 6.16: fix bug in score function
-		 * 6.17: modify verification
-		 * 6.18: improve index filter memory efficiency
-		 * 6.19: prevent repeated verification in PF 
-		 * 6.20: improve pos filter, without split
-		 * 6.21: fix bug in length filter
-		 * 6.22: fix bug in PF and LF
-		 * 6.23: speedup filters and use maximum matching
-		 * 6.24: use RecordPool
-		 * 6.25: remodel RecordStore
-		 * 6.26: improve count filter
-		 * 6.27: not use RecordPool
-		 * 6.28: fix bug in modified count filter, speedup preprocessing
-		 * 6.29: use RecordPool
-		 * 6.30: Reduce pool size=1e4
-		 * 6.31: improve memory efficiency
-		 * 6.32: use java.util.PriorityQueue
-		 */
 		return "6.32";
 	}
 }

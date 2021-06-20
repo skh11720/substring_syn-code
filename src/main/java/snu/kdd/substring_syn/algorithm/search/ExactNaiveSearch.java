@@ -50,11 +50,6 @@ public class ExactNaiveSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 3.00: multiset
-		 * 4.00: refactor
-		 * 4.01: rename: NaiveSearch -> ExactNaiveSearch
-		 */
 		return "4.01";
 	}
 }

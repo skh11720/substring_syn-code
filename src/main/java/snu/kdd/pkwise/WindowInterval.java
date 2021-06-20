@@ -4,9 +4,8 @@ public class WindowInterval {
 
 	public final int rid;
 	public final int w;
-	public final int sidx; // inclusive
-	public final int eidx; // exclusive
-	
+	public final int sidx;
+	public final int eidx; 	
 	public WindowInterval( int rid, int w, int sidx, int eidx ) {
 		this.rid = rid;
 		this.w = w;

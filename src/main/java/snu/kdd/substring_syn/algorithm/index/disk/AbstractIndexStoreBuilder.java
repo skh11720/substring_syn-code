@@ -168,7 +168,6 @@ public abstract class AbstractIndexStoreBuilder {
 			int token = entry.getIntKey();
 			ObjectList<SegmentInfo> segList = entry.getValue();
 			IntArrayList invList = mergeIntListFromSegments(segList, rafList);
-//			Log.log.trace("mergeSegments_%d  token=%d, invList.size=%d", orderOfCalls, token, invList.size());
 
 			if ( curOut.offset > FILE_MAX_LEN ) {
 				openNewFileStream(path);

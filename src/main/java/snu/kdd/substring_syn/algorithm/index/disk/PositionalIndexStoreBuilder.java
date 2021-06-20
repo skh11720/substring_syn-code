@@ -28,7 +28,6 @@ public class PositionalIndexStoreBuilder extends AbstractIndexStoreBuilder {
 
 	@Override
 	protected void addToTrInvList(IntArrayList list, TransformableRecordInterface rec, int pos, Rule rule) {
-		// avoid duplication
 		int n = list.size();
 		if ( n >= 3 && list.getInt(n-3) == rec.getIdx() && list.getInt(n-2) == pos && list.getInt(n-1) == pos+rule.lhsSize()-1 ) return;
 		list.add(rec.getIdx());

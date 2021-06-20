@@ -42,7 +42,6 @@ public class FaerieSearch extends AbstractSearch {
 	protected void prepareSearchGivenQuery(Record query) {
 		minLenQS = (int)Math.ceil(query.size()*theta);
 		maxLenTS = (int)Math.floor(query.size()/theta);
-//		Log.log.trace("minLen, maxLen = %d, %d", minLen, maxLen);
 	}
 	
 	@Override
@@ -73,10 +72,8 @@ public class FaerieSearch extends AbstractSearch {
 	}
 
 	protected boolean searchRecord( Record query, RecordInterface rec, IntList posList, int minLen, int maxLen, SimCalculator verifier ) {
-//		Log.log.trace("rec.id=%d, posList=%s", ()->rec.getID(), ()->posList);
 		int i = 0;
 		while ( i < posList.size()-minLen+1 ) {
-//			Log.log.trace("while: i=%d, limit=%d", i, posList.size()-minLen+1);
 			int j = i+minLen-1;
 			if ( posList.get(j)-posList.getInt(i)+1 <= maxLen ) {
 				int mid = binarySpan(posList, i, j, maxLen);
@@ -84,7 +81,6 @@ public class FaerieSearch extends AbstractSearch {
 					int sidx = posList.getInt(i);
 					int eidx = posList.getInt(k)+1;
 					Subrecord window = new Subrecord(rec, sidx, eidx);
-//					Log.log.trace("window = rec%d[%d:%d] = %s", rec.getID(), sidx, eidx, window.toOriginalString());
 					double sim = verifier.run(query, window);
 					if ( sim >= theta ) return true;
 				}
@@ -118,7 +114,6 @@ public class FaerieSearch extends AbstractSearch {
 			if ( posList.getInt(j)+(mid-i)-posList.getInt(mid)+1 > maxLen ) lower = mid+1;
 			else upper = mid-1;
 		}
-//		Log.log.trace("binaryShift(i=%d, j=%d): %d", i, j, lower);
 		return lower;
 	}
 	
@@ -126,28 +121,6 @@ public class FaerieSearch extends AbstractSearch {
 		return index.diskSpaceUsage(); 
 	}
 	
-//	private class SimilarityCalculator {
-//		final Int2IntOpenHashMap counter;
-//		int num = 0, den = 0;
-//
-//		public SimilarityCalculator( Record query ) {
-//			counter = new Int2IntOpenHashMap();
-//			for ( int token : query.getTokens() ) counter.addTo(token, 1);
-//			den = query.size();
-//		}
-//		
-//		public void add( int token ) {
-//			if ( counter.containsKey(token) && counter.get(token) > 0 ) {
-//				num += 1;
-//				counter.addTo(token, -1);
-//			}
-//			else den += 1;
-//		}
-//		
-//		public double compute() {
-//			return num/den;
-//		}
-//	}
 
 	@Override
 	public String getName() {
@@ -156,9 +129,6 @@ public class FaerieSearch extends AbstractSearch {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 */
 		return "1.00";
 	}
 }

@@ -108,11 +108,6 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 	}
 	
 	public void addApplicableRule(int i, Rule r) {
-//		System.out.print(size);
-//		System.out.print("\t"+nApp.length);
-//		System.out.print("\t"+applicableRules.length);
-//		System.out.print("\t"+i);
-//		System.out.println("\t"+applicableRules[i].length);
 		if ( nApp[i] >= applicableRules[i].length ) applicableRules[i] = doubleRuleArray(applicableRules[i]);
 		applicableRules[i][nApp[i]] = r;
 		nApp[i] += 1;
@@ -162,21 +157,6 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
         return;
     }
 	
-//	public void fit(int size) {
-//		while ( tokens.length < size) doubleSize();
-//	}
-//	
-//	public void fitApp(int i, int n) {
-//		while ( applicableRules[i].length < n ) applicableRules[i] = doubleRuleArray(applicableRules[i]); 
-//	}
-//	
-//	public void fitSapp(int i, int n) {
-//		while ( suffixApplicableRules[i].length < n ) suffixApplicableRules[i] = doubleRuleArray(suffixApplicableRules[i]);
-//	}
-//	
-//	public void fitSRL(int i, int n) {
-//		while ( suffixRuleLenPairs[i].length < n ) suffixRuleLenPairs[i] = doubleIntPairArray(suffixRuleLenPairs[i]);
-//	}
 	
 	private void doubleSize() {
 		doubleTokenArray();
@@ -222,9 +202,6 @@ public class ReusableRecord extends AbstractTransformableRecord implements Recur
 		return Arrays.copyOf(arr, 2*arr.length);
 	}
 
-//	private IntPair[] doubleIntPairArray(IntPair[] arr) {
-//		return Arrays.copyOf(arr, 2*arr.length);
-//	}
 
 	@Override
 	public int getIdx() {

@@ -60,7 +60,6 @@ public class RecordStore {
 	
 	
 	public RecordStore(Iterable<TransformableRecordInterface> indexedRecords, Ruleset ruleset) {
-//		Log.log.trace("RecordStore.constructor");
 		this.ruleset = ruleset;
 		secQS = new RecordStoreSection<>("QS", RecordPool.BUFFER_SIZE);
 		secTS = new RecordStoreSection<>("TS", RecordPool.BUFFER_SIZE);
@@ -97,7 +96,6 @@ public class RecordStore {
 			RecordSerializer.serialize(rec);
 			curTS += RecordSerializer.blen;
 			bosTS.write(RecordSerializer.bbuf, 0, RecordSerializer.blen);
-//			Log.log.trace("RecordStore.materializeRecords: rec.id=%d, len=%d, cur=%d", rec.getID(), b.length, cur);
 		}
 		bosQS.close();
 		secQS.posList.add(curQS);
@@ -117,7 +115,6 @@ public class RecordStore {
 	public TransformableRecordInterface getRecord( int idx ) {
 		try {
 			return tryGetRecord(idx);
-//			return getRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -134,17 +131,6 @@ public class RecordStore {
 		return secTS.pool.get(idx);
 	}
 	
-//	private void loadRecordsFromStore(int id) throws IOException {
-//		secTS.raf.seek(secTS.posList.get(id));
-//		secTS.raf.read(buffer, 0, buffer.length);
-//		for ( int i=id, lenRead=0; i<numRecords; ++i ) {
-//			int len = (int)( -secTS.posList.get(i) + secTS.posList.get(i+1) );
-//			if ( lenRead+len > buffer.length ) break;
-//			Record rec = RecordSerializer.deserialize(buffer, lenRead, len, ruleset);
-//			secTS.pool.put(i, rec);
-//			lenRead += len;
-//		}
-//	}
 	
 	private TransformableRecordInterface getRecordFromStore(int idx) throws IOException {
 		secTS.raf.seek(secTS.posList.get(idx));
@@ -156,7 +142,6 @@ public class RecordStore {
 	public Record getRawRecord( int idx ) {
 		try {
 			return tryGetRawRecord(idx);
-//			return getRawRecordFromStore(id);
 		} catch ( IOException e ) {
 			e.printStackTrace();
 			System.exit(1);
@@ -198,33 +183,6 @@ public class RecordStore {
 
 	public final long getLenSum() { return lenSum; }
 	
-//	class RecordIterator implements Iterator<Record> {
-//		
-//		int i = 0;
-//		FileInputStream fis;
-//		
-//		public RecordIterator() {
-//			try {
-//				fis = new FileInputStream(secTS.path);
-//			}
-//			catch ( IOException e ) {
-//				e.printStackTrace();
-//				System.exit(1);
-//			}
-//		}
-//
-//		@Override
-//		public boolean hasNext() {
-//			return (i < secTS.posList.size()-1);
-//		}
-//
-//		@Override
-//		public Record next() {
-//			Record rec = getRecord(i);
-//			i += 1;
-//			return rec;
-//		}
-//	}
 	
 	public final BigInteger diskSpaceUsage() {
 		return FileUtils.sizeOfAsBigInteger(new File(secQS.path))

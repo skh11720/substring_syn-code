@@ -23,7 +23,6 @@ public class PostingListAccessor {
 		this.parent = parent;
 		bbuf = new byte[MAX_BYTES_PER_CHUNK];
 		ibuf = new int[AbstractIndexStoreBuilder.MAX_NUM_INT_PER_CHUNK+ADDITIONAL_SPACE];
-//		this.size = csegInfo.numInts;
 	}
 
 	PostingListAccessor( IndexStoreAccessor parent, int token ) {

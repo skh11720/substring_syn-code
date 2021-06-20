@@ -14,13 +14,10 @@ public final class TransLenLazyCalculator {
 	private final int[] ub;
 	private final int[] lb;
 
-	private int eidxCurr; // ub[eidx], lb[eidx] are computed for all eidx <= eidxCurr
-
+	private int eidxCurr; 
 
 	public TransLenLazyCalculator( StatContainer statContainer, TransformableRecordInterface rec, int sidx, int maxlen, double theta ) {
-		// sidx: inclusive
 		this.statContainer = statContainer;
-//		this.subrec = initRecord(rec, sidx, maxlen);
 		this.subrec = new Subrecord(rec, sidx, sidx+maxlen);
 		this.sidx = sidx;
 		this.theta = theta;
@@ -30,33 +27,20 @@ public final class TransLenLazyCalculator {
 		this.eidxCurr = sidx-1;
 	}
 	
-//	private Record initRecord(Record rec, int sidx, int maxlen) {
-//		Record subrec = rec.getSubrecord(sidx, Math.min(sidx+maxlen, rec.size()));
-//		statContainer.startWatch("TransLenLazyCalculator.Time_preprocessApplicableRules");
-//		subrec.preprocessApplicableRules();
-//		statContainer.stopWatch("TransLenLazyCalculator.Time_preprocessApplicableRules");
-//		statContainer.startWatch("TransLenLazyCalculator.Time_preprocessSuffixApplicableRules");
-//		subrec.preprocessSuffixApplicableRules();
-//		statContainer.stopWatch("TransLenLazyCalculator.Time_preprocessSuffixApplicableRules");
-//		return subrec;
-//	}
 
 	public int getLB( int eidx ) {
-		// eidx: inclusive
 		check(eidx);
 		if ( eidx > eidxCurr ) computeTransLen(eidx);
 		return lb[eidx-sidx];
 	}
 
 	public int getUB( int eidx ) {
-		// eidx: inclusive
 		check(eidx);
 		if ( eidx > eidxCurr ) computeTransLen(eidx);
 		return ub[eidx-sidx];
 	}
 	
 	private void check( int eidx ) {
-		// eidx: inclusive
 		if ( eidx-sidx >= subrec.size() ) {
 			Exception e = new Exception("Invalid input: subrec.size="+subrec.size()+", sidx="+sidx+", but eidx="+eidx);
 			e.printStackTrace();
@@ -65,17 +49,14 @@ public final class TransLenLazyCalculator {
 	}
 	
 	public int getLFLB( int eidx ) {
-		// eidx: inclusive
 		return (int)Math.ceil(1.0*getLB(eidx)*theta);
 	}
 	
 	public int getLFUB( int eidx ) {
-		// eidx: inclusive
 		return (int)(1.0*getUB(eidx)/theta);
 	}
 	
 	protected void computeTransLen(int eidx) {
-		// eidx: inclusive
 		if ( eidx <= eidxCurr ) return;
 		if (statContainer != null) statContainer.startWatch("TransLenLazyCalculator.Time_ComputeTransLen");
 		while ( eidxCurr < eidx ) {

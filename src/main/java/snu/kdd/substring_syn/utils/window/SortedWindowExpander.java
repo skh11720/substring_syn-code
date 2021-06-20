@@ -54,9 +54,6 @@ public class SortedWindowExpander implements Iterator<Subrecord> {
 
 	public IntList getPrefix() {
 		int prefixLen = getPrefixLen();
-//		System.out.println("w: "+w);
-//		System.out.println("prefixLen: "+prefixLen);
-//		System.out.println("list.size: "+list.size());
 		return list.subList(0, Math.min(prefixLen, list.size()));
 	}
 	
@@ -64,9 +61,6 @@ public class SortedWindowExpander implements Iterator<Subrecord> {
 		return tokenSet.size();
 	}
 	
-//	public int getSize() {
-//		return w;
-//	}
 	
 	@Override
 	public boolean hasNext() {

@@ -22,10 +22,6 @@ public class PkduckDP {
 	}
 
 	public Boolean isInSigU( int target ) {
-		/*
-		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
-		 * g[1][i][l] is X_l in the MIT paper.
-		 */
 		
 		int[][][] g = initEntries();
 

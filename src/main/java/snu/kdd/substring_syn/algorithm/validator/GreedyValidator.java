@@ -10,15 +10,6 @@ import snu.kdd.substring_syn.utils.Util;
 
 public class GreedyValidator extends AbstractGreedyValidator {
 
-//	public double simQuerySide( Record query, Record text ) {
-//		double simMax = 0;
-//		for ( Record queryExp : query.expandAll() ) {
-//			double sim = Util.jaccard(queryExp.getTokenArray(), text.getTokenArray());
-//			if ( sim > simMax ) log.trace("GreedyValidator.simQuerySide: sim=%.3f, queryExp=%s", sim, queryExp);
-//			simMax = Math.max(simMax, sim);
-//		}
-//		return simMax;
-//	}
 
 	public GreedyValidator(double theta, StatContainer statContainer) {
 		super(theta, statContainer);
@@ -26,7 +17,6 @@ public class GreedyValidator extends AbstractGreedyValidator {
 
 	public double simQuerySide( Record query, RecordInterface window ) {
 		int[] transformedQuery = getTransform(query, window); 
-//		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedQuery)).toOriginalString());
 		double sim = Util.jaccardM( transformedQuery, window.getTokenArray());
 		statContainer.increment(Stat.Num_QS_Verified);
 		statContainer.addCount(Stat.Len_QS_Verified, window.size());
@@ -35,9 +25,7 @@ public class GreedyValidator extends AbstractGreedyValidator {
 
 	public double simTextSide( Record query, TransformableRecordInterface window ) {
 		int[] transformedText = getTransform(window, query);
-//		Log.log.trace("query=%s, window=%s, findBestTransform=%s", ()->query.toOriginalString(), ()->window.toOriginalString(), ()->(new Record(transformedText)).toOriginalString());
 		double sim = Util.subJaccardM( query.getTokenList(), IntArrayList.wrap(transformedText) );
-//		Log.log.trace("sim=%.3f", sim);
 		statContainer.increment(Stat.Num_TS_Verified);
 		statContainer.addCount(Stat.Len_TS_Verified, window.size());
 		return sim;

@@ -23,18 +23,13 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 	
 	public static final Record EMPTY_RECORD = new Record(new int[0]);
 
-	/*
-	 * idx+1 == id if we use all records in the data file
-	 */
-	protected final int idx; // incremental, nonnegative, zero-based, its order in RecordStore
-	protected final int id; // not necessarily incremental, nonnegative, line number of this record in the data file
+	protected final int idx;
+	protected final int id;
 	protected final int[] tokens;
 	protected final int hash;
 
 	Rule[][] applicableRules = null;
 	Rule[][] suffixApplicableRules = null;
-//	int[][] transformLengths = null;
-//	long[] estTrans;
 	int[][] suffixRuleLenPairs = null;
 
 	int maxTransLen = 0;
@@ -56,7 +51,7 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		hash = getHash(idx, tokens, tokens.length);
 	}
 
-	public Record( int[] tokens ) { // for transformed strings
+	public Record( int[] tokens ) {
 		this(-1, -1, tokens);
 	}
 
@@ -300,49 +295,12 @@ public class Record extends AbstractTransformableRecord implements RecursiveReco
 		}
 	}
 
-//	public void preprocessTransformLength() {
-//		if ( transformLengths != null ) return;
-//		transformLengths = new int[ tokens.length ][ 2 ];
-//		for( int i = 0; i < tokens.length; ++i )
-//			transformLengths[ i ][ 0 ] = transformLengths[ i ][ 1 ] = i + 1;
-//
-//		for( Rule rule : applicableRules[ 0 ] ) {
-//			int fromSize = rule.lhsSize();
-//			int toSize = rule.rhsSize();
-//			if( fromSize > toSize ) {
-//				transformLengths[ fromSize - 1 ][ 0 ] = Math.min( transformLengths[ fromSize - 1 ][ 0 ], toSize );
-//			}
-//			else if( fromSize < toSize ) {
-//				transformLengths[ fromSize - 1 ][ 1 ] = Math.max( transformLengths[ fromSize - 1 ][ 1 ], toSize );
-//			}
-//		}
-//		for( int i = 1; i < tokens.length; ++i ) {
-//			transformLengths[ i ][ 0 ] = Math.min( transformLengths[ i ][ 0 ], transformLengths[ i - 1 ][ 0 ] + 1 );
-//			transformLengths[ i ][ 1 ] = Math.max( transformLengths[ i ][ 1 ], transformLengths[ i - 1 ][ 1 ] + 1 );
-//			for( Rule rule : applicableRules[ i ] ) {
-//				int fromSize = rule.lhsSize();
-//				int toSize = rule.rhsSize();
-//				if( fromSize > toSize ) {
-//					transformLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformLengths[ i + fromSize - 1 ][ 0 ],
-//							transformLengths[ i - 1 ][ 0 ] + toSize );
-//				}
-//				else if( fromSize < toSize ) {
-//					transformLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformLengths[ i + fromSize - 1 ][ 1 ],
-//							transformLengths[ i - 1 ][ 1 ] + toSize );
-//				}
-//
-//			}
-//		}
-//	}
 	
 	
 	static int getHash(int idx, int[] tokens, int size) {
-		// djb2-like
 		int hash = Util.bigprime + idx;
 		for ( int i=0; i<size; ++i ) {
 			hash = ( hash << 5 ) + Util.bigprime + tokens[i];
-//                tmp = 0x1f1f1f1f ^ tmp + token;
-//			hash = hash % Util.bigprime;
 		}
 		return (int) ( hash % Integer.MAX_VALUE );
 	}
